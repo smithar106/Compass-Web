@@ -10,7 +10,7 @@ describe("Homepage content", () => {
 
   it("should have hero CTA defined", () => {
     expect(site.hero.cta).toBeDefined();
-    expect(site.hero.cta).toBe("Start your assessment");
+    expect(site.hero.cta).toBe("Discover your AI opportunities");
   });
 
   it("should have problem section defined", () => {
@@ -35,7 +35,7 @@ describe("Homepage content", () => {
   });
 
   it("should have footer columns", () => {
-    expect(site.footer.columns.length).toBeGreaterThanOrEqual(3);
+    expect(site.footer.columns.length).toBeGreaterThanOrEqual(2);
   });
 
   it("should have differentiation comparisons", () => {

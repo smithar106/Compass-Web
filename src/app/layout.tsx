@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     description: site.metadata.description,
     type: "website",
   },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({

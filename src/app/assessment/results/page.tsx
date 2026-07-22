@@ -3,9 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
-import { site } from "@/content/site";
-import type { OpportunityMap } from "@/types";
-import { OpportunityCard } from "@/components/home/opportunity-card";
+import { InvestmentMemoView } from "@/components/assessment/investment-memo";
+import type { EnrichedOpportunityMap, EnrichedOpportunity } from "@/types/pipeline";
 
 const STORAGE_KEY = "compass-assessment-session";
 
@@ -15,7 +14,7 @@ export default function ResultsPage() {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [opportunityMap, setOpportunityMap] = useState<OpportunityMap | null>(null);
+  const [opportunityMap, setOpportunityMap] = useState<EnrichedOpportunityMap | null>(null);
   const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,7 +22,6 @@ export default function ResultsPage() {
       try {
         const stored = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : null;
         if (!stored) {
-          // No session found at all — redirect to assessment
           router.replace("/assessment");
           return;
         }
@@ -46,7 +44,6 @@ export default function ResultsPage() {
         if (mapError) throw mapError;
 
         if (existingMaps && existingMaps.length > 0) {
-          // Load existing map and its opportunities
           const map = existingMaps[0];
           const { data: opportunities } = await (supabase as any)
             .from("opportunities")
@@ -54,31 +51,12 @@ export default function ResultsPage() {
             .eq("opportunity_map_id", map.id)
             .order("rank", { ascending: true });
 
-          setOpportunityMap({
-            mapId: map.id,
-            companyName: map.company_name,
-            generatedAt: map.created_at,
-            executiveSummary: map.executive_summary,
-            rankings: (opportunities || []).map((opp: any) => ({
-              rank: opp.rank,
-              department: opp.department,
-              name: opp.title,
-              confidence: opp.confidence,
-              description: opp.problem,
-              kpis: [],
-              phases: [],
-              evidence: [],
-              tradeoff: "",
-            })),
-            implementationSequencing: map.implementation_sequencing,
-            crossOpportunityDependencies: map.cross_opportunity_dependencies,
-          });
+          setOpportunityMap(buildEnrichedMap(map, (opportunities || [])));
           setReady(true);
           setLoading(false);
           return;
         }
 
-        // No map found — run the pipeline
         setPipelineStatus("Analyzing company and workflows");
         setLoading(true);
 
@@ -98,24 +76,18 @@ export default function ResultsPage() {
         setOpportunityMap({
           mapId: result.mapId,
           companyName: result.companyName,
+          assessmentSessionId: result.assessmentSessionId,
           generatedAt: result.generatedAt,
+          pipelineVersion: result.pipelineVersion,
           executiveSummary: result.executiveSummary,
-          rankings: (result.opportunities || []).map((opp: any, i: number) => ({
+          opportunities: (result.opportunities || []).map((opp: any, i: number) => ({
+            ...opp,
             rank: i + 1,
-            department: opp.candidate.department,
-            name: opp.candidate.title,
-            confidence: opp.confidence.level,
-            description: opp.candidate.problemStatement,
-            kpis: [],
-            phases: [],
-            evidence: (opp.candidate.evidenceIds || []).map((id: string) => ({
-              type: "Research" as const,
-              source: "Pipeline analysis",
-              detail: id,
-            })),
-            tradeoff: opp.disqualifiers?.join("; ") || "",
           })),
           implementationSequencing: result.implementationSequencing,
+          evidence: result.evidence || [],
+          generationMetadata: result.generationMetadata,
+          whyNot: result.whyNot || [],
         });
         setReady(true);
       } catch (err) {
@@ -151,19 +123,19 @@ export default function ResultsPage() {
             </div>
           )}
           {!pipelineStatus && !loadError && (
-            <p className="text-stone text-sm">Loading your AI Opportunity Map...</p>
+            <p className="text-stone text-sm">Loading your AI Opportunity Portfolio...</p>
           )}
         </div>
       </div>
     );
   }
 
-  if (opportunityMap && opportunityMap.rankings.length === 0) {
+  if (opportunityMap && opportunityMap.opportunities.length === 0) {
     return (
       <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-heading font-bold text-ink">{site.results.headline}</h1>
-          <p className="mt-4 text-body text-stone">{site.results.noResults}</p>
+          <h1 className="text-heading font-bold text-ink">AI Opportunity Portfolio</h1>
+          <p className="mt-4 text-body text-stone">No opportunities identified. Your assessment may need more detailed responses.</p>
           <button
             onClick={() => router.push("/assessment")}
             className="mt-8 px-6 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors"
@@ -176,88 +148,58 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="text-heading font-bold text-ink">
-            {opportunityMap?.companyName || site.results.headline}
-          </h1>
-          <p className="mt-2 text-sm text-stone">
-            AI Opportunity Map generated {new Date(opportunityMap?.generatedAt || "").toLocaleDateString()}
-          </p>
-          {opportunityMap?.executiveSummary && (
-            <div className="mt-6 bg-mist rounded-lg p-6 text-left">
-              <h2 className="font-semibold text-ink mb-2">Executive Summary</h2>
-              <p className="text-sm text-stone mb-2">{opportunityMap.executiveSummary.finding}</p>
-              <p className="text-sm font-medium text-forest">
-                Recommended focus: {opportunityMap.executiveSummary.recommendedFocus}
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          {opportunityMap?.rankings.map((opp) => (
-            <OpportunityCard key={opp.rank} opportunity={opp} />
-          ))}
-        </div>
-
-        {opportunityMap?.implementationSequencing && (
-          <div className="mt-10">
-            <h2 className="text-subhead font-semibold text-ink mb-4">Implementation Roadmap</h2>
-            <p className="text-sm text-stone mb-4">
-              Strategy: {opportunityMap.implementationSequencing.strategy}
-            </p>
-            <div className="space-y-4">
-              {opportunityMap.implementationSequencing.phases.map((phase) => (
-                <div key={phase.phase} className="border border-border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-ink">{phase.name}</h3>
-                    <span className="text-xs text-stone">{phase.estimatedDuration}</span>
-                  </div>
-                  <p className="text-sm text-stone">{phase.description}</p>
-                  {phase.opportunities && phase.opportunities.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {phase.opportunities.map((opp: any) => (
-                        <span key={opp.rank} className="text-xs bg-mist text-forest px-2 py-1 rounded">
-                          {opp.title || opp.rank}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-10 text-center">
-          <button
-            onClick={() => {
-              fetch("/api/assessment/feedback", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  mapId: opportunityMap?.mapId,
-                  action: "feedback_page_viewed",
-                }),
-              }).catch(() => {});
-            }}
-            className="text-sm text-stone underline"
-          >
-            {site.results.buildBrief}
-          </button>
-        </div>
-
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => router.push("/")}
-            className="text-sm text-forest underline"
-          >
-            Back to home
-          </button>
-        </div>
+    <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        {opportunityMap && <InvestmentMemoView map={opportunityMap} />}
       </div>
     </div>
   );
+}
+
+function buildEnrichedMap(mapRecord: any, opportunities: any[]): EnrichedOpportunityMap {
+  return {
+    mapId: mapRecord.id,
+    companyName: mapRecord.company_name || "Organization",
+    assessmentSessionId: mapRecord.assessment_session_id,
+    generatedAt: mapRecord.created_at,
+    pipelineVersion: "1.0.0",
+    executiveSummary: mapRecord.executive_summary || {
+      headline: "AI Opportunity Portfolio",
+      finding: "Analysis complete.",
+      recommendedFocus: "Review opportunities below.",
+      quickWins: 0,
+    },
+    opportunities: (opportunities || []).map((opp: any) => ({
+      candidate: {
+        id: `opp-${opp.rank}`,
+        title: opp.title,
+        problemStatement: opp.problem,
+        targetWorkflow: "",
+        department: opp.department,
+        businessObjective: "",
+        proposedSystemType: opp.business_impact?.impactType || "",
+        detectedSignals: [],
+        requiredCapabilities: [],
+        dependencies: (opp.dependencies || []).map((d: any) => d.dependency),
+        risks: (opp.risks || []).map((r: any) => r.risk),
+        evidenceIds: opp.evidence?.evidenceIds || [],
+        candidateSource: "blueprint" as const,
+      },
+      tier: opp.tier || 2,
+      sequence: opp.rank,
+      recommendation: opp.recommendation || "validate_next",
+      feasibility: { score: 0, maxScore: 10, label: "pass" as const, details: [] },
+      businessLeverage: { score: 0, maxScore: 10, label: "pass" as const, details: [] },
+      implementationReadiness: { score: 0, maxScore: 10, label: "pass" as const, details: [] },
+      strategicAlignment: { score: 0, maxScore: 10, label: "pass" as const, details: [] },
+      confidence: { level: opp.confidence || "Medium", score: 0.6, dimensions: { sourceAuthority: 0.6, dataFreshness: 0.8, directness: 0.6, consistency: 0.6, specificity: 0.6 }, reasoning: [] },
+      evidenceIds: opp.evidence?.evidenceIds || [],
+      dependencies: (opp.dependencies || []).map((d: any) => d.dependency),
+      disqualifiers: [],
+      reasoningTraceId: "",
+    })) as EnrichedOpportunity[],
+    implementationSequencing: mapRecord.implementation_sequencing || { strategy: "Standard", strategyRationale: "", phases: [] },
+    evidence: [],
+    generationMetadata: {} as any,
+  };
 }

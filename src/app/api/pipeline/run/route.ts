@@ -29,8 +29,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Run the pipeline
-    const { runAssessment } = await import("@compass/pipeline");
+    // Run the pipeline (dynamic import to allow optional dependency)
+    let runAssessment: Function;
+    try {
+      const mod = await import("@compass/pipeline");
+      runAssessment = mod.runAssessment;
+    } catch {
+      throw new Error("@compass/pipeline not linked. Run: npm link @compass/pipeline");
+    }
 
     const result = await runAssessment(
       { sessionId, userId: (session as any).user_id },

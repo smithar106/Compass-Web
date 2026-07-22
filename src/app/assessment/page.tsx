@@ -37,7 +37,7 @@ function clearSession(): void {
 
 const questionTypeLabels: Record<string, string> = {
   boolean: "Yes / No",
-  scale: "Scale 1–5",
+  scale: "Scale 1\u20135",
   "multi-choice": "Select one",
   open: "Open response",
 };
@@ -75,7 +75,6 @@ export default function AssessmentPage() {
     setLoaded(true);
   }, []);
 
-  // Persist session ID after auth
   useEffect(() => {
     if (!dbSessionId && session.userId && started && !showComplete) {
       createDbSession(session.userId);
@@ -146,6 +145,21 @@ export default function AssessmentPage() {
     ? Math.round((session.answers.length / questions.length) * 100)
     : 0;
 
+  // Detect when section changes to show section context
+  const prevSection = useRef<string | null>(null);
+  const [sectionIntro, setSectionIntro] = useState<string | null>(null);
+  useEffect(() => {
+    if (currentQuestion && currentQuestion.section !== prevSection.current) {
+      const ctx = (site.assessment.sections as any)[currentQuestion.section];
+      if (ctx) {
+        setSectionIntro(ctx);
+        prevSection.current = currentQuestion.section;
+        const timer = setTimeout(() => setSectionIntro(null), 5000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [currentQuestion]);
+
   const handleAnswer = useCallback(async () => {
     if (!currentQuestion) return;
     if (currentValue === "" || currentValue === undefined || currentValue === null) return;
@@ -155,7 +169,6 @@ export default function AssessmentPage() {
       { questionId: currentQuestion.id, value: currentValue },
     ];
 
-    // Record when question was presented for time tracking
     if (!answerTimestamps.current.has(currentQuestion.id)) {
       answerTimestamps.current.set(currentQuestion.id, Date.now());
     }
@@ -286,9 +299,18 @@ export default function AssessmentPage() {
           <h1 className="text-heading font-bold text-ink">{site.assessment.intro.headline}</h1>
           <p className="mt-4 text-body text-stone leading-relaxed">{site.assessment.intro.body}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-stone">
-            <span>⏱ {site.assessment.intro.estimatedTime}</span>
-            <span>📋 {site.assessment.intro.sections}</span>
-            <span>❓ {site.assessment.intro.questions}</span>
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              {site.assessment.intro.estimatedTime}
+            </span>
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+              {site.assessment.intro.sections}
+            </span>
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              {site.assessment.intro.questions}
+            </span>
           </div>
           <div className="mt-10">
             <button
@@ -296,7 +318,7 @@ export default function AssessmentPage() {
               disabled={authLoading}
               className="inline-flex items-center px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors disabled:opacity-50"
             >
-              {authLoading ? "Preparing assessment..." : site.assessment.intro.cta}
+              {authLoading ? "Preparing organizational discovery..." : site.assessment.intro.cta}
             </button>
           </div>
           {authError && (
@@ -311,9 +333,14 @@ export default function AssessmentPage() {
     return (
       <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
+          <div className="w-16 h-16 rounded-full bg-mist flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
           <h1 className="text-heading font-bold text-ink">{site.assessment.complete.headline}</h1>
           <p className="mt-4 text-body text-stone">{site.assessment.complete.body}</p>
-          <div className="mt-4 text-xs text-stone">Answers saved securely</div>
+          <div className="mt-4 text-xs text-stone">Responses saved securely</div>
           <div className="mt-10">
             <button
               onClick={goToResults}
@@ -336,20 +363,29 @@ export default function AssessmentPage() {
   }
 
   return (
-    <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+    <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
+        {/* Section context banner */}
+        {sectionIntro && (
+          <div className="mb-6 bg-mist border border-forest/20 rounded-lg p-4 animate-fadeIn">
+            <p className="text-sm text-ink leading-relaxed">
+              <span className="font-semibold text-forest">{currentQuestion.section}: </span>
+              {sectionIntro}
+            </p>
+          </div>
+        )}
+
+        {/* Progress */}
         <div className="mb-8">
           <div className="flex items-center justify-between text-sm text-stone mb-2">
-            <span>
-              {session.answers.length + 1} of {questions.length}
-              {saving && <span className="ml-2 text-xs text-forest">Saving...</span>}
-            </span>
             <span className="flex items-center gap-2">
-              <span>{currentQuestion.section}</span>
-              {saving && (
-                <span className="w-2 h-2 bg-forest rounded-full animate-pulse" />
-              )}
+              <span className="font-medium text-ink">{currentQuestion.section}</span>
+              <span className="text-xs text-stone">Question {session.answers.length + 1} of {questions.length}</span>
+              {saving && <span className="ml-1 text-xs text-forest italic">Saving...</span>}
             </span>
+            {saving && (
+              <span className="w-2 h-2 bg-forest rounded-full animate-pulse" />
+            )}
           </div>
           <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
             <div
@@ -359,8 +395,9 @@ export default function AssessmentPage() {
           </div>
         </div>
 
+        {/* Question card */}
         <div className="bg-white border border-border rounded-lg p-8">
-          <div className="mb-2">
+          <div className="mb-3">
             <span className="text-xs text-stone font-medium uppercase tracking-wider">
               {questionTypeLabels[currentQuestion.type]}
             </span>

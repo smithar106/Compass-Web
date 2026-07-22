@@ -1,60 +1,60 @@
 export const site = {
   name: "Compass",
-  tagline: "Find your AI leverage.",
+  tagline: "AI opportunity intelligence.",
   description:
-    "Compass is an AI opportunity-discovery engine for B2B SaaS companies. We help you identify where AI creates real leverage in your business — before you invest in implementation.",
+    "Compass determines where intelligence creates the most leverage in your organization — before you invest in implementation. Not consulting. Not another agent builder. Intelligence software.",
 
   hero: {
-    headline: "Where does AI actually create leverage?",
+    headline: "Every company has dozens of possible AI opportunities. Most choose the wrong first project.",
     subtitle:
-      "Every SaaS company is being told to adopt AI. But the real question isn't 'how' — it's 'where'. Compass is the AI opportunity-discovery engine that identifies where artificial intelligence will create the most leverage in your specific business.",
-    cta: "Start your assessment",
+      "Compass determines where intelligence creates the most leverage in your organization. We surface ranked, evidence-backed opportunities with estimated business impact, implementation complexity, and confidence — before you write a single line of code.",
+    cta: "Discover your AI opportunities",
   },
 
   problem: {
-    headline: "The current approach is broken.",
-    body: "Companies are adopting AI before they identify where it creates leverage. The result: wasted budgets, failed proofs of concept, and team fatigue.",
+    headline: "The wrong first AI project costs you more than budget.",
+    body: "Companies rush to adopt AI without knowing where it creates leverage. The result: failed proofs of concept, wasted engineering time, and organizational fatigue. Compass replaces guessing with structured intelligence.",
     approach: [
       {
         label: "The common approach",
-        items: ["Pick a trendy AI use case", "Run a proof of concept", "Struggle to measure impact", "Move on to the next tool"],
+        items: ["Pick a trendy AI use case", "Hire consultants or an agency", "Run a proof of concept", "Struggle to measure impact", "Move on to the next tool"],
       },
       {
         label: "The Compass approach",
-        items: ["Assess your actual operations", "Discover where AI creates leverage", "Build with clear KPIs", "Measure and scale"],
+        items: ["Assess your actual operations across 10 departments", "Discover where intelligence creates leverage", "Rank by feasibility, business impact, and readiness", "Build with clear KPIs and evidence", "Measure and manage your AI portfolio"],
       },
     ],
   },
 
   howItWorks: {
-    headline: "How it works",
+    headline: "Understand. Discover. Prioritize. Build.",
     steps: [
       {
         step: "01",
-        title: "Assess",
-        description: "A structured 25-minute assessment across 10 departments to map your current operations and identify where AI can reduce friction, automate workflows, and amplify your team.",
+        title: "Organizational Discovery",
+        description: "A structured 25-minute intelligence-gathering session across 10 departments. We map your workflows, identify manual processes, detect knowledge fragmentation, and measure automation maturity.",
       },
       {
         step: "02",
-        title: "Discover",
-        description: "Your AI Opportunity Map reveals ranked, actionable opportunities with confidence scores, tradeoffs, and implementation blueprints tailored to your specific stack and team structure.",
+        title: "AI Opportunity Intelligence",
+        description: "Compass generates a ranked portfolio of AI opportunities — with feasibility scores, business leverage analysis, implementation readiness, confidence levels, and estimated business cases — all traced back to your specific answers.",
       },
       {
         step: "03",
-        title: "Build",
-        description: "Each opportunity includes phased implementation plans with KPIs, dependencies, and approval gates. You'll know exactly what to build, in what order, and how to measure success.",
+        title: "Portfolio Management",
+        description: "Your AI Opportunity Portfolio evolves with your business. Track implementation status, measure realized ROI, and discover new opportunities as your organization grows. Compass becomes your ongoing intelligence layer.",
       },
     ],
   },
 
   productPreview: {
-    headline: "Your AI Opportunity Map",
-    subtitle: "See what Compass discovers. Here's a preview based on our benchmark data.",
+    headline: "Your AI Opportunity Portfolio",
+    subtitle: "See what Compass discovers. Every recommendation includes evidence, business case, implementation options, and confidence scoring.",
   },
 
   integrations: {
-    headline: "Analyzes across your entire toolchain",
-    subtitle: "Compass connects to your existing tools to map dependencies, data flows, and automation potential across your entire tech stack.",
+    headline: "Integrates with your intelligence, not your tools — yet.",
+    subtitle: "Compass analyzes your organizational signals today. Direct tool integrations (Slack, Jira, Salesforce, HubSpot, Zendesk, GitHub) are coming to enrich intelligence automatically.",
     badges: [
       { name: "Slack", status: "Coming soon" },
       { name: "Jira", status: "Coming soon" },
@@ -66,99 +66,122 @@ export const site = {
   },
 
   triageModel: {
-    headline: "How Compass distinguishes signal from noise",
-    subtitle: "Every opportunity is classified across five evidence tiers, so you know exactly how much confidence to place in each recommendation.",
+    headline: "How Compass separates signal from noise",
+    subtitle: "Every recommendation is scored across four dimensions with evidence traced to its source. You see not just what to build, but why.",
     tiers: [
       {
-        name: "Verified Facts",
-        description: "Data extracted directly from your tools and systems. These are objective measurements — API call volumes, ticket counts, cycle times.",
+        name: "Verified Evidence",
+        description: "Data extracted directly from your assessment responses. Objective measurements of your current operations.",
         color: "green",
-        badge: "[Verified]",
+        badge: "[Evidence]",
       },
       {
-        name: "Customer Input",
-        description: "Insights gathered from stakeholder interviews embedded in the assessment flow. Your team's actual pain points ground every recommendation.",
+        name: "Pattern Analysis",
+        description: "Your responses matched against 30 validated blueprints across 10 departments. Proven patterns from real implementations.",
         color: "green",
-        badge: "[User]",
+        badge: "[Pattern]",
       },
       {
-        name: "Public Evidence",
-        description: "Industry benchmarks, case studies, and published research that support or challenge each opportunity. Grounded in what works at other companies.",
+        name: "Four-Pass Ranking",
+        description: "Every opportunity scored on feasibility, business leverage, implementation readiness, and strategic alignment. Not a popularity contest.",
         color: "green",
-        badge: "[Research]",
+        badge: "[Ranked]",
       },
       {
-        name: "Inferred Hypotheses",
-        description: "Patterns detected across your assessment responses and tool stack that suggest hidden opportunities or risks your team may not have articulated.",
-        color: "yellow",
-        badge: "[Inference]",
+        name: "Confidence Scoring",
+        description: "Five-dimension confidence: source authority, data freshness, directness, consistency, and specificity. You know how much to trust each recommendation.",
+        color: "green",
+        badge: "[Confidence]",
       },
       {
-        name: "Generated Recommendations",
-        description: "AI-synthesized proposals combining all four tiers above into ranked, actionable opportunity maps with tradeoff analyses.",
-        color: "amber",
-        badge: "[Recommendation]",
+        name: "Investment Memo",
+        description: "Each recommendation becomes an investment decision: business case, estimated ROI, implementation options, risks, and dependencies. Make informed decisions.",
+        color: "green",
+        badge: "[Memo]",
       },
     ],
   },
 
   differentiation: {
-    headline: "Different from everything else",
-    subtitle: "Compass occupies a unique space — we're not a consulting firm, an AI platform, or a DIY analysis.",
+    headline: "Compass is not an AI consultancy.",
+    subtitle: "We don't build agents. We don't write code. We don't take a cut of implementation. We are intelligence software.",
     comparisons: [
       {
-        aspect: "Focus",
-        compass: "Discovery before implementation",
-        consulting: "Implementation-led engagements",
-        aiPlatform: "Platform-first adoption",
-        internal: "Reactive, unstructured exploration",
+        aspect: "Role",
+        compass: "Intelligence software",
+        consulting: "Implementation partner",
+        aiPlatform: "Agent builder / workflow tool",
+        internal: "Reactive exploration",
       },
       {
         aspect: "Output",
-        compass: "Ranked opportunities with confidence scores",
-        consulting: "Slide decks and recommendations",
-        aiPlatform: "Platform-specific templates",
-        internal: "Ad-hoc notes and decisions",
+        compass: "Ranked portfolio with investment memos",
+        consulting: "Slide decks and statements of work",
+        aiPlatform: "Platform-specific templates and agents",
+        internal: "Ad-hoc notes and hallway decisions",
       },
       {
-        aspect: "Speed",
-        compass: "25-minute assessment → results in minutes",
-        consulting: "Weeks of interviews and analysis",
-        aiPlatform: "Depends on platform familiarity",
+        aspect: "Speed to insight",
+        compass: "25-minute assessment → intelligence in minutes",
+        consulting: "Weeks of interviews and discovery",
+        aiPlatform: "Requires platform expertise to evaluate",
         internal: "Months of exploration",
       },
       {
         aspect: "Objectivity",
-        compass: "Structured evidence tiers and tradeoffs",
-        consulting: "Vendor relationships may bias",
-        aiPlatform: "Platform-centric view",
+        compass: "Deterministic ranking, traced evidence",
+        consulting: "Implementation bias toward own services",
+        aiPlatform: "Platform-centric recommendations",
         internal: "Internal politics and assumptions",
       },
       {
         aspect: "Cost",
-        compass: "Free assessment, outcome-based pricing",
-        consulting: "$50K–$200K+ engagements",
+        compass: "Free assessment, intelligence subscription",
+        consulting: "$50K\u2013$200K+ engagements",
         aiPlatform: "Platform licensing + implementation",
         internal: "Opportunity cost of team time",
+      },
+      {
+        aspect: "Implementation",
+        compass: "Switzerland. Choose your own builder.",
+        consulting: "They build it (for a fee)",
+        aiPlatform: "Must use their platform",
+        internal: "Your team builds it",
       },
     ],
   },
 
   futurePath: {
-    headline: "The Compass Intelligence Platform",
-    subtitle: "We're building toward a future where AI understands your organization holistically.",
+    headline: "From assessment to AI portfolio management.",
+    subtitle: "Compass evolves with you.",
     items: [
       {
-        title: "Organizational Knowledge Graph",
-        description: "A living map of your people, processes, tools, and data flows — automatically updated as your business evolves.",
+        title: "Understand",
+        description: "Organizational intelligence gathering. Map workflows, detect signals, measure maturity.",
       },
       {
-        title: "Adaptive Assessment Engine",
-        description: "Each assessment session learns from the last. Questions adapt based on your industry, size, and previous responses for increasingly precise recommendations.",
+        title: "Discover",
+        description: "AI opportunity intelligence. Ranked, evidence-backed recommendations with investment memos.",
       },
       {
-        title: "Organizational Reasoning",
-        description: "Beyond individual opportunities — Compass will model how changes in one department ripple across the organization, surfacing second-order effects and hidden dependencies.",
+        title: "Prioritize",
+        description: "Portfolio management. Tier-based planning with dependency tracking and sequencing.",
+      },
+      {
+        title: "Blueprint",
+        description: "Implementation playbooks. Detailed build plans with KPIs, phases, and approval gates.",
+      },
+      {
+        title: "Implement",
+        description: "Your choice of builder. Internal team, existing automation team, agency, or platform.",
+      },
+      {
+        title: "Measure",
+        description: "Track realized ROI. Compare estimated vs actual outcomes. Update confidence scores.",
+      },
+      {
+        title: "Manage",
+        description: "Ongoing portfolio management. Discover new opportunities as your business evolves.",
       },
     ],
   },
@@ -197,80 +220,132 @@ export const site = {
   },
 
   finalCta: {
-    headline: "Find your first AI opportunity.",
-    subtitle: "25 minutes. 10 departments. One clear path forward.",
-    cta: "Start your assessment",
+    headline: "Stop guessing what to automate.",
+    subtitle: "25 minutes. 10 departments. Evidence-backed intelligence. Build the right AI first.",
+    cta: "Discover your AI opportunities",
   },
 
   footer: {
-    description: "Compass helps B2B SaaS companies discover where AI creates real leverage in their business.",
-    copyright: `© ${new Date().getFullYear()} Compass AI. All rights reserved.`,
+    description: "Compass is AI opportunity intelligence. We determine where intelligence creates the most leverage — before you invest in implementation.",
+    copyright: `\u00A9 ${new Date().getFullYear()} Compass AI. All rights reserved.`,
     columns: [
       {
-        title: "Product",
+        title: "Intelligence",
         links: [
-          { label: "Assessment", href: "/assessment" },
-          { label: "Design Partners", href: "/design-partners" },
+          { label: "Discovery", href: "/assessment" },
+          { label: "Portfolio", href: "/assessment/portfolio" },
+          { label: "Organizational Intelligence", href: "/assessment/intelligence" },
         ],
       },
       {
         title: "Company",
         links: [
           { label: "About", href: "/about" },
+          { label: "Design Partners", href: "/design-partners" },
           { label: "Privacy", href: "/privacy" },
           { label: "Terms", href: "/terms" },
-        ],
-      },
-      {
-        title: "Resources",
-        links: [
-          { label: "Coming soon", href: "#" },
         ],
       },
     ],
   },
 
   about: {
-    mission: "Make AI adoption deliberate, measurable, and effective for every B2B SaaS company.",
-    vision: "A world where every company knows exactly where AI creates leverage — before they invest a dollar.",
-    problem: "SaaS companies are under immense pressure to adopt AI. Boardrooms demand AI strategies. Competitors launch AI features. VCs ask about your AI roadmap. The result is rushed decisions, failed proofs of concept, and wasted budgets. We built Compass to solve this — starting with the question that matters most: where does AI actually create leverage?",
+    mission: "Make AI adoption deliberate, measurable, and effective for every organization.",
+    vision: "A world where every company knows exactly where intelligence creates leverage — before they invest a dollar.",
+    problem: "Companies are under immense pressure to adopt AI. Boardrooms demand AI strategies. Competitors launch AI features. VCs ask about your AI roadmap. The result is rushed decisions, failed proofs of concept, and wasted budgets. We built Compass to solve this — starting with the question that matters most: where does intelligence actually create leverage?",
     team: "We're a small team of product builders, engineers, and operators who have scaled B2B SaaS companies from seed to IPO. We've been in the trenches of AI adoption, and we built Compass because we wished it existed.",
   },
 
   assessment: {
     intro: {
-      headline: "Discover your AI opportunities",
-      body: "This 25-minute assessment maps your current operations across 10 departments. Your answers will generate a ranked AI Opportunity Map — showing exactly where AI creates the most leverage for your specific business.",
+      headline: "Organizational Discovery",
+      body: "We're identifying where repetitive work, fragmented knowledge, and decision bottlenecks exist across your organization. Your answers generate a ranked AI Opportunity Portfolio with evidence-backed recommendations, business cases, and implementation options.",
       estimatedTime: "25 minutes",
       sections: "10 departments",
-      questions: "25 questions",
-      cta: "Begin assessment",
+      questions: "25 targeted questions",
+      cta: "Begin organizational discovery",
+    },
+    sections: {
+      "Sales": "We're evaluating how your sales team spends time — manual data entry, qualification processes, and lead handling. The goal: identify where AI can free your team to sell more.",
+      "Marketing": "We're analyzing your lead scoring, campaign personalization, and revenue attribution to find automation gaps that cost you pipeline.",
+      "Customer Success": "We're assessing how proactively you manage customer health. Reactive CS teams lose accounts that could have been saved with earlier intervention.",
+      "Support": "We're measuring your support team's capacity. Repetitive Tier-1 tickets drain resources that could be spent on complex customer needs.",
+      "Finance": "We're examining your financial operations — expense reporting, approvals, and month-end close cycles that may hide significant automation potential.",
+      "Product": "We're evaluating your product analytics and prioritization processes to identify where intelligence can improve roadmap decisions.",
+      "Engineering": "We're assessing your development workflows — CI/CD maturity, maintenance burden, and cycle times that determine engineering leverage.",
+      "People/HR": "We're understanding your HR operations — employee lifecycle management, performance reviews, and feedback systems that scale with headcount.",
+      "Legal": "We're reviewing your legal operations — contract review, compliance management, and approval workflows that often bottleneck deal velocity.",
+      "Operations": "We're evaluating your operational backbone — process documentation, cross-functional coordination, and the metrics that matter most.",
     },
     complete: {
-      headline: "Assessment complete!",
-      body: "Your answers are being analyzed. Click below to generate your AI Opportunity Map.",
-      cta: "Generate my AI Opportunity Map",
+      headline: "Organizational discovery complete.",
+      body: "We've analyzed your responses across all 10 departments. Generate your AI Opportunity Portfolio to see ranked recommendations with evidence, business cases, and implementation options.",
+      cta: "Generate my AI Opportunity Portfolio",
     },
   },
 
   results: {
-    headline: "Your AI Opportunity Map",
-    subtitle: "Ranked opportunities based on your assessment. Expand each one for a detailed implementation blueprint.",
-    noResults: "No assessment results found. Please complete the assessment first.",
-    buildBrief: "Generate build brief",
-    comingSoon: "Build brief generation is coming soon. In the meantime, export your opportunity map or share it with your team.",
+    headline: "AI Opportunity Portfolio",
+    subtitle: "Ranked, evidence-backed opportunities with investment memos. Each recommendation includes business case, implementation options, and confidence scoring.",
+    noResults: "No assessment results found. Please complete the organizational discovery first.",
+    buildBrief: "Download investment memo",
+    comingSoon: "Full investment memo export is coming soon.",
+  },
+
+  portfolio: {
+    headline: "AI Opportunity Portfolio",
+    subtitle: "Your ranked portfolio of AI opportunities. Track status, compare tradeoffs, and plan implementation sequencing.",
+    noResults: "No portfolio found. Complete an organizational discovery first.",
+  },
+
+  intelligence: {
+    headline: "Organizational Intelligence",
+    subtitle: "How Compass understands your organization before making recommendations.",
+    noData: "Complete an organizational discovery to see your intelligence profile.",
+    dimensions: {
+      decisionVelocity: {
+        label: "Decision Velocity",
+        description: "How quickly your organization can evaluate and act on new opportunities.",
+      },
+      knowledgeFragmentation: {
+        label: "Knowledge Fragmentation",
+        description: "How information is distributed across tools, teams, and individuals.",
+      },
+      workflowStandardization: {
+        label: "Workflow Standardization",
+        description: "How consistently processes are documented and followed across departments.",
+      },
+      aiReadiness: {
+        label: "AI Readiness",
+        description: "Your organization's technical and cultural readiness for AI adoption.",
+      },
+      automationMaturity: {
+        label: "Automation Maturity",
+        description: "The current state of automation across your operations.",
+      },
+      documentationQuality: {
+        label: "Documentation Quality",
+        description: "The completeness and accuracy of your process documentation.",
+      },
+      crossFunctionalCoordination: {
+        label: "Cross-Functional Coordination",
+        description: "How effectively departments share information and align on priorities.",
+      },
+    },
   },
 
   nav: [
     { label: "Home", href: "/" },
-    { label: "Assessment", href: "/assessment" },
+    { label: "Discovery", href: "/assessment" },
+    { label: "Portfolio", href: "/assessment/portfolio" },
+    { label: "Intelligence", href: "/assessment/intelligence" },
     { label: "Design Partners", href: "/design-partners" },
     { label: "About", href: "/about" },
   ],
 
   metadata: {
-    title: "Compass — AI Opportunity Discovery for B2B SaaS",
+    title: "Compass \u2014 AI Opportunity Intelligence",
     description:
-      "Compass is an AI opportunity-discovery engine for B2B SaaS companies. Identify where AI creates real leverage in your business.",
+      "Compass determines where intelligence creates the most leverage in your organization. Not consulting. Not implementation. Intelligence software.",
   },
 };

@@ -26,11 +26,11 @@ export function Header() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="text-xl font-semibold text-ink">
+          <Link href="/" className="text-xl font-semibold text-ink tracking-tight">
             {site.name}
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6">
             {site.nav.map((item) => (
               <Link
                 key={item.href}

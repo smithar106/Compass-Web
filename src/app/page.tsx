@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { site } from "@/content/site";
-import { OpportunityCard } from "@/components/home/opportunity-card";
+import { InvestmentMemoView } from "@/components/assessment/investment-memo";
 import { mockResults } from "@/data/mock-results";
 
 export default function HomePage() {
@@ -9,6 +9,9 @@ export default function HomePage() {
       {/* Hero */}
       <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
+          <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-mist rounded-full text-xs font-medium text-forest">
+            AI Opportunity Intelligence &mdash; Not consulting. Not implementation.
+          </div>
           <h1 className="text-display font-bold text-ink">{site.hero.headline}</h1>
           <p className="mt-6 text-subhead text-stone max-w-2xl mx-auto leading-relaxed">
             {site.hero.subtitle}
@@ -20,6 +23,13 @@ export default function HomePage() {
             >
               {site.hero.cta}
             </Link>
+          </div>
+          <div className="mt-6 flex items-center justify-center gap-6 text-xs text-stone">
+            <span>25-minute organizational discovery</span>
+            <span className="w-1 h-1 rounded-full bg-border" />
+            <span>10 departments analyzed</span>
+            <span className="w-1 h-1 rounded-full bg-border" />
+            <span>Evidence-backed recommendations</span>
           </div>
         </div>
       </section>
@@ -50,7 +60,7 @@ export default function HomePage() {
                             : "bg-border text-stone"
                         }`}
                       >
-                        {approach.label === "The Compass approach" ? "✓" : "×"}
+                        {approach.label === "The Compass approach" ? "\u2713" : "\u00D7"}
                       </span>
                       {item}
                     </li>
@@ -80,40 +90,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Product Preview */}
+      {/* Product Preview - Investment Memo */}
       <section className="py-section bg-white px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl">
           <h2 className="text-heading font-bold text-ink text-center">{site.productPreview.headline}</h2>
           <p className="mt-4 text-body text-stone text-center">{site.productPreview.subtitle}</p>
-          <div className="mt-10 space-y-4">
-            {mockResults.opportunities.map((opp) => (
-              <OpportunityCard key={opp.rank} opportunity={opp} />
-            ))}
+          <div className="mt-10">
+            <InvestmentMemoView map={mockResults} showPortfolio={false} showIntelligence={false} />
           </div>
         </div>
       </section>
 
-      {/* Integrations */}
+      {/* Four-Pass Ranking */}
       <section className="py-section px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-heading font-bold text-ink">{site.integrations.headline}</h2>
-          <p className="mt-4 text-body text-stone">{site.integrations.subtitle}</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            {site.integrations.badges.map((badge) => (
-              <div
-                key={badge.name}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg bg-white text-sm"
-              >
-                <span className="font-medium text-ink">{badge.name}</span>
-                <span className="text-xs text-stone bg-cream px-2 py-0.5 rounded-full">{badge.status}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Triage Model */}
-      <section className="py-section bg-white px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <h2 className="text-heading font-bold text-ink text-center">{site.triageModel.headline}</h2>
           <p className="mt-4 text-body text-stone text-center">{site.triageModel.subtitle}</p>
@@ -170,14 +159,19 @@ export default function HomePage() {
 
       {/* Future Path */}
       <section className="py-section bg-ink text-cream px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
+        <div className="mx-auto max-w-5xl text-center">
           <h2 className="text-heading font-bold">{site.futurePath.headline}</h2>
           <p className="mt-4 text-body text-stone">{site.futurePath.subtitle}</p>
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-            {site.futurePath.items.map((item) => (
-              <div key={item.title} className="border border-stone/20 rounded-lg p-5">
-                <h3 className="font-semibold text-cream">{item.title}</h3>
-                <p className="mt-2 text-sm text-stone leading-relaxed">{item.description}</p>
+          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+            {site.futurePath.items.map((item, i) => (
+              <div key={item.title} className="border border-stone/20 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-6 h-6 rounded-full bg-leaf/30 text-leaf flex items-center justify-center text-xs font-medium">
+                    {i + 1}
+                  </span>
+                  <h3 className="font-semibold text-cream text-sm">{item.title}</h3>
+                </div>
+                <p className="text-xs text-stone leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
@@ -192,7 +186,7 @@ export default function HomePage() {
           <ul className="mt-8 space-y-3 text-left inline-block">
             {site.designPartners.benefits.map((benefit) => (
               <li key={benefit} className="flex items-start gap-3 text-sm text-stone">
-                <span className="text-forest flex-shrink-0">✓</span>
+                <span className="text-forest flex-shrink-0">{"\u2713"}</span>
                 {benefit}
               </li>
             ))}
