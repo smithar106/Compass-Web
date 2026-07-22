@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { createAdminClient } from "@/lib/supabase-admin";
 
 const designPartnerSchema = z.object({
   name: z.string().min(2),
@@ -27,6 +28,14 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
@@ -34,14 +43,7 @@ export async function POST(request: NextRequest) {
     if (!checkRateLimit(ip)) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
-        {
-          status: 429,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST",
-            "Access-Control-Allow-Headers": "Content-Type",
-          },
-        }
+        { status: 429, headers: corsHeaders() }
       );
     }
 
@@ -50,74 +52,55 @@ export async function POST(request: NextRequest) {
     if (body.honeypot) {
       return NextResponse.json(
         { error: "Spam detected" },
-        {
-          status: 400,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST",
-            "Access-Control-Allow-Headers": "Content-Type",
-          },
-        }
+        { status: 400, headers: corsHeaders() }
       );
     }
 
     const parsed = designPartnerSchema.parse(body);
 
-    console.log("Design partner submission:", {
-      ...parsed,
-      timestamp: new Date().toISOString(),
-    });
+    const supabase = createAdminClient();
+    const { error: insertError } = await supabase
+      .from("design_partner_applications" as any)
+      .insert({
+        name: parsed.name,
+        email: parsed.email,
+        company_name: parsed.companyName,
+        company_size: parsed.companySize,
+        role: parsed.role,
+        linkedin_url: parsed.linkedinUrl || null,
+        current_ai_initiatives: parsed.currentAiInitiatives,
+        biggest_challenge: parsed.biggestChallenge,
+        status: "pending",
+      } as any);
+
+    if (insertError) {
+      console.error("Failed to insert design partner:", insertError);
+      return NextResponse.json(
+        { error: "Failed to save application" },
+        { status: 500, headers: corsHeaders() }
+      );
+    }
 
     return NextResponse.json(
       { success: true, message: "Application received" },
-      {
-        status: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
-      }
+      { status: 200, headers: corsHeaders() }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation failed", details: error.errors },
-        {
-          status: 400,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST",
-            "Access-Control-Allow-Headers": "Content-Type",
-          },
-        }
+        { status: 400, headers: corsHeaders() }
       );
     }
 
     console.error("Design partner submission error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      {
-        status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
-      }
+      { status: 500, headers: corsHeaders() }
     );
   }
 }
 
 export async function OPTIONS() {
-  return NextResponse.json(
-    {},
-    {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST",
-        "Access-Control-Allow-Headers": "Content-Type",
-      },
-    }
-  );
+  return NextResponse.json({}, { headers: corsHeaders() });
 }

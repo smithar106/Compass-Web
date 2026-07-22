@@ -1,19 +1,24 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { questions } from "@/data/assessment-questions";
 import { site } from "@/content/site";
 import { ensureAuthenticated } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase";
 import type { Answer, AssessmentSession } from "@/types";
 
 const STORAGE_KEY = "compass-assessment-session";
+const CURRENT_VERSION = "1.0.0";
 
 function loadSession(): AssessmentSession | null {
   if (typeof window === "undefined") return null;
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.version === CURRENT_VERSION) return parsed;
+    }
   } catch {}
   return null;
 }
@@ -21,13 +26,13 @@ function loadSession(): AssessmentSession | null {
 function saveSession(session: AssessmentSession): void {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...session, version: CURRENT_VERSION }));
   } catch {}
 }
 
 function clearSession(): void {
   if (typeof window === "undefined") return;
-  localStorage.removeItem(STORAGE_KEY);
+  sessionStorage.removeItem(STORAGE_KEY);
 }
 
 const questionTypeLabels: Record<string, string> = {
@@ -39,6 +44,7 @@ const questionTypeLabels: Record<string, string> = {
 
 export default function AssessmentPage() {
   const router = useRouter();
+  const supabase = useMemo(() => typeof window !== "undefined" ? createClient() : null, []);
   const [started, setStarted] = useState(false);
   const [session, setSession] = useState<AssessmentSession>({
     currentQuestion: 0,
@@ -50,11 +56,16 @@ export default function AssessmentPage() {
   const [showComplete, setShowComplete] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [persisting, setPersisting] = useState(false);
+  const [dbSessionId, setDbSessionId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const answerTimestamps = useRef<Map<number, number>>(new Map());
 
   useEffect(() => {
     const saved = loadSession();
     if (saved) {
       setSession(saved);
+      setDbSessionId(saved.sessionId || null);
       if (saved.completed) {
         setShowComplete(true);
       } else {
@@ -64,18 +75,78 @@ export default function AssessmentPage() {
     setLoaded(true);
   }, []);
 
+  // Persist session ID after auth
   useEffect(() => {
-    if (loaded && started && !showComplete) {
-      saveSession(session);
+    if (!dbSessionId && session.userId && started && !showComplete) {
+      createDbSession(session.userId);
     }
-  }, [session, loaded, started, showComplete]);
+  }, [session.userId, started, showComplete, dbSessionId]);
+
+  async function createDbSession(userId: string) {
+    if (!supabase) return;
+    try {
+      const { data, error } = await supabase
+        .from("assessment_sessions" as any)
+        .insert({
+          user_id: userId,
+          status: "in_progress",
+          assessment_version: CURRENT_VERSION,
+          metadata: {},
+        })
+        .select("id")
+        .single();
+
+      if (error) throw error;
+      setDbSessionId((data as any).id);
+      setSession((prev) => ({ ...prev, sessionId: (data as any).id }));
+    } catch (err) {
+      console.error("Failed to create session:", err);
+    }
+  }
+
+  async function persistAnswer(
+    questionId: number,
+    value: string | number | boolean,
+    order: number,
+    wasSkipped: boolean
+  ) {
+    if (!dbSessionId || !supabase) return;
+    setSaving(true);
+    const startTime = answerTimestamps.current.get(questionId) || Date.now();
+    const timeSpent = Math.round((Date.now() - startTime) / 1000);
+
+    try {
+      const { error } = await (supabase as any).from("assessment_answers").upsert(
+        {
+          session_id: dbSessionId,
+          question_id: questionId,
+          question_version: CURRENT_VERSION,
+          answer_value: value,
+          answer_type: typeof value === "boolean" ? "boolean" : typeof value === "number" ? "scale" : "text",
+          question_order: order,
+          was_skipped: wasSkipped,
+          time_spent: timeSpent,
+          metadata: {},
+        },
+        {
+          onConflict: "session_id,question_id",
+          ignoreDuplicates: false,
+        }
+      );
+      if (error) console.error("Failed to persist answer:", error);
+    } catch (err) {
+      console.error("Failed to persist answer:", err);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const currentQuestion = questions[session.currentQuestion];
   const progress = questions.length > 0
     ? Math.round((session.answers.length / questions.length) * 100)
     : 0;
 
-  const handleAnswer = useCallback(() => {
+  const handleAnswer = useCallback(async () => {
     if (!currentQuestion) return;
     if (currentValue === "" || currentValue === undefined || currentValue === null) return;
 
@@ -84,27 +155,94 @@ export default function AssessmentPage() {
       { questionId: currentQuestion.id, value: currentValue },
     ];
 
+    // Record when question was presented for time tracking
+    if (!answerTimestamps.current.has(currentQuestion.id)) {
+      answerTimestamps.current.set(currentQuestion.id, Date.now());
+    }
+
     if (session.currentQuestion + 1 >= questions.length) {
       const finalSession: AssessmentSession = {
         currentQuestion: session.currentQuestion,
         answers: newAnswers,
         completed: true,
+        sessionId: dbSessionId || undefined,
+        userId: session.userId,
       };
       setSession(finalSession);
       saveSession(finalSession);
       setShowComplete(true);
+
+      if (dbSessionId && supabase) {
+        await persistAnswer(currentQuestion.id, currentValue, session.answers.length, false);
+        await (supabase as any)
+          .from("assessment_sessions")
+          .update({
+            status: "completed",
+            completed_at: new Date().toISOString(),
+            total_questions_presented: questions.length,
+            questions_skipped: 0,
+          })
+          .eq("id", dbSessionId);
+      }
     } else {
       setSession({
         currentQuestion: session.currentQuestion + 1,
         answers: newAnswers,
         completed: false,
+        sessionId: dbSessionId || undefined,
+        userId: session.userId,
       });
       setCurrentValue("");
+
+      if (dbSessionId) {
+        await persistAnswer(currentQuestion.id, currentValue, session.answers.length, false);
+      }
     }
-  }, [currentQuestion, currentValue, session]);
+  }, [currentQuestion, currentValue, session, dbSessionId]);
+
+  const handleSkip = useCallback(async () => {
+    if (!currentQuestion) return;
+    setCurrentValue("");
+
+    const newAnswers: Answer[] = [
+      ...session.answers.filter((a) => a.questionId !== currentQuestion.id),
+    ];
+
+    if (session.currentQuestion + 1 >= questions.length) {
+      const finalSession: AssessmentSession = {
+        currentQuestion: session.currentQuestion,
+        answers: newAnswers,
+        completed: true,
+        sessionId: dbSessionId || undefined,
+        userId: session.userId,
+      };
+      setSession(finalSession);
+      saveSession(finalSession);
+      setShowComplete(true);
+
+      if (dbSessionId && supabase) {
+        await (supabase as any)
+          .from("assessment_sessions")
+          .update({ status: "completed", completed_at: new Date().toISOString() })
+          .eq("id", dbSessionId);
+      }
+    } else {
+      setSession({
+        currentQuestion: session.currentQuestion + 1,
+        answers: newAnswers,
+        completed: false,
+        sessionId: dbSessionId || undefined,
+        userId: session.userId,
+      });
+
+      if (dbSessionId) {
+        await persistAnswer(currentQuestion.id, "", session.answers.length, true);
+      }
+    }
+  }, [currentQuestion, session, dbSessionId]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && currentQuestion?.type === "open") {
       e.preventDefault();
       handleAnswer();
     }
@@ -175,6 +313,7 @@ export default function AssessmentPage() {
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="text-heading font-bold text-ink">{site.assessment.complete.headline}</h1>
           <p className="mt-4 text-body text-stone">{site.assessment.complete.body}</p>
+          <div className="mt-4 text-xs text-stone">Answers saved securely</div>
           <div className="mt-10">
             <button
               onClick={goToResults}
@@ -203,8 +342,14 @@ export default function AssessmentPage() {
           <div className="flex items-center justify-between text-sm text-stone mb-2">
             <span>
               {session.answers.length + 1} of {questions.length}
+              {saving && <span className="ml-2 text-xs text-forest">Saving...</span>}
             </span>
-            <span>{currentQuestion.section}</span>
+            <span className="flex items-center gap-2">
+              <span>{currentQuestion.section}</span>
+              {saving && (
+                <span className="w-2 h-2 bg-forest rounded-full animate-pulse" />
+              )}
+            </span>
           </div>
           <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
             <div
@@ -226,7 +371,7 @@ export default function AssessmentPage() {
             {currentQuestion.type === "boolean" && (
               <div className="flex gap-4">
                 <button
-                  onClick={() => { setCurrentValue(true); setTimeout(handleAnswer, 100); }}
+                  onClick={() => { setCurrentValue(true); }}
                   className={`flex-1 px-6 py-3 border rounded-lg text-sm font-medium transition-colors ${
                     currentValue === true ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"
                   }`}
@@ -234,7 +379,7 @@ export default function AssessmentPage() {
                   Yes
                 </button>
                 <button
-                  onClick={() => { setCurrentValue(false); setTimeout(handleAnswer, 100); }}
+                  onClick={() => { setCurrentValue(false); }}
                   className={`flex-1 px-6 py-3 border rounded-lg text-sm font-medium transition-colors ${
                     currentValue === false ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"
                   }`}
@@ -251,7 +396,7 @@ export default function AssessmentPage() {
                   return (
                     <button
                       key={opt}
-                      onClick={() => { setCurrentValue(opt); setTimeout(handleAnswer, 100); }}
+                      onClick={() => { setCurrentValue(opt); }}
                       className={`px-4 py-2.5 border rounded-lg text-sm transition-colors ${
                         currentValue === opt ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"
                       }`}
@@ -268,7 +413,7 @@ export default function AssessmentPage() {
                 {currentQuestion.options.map((opt) => (
                   <button
                     key={opt}
-                    onClick={() => { setCurrentValue(opt); setTimeout(handleAnswer, 100); }}
+                    onClick={() => { setCurrentValue(opt); }}
                     className={`text-left px-4 py-3 border rounded-lg text-sm transition-colors ${
                       currentValue === opt ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"
                     }`}
@@ -300,6 +445,38 @@ export default function AssessmentPage() {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="mt-6 flex justify-between items-center">
+            <button
+              onClick={handleSkip}
+              className="text-xs text-stone hover:text-ink transition-colors"
+            >
+              Skip this question
+            </button>
+            <div className="flex gap-1">
+              {session.answers.length > 0 && (
+                <button
+                  onClick={() => {
+                    const prev = Math.max(0, session.currentQuestion - 1);
+                    setCurrentValue("");
+                    setSession((s) => ({ ...s, currentQuestion: prev }));
+                  }}
+                  className="text-xs text-stone hover:text-ink transition-colors px-3 py-1"
+                >
+                  Back
+                </button>
+              )}
+              {(currentQuestion.type === "boolean" || currentQuestion.type === "scale" || currentQuestion.type === "multi-choice") && currentValue !== "" && (
+                <button
+                  onClick={handleAnswer}
+                  disabled={saving}
+                  className="px-4 py-1 bg-forest text-white text-xs font-medium rounded-md hover:bg-leaf transition-colors disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Next"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
