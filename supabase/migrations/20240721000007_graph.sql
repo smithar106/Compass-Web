@@ -64,23 +64,27 @@ alter table public.graph_nodes enable row level security;
 
 create policy "Members can view org graph nodes"
   on public.graph_nodes for select
+  to authenticated
   using (
-    exists (select 1 from public.organization_members where organization_id = graph_nodes.organization_id and user_id = auth.uid())
+    exists (select 1 from public.organization_members where organization_id = graph_nodes.organization_id and user_id = (select auth.uid()))
   );
 
 create policy "Service role can manage graph nodes"
   on public.graph_nodes for all
-  using (auth.jwt()->>'role' = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');
 
 -- RLS on graph_edges
 alter table public.graph_edges enable row level security;
 
 create policy "Members can view org graph edges"
   on public.graph_edges for select
+  to authenticated
   using (
-    exists (select 1 from public.organization_members where organization_id = graph_edges.organization_id and user_id = auth.uid())
+    exists (select 1 from public.organization_members where organization_id = graph_edges.organization_id and user_id = (select auth.uid()))
   );
 
 create policy "Service role can manage graph edges"
   on public.graph_edges for all
-  using (auth.jwt()->>'role' = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');

@@ -39,24 +39,27 @@ create policy "Anyone can apply for design partner program"
 
 create policy "Admins can view applications"
   on public.design_partner_applications for select
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members
-      where user_id = auth.uid()
+      where user_id = (select auth.uid())
       and role = 'admin'
     )
   );
 
 create policy "Admins can update applications"
   on public.design_partner_applications for update
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members
-      where user_id = auth.uid()
+      where user_id = (select auth.uid())
       and role = 'admin'
     )
   );
 
 create policy "Service role can manage all applications"
   on public.design_partner_applications for all
-  using (auth.jwt()->>'role' = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');

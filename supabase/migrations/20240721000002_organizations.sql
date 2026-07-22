@@ -50,47 +50,53 @@ alter table public.organizations enable row level security;
 
 create policy "Members can view their organizations"
   on public.organizations for select
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members
       where organization_id = organizations.id
-      and user_id = auth.uid()
+      and user_id = (select auth.uid())
     )
   );
 
 create policy "Admins can update their organizations"
   on public.organizations for update
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members
       where organization_id = organizations.id
-      and user_id = auth.uid()
+      and user_id = (select auth.uid())
       and role = 'admin'
     )
   );
 
 create policy "Service role can manage all organizations"
   on public.organizations for all
-  using (auth.jwt()->>'role' = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');
 
 -- RLS on organization_members
 alter table public.organization_members enable row level security;
 
 create policy "Members can view their own memberships"
   on public.organization_members for select
-  using (user_id = auth.uid());
+  to authenticated
+  using ((select auth.uid()) = user_id);
 
 create policy "Admins can manage members in their org"
   on public.organization_members for all
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members om
       where om.organization_id = organization_members.organization_id
-      and om.user_id = auth.uid()
+      and om.user_id = (select auth.uid())
       and om.role = 'admin'
     )
   );
 
 create policy "Service role can manage all memberships"
   on public.organization_members for all
-  using (auth.jwt()->>'role' = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');

@@ -1,3 +1,7 @@
+-- 20240721000005_opportunities.sql
+-- Opportunity maps and individual opportunities
+-- Design: Service-role-only writes. Authenticated users read via org membership.
+
 create table if not exists public.opportunity_maps (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete cascade,
@@ -30,27 +34,19 @@ alter table public.opportunity_maps enable row level security;
 
 create policy "Members can view org opportunity maps"
   on public.opportunity_maps for select
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members
       where organization_members.organization_id = opportunity_maps.organization_id
-        and organization_members.user_id = auth.uid()
+        and organization_members.user_id = (select auth.uid())
     )
   );
 
 create policy "Service role can manage all opportunity maps"
   on public.opportunity_maps for all
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only insert and update opportunity maps"
-  on public.opportunity_maps for insert
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only update opportunity maps"
-  on public.opportunity_maps for update
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');
 
 create table if not exists public.opportunities (
   id uuid primary key default gen_random_uuid(),
@@ -88,26 +84,18 @@ alter table public.opportunities enable row level security;
 
 create policy "Members can view opportunities in their org maps"
   on public.opportunities for select
+  to authenticated
   using (
     exists (
       select 1 from public.opportunity_maps
       join public.organization_members
         on organization_members.organization_id = opportunity_maps.organization_id
-        and organization_members.user_id = auth.uid()
+        and organization_members.user_id = (select auth.uid())
       where opportunity_maps.id = opportunities.opportunity_map_id
     )
   );
 
 create policy "Service role can manage all opportunities"
   on public.opportunities for all
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only insert and update opportunities"
-  on public.opportunities for insert
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only update opportunities"
-  on public.opportunities for update
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');

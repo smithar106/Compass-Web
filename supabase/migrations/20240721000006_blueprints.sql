@@ -1,3 +1,7 @@
+-- 20240721000006_blueprints.sql
+-- Implementation blueprints
+-- Design: Service-role-only writes. Authenticated users read via org membership.
+
 create table if not exists public.implementation_blueprints (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete cascade,
@@ -41,24 +45,16 @@ alter table public.implementation_blueprints enable row level security;
 
 create policy "Members can view org blueprints"
   on public.implementation_blueprints for select
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members
       where organization_members.organization_id = implementation_blueprints.organization_id
-        and organization_members.user_id = auth.uid()
+        and organization_members.user_id = (select auth.uid())
     )
   );
 
 create policy "Service role can manage all blueprints"
   on public.implementation_blueprints for all
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only insert and update blueprints"
-  on public.implementation_blueprints for insert
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only update blueprints"
-  on public.implementation_blueprints for update
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');

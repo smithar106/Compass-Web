@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { questions } from "@/data/assessment-questions";
 import { site } from "@/content/site";
+import { ensureAuthenticated } from "@/lib/supabase";
 import type { Answer, AssessmentSession } from "@/types";
 
 const STORAGE_KEY = "compass-assessment-session";
@@ -47,6 +48,8 @@ export default function AssessmentPage() {
   const [currentValue, setCurrentValue] = useState<string | number | boolean>("");
   const [loaded, setLoaded] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = loadSession();
@@ -112,9 +115,22 @@ export default function AssessmentPage() {
     router.push("/assessment/results");
   };
 
-  const startAssessment = () => {
-    setStarted(true);
-    setSession({ currentQuestion: 0, answers: [], completed: false });
+  const startAssessment = async () => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const user = await ensureAuthenticated();
+      setSession({
+        currentQuestion: 0,
+        answers: [],
+        completed: false,
+        userId: user.id,
+      });
+      setStarted(true);
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Authentication failed");
+      setAuthLoading(false);
+    }
   };
 
   if (!loaded) {
@@ -139,11 +155,15 @@ export default function AssessmentPage() {
           <div className="mt-10">
             <button
               onClick={startAssessment}
-              className="inline-flex items-center px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors"
+              disabled={authLoading}
+              className="inline-flex items-center px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors disabled:opacity-50"
             >
-              {site.assessment.intro.cta}
+              {authLoading ? "Preparing assessment..." : site.assessment.intro.cta}
             </button>
           </div>
+          {authError && (
+            <p className="mt-4 text-sm text-red-600">{authError}</p>
+          )}
         </div>
       </div>
     );

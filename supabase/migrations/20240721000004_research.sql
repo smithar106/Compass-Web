@@ -1,3 +1,7 @@
+-- 20240721000004_research.sql
+-- Company research runs and evidence store
+-- Design: Service-role-only writes for research. Authenticated users read via org membership.
+
 create table if not exists public.company_research_runs (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete cascade,
@@ -31,22 +35,19 @@ alter table public.company_research_runs enable row level security;
 
 create policy "Members can view org research runs"
   on public.company_research_runs for select
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members
       where organization_members.organization_id = company_research_runs.organization_id
-        and organization_members.user_id = auth.uid()
+        and organization_members.user_id = (select auth.uid())
     )
   );
 
 create policy "Service role can manage all research runs"
   on public.company_research_runs for all
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only insert research runs"
-  on public.company_research_runs for insert
-  with check (auth.role() = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');
 
 create table if not exists public.company_evidence (
   id uuid primary key default gen_random_uuid(),
@@ -85,24 +86,16 @@ alter table public.company_evidence enable row level security;
 
 create policy "Members can view org evidence"
   on public.company_evidence for select
+  to authenticated
   using (
     exists (
       select 1 from public.organization_members
       where organization_members.organization_id = company_evidence.organization_id
-        and organization_members.user_id = auth.uid()
+        and organization_members.user_id = (select auth.uid())
     )
   );
 
 create policy "Service role can manage all evidence"
   on public.company_evidence for all
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only insert and update evidence"
-  on public.company_evidence for insert
-  with check (auth.role() = 'service_role');
-
-create policy "Service-role-only update evidence"
-  on public.company_evidence for update
-  using (auth.role() = 'service_role')
-  with check (auth.role() = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');

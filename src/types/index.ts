@@ -151,6 +151,24 @@ export interface AssessmentSession {
   answers: Answer[];
   completed: boolean;
   startedAt?: string;
+  userId?: string;
+  sessionId?: string;
+}
+
+export interface AssessmentSessionDB {
+  id: string;
+  user_id: string;
+  organization_id: string | null;
+  status: "in_progress" | "completed" | "abandoned";
+  assessment_version: string;
+  total_questions_presented: number | null;
+  questions_skipped: number;
+  completion_time_minutes: number | null;
+  metadata: Record<string, unknown>;
+  started_at: string;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CompanyProfile {

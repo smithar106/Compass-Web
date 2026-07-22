@@ -45,13 +45,16 @@ values (
 -- insert into public.organization_members (organization_id, user_id, role)
 -- values ('a0000000-0000-0000-0000-000000000001', '<REPLACE_WITH_USER_ID>', 'admin');
 
--- Sample assessment session (anonymous)
-insert into public.assessment_sessions (id, organization_id, anonymous_token, status, total_questions_presented, completion_time_minutes, metadata)
+-- Sample assessment session (requires a real auth user)
+-- Replace REPLACE_WITH_USER_ID with an actual auth.users id after signup.
+-- For Supabase Anonymous Auth: create a session first via the app, then update this seed.
+insert into public.assessment_sessions (id, user_id, organization_id, status, assessment_version, total_questions_presented, completion_time_minutes, metadata)
 values (
   'b0000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000000',
   'a0000000-0000-0000-0000-000000000001',
-  'anon-token-demo-001',
   'completed',
+  '1.0.0',
   25,
   18,
   '{

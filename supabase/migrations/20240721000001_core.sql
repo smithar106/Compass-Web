@@ -57,12 +57,15 @@ alter table public.profiles enable row level security;
 
 create policy "Users can view own profile"
   on public.profiles for select
-  using (auth.uid() = id);
+  to authenticated
+  using ((select auth.uid()) = id);
 
 create policy "Users can update own profile"
   on public.profiles for update
-  using (auth.uid() = id);
+  to authenticated
+  using ((select auth.uid()) = id);
 
 create policy "Service role can manage all profiles"
   on public.profiles for all
-  using (auth.jwt()->>'role' = 'service_role');
+  using (auth.jwt()->>'role' = 'service_role')
+  with check (auth.jwt()->>'role' = 'service_role');

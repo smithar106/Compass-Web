@@ -7,10 +7,10 @@ Compass uses **Supabase** (managed Postgres) for persistence. The schema is orga
 ## Design Principles
 
 1. **Evidence-first**: Every fact, inference, and observation stores its source, confidence, and evidence class. Nothing exists without provenance.
-2. **Anonymous → Authenticated flow**: Sessions start anonymously (client-generated token), can be claimed later by an authenticated user.
+2. **Supabase Anonymous Auth**: All users authenticate via Supabase Auth. Anonymous users call `supabase.auth.signInAnonymously()` before creating assessment sessions. Permanent users authenticate normally. Both use `auth.uid()` for ownership — no custom tokens or client headers.
 3. **Service-role-only writes**: Research, reasoning, opportunity generation, and blueprint generation are server-side only. Client-side code reads through RLS policies.
 4. **JSON schemas as contracts**: All `jsonb` columns have corresponding JSON Schema files in `Major-Compass/schemas/`. The database stores data; the schemas define its shape.
-5. **RLS by organization membership**: All organization-scoped tables use the same RLS pattern — users access data only for orgs where they are members.
+5. **RLS by organization membership**: All organization-scoped tables use the same RLS pattern — authenticated users access data only for orgs where they are members.
 
 ## Table Overview
 
@@ -42,12 +42,12 @@ Maps users to organizations. One user can belong to multiple orgs with different
 | role | text | `admin`, `member`, or `viewer` |
 
 ### `assessment_sessions`
-Assessment sessions supporting anonymous progress.
+Assessment sessions owned by a Supabase auth user (anonymous or permanent).
 
 | Column | Type | Description |
 |--------|------|-------------|
-| anonymous_token | text | Client-generated token for anonymous session |
-| status | text | `not_started`, `in_progress`, `completed`, `expired` |
+| user_id | uuid FK | References `auth.users(id)`. Non-null. Anonymous or permanent. |
+| status | text | `in_progress`, `completed`, `abandoned` |
 | metadata | jsonb | Per `assessment.schema.json` |
 
 ### `assessment_answers`
@@ -116,10 +116,13 @@ The only table permitting anonymous INSERT. No authentication required to apply.
 
 All application tables have RLS enabled. Policies follow consistent patterns:
 
-- **SELECT**: User can read data for organizations where they are members.
+- **SELECT**: Authenticated users can read data for organizations where they are members.
 - **INSERT/UPDATE/DELETE**: Restricted to organization admins or service role.
-- **Anonymous access**: Only `assessment_sessions` (with token) and `design_partner_applications` (INSERT only).
-- **Service role**: Bypasses RLS. Used by server-side code for research, reasoning, and generation.
+- **Anonymous access**: No custom token mechanism. All users (including anonymous) authenticate via Supabase Auth and use `auth.uid()`. The `design_partner_applications` table permits INSERT from any role (including unauthenticated).
+- **Session ownership**: Assessment sessions are owned by `auth.uid()` directly. The `user_id` column references `auth.users(id)` and is non-null.
+- **Answer ownership**: Assessment answers inherit ownership through the parent session's `user_id`. RLS policies use an `EXISTS` subquery against `assessment_sessions` to verify ownership.
+- **All policies include `to authenticated`**: Except `design_partner_applications` INSERT (any role) and service-role policies (bypass RLS).
+- **Service role**: Uses `auth.jwt()->>'role' = 'service_role'` for documentation/defense-in-depth. RLS is bypassed entirely for service-role requests.
 
 ## Applying Migrations
 
