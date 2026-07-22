@@ -309,3 +309,15 @@ function ResultsContent() {
     </div>
   );
 }
+
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="pt-32 pb-20 px-4 flex items-center justify-center min-h-[50vh]">
+        <div className="text-stone text-sm">Loading...</div>
+      </div>
+    }>
+      <ResultsContent />
+    </Suspense>
+  );
+}
