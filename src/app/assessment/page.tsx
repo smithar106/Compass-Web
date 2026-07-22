@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect, useCallback, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { questions } from "@/data/assessment-questions";
 import { site } from "@/content/site";
 import { ensureAuthenticated } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase";
+import { trackAssessmentStarted, trackAssessmentCompleted } from "@/lib/analytics";
 import type { Answer, AssessmentSession } from "@/types";
 
 const STORAGE_KEY = "compass-assessment-session";
-const CURRENT_VERSION = "1.0.0";
+const CURRENT_VERSION = "2.0.0";
 
 function loadSession(): AssessmentSession | null {
   if (typeof window === "undefined") return null;
@@ -35,16 +36,11 @@ function clearSession(): void {
   sessionStorage.removeItem(STORAGE_KEY);
 }
 
-const questionTypeLabels: Record<string, string> = {
-  boolean: "Yes / No",
-  scale: "Scale 1\u20135",
-  "multi-choice": "Select one",
-  open: "Open response",
-};
-
-export default function AssessmentPage() {
+function AssessmentForm() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const supabase = useMemo(() => typeof window !== "undefined" ? createClient() : null, []);
+  const isDemo = searchParams.get("demo") === "true";
+  const supabase = typeof window !== "undefined" ? createClient() : null;
   const [started, setStarted] = useState(false);
   const [session, setSession] = useState<AssessmentSession>({
     currentQuestion: 0,
@@ -56,10 +52,9 @@ export default function AssessmentPage() {
   const [showComplete, setShowComplete] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [persisting, setPersisting] = useState(false);
   const [dbSessionId, setDbSessionId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const answerTimestamps = useRef<Map<number, number>>(new Map());
+  const answerTimestamps = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
     const saved = loadSession();
@@ -94,7 +89,6 @@ export default function AssessmentPage() {
         })
         .select("id")
         .single();
-
       if (error) throw error;
       setDbSessionId((data as any).id);
       setSession((prev) => ({ ...prev, sessionId: (data as any).id }));
@@ -103,62 +97,10 @@ export default function AssessmentPage() {
     }
   }
 
-  async function persistAnswer(
-    questionId: number,
-    value: string | number | boolean,
-    order: number,
-    wasSkipped: boolean
-  ) {
-    if (!dbSessionId || !supabase) return;
-    setSaving(true);
-    const startTime = answerTimestamps.current.get(questionId) || Date.now();
-    const timeSpent = Math.round((Date.now() - startTime) / 1000);
-
-    try {
-      const { error } = await (supabase as any).from("assessment_answers").upsert(
-        {
-          session_id: dbSessionId,
-          question_id: questionId,
-          question_version: CURRENT_VERSION,
-          answer_value: value,
-          answer_type: typeof value === "boolean" ? "boolean" : typeof value === "number" ? "scale" : "text",
-          question_order: order,
-          was_skipped: wasSkipped,
-          time_spent: timeSpent,
-          metadata: {},
-        },
-        {
-          onConflict: "session_id,question_id",
-          ignoreDuplicates: false,
-        }
-      );
-      if (error) console.error("Failed to persist answer:", error);
-    } catch (err) {
-      console.error("Failed to persist answer:", err);
-    } finally {
-      setSaving(false);
-    }
-  }
-
   const currentQuestion = questions[session.currentQuestion];
   const progress = questions.length > 0
     ? Math.round((session.answers.length / questions.length) * 100)
     : 0;
-
-  // Detect when section changes to show section context
-  const prevSection = useRef<string | null>(null);
-  const [sectionIntro, setSectionIntro] = useState<string | null>(null);
-  useEffect(() => {
-    if (currentQuestion && currentQuestion.section !== prevSection.current) {
-      const ctx = (site.assessment.sections as any)[currentQuestion.section];
-      if (ctx) {
-        setSectionIntro(ctx);
-        prevSection.current = currentQuestion.section;
-        const timer = setTimeout(() => setSectionIntro(null), 5000);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [currentQuestion]);
 
   const handleAnswer = useCallback(async () => {
     if (!currentQuestion) return;
@@ -184,32 +126,14 @@ export default function AssessmentPage() {
       setSession(finalSession);
       saveSession(finalSession);
       setShowComplete(true);
-
-      if (dbSessionId && supabase) {
-        await persistAnswer(currentQuestion.id, currentValue, session.answers.length, false);
-        await (supabase as any)
-          .from("assessment_sessions")
-          .update({
-            status: "completed",
-            completed_at: new Date().toISOString(),
-            total_questions_presented: questions.length,
-            questions_skipped: 0,
-          })
-          .eq("id", dbSessionId);
-      }
+      trackAssessmentCompleted();
     } else {
-      setSession({
-        currentQuestion: session.currentQuestion + 1,
+      setSession((prev) => ({
+        ...prev,
+        currentQuestion: prev.currentQuestion + 1,
         answers: newAnswers,
-        completed: false,
-        sessionId: dbSessionId || undefined,
-        userId: session.userId,
-      });
+      }));
       setCurrentValue("");
-
-      if (dbSessionId) {
-        await persistAnswer(currentQuestion.id, currentValue, session.answers.length, false);
-      }
     }
   }, [currentQuestion, currentValue, session, dbSessionId]);
 
@@ -232,34 +156,15 @@ export default function AssessmentPage() {
       setSession(finalSession);
       saveSession(finalSession);
       setShowComplete(true);
-
-      if (dbSessionId && supabase) {
-        await (supabase as any)
-          .from("assessment_sessions")
-          .update({ status: "completed", completed_at: new Date().toISOString() })
-          .eq("id", dbSessionId);
-      }
+      trackAssessmentCompleted();
     } else {
-      setSession({
-        currentQuestion: session.currentQuestion + 1,
+      setSession((prev) => ({
+        ...prev,
+        currentQuestion: prev.currentQuestion + 1,
         answers: newAnswers,
-        completed: false,
-        sessionId: dbSessionId || undefined,
-        userId: session.userId,
-      });
-
-      if (dbSessionId) {
-        await persistAnswer(currentQuestion.id, "", session.answers.length, true);
-      }
+      }));
     }
   }, [currentQuestion, session, dbSessionId]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey && currentQuestion?.type === "open") {
-      e.preventDefault();
-      handleAnswer();
-    }
-  };
 
   const goToResults = () => {
     clearSession();
@@ -267,6 +172,18 @@ export default function AssessmentPage() {
   };
 
   const startAssessment = async () => {
+    if (isDemo) {
+      setSession({
+        currentQuestion: 0,
+        answers: [],
+        completed: false,
+        userId: "demo-user",
+      });
+      setStarted(true);
+      trackAssessmentStarted();
+      return;
+    }
+
     setAuthLoading(true);
     setAuthError(null);
     try {
@@ -278,6 +195,7 @@ export default function AssessmentPage() {
         userId: user.id,
       });
       setStarted(true);
+      trackAssessmentStarted();
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : "Authentication failed");
       setAuthLoading(false);
@@ -296,6 +214,11 @@ export default function AssessmentPage() {
     return (
       <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
+          {isDemo && (
+            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-amber-100 border border-amber-300 rounded-full text-xs font-medium text-amber-800">
+              Demo mode
+            </div>
+          )}
           <h1 className="text-heading font-bold text-ink">{site.assessment.intro.headline}</h1>
           <p className="mt-4 text-body text-stone leading-relaxed">{site.assessment.intro.body}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-stone">
@@ -307,10 +230,6 @@ export default function AssessmentPage() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
               {site.assessment.intro.sections}
             </span>
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              {site.assessment.intro.questions}
-            </span>
           </div>
           <div className="mt-10">
             <button
@@ -318,7 +237,7 @@ export default function AssessmentPage() {
               disabled={authLoading}
               className="inline-flex items-center px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors disabled:opacity-50"
             >
-              {authLoading ? "Preparing organizational discovery..." : site.assessment.intro.cta}
+              {authLoading ? "Preparing..." : site.assessment.intro.cta}
             </button>
           </div>
           {authError && (
@@ -340,7 +259,6 @@ export default function AssessmentPage() {
           </div>
           <h1 className="text-heading font-bold text-ink">{site.assessment.complete.headline}</h1>
           <p className="mt-4 text-body text-stone">{site.assessment.complete.body}</p>
-          <div className="mt-4 text-xs text-stone">Responses saved securely</div>
           <div className="mt-10">
             <button
               onClick={goToResults}
@@ -365,27 +283,15 @@ export default function AssessmentPage() {
   return (
     <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
-        {/* Section context banner */}
-        {sectionIntro && (
-          <div className="mb-6 bg-mist border border-forest/20 rounded-lg p-4 animate-fadeIn">
-            <p className="text-sm text-ink leading-relaxed">
-              <span className="font-semibold text-forest">{currentQuestion.section}: </span>
-              {sectionIntro}
-            </p>
+        <div className="mb-6">
+          <div className="text-xs text-stone mb-1">
+            <span className="font-medium text-forest">{currentQuestion.category || currentQuestion.section}</span>
+            <span className="mx-2">/</span>
+            {currentQuestion.section}
           </div>
-        )}
-
-        {/* Progress */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between text-sm text-stone mb-2">
-            <span className="flex items-center gap-2">
-              <span className="font-medium text-ink">{currentQuestion.section}</span>
-              <span className="text-xs text-stone">Question {session.answers.length + 1} of {questions.length}</span>
-              {saving && <span className="ml-1 text-xs text-forest italic">Saving...</span>}
-            </span>
-            {saving && (
-              <span className="w-2 h-2 bg-forest rounded-full animate-pulse" />
-            )}
+          <div className="flex items-center gap-2 text-xs text-stone mb-2">
+            <span>Question {session.answers.length + 1} of {questions.length}</span>
+            {saving && <span className="text-forest italic">Saving...</span>}
           </div>
           <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
             <div
@@ -395,16 +301,16 @@ export default function AssessmentPage() {
           </div>
         </div>
 
-        {/* Question card */}
         <div className="bg-white border border-border rounded-lg p-8">
-          <div className="mb-3">
-            <span className="text-xs text-stone font-medium uppercase tracking-wider">
-              {questionTypeLabels[currentQuestion.type]}
-            </span>
-          </div>
           <h2 className="text-subhead font-semibold text-ink">{currentQuestion.question}</h2>
+          <p className="text-xs text-stone mt-2">
+            {currentQuestion.type === "boolean" ? "Select Yes or No" :
+             currentQuestion.type === "scale" ? "Select a value on the scale" :
+             currentQuestion.type === "multi-choice" ? "Select one option" :
+             "Type your answer"}
+          </p>
 
-          <div className="mt-6" onKeyDown={handleKeyDown}>
+          <div className="mt-6">
             {currentQuestion.type === "boolean" && (
               <div className="flex gap-4">
                 <button
@@ -428,20 +334,17 @@ export default function AssessmentPage() {
 
             {currentQuestion.type === "scale" && currentQuestion.options && (
               <div className="flex flex-wrap gap-2">
-                {currentQuestion.options.map((opt) => {
-                  const val = opt.split("-")[0].trim();
-                  return (
-                    <button
-                      key={opt}
-                      onClick={() => { setCurrentValue(opt); }}
-                      className={`px-4 py-2.5 border rounded-lg text-sm transition-colors ${
-                        currentValue === opt ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
+                {currentQuestion.options.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => { setCurrentValue(opt); }}
+                    className={`px-4 py-2.5 border rounded-lg text-sm transition-colors ${
+                      currentValue === opt ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
               </div>
             )}
 
@@ -467,19 +370,10 @@ export default function AssessmentPage() {
                   autoFocus
                   value={typeof currentValue === "string" ? currentValue : ""}
                   onChange={(e) => setCurrentValue(e.target.value)}
-                  placeholder="Type your answer..."
-                  rows={3}
+                  placeholder="Describe the workflow, pain points, and current process..."
+                  rows={4}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest resize-y"
                 />
-                <div className="mt-4 flex justify-end">
-                  <button
-                    onClick={handleAnswer}
-                    disabled={!currentValue || currentValue === ""}
-                    className="px-6 py-2.5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </div>
               </div>
             )}
           </div>
@@ -491,32 +385,41 @@ export default function AssessmentPage() {
             >
               Skip this question
             </button>
-            <div className="flex gap-1">
-              {session.answers.length > 0 && (
+            <div className="flex gap-2">
+              {session.currentQuestion > 0 && (
                 <button
                   onClick={() => {
-                    const prev = Math.max(0, session.currentQuestion - 1);
                     setCurrentValue("");
-                    setSession((s) => ({ ...s, currentQuestion: prev }));
+                    setSession((s) => ({ ...s, currentQuestion: Math.max(0, s.currentQuestion - 1) }));
                   }}
                   className="text-xs text-stone hover:text-ink transition-colors px-3 py-1"
                 >
                   Back
                 </button>
               )}
-              {(currentQuestion.type === "boolean" || currentQuestion.type === "scale" || currentQuestion.type === "multi-choice") && currentValue !== "" && (
-                <button
-                  onClick={handleAnswer}
-                  disabled={saving}
-                  className="px-4 py-1 bg-forest text-white text-xs font-medium rounded-md hover:bg-leaf transition-colors disabled:opacity-50"
-                >
-                  {saving ? "Saving..." : "Next"}
-                </button>
-              )}
+              <button
+                onClick={handleAnswer}
+                disabled={currentValue === "" || currentValue === undefined}
+                className="px-4 py-1 bg-forest text-white text-xs font-medium rounded-md hover:bg-leaf transition-colors disabled:opacity-40"
+              >
+                {session.currentQuestion + 1 >= questions.length ? "Complete" : "Next"}
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AssessmentPage() {
+  return (
+    <Suspense fallback={
+      <div className="pt-32 pb-20 px-4 flex items-center justify-center min-h-[50vh]">
+        <div className="text-stone text-sm">Loading...</div>
+      </div>
+    }>
+      <AssessmentForm />
+    </Suspense>
   );
 }

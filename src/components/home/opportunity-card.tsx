@@ -73,55 +73,61 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
             </div>
           </div>
 
-          <div>
-            <h4 className="text-xs font-semibold text-stone uppercase tracking-wider mb-3">KPIs</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {opp.kpis.map((kpi, i) => (
-                <div key={i} className="border border-border rounded p-3">
-                  <p className="text-xs text-stone">{kpi.metric}</p>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-sm text-stone">{kpi.current}</span>
-                    <span className="text-sm font-medium text-ink">→ {kpi.target}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-xs font-semibold text-stone uppercase tracking-wider mb-3">Implementation Phases</h4>
-            <div className="space-y-3">
-              {opp.phases.map((phase, i) => (
-                <div key={i} className="border border-border rounded p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h5 className="text-sm font-medium text-ink">
-                      Phase {i + 1}: {phase.phase}
-                    </h5>
-                    <span className="text-xs text-stone">{phase.duration}</span>
-                  </div>
-                  <ul className="space-y-1">
-                    {phase.steps.map((step, j) => (
-                      <li key={j} className="text-sm text-stone flex items-start gap-2">
-                        <span className="text-forest mt-1">•</span>
-                        {step}
-                      </li>
-                    ))}
-                  </ul>
-                  {phase.dependencies.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-border">
-                      <span className="text-xs text-stone">Depends on: </span>
-                      <span className="text-xs text-ink">{phase.dependencies.join(", ")}</span>
+          {opp.kpis && (
+            <div>
+              <h4 className="text-xs font-semibold text-stone uppercase tracking-wider mb-3">KPIs</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {opp.kpis.map((kpi, i) => (
+                  <div key={i} className="border border-border rounded p-3">
+                    <p className="text-xs text-stone">{kpi.metric}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-sm text-stone">{kpi.current}</span>
+                      <span className="text-sm font-medium text-ink">→ {kpi.target}</span>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="bg-mist/50 rounded p-3">
-            <span className="text-xs font-semibold text-stone uppercase">Tradeoff: </span>
-            <span className="text-sm text-ink">{opp.tradeoff}</span>
-          </div>
+          {opp.phases && (
+            <div>
+              <h4 className="text-xs font-semibold text-stone uppercase tracking-wider mb-3">Implementation Phases</h4>
+              <div className="space-y-3">
+                {opp.phases.map((phase, i) => (
+                  <div key={i} className="border border-border rounded p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="text-sm font-medium text-ink">
+                        Phase {i + 1}: {phase.phase}
+                      </h5>
+                      <span className="text-xs text-stone">{phase.duration}</span>
+                    </div>
+                    <ul className="space-y-1">
+                      {phase.steps.map((step, j) => (
+                        <li key={j} className="text-sm text-stone flex items-start gap-2">
+                          <span className="text-forest mt-1">•</span>
+                          {step}
+                        </li>
+                      ))}
+                    </ul>
+                    {phase.dependencies.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-border">
+                        <span className="text-xs text-stone">Depends on: </span>
+                        <span className="text-xs text-ink">{phase.dependencies.join(", ")}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {opp.tradeoff && (
+            <div className="bg-mist/50 rounded p-3">
+              <span className="text-xs font-semibold text-stone uppercase">Tradeoff: </span>
+              <span className="text-sm text-ink">{opp.tradeoff}</span>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -74,13 +74,13 @@ export default function IntelligencePage() {
     <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-heading font-bold text-ink">{site.intelligence.headline}</h1>
-          <p className="mt-2 text-body text-stone">{site.intelligence.subtitle}</p>
+          <h1 className="text-heading font-bold text-ink">Organizational Intelligence</h1>
+          <p className="mt-2 text-body text-stone">How Compass understands your organization before making recommendations.</p>
         </div>
 
         {!hasSession && (
           <div className="text-center py-16 border border-border rounded-lg bg-white">
-            <p className="text-stone text-sm mb-4">{site.intelligence.noData}</p>
+            <p className="text-stone text-sm mb-4">Complete an organizational discovery to see your intelligence profile.</p>
             <Link
               href="/assessment"
               className="inline-flex items-center px-6 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors"

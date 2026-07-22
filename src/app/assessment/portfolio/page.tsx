@@ -102,13 +102,13 @@ export default function PortfolioPage() {
     <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-heading font-bold text-ink">{site.portfolio.headline}</h1>
-          <p className="mt-2 text-body text-stone">{site.portfolio.subtitle}</p>
+          <h1 className="text-heading font-bold text-ink">AI Opportunity Portfolio</h1>
+          <p className="mt-2 text-body text-stone">Your ranked portfolio of AI opportunities. Track status, compare tradeoffs, and plan implementation sequencing.</p>
         </div>
 
         {!hasSession && (
           <div className="text-center py-16 border border-border rounded-lg bg-white">
-            <p className="text-stone text-sm mb-4">{site.portfolio.noResults}</p>
+            <p className="text-stone text-sm mb-4">No portfolio found. Complete an organizational discovery first.</p>
             <Link
               href="/assessment"
               className="inline-flex items-center px-6 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors"

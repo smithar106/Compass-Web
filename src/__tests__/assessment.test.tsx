@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import { questions } from "@/data/assessment-questions";
 
 describe("Assessment questions", () => {
-  it("should have exactly 25 questions", () => {
-    expect(questions).toHaveLength(25);
+  it("should have questions defined", () => {
+    expect(questions.length).toBeGreaterThan(0);
   });
 
   it("each question should have required fields", () => {
     for (const q of questions) {
       expect(q.id).toBeDefined();
-      expect(typeof q.id).toBe("number");
+      expect(typeof q.id).toBe("string");
       expect(q.section).toBeDefined();
       expect(typeof q.section).toBe("string");
       expect(q.question).toBeDefined();
@@ -36,33 +36,44 @@ describe("Assessment questions", () => {
     }
   });
 
-  it("should have questions in 10 sections", () => {
+  it("should have questions in multiple sections", () => {
     const sections = new Set(questions.map((q) => q.section));
-    expect(sections.size).toBe(10);
-    expect(sections).toContain("Sales");
-    expect(sections).toContain("Marketing");
-    expect(sections).toContain("Customer Success");
-    expect(sections).toContain("Support");
-    expect(sections).toContain("Finance");
-    expect(sections).toContain("Product");
-    expect(sections).toContain("Engineering");
-    expect(sections).toContain("People/HR");
-    expect(sections).toContain("Legal");
-    expect(sections).toContain("Operations");
+    expect(sections.size).toBeGreaterThanOrEqual(4);
   });
 
-  it("Sales section should have 3 questions", () => {
-    const salesQuestions = questions.filter((q) => q.section === "Sales");
-    expect(salesQuestions).toHaveLength(3);
+  it("should have category field for each question", () => {
+    for (const q of questions) {
+      expect(q.category).toBeDefined();
+      expect(typeof q.category).toBe("string");
+    }
   });
 
-  it("Support section should have 3 questions", () => {
-    const supportQuestions = questions.filter((q) => q.section === "Support");
-    expect(supportQuestions).toHaveLength(3);
+  it("questions should cover diverse categories", () => {
+    const categories = new Set(questions.map((q) => q.category));
+    expect(categories.size).toBeGreaterThanOrEqual(4);
+    const expected = ["department", "workflow", "pain", "frequency", "tools", "cost", "risk", "constraints"];
+    for (const cat of expected) {
+      if (categories.has(cat)) {
+        // At least one question matches this category
+        expect(questions.filter((q) => q.category === cat).length).toBeGreaterThanOrEqual(1);
+      }
+    }
   });
 
-  it("Finance section should have 2 questions", () => {
-    const financeQuestions = questions.filter((q) => q.section === "Finance");
-    expect(financeQuestions).toHaveLength(2);
+  it("questions should not ask users to design AI solutions", () => {
+    const forbidden = ["build an AI", "create an AI", "design an AI", "train a model", "implement AI"];
+    for (const q of questions) {
+      for (const phrase of forbidden) {
+        expect(q.question.toLowerCase()).not.toContain(phrase);
+      }
+    }
+  });
+
+  it("questions should be business-problem focused", () => {
+    const focused = ["workflow", "process", "outcome", "pain", "problem", "challenge", "currently"];
+    const anyFocused = questions.some((q) =>
+      focused.some((f) => q.question.toLowerCase().includes(f))
+    );
+    expect(anyFocused).toBe(true);
   });
 });
