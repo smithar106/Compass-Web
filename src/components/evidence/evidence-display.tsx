@@ -8,23 +8,43 @@ interface EvidenceDisplayProps {
   assumptions: AssumptionItem[];
   whyChose?: string;
   whyRejected?: string;
+  alternativesConsidered?: string;
   whatCouldChange?: string;
+  howSuccessMeasured?: string;
+  whenTechnicalHelpRequired?: string;
 }
 
-const evidenceTypeLabels: Record<string, string> = {
-  "user-provided": "User-provided evidence",
-  "deterministic-analysis": "Deterministic analysis",
-  "ai-inference": "AI inference",
-  "hypothesis": "Hypothesis",
-  "missing": "Missing information",
-};
-
-const evidenceTypeIcons: Record<string, string> = {
-  "user-provided": "\uD83D\uDCDD",
-  "deterministic-analysis": "\u2699\uFE0F",
-  "ai-inference": "\uD83E\uDD16",
-  "hypothesis": "\uD83D\uDCA1",
-  "missing": "\u2753",
+const evidenceConfig: Record<string, { label: string; icon: string; note: string }> = {
+  "user-provided": {
+    label: "User-provided evidence",
+    icon: "\u270D\ufe0F",
+    note: "Stated by the organization during assessment",
+  },
+  "deterministic-analysis": {
+    label: "Deterministic analysis",
+    icon: "\u2699\uFE0F",
+    note: "Computed from available data with verifiable logic",
+  },
+  "external-research": {
+    label: "External research",
+    icon: "\uD83D\uDCD6",
+    note: "Published benchmark or third-party study",
+  },
+  "ai-inference": {
+    label: "AI inference",
+    icon: "\uD83E\uDD16",
+    note: "Pattern matched across similar organizations \u2014 not certainty",
+  },
+  "hypothesis": {
+    label: "Hypothesis",
+    icon: "\uD83D\uDCA1",
+    note: "Informed assumption based on general best practices",
+  },
+  "missing": {
+    label: "Missing information",
+    icon: "\u2753",
+    note: "No data available to assess this factor",
+  },
 };
 
 const confidenceStyles: Record<string, string> = {
@@ -35,57 +55,97 @@ const confidenceStyles: Record<string, string> = {
   Unknown: "bg-gray-100 text-gray-500 border-gray-200",
 };
 
-export function EvidenceDisplay({ evidence, assumptions, whyChose, whyRejected, whatCouldChange }: EvidenceDisplayProps) {
-  const [showTechnical, setShowTechnical] = useState(false);
+function SectionHeading({ label }: { label: string }) {
+  return (
+    <h4 className="text-sm font-semibold text-ink mb-3">{label}</h4>
+  );
+}
+
+export function EvidenceDisplay({
+  evidence,
+  assumptions,
+  whyChose,
+  whyRejected,
+  alternativesConsidered,
+  whatCouldChange,
+  howSuccessMeasured,
+  whenTechnicalHelpRequired,
+}: EvidenceDisplayProps) {
+  const [showAllEvidence, setShowAllEvidence] = useState(false);
+
+  const displayedEvidence = showAllEvidence ? evidence : evidence.slice(0, 4);
 
   return (
     <div className="space-y-6">
-      {/* Evidence section */}
+      {/* Why Compass chose this */}
+      {whyChose && (
+        <div>
+          <SectionHeading label="Why Compass chose this" />
+          <div className="p-3 bg-forest/5 border border-forest/10 rounded-lg">
+            <p className="text-xs text-stone leading-relaxed">{whyChose}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Evidence */}
       <div>
-        <h4 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-          <svg className="w-4 h-4 text-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-          Evidence
-        </h4>
+        <div className="flex items-center justify-between mb-3">
+          <SectionHeading label="Evidence" />
+          {evidence.length > 4 && (
+            <button
+              onClick={() => setShowAllEvidence(!showAllEvidence)}
+              className="text-xs text-forest hover:text-leaf font-medium"
+            >
+              {showAllEvidence ? "Show less" : `Show all (${evidence.length})`}
+            </button>
+          )}
+        </div>
         <div className="space-y-2">
-          {evidence.map((item, i) => (
-            <div key={i} className={`border rounded-lg p-3 text-xs ${
-              item.type === "missing" ? "bg-stone-50 border-dashed" : "bg-white"
-            }`}>
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-xs">{evidenceTypeIcons[item.type] || "\u2022"}</span>
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${
-                    confidenceStyles[item.confidence || "Unknown"]
-                  }`}>
-                    {item.confidence || "Unknown"}
-                  </span>
-                  <span className="text-stone truncate">{evidenceTypeLabels[item.type] || item.type}</span>
+          {displayedEvidence.map((item, i) => {
+            const cfg = evidenceConfig[item.type] || { label: item.type, icon: "\u2022", note: "" };
+            return (
+              <div
+                key={i}
+                className={`border rounded-lg p-3 text-xs ${
+                  item.type === "missing" ? "bg-stone-50 border-dashed border-stone-300" :
+                  item.type === "hypothesis" ? "bg-amber-50/40 border-amber-200" :
+                  item.type === "ai-inference" ? "bg-purple-50/40 border-purple-200" :
+                  "bg-white border-border"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                    <span className="text-xs">{cfg.icon}</span>
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${
+                      confidenceStyles[item.confidence || "Unknown"]
+                    }`}>
+                      {item.confidence || "Unknown"}
+                    </span>
+                    <span className="text-stone font-medium">{cfg.label}</span>
+                    {cfg.note && (
+                      <span className="text-stone/60 text-[10px] italic hidden sm:inline">&mdash; {cfg.note}</span>
+                    )}
+                  </div>
+                  {item.timestamp && (
+                    <span className="text-stone/60 flex-shrink-0 text-[10px]">{new Date(item.timestamp).toLocaleDateString()}</span>
+                  )}
                 </div>
-                {item.timestamp && (
-                  <span className="text-stone flex-shrink-0">{new Date(item.timestamp).toLocaleDateString()}</span>
+                <p className="text-ink mt-1">{item.detail}</p>
+                {item.source && (
+                  <p className="text-stone/70 mt-0.5 text-[10px]">
+                    <span className="font-medium">Source: </span>{item.source}
+                  </p>
                 )}
               </div>
-              <p className="text-ink mt-1">{item.detail}</p>
-              {item.source && (
-                <p className="text-stone mt-0.5">
-                  <span className="font-medium">Source: </span>{item.source}
-                </p>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* Assumptions section */}
+      {/* Assumptions */}
       <div>
-        <h4 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-          <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-          </svg>
-          Assumptions
-        </h4>
+        <SectionHeading label="Assumptions" />
+        <p className="text-xs text-stone/70 mb-2 italic">These are not facts. If any assumption is wrong, the recommendation may change.</p>
         <div className="space-y-2">
           {assumptions.map((a, i) => (
             <div key={i} className="border border-amber-200 bg-amber-50/30 rounded-lg p-3">
@@ -107,29 +167,53 @@ export function EvidenceDisplay({ evidence, assumptions, whyChose, whyRejected, 
         </div>
       </div>
 
-      {/* Why Compass chose this */}
-      {whyChose && (
+      {/* Alternatives considered */}
+      {alternativesConsidered && (
         <div>
-          <h4 className="text-sm font-semibold text-ink mb-2">Why Compass chose this</h4>
-          <p className="text-xs text-stone leading-relaxed">{whyChose}</p>
+          <SectionHeading label="Alternatives considered" />
+          <p className="text-xs text-stone leading-relaxed">{alternativesConsidered}</p>
         </div>
       )}
 
-      {/* Why Compass rejected alternatives */}
+      {/* Why alternatives were rejected */}
       {whyRejected && (
         <div>
-          <h4 className="text-sm font-semibold text-ink mb-2">Why Compass rejected alternatives</h4>
-          <p className="text-xs text-stone leading-relaxed">{whyRejected}</p>
+          <SectionHeading label="Why alternatives were rejected" />
+          <div className="p-3 bg-red-50/50 border border-red-100 rounded-lg">
+            <p className="text-xs text-stone leading-relaxed">{whyRejected}</p>
+          </div>
         </div>
       )}
 
-      {/* What could change */}
-      {whatCouldChange && (
-        <div>
-          <h4 className="text-sm font-semibold text-ink mb-2">What could change this recommendation</h4>
-          <p className="text-xs text-stone leading-relaxed">{whatCouldChange}</p>
+      {/* What could change this recommendation */}
+      <div>
+        <SectionHeading label="What could change this recommendation" />
+        <div className="p-3 bg-amber-50/40 border border-amber-200 rounded-lg">
+          <p className="text-xs text-stone leading-relaxed">
+            {whatCouldChange || "New user-provided information, changing business conditions, or availability of new data could alter this recommendation. The recommendation is based on the current state of the organization."}
+          </p>
         </div>
-      )}
+      </div>
+
+      {/* How success will be measured */}
+      <div>
+        <SectionHeading label="How success will be measured" />
+        <div className="p-3 bg-blue-50/40 border border-blue-200 rounded-lg">
+          <p className="text-xs text-stone leading-relaxed">
+            {howSuccessMeasured || "Success metrics should be defined with the team before implementation begins. Baseline measurements are needed to quantify improvement."}
+          </p>
+        </div>
+      </div>
+
+      {/* When technical help is required */}
+      <div>
+        <SectionHeading label="When technical help is required" />
+        <div className="p-3 bg-mist border border-border rounded-lg">
+          <p className="text-xs text-stone leading-relaxed">
+            {whenTechnicalHelpRequired || "Technical requirements vary by intervention. Review the Implementation Blueprint for detailed system, API, and data requirements."}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

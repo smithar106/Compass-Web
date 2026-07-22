@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const designPartnerSchema = z.object({
   name: z.string().min(2),
@@ -14,20 +15,6 @@ const designPartnerSchema = z.object({
   honeypot: z.string().max(0).optional(),
 });
 
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
-    return true;
-  }
-  if (entry.count >= 5) return false;
-  entry.count++;
-  return true;
-}
-
 function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
@@ -40,7 +27,7 @@ export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
 
-    if (!checkRateLimit(ip)) {
+    if (!checkRateLimit(`design-partner:${ip}`, 5, 3_600_000)) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
         { status: 429, headers: corsHeaders() }
@@ -57,10 +44,29 @@ export async function POST(request: NextRequest) {
     }
 
     const parsed = designPartnerSchema.parse(body);
-
     const supabase = createAdminClient();
-    const { error: insertError } = await supabase
-      .from("design_partner_applications" as any)
+
+    const { data: existing } = await (supabase as any)
+      .from("design_partner_applications")
+      .select("id, status")
+      .eq("email", parsed.email)
+      .maybeSingle();
+
+    if (existing) {
+      if ((existing as any).status === "pending") {
+        return NextResponse.json(
+          { success: true, message: "Application already received. We will be in touch." },
+          { status: 200, headers: corsHeaders() }
+        );
+      }
+      return NextResponse.json(
+        { success: true, message: "Thank you for your continued interest." },
+        { status: 200, headers: corsHeaders() }
+      );
+    }
+
+    const { error: insertError } = await (supabase as any)
+      .from("design_partner_applications")
       .insert({
         name: parsed.name,
         email: parsed.email,
@@ -71,7 +77,7 @@ export async function POST(request: NextRequest) {
         current_ai_initiatives: parsed.currentAiInitiatives,
         biggest_challenge: parsed.biggestChallenge,
         status: "pending",
-      } as any);
+      });
 
     if (insertError) {
       console.error("Failed to insert design partner:", insertError);
@@ -82,8 +88,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, message: "Application received" },
-      { status: 200, headers: corsHeaders() }
+      { success: true, message: "Application received. We will review and be in touch soon." },
+      { status: 201, headers: corsHeaders() }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {

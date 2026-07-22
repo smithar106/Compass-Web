@@ -1,16 +1,8 @@
-export type QuestionType = "boolean" | "scale" | "multi-choice" | "open";
+export type Tier = 1 | 2 | 3 | 4;
+
+export type Recommendation = "build_now" | "validate_next" | "defer" | "do_not_pursue";
 
 export type ConfidenceLevel = "Confirmed" | "High" | "Medium" | "Low" | "Unknown";
-
-export type EvidenceClass = "User" | "Research" | "Inference";
-
-export type EvidenceSourceType =
-  | "user-provided"
-  | "deterministic-analysis"
-  | "external-research"
-  | "ai-inference"
-  | "hypothesis"
-  | "missing";
 
 export type Department =
   | "Sales"
@@ -32,24 +24,6 @@ export type InterventionType =
   | "Hybrid"
   | "No Action";
 
-export type BusinessModel = "SaaS" | "Usage-based" | "Hybrid" | "Marketplace" | "Other";
-
-export type CustomerSegment = "SMB" | "Mid-Market" | "Enterprise";
-
-export type RevenueStage = "Seed" | "Series A" | "Series B" | "Series C" | "Growth" | "Mature" | "Unknown";
-
-export type GrowthStage = "Early" | "Scaling" | "Established" | "Mature" | "Unknown";
-
-export type AIMaturityLevel = "None" | "Experimental" | "Adopting" | "Embedded" | "Leading";
-
-export type TechMaturityLevel = "Legacy" | "Transitioning" | "Modern" | "Advanced";
-
-export type OrgComplexity = "Flat" | "Hierarchical" | "Matrix";
-
-export type ApprovalStyle = "Centralized" | "Decentralized" | "Consensus-driven" | "Founder-led" | "Unknown";
-
-export type ImplementationDifficulty = "Low" | "Medium" | "High" | "Very High";
-
 export type ImpactType = "Revenue" | "Cost" | "Efficiency" | "Quality" | "Compliance" | "Experience";
 
 export type RiskCategory = "Technical" | "Organizational" | "Cultural" | "Resource" | "Compliance";
@@ -60,21 +34,12 @@ export type DependencyType = "System" | "Data" | "People" | "Process" | "Approva
 
 export type DependencyStatus = "Available" | "Needed" | "Planned" | "Blocked";
 
-export interface AssessmentQuestion {
-  id: string;
-  section: string;
-  question: string;
-  type: QuestionType;
-  options?: string[];
-  category?: string;
-}
-
-export interface Answer {
-  questionId: string | number;
-  value: string | number | boolean;
-  confidence?: ConfidenceLevel;
-  notes?: string;
-}
+export type EvidenceSourceType =
+  | "user-provided"
+  | "deterministic-analysis"
+  | "ai-inference"
+  | "hypothesis"
+  | "missing";
 
 export interface EvidenceItem {
   type: EvidenceSourceType;
@@ -103,12 +68,17 @@ export interface ComparedPath {
   humanOversight: string;
   confidence: ConfidenceLevel;
   rejectionReason?: string;
-  estimatedCost?: string;
-  dataReadiness?: string;
-  processReadiness?: string;
-  disqualifiers?: string;
-  summary?: string;
-  reasonsRejected?: string[];
+}
+
+export interface BusinessCase {
+  currentCost: string;
+  estimatedSavings: string;
+  expectedTimeSavings: string;
+  risk: string;
+  confidence: number;
+  dependencies: string[];
+  expectedTimeToValue: string;
+  isEstimated: boolean;
 }
 
 export interface InterventionRecommendation {
@@ -146,10 +116,8 @@ export interface ImplementationBlueprint {
   requiredApis: string[];
   requiredData: string[];
   humanRoles: string[];
-  ownership?: string;
   securityAndPrivacy: string[];
   rolloutPlan: string[];
-  validationPlan?: string[];
   successMetrics: string[];
   risksAndAssumptions: string[];
   expectedImpact: string;
@@ -178,10 +146,6 @@ export interface Opportunity {
   businessImpact?: { description: string; impactType: ImpactType; estimatedImpact?: string };
   risks?: { risk: string; category: RiskCategory; likelihood: RiskSeverity; impact: RiskSeverity; mitigation?: string }[];
   dependencies?: { dependency: string; type: DependencyType; required: boolean; status: DependencyStatus }[];
-  workflow?: string;
-  requiredOwner?: string;
-  successDescription?: string;
-  technicalHelpRequired?: string;
 }
 
 export interface OpportunityMap {
@@ -218,84 +182,4 @@ export interface OpportunityMap {
     description: string;
     critical: boolean;
   }[];
-}
-
-export interface AssessmentSession {
-  currentQuestion: number;
-  answers: Answer[];
-  completed: boolean;
-  startedAt?: string;
-  userId?: string;
-  sessionId?: string;
-}
-
-export interface AssessmentSessionDB {
-  id: string;
-  user_id: string;
-  organization_id: string | null;
-  status: "in_progress" | "completed" | "abandoned";
-  assessment_version: string;
-  total_questions_presented: number | null;
-  questions_skipped: number;
-  completion_time_minutes: number | null;
-  metadata: Record<string, unknown>;
-  started_at: string;
-  completed_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CompanyProfile {
-  companyId: string;
-  companyName: string;
-  websiteUrl: string;
-  identity: {
-    industry: string;
-    subIndustry?: string;
-    businessModel: BusinessModel;
-    customerSegments: CustomerSegment[];
-    yearFounded?: number;
-  };
-  size: {
-    headcountEstimate: number;
-    headcountConfidence?: ConfidenceLevel;
-    revenueStage: RevenueStage;
-    growthStage?: GrowthStage;
-  };
-  aiMaturity?: { level: AIMaturityLevel; knownAiTools?: string[] };
-  techMaturity?: { level: TechMaturityLevel };
-  organizationalStructure?: {
-    departments: { name: Department; estimatedSize?: number }[];
-    orgComplexity?: OrgComplexity;
-  };
-}
-
-export interface DesignPartnerFormData {
-  name: string;
-  email: string;
-  companyName: string;
-  companySize: string;
-  role: string;
-  linkedinUrl: string;
-  currentAiInitiatives: string;
-  biggestChallenge: string;
-  honeypot?: string;
-}
-
-export interface DemoState {
-  active: boolean;
-  seeded: boolean;
-  sessionId?: string;
-}
-
-export interface PipelineProgress {
-  status: "idle" | "running" | "completed" | "failed";
-  step?: string;
-  progress?: number;
-  error?: string;
-}
-
-export interface AnalyticsEvent {
-  name: string;
-  properties?: Record<string, unknown>;
 }

@@ -1,33 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(_request: NextRequest) {
-  const checks: Record<string, string> = {};
+  const checks: Record<string, { status: string; detail?: string }> = {};
 
-  // Application
-  checks.application = "ok";
+  checks.application = { status: "ok" };
 
-  // Database connectivity
-  try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!supabaseUrl) {
-      checks.database = "not_configured";
-    } else {
-      checks.database = "configured";
-    }
-  } catch {
-    checks.database = "error";
-  }
+  checks.database = await checkDatabaseConnectivity();
 
-  // Auth configuration
-  checks.auth = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "configured" : "not_configured";
+  checks.schema = await checkRequiredSchema();
 
-  // Required schemas
-  checks.schema = "deployed";
+  checks.auth_config = {
+    status: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "configured" : "not_configured",
+  };
 
-  // AI provider
-  checks.ai_provider = process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY ? "configured" : "not_configured";
-
-  const allOk = Object.values(checks).every((v) => v === "ok" || v === "configured" || v === "deployed");
+  const healthyStatuses = ["ok", "configured", "deployed"];
+  const allOk = Object.values(checks).every((c) => healthyStatuses.includes(c.status));
 
   return NextResponse.json(
     {
@@ -38,4 +25,61 @@ export async function GET(_request: NextRequest) {
     },
     { status: allOk ? 200 : 503 }
   );
+}
+
+async function checkDatabaseConnectivity(): Promise<{ status: string; detail?: string }> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return { status: "not_configured", detail: "Missing Supabase configuration" };
+  }
+
+  try {
+    const { createClient } = await import("@supabase/supabase-js");
+    const client = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { error } = await client.from("assessment_sessions").select("id" as any).limit(1);
+    if (error) {
+      return { status: "error", detail: error.message };
+    }
+    return { status: "ok" };
+  } catch (err) {
+    return { status: "error", detail: err instanceof Error ? err.message : "Unknown error" };
+  }
+}
+
+async function checkRequiredSchema(): Promise<{ status: string; detail?: string }> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return { status: "not_configured", detail: "Missing Supabase configuration" };
+  }
+
+  const requiredTables = ["assessment_sessions", "design_partner_applications", "feedback"];
+
+  try {
+    const { createClient } = await import("@supabase/supabase-js");
+    const client = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    const missing: string[] = [];
+    for (const table of requiredTables) {
+      const { error } = await client.from(table).select("id" as any).limit(1);
+      if (error && error.code === "42P01") {
+        missing.push(table);
+      }
+    }
+
+    if (missing.length > 0) {
+      return { status: "degraded", detail: `Missing tables: ${missing.join(", ")}` };
+    }
+
+    return { status: "deployed" };
+  } catch (err) {
+    return { status: "error", detail: err instanceof Error ? err.message : "Unknown error" };
+  }
 }

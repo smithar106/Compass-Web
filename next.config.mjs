@@ -2,15 +2,6 @@
 const nextConfig = {
   output: "standalone",
   eslint: { ignoreDuringBuilds: true },
-  serverExternalPackages: ["@compass/pipeline"],
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals.push({
-        "@compass/pipeline": "@compass/pipeline",
-      });
-    }
-    return config;
-  },
   async headers() {
     return [
       {

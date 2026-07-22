@@ -10,30 +10,30 @@ export const site = {
       "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
     cta: "Assess your operations",
     ctaSecondary: "See an example map",
-    options: ["AI", "Software", "Process redesign", "Human work", "A hybrid", "No automation yet"],
+    options: ["AI", "Software", "Process Redesign", "Human Work", "Hybrid", "No automation yet"],
   },
 
   problem: {
     headline: "You have tools. You need confidence.",
-    body: "Companies have many AI tools, but lack confidence about where to use them first. Vendors begin with the technology they sell. Building the wrong solution wastes money and damages trust.",
+    body: "Companies have many AI tools available but lack confidence about where to use them. Vendors start with the solution they sell. Building the wrong system wastes money and organizational trust. Compass begins with the business problem — not the technology.",
     items: [
-      "Companies have many AI tools available",
-      "They lack confidence about where to use them first",
-      "Vendors begin with the technology they sell",
-      "Building the wrong solution wastes money and damages trust",
+      "Companies have many AI tools but lack confidence where to use them",
+      "Vendors start with their solution, not your problem",
+      "Building the wrong system wastes money and trust",
+      "Compass begins with the business problem",
     ],
   },
 
   insight: {
     headline: "Implementation is becoming cheaper. Judgment is becoming more valuable.",
-    body: "As building software becomes cheaper and easier, the scarce resource shifts from implementation to judgment. Compass operates before implementation.",
+    body: "As building software becomes cheaper and easier, the scarce resource shifts from implementation to judgment. Compass operates before implementation to help leaders decide what is worth building.",
   },
 
   productLoop: {
     headline: "From assessment to blueprint.",
     steps: [
       "Assessment",
-      "AI Opportunity Map",
+      "Opportunity Map",
       "Compare Intervention Paths",
       "Prioritize One Intervention",
       "Implementation Blueprint",
@@ -42,7 +42,7 @@ export const site = {
 
   existingTools: {
     headline: "Your tools execute. Compass decides.",
-    body: "Builders, automation platforms, and enterprise-search tools help execute a chosen solution. Compass determines what should be built — and whether anything should be built at all, and why.",
+    body: "Builders, automation platforms, and enterprise-search tools help execute a chosen solution. They are powerful once you know what to build. Compass determines what should be built — and whether anything should be built at all, and why. Compass operates before implementation.",
   },
 
   trust: {
@@ -60,10 +60,12 @@ export const site = {
 
   futureVision: {
     headline: "Future vision: from intelligence to learning.",
-    body: "Compass will eventually measure deployment outcomes and learn across organizations — but today it focuses on one assessment, one map, one intervention, and one Blueprint.",
+    body: "Compass will eventually analyze existing tooling environments (Slack, Jira, ticketing systems), support deployment execution, and measure realized outcomes against predictions. Today it focuses on one assessment, one map, one intervention, and one Blueprint.",
     items: [
-      { title: "Deployment measurement", description: "Track realized outcomes against predictions" },
-      { title: "Organizational learning", description: "Improve recommendations across assessments" },
+      { title: "Slack / Jira analysis", description: "Analyze existing workflow signals from communication and project management tools" },
+      { title: "Deployment support", description: "Guide implementation from Blueprint to production" },
+      { title: "Outcome measurement", description: "Track realized outcomes against predictions and assumptions" },
+      { title: "Organizational learning", description: "Improve recommendations across assessments over time" },
     ],
   },
 
@@ -135,7 +137,7 @@ export const site = {
 
   footer: {
     description: "Compass helps operations leaders decide what to automate next — and whether the answer is AI, software, process redesign, or human work.",
-    copyright: `© ${new Date().getFullYear()} Compass AI. All rights reserved.`,
+    copyright: `© ${new Date().getFullYear()} Compass. All rights reserved.`,
     columns: [
       {
         title: "Product",
@@ -160,14 +162,14 @@ export const site = {
   about: {
     mission: "Make automation adoption deliberate, measurable, and effective for every organization.",
     vision: "A world where every company knows the right answer to 'what should we automate next?' before they invest a dollar.",
-    problem: "Companies are under immense pressure to adopt AI. Boardrooms demand strategies. Competitors launch features. The result is rushed decisions, failed proofs of concept, and wasted budgets. Compass solves this by operating before implementation — determining whether the right answer is AI, software, process redesign, human work, or a combination.",
+    problem: "Companies are under immense pressure to adopt the latest technology. Boardrooms demand strategies. Competitors launch features. The result is rushed decisions, failed proofs of concept, and wasted budgets. Compass solves this by operating before implementation — determining whether the right answer is AI, software, process redesign, human work, or a combination.",
     team: "We're a small team of product builders, engineers, and operators who have scaled B2B SaaS companies from seed to IPO. We built Compass because we wished it existed.",
   },
 
   assessment: {
     intro: {
       headline: "Organizational Discovery",
-      body: "We'll ask about your departments, workflows, desired outcomes, and current pain points — not to design an AI solution, but to understand where intervention creates leverage.",
+      body: "We'll ask about your departments, how work happens, where it fails, and what outcome matters. We are not designing a solution — we are understanding where intervention creates leverage.",
       estimatedTime: "25 minutes",
       sections: "10 departments",
       questions: "Targeted questions about your operations",
@@ -183,13 +185,13 @@ export const site = {
     },
     complete: {
       headline: "Organizational discovery complete.",
-      body: "We've analyzed your responses across all departments. Generate your AI Opportunity Map to see ranked recommendations with evidence, business cases, and implementation options.",
-      cta: "Generate my AI Opportunity Map",
+      body: "We've analyzed your responses across all departments. Generate your Opportunity Map to see ranked recommendations with evidence, business cases, and implementation options.",
+      cta: "Generate my Opportunity Map",
     },
   },
 
   results: {
-    headline: "AI Opportunity Map",
+    headline: "Opportunity Map",
     subtitle: "Ranked business problems with competing intervention paths. Every recommendation includes evidence, assumptions, and compared alternatives.",
     noResults: "No assessment results found. Please complete the organizational discovery first.",
     buildBlueprint: "View Implementation Blueprint",
@@ -250,6 +252,6 @@ export const site = {
   metadata: {
     title: "Compass — What should your company automate next?",
     description:
-      "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
+      "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination — and generates an Implementation Blueprint for the chosen solution.",
   },
 };
