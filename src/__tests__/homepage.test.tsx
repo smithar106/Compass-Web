@@ -19,8 +19,8 @@ describe("Homepage content", () => {
   it("should list intervention options", () => {
     expect(site.hero.options).toContain("AI");
     expect(site.hero.options).toContain("Software");
-    expect(site.hero.options).toContain("Process redesign");
-    expect(site.hero.options).toContain("Human work");
+    expect(site.hero.options).toContain("Process Redesign");
+    expect(site.hero.options).toContain("Human Work");
     expect(site.hero.options).toContain("No automation yet");
   });
 
