@@ -4,6 +4,8 @@ export type ConfidenceLevel = "Confirmed" | "High" | "Medium" | "Low" | "Unknown
 
 export type EvidenceClass = "User" | "Research" | "Inference";
 
+export type EvidenceSourceType = "user-provided" | "deterministic-analysis" | "ai-inference" | "hypothesis" | "missing";
+
 export type Department =
   | "Sales"
   | "Marketing"
@@ -15,6 +17,14 @@ export type Department =
   | "People/HR"
   | "Legal"
   | "Operations";
+
+export type InterventionType =
+  | "AI"
+  | "Deterministic Software"
+  | "Process Redesign"
+  | "Human Work"
+  | "Hybrid"
+  | "No Action";
 
 export type BusinessModel = "SaaS" | "Usage-based" | "Hybrid" | "Marketplace" | "Other";
 
@@ -44,8 +54,24 @@ export type DependencyType = "System" | "Data" | "People" | "Process" | "Approva
 
 export type DependencyStatus = "Available" | "Needed" | "Planned" | "Blocked";
 
+export interface AssessmentQuestion {
+  id: string;
+  section: string;
+  question: string;
+  type: QuestionType;
+  options?: string[];
+  category?: string;
+}
+
+export interface Answer {
+  questionId: string | number;
+  value: string | number | boolean;
+  confidence?: ConfidenceLevel;
+  notes?: string;
+}
+
 export interface EvidenceItem {
-  type: EvidenceClass;
+  type: EvidenceSourceType;
   source: string;
   detail: string;
   url?: string;
@@ -53,68 +79,98 @@ export interface EvidenceItem {
   confidence?: ConfidenceLevel;
 }
 
-export interface Question {
-  id: number;
-  section: Department;
-  question: string;
-  type: QuestionType;
-  options?: string[];
+export interface AssumptionItem {
+  assumption: string;
+  impact: string;
+  confidence: ConfidenceLevel;
 }
 
-export interface Answer {
-  questionId: number;
-  value: string | number | boolean;
-  confidence?: ConfidenceLevel;
-  notes?: string;
+export interface ComparedPath {
+  intervention: InterventionType;
+  title: string;
+  eligibility: string;
+  suitability: string;
+  expectedOutcome: string;
+  effort: string;
+  risk: string;
+  timeToValue: string;
+  humanOversight: string;
+  confidence: ConfidenceLevel;
+  rejectionReason?: string;
 }
 
-export interface KPI {
-  metric: string;
-  current: string;
-  target: string;
+export interface InterventionRecommendation {
+  type: InterventionType;
+  title: string;
+  description: string;
+  businessCase: string;
+  expectedImpact: string;
+  timeToValue: string;
+  implementationEffort: string;
+  confidence: ConfidenceLevel;
+  humanOversight: string;
+  evidence: EvidenceItem[];
+  assumptions: AssumptionItem[];
+  comparedPaths: ComparedPath[];
+  rejectionRationale: string;
 }
 
-export interface Phase {
-  phase: string;
-  steps: string[];
-  duration: string;
-  dependencies: string[];
+export interface BlueprintSection {
+  heading: string;
+  content: string;
+  details?: string[];
+  technical?: string[];
+}
+
+export interface ImplementationBlueprint {
+  problem: string;
+  rootCause: string;
+  recommendedIntervention: InterventionRecommendation;
+  alternativesConsidered: string;
+  whyThisPathWon: string;
+  currentWorkflow: string[];
+  futureWorkflow: string[];
+  requiredSystems: string[];
+  requiredApis: string[];
+  requiredData: string[];
+  humanRoles: string[];
+  securityAndPrivacy: string[];
+  rolloutPlan: string[];
+  successMetrics: string[];
+  risksAndAssumptions: string[];
+  expectedImpact: string;
+  technicalEscalationLevel: string;
+  sections: BlueprintSection[];
 }
 
 export interface Opportunity {
   rank: number;
   department: Department;
   name: string;
+  businessProblem: string;
+  rootCause: string;
+  currentImpact: string;
   confidence: ConfidenceLevel;
   description: string;
-  kpis: KPI[];
-  phases: Phase[];
   evidence: EvidenceItem[];
-  tradeoff: string;
-  businessImpact?: {
-    description: string;
-    impactType: ImpactType;
-    estimatedImpact?: string;
-  };
-  risks?: {
-    risk: string;
-    category: RiskCategory;
-    likelihood: RiskSeverity;
-    impact: RiskSeverity;
-    mitigation?: string;
-  }[];
-  dependencies?: {
-    dependency: string;
-    type: DependencyType;
-    required: boolean;
-    status: DependencyStatus;
-  }[];
+  assumptions: AssumptionItem[];
+  comparedPaths: ComparedPath[];
+  whyAlternativesRejected: string;
+  intervention: InterventionRecommendation;
+  blueprint?: ImplementationBlueprint;
+  kpis?: { metric: string; current: string; target: string }[];
+  phases?: { phase: string; steps: string[]; duration: string; dependencies: string[] }[];
+  tradeoff?: string;
+  businessImpact?: { description: string; impactType: ImpactType; estimatedImpact?: string };
+  risks?: { risk: string; category: RiskCategory; likelihood: RiskSeverity; impact: RiskSeverity; mitigation?: string }[];
+  dependencies?: { dependency: string; type: DependencyType; required: boolean; status: DependencyStatus }[];
 }
 
 export interface OpportunityMap {
   mapId: string;
   companyName: string;
   generatedAt: string;
+  isExample: boolean;
   executiveSummary: {
     headline: string;
     finding: string;
@@ -188,13 +244,8 @@ export interface CompanyProfile {
     revenueStage: RevenueStage;
     growthStage?: GrowthStage;
   };
-  aiMaturity?: {
-    level: AIMaturityLevel;
-    knownAiTools?: string[];
-  };
-  techMaturity?: {
-    level: TechMaturityLevel;
-  };
+  aiMaturity?: { level: AIMaturityLevel; knownAiTools?: string[] };
+  techMaturity?: { level: TechMaturityLevel };
   organizationalStructure?: {
     departments: { name: Department; estimatedSize?: number }[];
     orgComplexity?: OrgComplexity;
@@ -211,4 +262,22 @@ export interface DesignPartnerFormData {
   currentAiInitiatives: string;
   biggestChallenge: string;
   honeypot?: string;
+}
+
+export interface DemoState {
+  active: boolean;
+  seeded: boolean;
+  sessionId?: string;
+}
+
+export interface PipelineProgress {
+  status: "idle" | "running" | "completed" | "failed";
+  step?: string;
+  progress?: number;
+  error?: string;
+}
+
+export interface AnalyticsEvent {
+  name: string;
+  properties?: Record<string, unknown>;
 }
