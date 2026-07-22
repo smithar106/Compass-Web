@@ -1,29 +1,34 @@
-import type { Question } from "@/types";
+import type { AssessmentQuestion } from "@/types";
 
-export const questions: Question[] = [
-  { id: 1, section: "Sales", question: "Do you have a consistent, documented sales qualification process?", type: "boolean" },
-  { id: 2, section: "Sales", question: "How much time do your AEs spend on manual data entry vs. selling?", type: "scale", options: ["1 - Mostly manual", "2", "3 - Balanced", "4", "5 - Mostly selling"] },
-  { id: 3, section: "Sales", question: "What CRM do you use, and how integrated is it with your outreach tools?", type: "open" },
-  { id: 4, section: "Marketing", question: "Do you have automated lead scoring based on intent signals?", type: "boolean" },
-  { id: 5, section: "Marketing", question: "How personalized are your email campaigns at scale?", type: "scale", options: ["1 - Basic mail merge", "2", "3", "4", "5 - Fully personalized at scale"] },
-  { id: 6, section: "Marketing", question: "How do you currently attribute revenue to marketing channels?", type: "multi-choice", options: ["First-touch", "Multi-touch", "Last-touch", "Don't track"] },
-  { id: 7, section: "Customer Success", question: "Do you have automated health scoring for your customer base?", type: "boolean" },
-  { id: 8, section: "Customer Success", question: "How proactive is your outreach to at-risk accounts?", type: "scale", options: ["1 - Reactive only", "2", "3", "4", "5 - Fully proactive"] },
-  { id: 9, section: "Customer Success", question: "What CS platform do you use?", type: "open" },
-  { id: 10, section: "Support", question: "What percentage of your support tickets are resolved without human intervention?", type: "multi-choice", options: ["0-10%", "10-25%", "25-50%", "50%+"] },
-  { id: 11, section: "Support", question: "Do you have a knowledge base that agents and customers can query?", type: "boolean" },
-  { id: 12, section: "Support", question: "How long is your average first response time?", type: "open" },
-  { id: 13, section: "Finance", question: "Do you have automated expense reporting and approval workflows?", type: "boolean" },
-  { id: 14, section: "Finance", question: "How many days does your month-end close typically take?", type: "multi-choice", options: ["1-3 days", "4-7 days", "8-14 days", "15+ days"] },
-  { id: 15, section: "Product", question: "Do you use product analytics to inform roadmap decisions?", type: "boolean" },
-  { id: 16, section: "Product", question: "How do you prioritize features across competing stakeholder demands?", type: "open" },
-  { id: 17, section: "Engineering", question: "Do you have automated CI/CD pipelines with integrated testing?", type: "boolean" },
-  { id: 18, section: "Engineering", question: "How much engineering time is spent on maintenance vs. new features?", type: "scale", options: ["1 - Mostly maintenance", "2", "3 - Balanced", "4", "5 - Mostly new features"] },
-  { id: 19, section: "Engineering", question: "What is your average cycle time from commit to deployment?", type: "open" },
-  { id: 20, section: "People/HR", question: "Do you use an HRIS for employee lifecycle management?", type: "boolean" },
-  { id: 21, section: "People/HR", question: "How do you currently manage performance reviews and feedback?", type: "open" },
-  { id: 22, section: "Legal", question: "Do you have automated contract review or clause extraction?", type: "boolean" },
-  { id: 23, section: "Legal", question: "How do you manage compliance across different regulatory frameworks?", type: "open" },
-  { id: 24, section: "Operations", question: "Do you have a centralized source of truth for operational processes?", type: "boolean" },
-  { id: 25, section: "Operations", question: "What operational metric would have the biggest impact if improved by 20%?", type: "open" },
+export const questions: AssessmentQuestion[] = [
+  // Department & Workflow (Starting with business problem)
+  { id: "dept-1", section: "General", category: "department", question: "Which department are you assessing?", type: "multi-choice", options: ["Sales", "Marketing", "Customer Success", "Support", "Finance", "Product", "Engineering", "People/HR", "Legal", "Operations"] },
+  { id: "dept-2", section: "General", category: "workflow", question: "Describe the specific workflow or process you want to evaluate.", type: "open" },
+  { id: "dept-3", section: "General", category: "desired-outcome", question: "What outcome would you like to achieve? (e.g., reduce time, improve accuracy, scale operations)", type: "open" },
+  { id: "dept-4", section: "General", category: "pain", question: "What is the biggest pain point or problem in this workflow today?", type: "open" },
+
+  // Frequency & Scale
+  { id: "freq-1", section: "Workload", category: "frequency", question: "How frequently does this workflow or task occur?", type: "multi-choice", options: ["Multiple times daily", "Daily", "Weekly", "Monthly", "Quarterly", "Rarely / Ad-hoc"] },
+  { id: "freq-2", section: "Workload", category: "people", question: "How many people are currently involved in this workflow?", type: "multi-choice", options: ["1 person", "2-3 people", "4-10 people", "11-50 people", "50+ people"] },
+  { id: "freq-3", section: "Workload", category: "handoffs", question: "How many handoffs occur during this process?", type: "multi-choice", options: ["None — one person handles it", "1-2 handoffs", "3-5 handoffs", "6+ handoffs", "Unclear / varies"] },
+
+  // Tools & Data
+  { id: "tools-1", section: "Systems", category: "tools", question: "What tools or software do you currently use in this workflow?", type: "open" },
+  { id: "tools-2", section: "Systems", category: "data", question: "What data is required for this workflow, and where does it live?", type: "open" },
+  { id: "tools-3", section: "Systems", category: "exceptions", question: "How many exceptions or edge cases arise in this process?", type: "multi-choice", options: ["Almost no exceptions", "Some exceptions (<10%)", "Many exceptions (10-30%)", "Highly variable (30%+)"] },
+
+  // Cost & Impact
+  { id: "cost-1", section: "Impact", category: "time", question: "How much time does this workflow currently consume per week?", type: "multi-choice", options: ["Less than 1 hour", "1-5 hours", "5-20 hours", "20-40 hours", "More than 40 hours"] },
+  { id: "cost-2", section: "Impact", category: "cost", question: "What is the estimated monthly cost or burden of this workflow (people time, errors, delays)?", type: "open" },
+  { id: "cost-3", section: "Impact", category: "ownership", question: "Who owns this workflow, and who would need to approve changes?", type: "open" },
+
+  // Risk & Stability
+  { id: "risk-1", section: "Risk", category: "risk", question: "What is the risk of getting this workflow wrong?", type: "multi-choice", options: ["Low — minor inconvenience", "Medium — noticeable business impact", "High — significant revenue or compliance risk", "Critical — legal or safety implications"] },
+  { id: "risk-2", section: "Risk", category: "stability", question: "How stable is this process? Has it changed significantly in the last year?", type: "multi-choice", options: ["Very stable — unchanged", "Mostly stable — minor tweaks", "Somewhat volatile — changes every few months", "Highly volatile — changes frequently"] },
+  { id: "risk-3", section: "Risk", category: "prior-attempts", question: "Have you tried to improve or automate this workflow before? What happened?", type: "open" },
+
+  // Constraints
+  { id: "constraints-1", section: "Constraints", category: "technical", question: "Are there any technical constraints that limit your options? (e.g., legacy systems, compliance requirements, data privacy)", type: "open" },
+  { id: "constraints-2", section: "Constraints", category: "budget", question: "Do you have a budget or resource constraint for addressing this workflow?", type: "multi-choice", options: ["No dedicated budget", "Under $10K", "$10K - $50K", "$50K - $200K", "$200K+", "Unsure"] },
+  { id: "constraints-3", section: "Constraints", category: "timeline", question: "What is your expected timeline for seeing improvement?", type: "multi-choice", options: ["Immediate — within weeks", "Short-term — 1-3 months", "Medium-term — 3-6 months", "Long-term — 6+ months", "No specific timeline"] },
 ];
