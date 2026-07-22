@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://compass-ai.com/sitemap.xml
