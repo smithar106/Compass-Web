@@ -11,24 +11,24 @@ export const site = {
     ctaSecondary: "See an example",
     decisionMistakes: [
       {
-        label: "AI Pilot",
-        pain: "6 months later...\nNo measurable business impact.",
-        compassSolves: "Compass validates the opportunity before implementation.",
+        label: "Failed AI Pilot",
+        pain: "6 months later.\n$180k spent.\nNo measurable ROI.",
+        compassSolves: "Validates the opportunity\nbefore implementation.",
       },
       {
         label: "Wrong Tool",
-        pain: "Every vendor recommends their own product.",
-        compassSolves: "Compass compares every intervention first.",
+        pain: "Vendor chooses solution.\nProblem never defined.",
+        compassSolves: "Compares every intervention\nbefore vendor selection.",
       },
       {
-        label: "Unclear ROI",
+        label: "Undefined ROI",
         pain: "Budget approved.\nSuccess undefined.",
-        compassSolves: "Compass defines measurable outcomes before investment.",
+        compassSolves: "Defines measurable outcomes\nbefore investment.",
       },
       {
         label: "Months Lost",
-        pain: "Meetings. Demos. Conflicting opinions.",
-        compassSolves: "Compass produces an evidence-backed recommendation first.",
+        pain: "Meetings. Demos.\nConflicting opinions.",
+        compassSolves: "Produces recommendation\nbefore a decision is made.",
       },
     ],
   },

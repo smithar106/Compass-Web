@@ -34,24 +34,35 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: decision mistakes — stronger cards */}
+            {/* Right: decision mistakes — notification style */}
             <div className="space-y-4">
               {site.hero.decisionMistakes.map((card) => (
-                <div key={card.label} className="border-2 border-border rounded-xl p-5 bg-white shadow-sm">
-                  <div className="flex items-start gap-4">
-                    <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center mt-0.5">
-                      <span className="text-sm font-bold text-red-500">{"\u2717"}</span>
-                    </span>
-                    <div className="min-w-0">
-                      <span className="text-xs font-bold text-red-700 uppercase tracking-wider">{card.label}</span>
-                      <p className="text-base text-ink font-medium mt-0.5 whitespace-pre-line">{card.pain}</p>
+                <div key={card.label} className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
+                  {/* Top: mistake */}
+                  <div className="px-5 pt-4 pb-3">
+                    <div className="flex items-start gap-4">
+                      <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center mt-0.5">
+                        <span className="text-sm font-bold text-red-500">{"\u2717"}</span>
+                      </span>
+                      <div>
+                        <span className="text-xs font-bold text-red-700 uppercase tracking-wider">{card.label}</span>
+                        <p className="text-base text-ink font-medium mt-0.5 whitespace-pre-line">{card.pain}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-3 ml-11 flex items-start gap-3">
-                    <span className="flex-shrink-0 w-5 h-5 rounded bg-forest/10 flex items-center justify-center mt-0.5">
-                      <span className="text-xs font-bold text-forest">{"\u2713"}</span>
-                    </span>
-                    <p className="text-base text-forest font-semibold">{card.compassSolves}</p>
+                  {/* Divider */}
+                  <div className="border-t border-border/40 mx-5" />
+                  {/* Bottom: compass solution */}
+                  <div className="px-5 pt-3 pb-4">
+                    <div className="flex items-start gap-4">
+                      <span className="flex-shrink-0 w-5 h-5 rounded bg-forest/10 flex items-center justify-center mt-0.5">
+                        <span className="text-xs font-bold text-forest">{"\u2713"}</span>
+                      </span>
+                      <div>
+                        <span className="text-xs font-bold text-forest uppercase tracking-wider">Compass</span>
+                        <p className="text-base text-forest font-semibold mt-0.5 whitespace-pre-line">{card.compassSolves}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -93,19 +104,24 @@ export default function HomePage() {
       <section id="example" className="py-section px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-heading font-bold text-ink">{site.example.headline}</h2>
-          <div className="mt-8 border-2 border-border rounded-xl overflow-hidden bg-white shadow-sm">
-            {/* Problem header */}
-            <div className="bg-forest/5 border-b-2 border-border/40 px-6 py-4">
-              <span className="text-xs font-semibold text-forest uppercase tracking-wider">Business problem</span>
-              <p className="mt-1 text-base text-ink font-medium">{site.example.problem}</p>
+          <div className="mt-8 space-y-3">
+            {/* Problem card */}
+            <div className="border-2 border-amber-200 bg-amber-50/30 rounded-xl p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-bold text-amber-700">!</span>
+                </span>
+                <div>
+                  <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Problem</span>
+                  <p className="text-base text-ink font-medium mt-0.5">{site.example.problem}</p>
+                </div>
+              </div>
             </div>
-            {/* Steps */}
-            <div className="divide-y-2 divide-border/40">
-              {site.example.steps.map((step, i) => (
-                <div key={step.label} className="px-6 py-4 flex items-start gap-4">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-mist flex items-center justify-center mt-0.5">
-                    <span className="text-xs font-bold text-forest">{i + 1}</span>
-                  </div>
+            {/* Steps cards */}
+            {site.example.steps.map((step, i) => (
+              <div key={step.label} className="border-2 border-border rounded-xl p-5 bg-white shadow-sm">
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-mist flex items-center justify-center mt-0.5 text-xs font-bold text-forest">{i + 1}</span>
                   <div className="min-w-0">
                     <span className="text-xs font-semibold text-stone uppercase tracking-wider">{step.label}</span>
                     {step.value ? (
@@ -115,15 +131,17 @@ export default function HomePage() {
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
-            {/* Confidence footer */}
-            <div className="bg-forest/5 border-t-2 border-border/40 px-6 py-5 flex items-center gap-8">
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-stone font-medium">Confidence</span>
-                <span className="text-3xl font-bold text-forest tracking-tight">{site.example.confidence}</span>
               </div>
-              <span className="text-sm text-stone/70">Based on assessment evidence and industry benchmarks</span>
+            ))}
+            {/* Confidence card */}
+            <div className="border-2 border-forest/20 bg-forest/5 rounded-xl p-5 shadow-sm">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-stone font-medium">Confidence</span>
+                  <span className="text-3xl font-bold text-forest tracking-tight">{site.example.confidence}</span>
+                </div>
+                <span className="text-sm text-stone/70">Based on assessment evidence and industry benchmarks</span>
+              </div>
             </div>
           </div>
           <div className="mt-6">
