@@ -36,17 +36,19 @@ async function checkDatabaseConnectivity(): Promise<{ status: string; detail?: s
   }
 
   try {
-    const { createClient } = await import("@supabase/supabase-js");
-    const client = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
+    const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/assessment_sessions?select=id&limit=1`, {
+      headers: {
+        apikey: serviceRoleKey,
+        Authorization: `Bearer ${serviceRoleKey}`,
+      },
     });
-    const { error } = await client.from("assessment_sessions").select("id" as any).limit(1);
-    if (error) {
-      return { status: "error", detail: error.message };
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      return { status: "error", detail: `HTTP ${response.status}: ${text.slice(0, 200)}` };
     }
     return { status: "ok" };
   } catch (err) {
-    return { status: "error", detail: err instanceof Error ? err.message : "Unknown error" };
+    return { status: "error", detail: err instanceof Error ? err.message.slice(0, 200) : "Unknown error" };
   }
 }
 
@@ -61,16 +63,18 @@ async function checkRequiredSchema(): Promise<{ status: string; detail?: string 
   const requiredTables = ["assessment_sessions", "design_partner_applications", "feedback"];
 
   try {
-    const { createClient } = await import("@supabase/supabase-js");
-    const client = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-
     const missing: string[] = [];
     for (const table of requiredTables) {
-      const { error } = await client.from(table).select("id" as any).limit(1);
-      if (error && error.code === "42P01") {
+      const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/${table}?select=id&limit=1`, {
+        headers: {
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+        },
+      });
+      if (response.status === 404) {
         missing.push(table);
+      } else if (!response.ok && response.status !== 401 && response.status !== 403) {
+        return { status: "error", detail: `Table check failed for ${table}: HTTP ${response.status}` };
       }
     }
 
@@ -80,6 +84,6 @@ async function checkRequiredSchema(): Promise<{ status: string; detail?: string 
 
     return { status: "deployed" };
   } catch (err) {
-    return { status: "error", detail: err instanceof Error ? err.message : "Unknown error" };
+    return { status: "error", detail: err instanceof Error ? err.message.slice(0, 200) : "Unknown error" };
   }
 }
