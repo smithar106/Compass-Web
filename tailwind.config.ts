@@ -24,7 +24,7 @@ const config: Config = {
         small: ["0.875rem", { lineHeight: "1.5" }],
       },
       spacing: {
-        section: "6rem",
+        section: "3.5rem",
       },
     },
   },

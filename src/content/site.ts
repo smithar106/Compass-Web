@@ -61,10 +61,10 @@ export const site = {
   evidence: {
     headline: "Why companies struggle with AI adoption.",
     cards: [
-      { meaning: "Most AI failures begin before the right direction is chosen.", value: "52%", source: "Gartner", connection: "Compass determines the intervention path before resources are committed.", color: "emerald" },
-      { meaning: "Only one in four AI initiatives delivers the expected return.", value: "25%", source: "IBM", connection: "Compass defines success before investment.", color: "blue" },
-      { meaning: "Seventy percent of implementation challenges are organizational.", value: "70%", source: "BCG", connection: "Compass evaluates readiness before recommending technology.", color: "amber" },
-      { meaning: "Implementation begins before direction is set, extending timelines.", value: "8 mo.", source: "Gartner", connection: "Compass determines direction before the implementation clock starts.", color: "violet" },
+      { meaning: "Only 52% of AI initiatives achieve their intended business outcomes. Many failures begin before implementation, when organizations commit to technology before determining the best intervention.", value: "52%", source: "Gartner", connection: "Compass determines the intervention path before resources are committed.", color: "emerald" },
+      { meaning: "Only 25% of AI initiatives deliver the expected return on investment. Organizations often invest before defining the business problem, success criteria, and baseline.", value: "25%", source: "IBM", connection: "Compass defines success before investment.", color: "blue" },
+      { meaning: "70% of implementation challenges are organizational, not technical. The dominant barriers are workflows, ownership, readiness, and change management.", value: "70%", source: "BCG", connection: "Compass evaluates readiness before recommending technology.", color: "amber" },
+      { meaning: "The average AI prototype takes 8 months to reach production. Organizations begin building before confirming the intervention is correct.", value: "8 mo.", source: "Gartner", connection: "Compass determines direction before the implementation clock starts.", color: "violet" },
     ],
     cta: "Start your investigation",
   },

@@ -48,12 +48,13 @@ export default function HomePage() {
             </div>
             {/* Right: stat + decision mistakes */}
             <div className="space-y-4">
-              <div className="bg-forest text-white rounded-xl p-6 shadow-sm">
+              <div className="bg-forest text-white rounded-xl p-5 shadow-sm">
                 <div className="flex items-start gap-4">
                   <span className="text-5xl font-bold leading-none">52%</span>
                   <div>
-                    <p className="text-base text-cream/90 font-medium">Most AI failures begin before the right direction is chosen.</p>
-                    <p className="text-sm text-cream/60 mt-1">Compass determines the path before resources are committed.</p>
+                    <p className="text-base text-cream/90 font-medium">of AI initiatives fail to achieve their intended business outcomes.</p>
+                    <p className="text-sm text-cream/60 mt-1">Many failures begin before implementation — when organizations commit to technology before determining the right intervention.</p>
+                    <p className="text-xs text-cream/40 mt-2">Source: Gartner</p>
                   </div>
                 </div>
               </div>
@@ -96,7 +97,7 @@ export default function HomePage() {
       </section>
 
       {/* Example — product card */}
-      <section id="example" className="py-section bg-cream px-4 sm:px-6 lg:px-8">
+      <section id="example" className="py-[3.5rem] bg-cream px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
             {/* Problem */}
@@ -139,7 +140,7 @@ export default function HomePage() {
       </section>
 
       {/* Evidence — compact proof cards */}
-      <section className="py-section px-4 sm:px-6 lg:px-8">
+      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <h2 className="text-lg font-bold text-ink">{site.evidence.headline}</h2>
           <div className="mt-5 grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -161,7 +162,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA panel */}
-      <section className="py-section bg-ink text-cream px-4 sm:px-6 lg:px-8">
+      <section className="py-[3.5rem] bg-ink text-cream px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-[28px] font-bold">{site.finalCta.headline}</h2>
           <p className="mt-4 text-[15px] text-cream/80">{site.finalCta.subtitle}</p>
