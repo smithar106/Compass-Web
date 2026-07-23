@@ -2,58 +2,54 @@ import { describe, it, expect } from "vitest";
 import { site } from "@/content/site";
 
 describe("Homepage content", () => {
-  it("should have primary hook as headline", () => {
+  it("should have eyebrow and primary hook", () => {
+    expect(site.hero.eyebrow).toBe("The decision layer before implementation");
     expect(site.hero.headline).toBe("What should your company automate next?");
   });
 
-  it("should have primary CTA", () => {
+  it("should have primary and secondary CTAs", () => {
     expect(site.hero.cta).toBe("Assess your operations");
-    expect(site.hero.ctaSecondary).toBe("See Compass in action");
+    expect(site.hero.ctaSecondary).toBe("See an example");
   });
 
-  it("should list intervention options", () => {
-    expect(site.hero.options).toContain("AI");
-    expect(site.hero.options).toContain("Software");
-    expect(site.hero.options).toContain("Human Work");
-    expect(site.hero.options).toContain("No automation yet");
-  });
-
-  it("should have recognition section with checklist items", () => {
-    expect(site.recognition.items.length).toBe(5);
-    expect(site.recognition.bridge).toContain("Compass was built for you");
-  });
-
-  it("should have 4 pain cards with 3 sentences each", () => {
-    expect(site.pain.cards).toHaveLength(4);
-    site.pain.cards.forEach((card) => {
-      expect(card.headline).toBeTruthy();
-      expect(card.pain).toBeTruthy();
-      expect(card.compassSolves).toBeTruthy();
+  it("should have 4 recognition cards with pain and Compass solve", () => {
+    expect(site.recognition.cards).toHaveLength(4);
+    site.recognition.cards.forEach((c) => {
+      expect(c.pain).toBeTruthy();
+      expect(c.compassSolves).toBeTruthy();
     });
   });
 
-  it("should have compass flow with 5 steps", () => {
-    expect(site.compassFlow.steps).toHaveLength(5);
-    const labels = site.compassFlow.steps.map((s) => s.label);
-    expect(labels).toEqual(["Problem", "Investigation", "Comparison", "Recommendation", "Blueprint"]);
+  it("should have missing layer section", () => {
+    expect(site.missingLayer.headline).toContain("judgment");
+    expect(site.missingLayer.thesis).toContain("Judgment remains scarce");
   });
 
-  it("should have compact example section", () => {
-    expect(site.example.headline).toBe("See it in action.");
-    expect(site.example.recommendation).toContain("Don't buy an AI agent");
+  it("should have example with steps and confidence", () => {
+    expect(site.example.steps.length).toBe(5);
     expect(site.example.confidence).toBe("87%");
+    expect(site.example.steps.some((s) => s.value?.includes("Process redesign"))).toBe(true);
   });
 
-  it("should have evidence stats section", () => {
-    expect(site.evidence.headline).toBe("Why now?");
-    expect(site.evidence.body).toContain("better decisions");
-  });
-
-  it("should have design partners", () => {
-    expect(site.designPartners.cta).toBe("Become a design partner");
+  it("should have 4 evidence cards with source and takeaway", () => {
+    expect(site.evidence.cards).toHaveLength(4);
+    expect(site.evidence.cards[0].source).toBe("Gartner");
+    expect(site.evidence.cards[0].takeaway).toBeTruthy();
   });
 
   it("should have final CTA", () => {
+    expect(site.finalCta.headline).toBe("Build the right solution first.");
     expect(site.finalCta.cta).toBe("Assess your operations");
+  });
+
+  it("should have nav with Research and Perspectives", () => {
+    const labels = site.nav.map((n) => n.label);
+    expect(labels).toContain("Research");
+    expect(labels).toContain("Perspectives");
+  });
+
+  it("should not contain old homepage sections", () => {
+    expect((site as any).pain).toBeUndefined();
+    expect((site as any).compassFlow).toBeUndefined();
   });
 });

@@ -5,70 +5,66 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
 
   hero: {
+    eyebrow: "The decision layer before implementation",
     headline: "What should your company automate next?",
-    subtitle: "Compass investigates the problem, compares every intervention, and tells you what is worth implementing — before you build, buy, or hire.",
+    subtitle: "Compass investigates operational problems, compares every intervention path, and recommends what is actually worth implementing.",
     cta: "Assess your operations",
-    ctaSecondary: "See Compass in action",
+    ctaSecondary: "See an example",
     options: ["AI", "Software", "Process Redesign", "Human Work", "Hybrid", "No automation yet"],
   },
 
   recognition: {
     headline: "Does this sound familiar?",
-    items: [
-      "Spent months evaluating AI vendors without a clear answer?",
-      "Launched a pilot that never reached production?",
-      "Bought software before defining what success looks like?",
-      "Disagreed internally about which problem to solve first?",
-      "Implemented a solution only to realize it wasn't the real bottleneck?",
-    ],
-    bridge: "If you checked even one, Compass was built for you.",
-  },
-
-  pain: {
-    headline: "Why AI projects fail.",
     cards: [
       {
-        headline: "Wrong problem",
-        pain: "Companies buy AI before agreeing on what problem they are solving.",
-        compassSolves: "Compass starts with the business problem.",
+        pain: "We launched an AI pilot. It never delivered measurable business value.",
+        compassSolves: "Compass validates the problem before recommending implementation.",
       },
       {
-        headline: "Wrong tool",
-        pain: "Every vendor says their product is the answer.",
-        compassSolves: "Compass compares every intervention first.",
+        pain: "We have spent months evaluating AI vendors.",
+        compassSolves: "Compass compares interventions before vendors.",
       },
       {
-        headline: "Unclear ROI",
-        pain: "Organizations spend money before defining success.",
-        compassSolves: "Compass predicts impact before implementation.",
+        pain: "We bought AI. Nobody agreed on what success looks like.",
+        compassSolves: "Compass defines measurable outcomes before investment.",
       },
       {
-        headline: "Lost time",
-        pain: "Teams spend months in demos before making a decision.",
-        compassSolves: "Compass creates the blueprint before vendor selection.",
+        pain: "We know AI matters. We do not know where it creates the most value.",
+        compassSolves: "Compass identifies the highest-leverage opportunity.",
       },
     ],
   },
 
-  compassFlow: {
-    headline: "Here is what happens after you click.",
-    steps: [
-      { label: "Problem", description: "Define the business problem and root cause." },
-      { label: "Investigation", description: "Gather evidence and test hypotheses." },
-      { label: "Comparison", description: "Evaluate AI, software, process, human, hybrid, and no-action paths." },
-      { label: "Recommendation", description: "Select the highest-impact intervention with evidence." },
-      { label: "Blueprint", description: "Produce an actionable plan with owners and milestones." },
-    ],
-    cta: "Assess your operations",
+  missingLayer: {
+    headline: "The problem isn't implementation. It's judgment.",
+    body: "AI has made building, buying, and automating dramatically easier. But organizations still make expensive technology decisions using scattered interviews, vendor demos, and intuition.",
+    thesis: "Implementation is becoming abundant. Judgment remains scarce.",
+    bridge: "Compass is the decision infrastructure organizations use before they build, buy, automate, or hire.",
   },
 
   example: {
-    headline: "See it in action.",
+    headline: "Compass in action.",
     problem: "Customer support misses 100 calls per day.",
-    recommendation: "Don't buy an AI agent. Fix call routing and staffing coverage.",
+    steps: [
+      { label: "Root causes", text: "Staffing gaps during peak hours. Routing concentrates traffic in one queue. Shift changes create coverage holes." },
+      { label: "Evidence", text: "Missed calls cluster around shift changes. Routing data shows disproportionate load on one team." },
+      { label: "Interventions compared", text: "AI voice agent, callback software, process redesign, additional staffing, hybrid, no action." },
+      { label: "Recommendation", value: "Process redesign plus deterministic routing improvements." },
+      { label: "Blueprint", text: "Owner: Operations lead. Phases: audit, routing redesign, staffing adjustment, monitoring. Duration: 3-4 weeks." },
+    ],
     confidence: "87%",
-    detail: "20-30% reduction in missed calls · 3-4 weeks to implement",
     cta: "View full analysis",
+  },
+
+  evidence: {
+    headline: "The evidence behind Compass.",
+    cards: [
+      { value: "52%", label: "AI projects never reach production.", source: "Gartner", takeaway: "Compass validates the problem and compares paths before an organization commits." },
+      { value: "25%", label: "AI initiatives deliver expected ROI.", source: "IBM", takeaway: "Compass defines measurable outcomes before investment." },
+      { value: "70%", label: "Implementation challenges are organizational.", source: "BCG", takeaway: "Compass evaluates organizational readiness before recommending technology." },
+      { value: "10%", label: "High-intensity AI adopters grow faster.", source: "Ramp Economics Lab", takeaway: "Compass helps organizations become high-intensity adopters through better decisions." },
+    ],
+    cta: "Explore the research",
   },
 
   designPartners: {
@@ -76,10 +72,9 @@ export const site = {
     subtitle: "We are working with operations leaders and founders to evaluate real decisions before implementation begins.",
     benefits: [
       "A structured organizational assessment",
-      "Monthly strategy calls with our founding team",
-      "Direct influence on product features and roadmap",
-      "Priority access to new features and integrations",
-      "Public recognition as a launch partner (optional)",
+      "An Opportunity Map with compared interventions",
+      "A prioritized recommendation and implementation blueprint",
+      "Direct influence on the product roadmap",
     ],
     form: {
       headline: "Apply to become a design partner",
@@ -101,32 +96,29 @@ export const site = {
     ctaSecondary: "Assess your operations",
   },
 
-  founder: {
-    headline: "Built by operators who have been where you are.",
-    body: "We've led product, engineering, and go-to-market teams at B2B SaaS companies ranging from Series A to IPO. We've seen how rushing to automation can waste resources. Compass exists to make adoption deliberate, measurable, and effective.",
-  },
-
   finalCta: {
-    headline: "Building the wrong solution wastes more than budget.",
-    subtitle: "Start with the business problem. Let Compass determine the right intervention.",
+    headline: "Build the right solution first.",
+    subtitle: "Before you evaluate another AI vendor, determine whether AI is actually the right intervention.",
     cta: "Assess your operations",
   },
 
   footer: {
-    description: "Compass helps operations leaders decide what to automate next — and whether the answer is AI, software, process redesign, or human work.",
+    description: "Compass is the decision layer before implementation. Organizations use it to decide what to build, buy, automate, or leave alone.",
     copyright: `© ${new Date().getFullYear()} Compass. All rights reserved.`,
     columns: [
       {
         title: "Product",
         links: [
-          { label: "Example Map", href: "/assessment/results?example=true" },
           { label: "Assessment", href: "/assessment" },
-          { label: "About", href: "/about" },
+          { label: "Example", href: "/assessment/results?example=true" },
+          { label: "Research", href: "/research" },
         ],
       },
       {
         title: "Company",
         links: [
+          { label: "Perspectives", href: "/perspectives" },
+          { label: "About", href: "/about" },
           { label: "Design Partners", href: "/design-partners" },
           { label: "Privacy", href: "/privacy" },
           { label: "Terms", href: "/terms" },
@@ -223,12 +215,6 @@ export const site = {
     ],
   },
 
-  evidence: {
-    headline: "Why now?",
-    body: "The evidence is clear. Organizations do not need more AI. They need better decisions.",
-    cta: "Assess your operations",
-  },
-
   evidenceLabels: {
     headline: "Evidence and assumptions",
     labels: {
@@ -245,8 +231,8 @@ export const site = {
 
   nav: [
     { label: "Product", href: "/" },
-    { label: "Example", href: "/assessment/results?example=true" },
     { label: "Research", href: "/research" },
+    { label: "Perspectives", href: "/perspectives" },
     { label: "About", href: "/about" },
     { label: "Design Partners", href: "/design-partners" },
   ],
