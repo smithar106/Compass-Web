@@ -2,37 +2,32 @@ import { describe, it, expect } from "vitest";
 import { site } from "@/content/site";
 
 describe("Homepage content", () => {
-  it("should have multi-line headline about pressure", () => {
-    expect(site.hero.headline).toContain("Every company is under pressure");
-    expect(site.hero.headline).toContain("knowing where AI actually creates value");
+  it("should have headline about deciding what should be implemented", () => {
+    expect(site.hero.headline).toContain("deciding what should be implemented");
   });
 
-  it("should have primary and secondary CTAs", () => {
-    expect(site.hero.cta).toBe("Assess your operations");
-    expect(site.hero.ctaSecondary).toBe("See an example");
+  it("should have bridge sentence", () => {
+    expect(site.hero.bridge).toContain("implement the wrong solution");
   });
 
-  it("should have 4 pain cards in the hero", () => {
-    expect(site.hero.painCards).toHaveLength(4);
-    site.hero.painCards.forEach((c) => {
-      expect(c.label).toBeTruthy();
-      expect(c.pain).toBeTruthy();
-      expect(c.compassSolves).toBeTruthy();
-    });
+  it("should have 4 decision mistakes with multi-line pain", () => {
+    expect(site.hero.decisionMistakes).toHaveLength(4);
+    expect(site.hero.decisionMistakes[0].pain).toContain("\n");
   });
 
-  it("should have example with steps and confidence", () => {
+  it("should have evidence cards with meaning-first format", () => {
+    expect(site.evidence.cards).toHaveLength(4);
+    expect(site.evidence.cards[0].meaning).toContain("More than half");
+    expect(site.evidence.cards[0].connection).toBeTruthy();
+    expect(site.evidence.cards[3].value).toBe("8 mo.");
+  });
+
+  it("should have example unchanged", () => {
     expect(site.example.steps.length).toBe(5);
     expect(site.example.confidence).toBe("87%");
   });
 
-  it("should have 4 evidence cards", () => {
-    expect(site.evidence.cards).toHaveLength(4);
-    expect(site.evidence.cards[0].source).toBe("Gartner");
-  });
-
   it("should have final CTA", () => {
-    expect(site.finalCta.headline).toBe("Build the right solution first.");
     expect(site.finalCta.cta).toBe("Assess your operations");
   });
 });

@@ -5,14 +5,15 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
 
   hero: {
-    headline: "Every company is under pressure to adopt AI.\nThe hard part isn't implementing AI.\nIt's knowing where AI actually creates value.",
+    headline: "Every company is under pressure to adopt AI.\nThe hard part isn't implementing AI.\nIt's deciding what should be implemented.",
     subtitle: "Compass helps operations leaders determine which problems are worth solving, whether AI is the right intervention, and how to implement the right solution with confidence.",
+    bridge: "Companies don't fail because they lack AI. They fail because they implement the wrong solution.",
     cta: "Assess your operations",
     ctaSecondary: "See an example",
-    painCards: [
+    decisionMistakes: [
       {
         label: "AI Pilot",
-        pain: "6 months later... No measurable business impact.",
+        pain: "6 months later...\nNo measurable business impact.",
         compassSolves: "Compass validates the opportunity before implementation.",
       },
       {
@@ -22,7 +23,7 @@ export const site = {
       },
       {
         label: "Unclear ROI",
-        pain: "Budget approved. Success undefined.",
+        pain: "Budget approved.\nSuccess undefined.",
         compassSolves: "Compass defines measurable outcomes before investment.",
       },
       {
@@ -48,14 +49,14 @@ export const site = {
   },
 
   evidence: {
-    headline: "The evidence behind Compass.",
+    headline: "Why companies struggle with AI adoption.",
     cards: [
-      { value: "52%", label: "AI projects never reach production.", source: "Gartner", takeaway: "Compass validates the problem and compares paths before an organization commits." },
-      { value: "25%", label: "AI initiatives deliver expected ROI.", source: "IBM", takeaway: "Compass defines measurable outcomes before investment." },
-      { value: "70%", label: "Implementation challenges are organizational.", source: "BCG", takeaway: "Compass evaluates organizational readiness before recommending technology." },
-      { value: "10%", label: "High-intensity AI adopters grow faster.", source: "Ramp Economics Lab", takeaway: "Compass helps organizations become high-intensity adopters through better decisions." },
+      { meaning: "More than half of AI projects never reach production.", value: "52%", source: "Gartner", connection: "Compass validates the opportunity before implementation." },
+      { meaning: "Only one in four AI initiatives delivers the expected return.", value: "25%", source: "IBM", connection: "Compass defines success before investment." },
+      { meaning: "Seventy percent of implementation challenges are organizational.", value: "70%", source: "BCG", connection: "Compass evaluates readiness before recommending technology." },
+      { meaning: "The average AI prototype takes eight months to reach production.", value: "8 mo.", source: "Gartner", connection: "Compass helps organizations decide before that clock starts." },
     ],
-    cta: "Explore the research",
+    cta: "Start your assessment",
   },
 
   designPartners: {

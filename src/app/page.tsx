@@ -34,9 +34,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: pain cards */}
+            {/* Right: decision mistakes */}
             <div className="space-y-3">
-              {site.hero.painCards.map((card) => (
+              {site.hero.decisionMistakes.map((card) => (
                 <div key={card.label} className="border border-border rounded-lg p-4 bg-white">
                   <div className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
@@ -44,7 +44,7 @@ export default function HomePage() {
                     </span>
                     <div className="min-w-0">
                       <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">{card.label}</span>
-                      <p className="text-sm text-ink mt-0.5">{card.pain}</p>
+                      <p className="text-sm text-ink mt-0.5 whitespace-pre-line">{card.pain}</p>
                     </div>
                   </div>
                   <div className="mt-2 ml-8 flex items-start gap-3">
@@ -58,20 +58,21 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        <p className="mt-10 text-center text-sm text-stone/70 max-w-xl mx-auto">{site.hero.bridge}</p>
       </section>
 
       {/* Why companies struggle — 4 statistics */}
       <section className="py-section bg-white px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-heading font-bold text-ink text-center">Why companies struggle with AI adoption.</h2>
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <h2 className="text-heading font-bold text-ink text-center">{site.evidence.headline}</h2>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
             {site.evidence.cards.map((card) => (
-              <div key={card.label} className="border border-border rounded-lg p-5 text-left bg-white flex flex-col">
-                <p className="text-3xl font-bold text-forest">{card.value}</p>
-                <p className="mt-1 text-sm text-ink leading-snug">{card.label}</p>
-                <p className="mt-1 text-xs text-stone/60">{card.source}</p>
+              <div key={card.value} className="border border-border rounded-lg p-5 bg-white flex flex-col">
+                <p className="text-sm text-ink font-medium leading-snug">{card.meaning}</p>
+                <p className="mt-3 text-3xl font-bold text-forest">{card.value}</p>
+                <p className="mt-0.5 text-xs text-stone/60">{card.source}</p>
                 <div className="mt-3 pt-3 border-t border-border/50">
-                  <p className="text-xs text-forest font-medium">{card.takeaway}</p>
+                  <p className="text-xs text-forest font-medium">{card.connection}</p>
                 </div>
               </div>
             ))}
@@ -81,7 +82,7 @@ export default function HomePage() {
               href="/assessment"
               className="inline-flex items-center px-6 py-2.5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors"
             >
-              Start your assessment
+              {site.evidence.cta}
             </Link>
           </div>
         </div>
