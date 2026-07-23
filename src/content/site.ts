@@ -5,13 +5,13 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
 
   hero: {
-    headline: "AI is no longer optional.\nMaking the wrong AI investment is expensive.",
-    subtitle: "Compass helps operations leaders determine what problem matters most, whether AI is the right answer, and how success should be measured — before implementation begins.",
+    headline: "Make the right AI investment.",
+    subtitle: "Compass helps operations leaders:",
     bullets: [
-      "Define the business problem worth solving",
-      "Compare every intervention path before choosing",
-      "Measure expected ROI before committing budget",
-      "Generate an implementation blueprint before building",
+      "Define the right problem worth solving",
+      "Compare every solution before choosing",
+      "Measure ROI before implementation begins",
+      "Generate an implementation blueprint",
     ],
     cta: "Assess your operations",
     ctaSecondary: "See an example",
@@ -35,7 +35,7 @@ export const site = {
   },
 
   trustedBy: {
-    label: "Trusted by research from",
+    label: "Built on evidence from",
     sources: ["Ramp", "IBM", "BCG", "McKinsey", "Gartner"],
   },
 
@@ -56,10 +56,10 @@ export const site = {
   evidence: {
     headline: "Why companies struggle with AI adoption.",
     cards: [
-      { meaning: "More than half of AI projects never reach production.", value: "52%", source: "Gartner", connection: "Compass validates the opportunity before implementation." },
-      { meaning: "Only one in four AI initiatives delivers the expected return.", value: "25%", source: "IBM", connection: "Compass defines success before investment." },
-      { meaning: "Seventy percent of implementation challenges are organizational.", value: "70%", source: "BCG", connection: "Compass evaluates readiness before recommending technology." },
-      { meaning: "The average AI prototype takes eight months to reach production.", value: "8 mo.", source: "Gartner", connection: "Compass helps organizations decide before that clock starts." },
+      { meaning: "More than half of AI projects never reach production.", value: "52%", source: "Gartner", connection: "Compass validates the opportunity before implementation.", color: "emerald" },
+      { meaning: "Only one in four AI initiatives delivers the expected return.", value: "25%", source: "IBM", connection: "Compass defines success before investment.", color: "blue" },
+      { meaning: "Seventy percent of implementation challenges are organizational.", value: "70%", source: "BCG", connection: "Compass evaluates readiness before recommending technology.", color: "amber" },
+      { meaning: "The average AI prototype takes eight months to reach production.", value: "8 mo.", source: "Gartner", connection: "Compass helps organizations decide before that clock starts.", color: "violet" },
     ],
     cta: "Start your assessment",
   },
