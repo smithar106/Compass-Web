@@ -12,19 +12,15 @@ export async function ensureAuthenticated() {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    const res = await fetch("/api/auth/signin", { method: "POST" });
-    if (!res.ok) {
-      const body = await res.json();
-      throw new Error(body.error || "Anonymous sign-in failed");
+    const { error: signInError } = await supabase.auth.signInAnonymously();
+    if (signInError) {
+      if (signInError.message?.includes("Anonymous")) {
+        throw new Error("Anonymous sign-in is not enabled. Enable it in Supabase: Authentication → Settings → Allow anonymous sign-ins.");
+      }
+      throw new Error(`Sign-in failed: ${signInError.message}`);
     }
-    const { user: newUser, access_token, refresh_token } = await res.json();
-    if (access_token && refresh_token) {
-      await supabase.auth.setSession({
-        access_token,
-        refresh_token,
-      });
-    }
-    if (!newUser) {
+    const { data: { user: newUser }, error: fetchError } = await supabase.auth.getUser();
+    if (fetchError || !newUser) {
       throw new Error("Failed to retrieve user after anonymous sign-in");
     }
     return newUser;
