@@ -17,7 +17,13 @@ export async function ensureAuthenticated() {
       const body = await res.json();
       throw new Error(body.error || "Anonymous sign-in failed");
     }
-    const { user: newUser } = await res.json();
+    const { user: newUser, access_token, refresh_token } = await res.json();
+    if (access_token && refresh_token) {
+      await supabase.auth.setSession({
+        access_token,
+        refresh_token,
+      });
+    }
     if (!newUser) {
       throw new Error("Failed to retrieve user after anonymous sign-in");
     }
