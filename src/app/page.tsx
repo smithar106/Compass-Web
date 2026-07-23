@@ -35,7 +35,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Problem */}
+      {/* Problem — moved right after hero */}
       <section className="py-section bg-white px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-heading font-bold text-ink">{site.problem.headline}</h2>
@@ -64,7 +64,8 @@ export default function HomePage() {
       <section className="py-section px-4 sm:px-6 lg:px-8 bg-cream">
         <div className="mx-auto max-w-4xl">
           <h2 className="text-heading font-bold text-ink text-center">{site.productLoop.headline}</h2>
-          <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2">
+          <p className="mt-3 text-sm text-stone text-center max-w-xl mx-auto">{site.productLoop.subtitle}</p>
+          <div className="mt-8 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2">
             {site.productLoop.steps.map((step, i) => (
               <div key={step} className="flex items-center gap-2">
                 <div className="bg-forest text-white text-xs font-medium px-4 py-2 rounded-lg whitespace-nowrap">
@@ -81,11 +82,47 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Existing Tools */}
+      {/* Existing Tools — moved higher */}
       <section className="py-section bg-white px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-heading font-bold text-ink">{site.existingTools.headline}</h2>
           <p className="mt-4 text-body text-stone leading-relaxed">{site.existingTools.body}</p>
+        </div>
+      </section>
+
+      {/* Example Map — demonstrating Compass */}
+      <section className="py-section px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-amber-100 border border-amber-300 rounded-full text-xs font-medium text-amber-800">
+            Example
+          </div>
+          <h2 className="text-heading font-bold text-ink">{site.exampleMap.headline}</h2>
+          <p className="mt-3 text-body text-stone max-w-3xl">{site.exampleMap.subtitle}</p>
+
+          <div className="mt-8 border border-border rounded-lg overflow-hidden">
+            <div className="bg-mist/50 p-6 border-b border-border">
+              <p className="text-sm text-ink font-medium">{site.exampleMap.problem}</p>
+            </div>
+            <div className="divide-y divide-border">
+              {site.exampleMap.steps.map((step) => (
+                <div key={step.label} className="p-5 flex items-start gap-4">
+                  <span className="flex-shrink-0 w-24 text-xs font-semibold text-forest uppercase tracking-wider pt-0.5">
+                    {step.label}
+                  </span>
+                  <p className="text-sm text-stone leading-relaxed">{step.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <a
+              href="/assessment/results?example=true"
+              className="inline-flex items-center px-6 py-2.5 border border-forest text-forest text-sm font-medium rounded-lg hover:bg-mist transition-colors"
+            >
+              View the full Opportunity Map
+            </a>
+          </div>
         </div>
       </section>
 
@@ -98,42 +135,6 @@ export default function HomePage() {
             {site.trust.features.map((f) => (
               <div key={f.label} className="border border-border rounded-lg p-4 text-center bg-white">
                 <span className="text-sm font-medium text-ink">{f.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Future Vision */}
-      <section className="py-section bg-mist/50 border-t border-border px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="text-xs font-medium text-forest uppercase tracking-wider">Future vision</span>
-          <h2 className="text-heading font-bold text-ink mt-2">{site.futureVision.headline}</h2>
-          <p className="mt-4 text-body text-stone">{site.futureVision.body}</p>
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-            {site.futureVision.items.map((item) => (
-              <div key={item.title} className="border border-border rounded-lg p-4 bg-white">
-                <h3 className="text-sm font-semibold text-ink">{item.title}</h3>
-                <p className="text-xs text-stone mt-1">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Four Directions */}
-      <section className="py-section px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="text-heading font-bold text-ink text-center">{site.fourDirections.headline}</h2>
-          <p className="mt-2 text-sm text-stone text-center">{site.fourDirections.subtitle}</p>
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {site.fourDirections.directions.map((d) => (
-              <div key={d.name} className="text-center p-4 border border-border rounded-lg bg-white">
-                <div className="w-10 h-10 rounded-full bg-mist flex items-center justify-center mx-auto mb-2">
-                  <span className="text-sm font-bold text-forest">{d.name[0]}</span>
-                </div>
-                <h3 className="text-sm font-semibold text-ink mb-1">{d.label}</h3>
-                <p className="text-xs text-stone leading-relaxed">{d.description}</p>
               </div>
             ))}
           </div>

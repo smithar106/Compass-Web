@@ -24,6 +24,11 @@ describe("Homepage content", () => {
     expect(site.hero.options).toContain("No automation yet");
   });
 
+  it("should have tighter hero subheading", () => {
+    expect(site.hero.subtitle.length).toBeLessThan(140);
+    expect(site.hero.subtitle).toContain("analyzes operational problems");
+  });
+
   it("should have problem section defined", () => {
     expect(site.problem.headline).toBeDefined();
     expect(site.problem.body).toBeDefined();
@@ -35,10 +40,12 @@ describe("Homepage content", () => {
     expect(site.insight.body).toBeDefined();
   });
 
-  it("should have product loop with 5 steps", () => {
+  it("should have product loop with 5 steps and subtitle", () => {
     expect(site.productLoop.steps).toHaveLength(5);
     expect(site.productLoop.steps[0]).toBe("Assessment");
     expect(site.productLoop.steps[4]).toBe("Implementation Blueprint");
+    expect(site.productLoop.subtitle).toBeDefined();
+    expect(site.productLoop.subtitle).toContain("evidence, assumptions, and measurable outcomes");
   });
 
   it("should have existing tools section", () => {
@@ -53,22 +60,39 @@ describe("Homepage content", () => {
     expect(labels).toContain("Expected impact");
   });
 
-  it("should have future vision section", () => {
-    expect(site.futureVision.headline).toBeDefined();
-    expect(site.futureVision.items.length).toBeGreaterThanOrEqual(2);
+  it("should have example map section", () => {
+    expect(site.exampleMap.headline).toBeDefined();
+    expect(site.exampleMap.problem).toContain("100 calls");
+    expect(site.exampleMap.steps.length).toBeGreaterThanOrEqual(5);
   });
 
-  it("should have four directions", () => {
-    expect(site.fourDirections.directions).toHaveLength(4);
-    const names = site.fourDirections.directions.map((d) => d.name);
-    expect(names).toContain("North");
-    expect(names).toContain("East");
-    expect(names).toContain("South");
-    expect(names).toContain("West");
+  it("should have design partners with urgency", () => {
+    expect(site.designPartners.subtitle).toContain("10 design partners");
+    expect(site.designPartners.subtitle).toContain("August");
   });
 
   it("should have final CTA section", () => {
     expect(site.finalCta.headline).toBeDefined();
     expect(site.finalCta.cta).toBeDefined();
+  });
+
+  it("future vision should be on about page, not homepage", () => {
+    expect((site as any).futureVision).toBeUndefined();
+    expect(site.about.futureVision).toBeDefined();
+    expect(site.about.futureVision.items.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("four directions should be on about page, not homepage", () => {
+    expect((site as any).fourDirections).toBeUndefined();
+    expect(site.about.compass).toBeDefined();
+    expect(site.about.compass.directions).toHaveLength(4);
+  });
+
+  it("navigation should be simplified", () => {
+    expect(site.nav).toHaveLength(4);
+    const labels = site.nav.map((n) => n.label);
+    expect(labels).toContain("Product");
+    expect(labels).toContain("Example");
+    expect(labels).not.toContain("Discovery");
   });
 });
