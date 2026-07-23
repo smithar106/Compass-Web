@@ -12,12 +12,13 @@ export async function ensureAuthenticated() {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    const { error: signInError } = await supabase.auth.signInAnonymously();
-    if (signInError) {
-      throw new Error(`Anonymous sign-in failed: ${signInError.message}`);
+    const res = await fetch("/api/auth/signin", { method: "POST" });
+    if (!res.ok) {
+      const body = await res.json();
+      throw new Error(body.error || "Anonymous sign-in failed");
     }
-    const { data: { user: newUser }, error: fetchError } = await supabase.auth.getUser();
-    if (fetchError || !newUser) {
+    const { user: newUser } = await res.json();
+    if (!newUser) {
       throw new Error("Failed to retrieve user after anonymous sign-in");
     }
     return newUser;
