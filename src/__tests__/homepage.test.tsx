@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { site } from "@/content/site";
+import { researchPapers } from "@/data/research";
 
 describe("Homepage content", () => {
   it("should have primary hook as headline", () => {
@@ -8,7 +9,7 @@ describe("Homepage content", () => {
 
   it("should have primary CTA and secondary example scroll", () => {
     expect(site.hero.cta).toBe("Assess your operations");
-    expect(site.hero.ctaSecondary).toBe("See an example");
+    expect(site.hero.ctaSecondary).toBe("See Compass in action");
   });
 
   it("should list intervention options", () => {
@@ -19,30 +20,30 @@ describe("Homepage content", () => {
     expect(site.hero.options).toContain("No automation yet");
   });
 
-  it("should have 'Why AI adoption fails' section with 4 cards and thesis", () => {
-    expect(site.pain.cards).toHaveLength(4);
-    expect(site.pain.thesis).toContain("The real problem isn't AI");
+  it("should have pain section with 6 cards and thesis", () => {
+    expect(site.pain.cards).toHaveLength(6);
+    expect(site.pain.thesis).toContain("Implementation is becoming abundant");
     expect(site.pain.cards[0].compassSolves).toBeTruthy();
   });
 
   it("should have example recommendation with realistic data", () => {
     expect(site.exampleRecommendation.headline).toBe("See Compass in action.");
-    expect(site.exampleRecommendation.problem).toContain("100 calls");
+    expect(site.exampleRecommendation.problem).toContain("100");
     expect(site.exampleRecommendation.steps.some((s) => s.value === "87%")).toBe(true);
-    expect(site.exampleRecommendation.steps.some((s) => s.value?.includes("call routing"))).toBe(true);
+    expect(site.exampleRecommendation.steps.some((s) => s.value?.includes("routing"))).toBe(true);
   });
 
   it("should have how-it-works with 5 steps", () => {
     expect(site.howItWorks.steps).toHaveLength(5);
     expect(site.howItWorks.headline).toContain("operational problem");
     const titles = site.howItWorks.steps.map((s) => s.title);
-    expect(titles).toEqual(["Assess", "Discover", "Compare", "Recommend", "Blueprint"]);
+    expect(titles).toEqual(["Assess", "Investigate", "Compare", "Recommend", "Blueprint"]);
   });
 
   it("should have research evidence section with papers", () => {
-    expect(site.evidence.papers.length).toBeGreaterThanOrEqual(3);
-    expect(site.evidence.papers[0].compassInterpretation).toBeTruthy();
-    expect(site.evidence.papers[0].misinterpretation).toBeTruthy();
+    expect(researchPapers.length).toBeGreaterThanOrEqual(3);
+    expect(researchPapers[0].compassInterpretation).toBeTruthy();
+    expect(researchPapers[0].source).toBeTruthy();
   });
 
   it("should have design partners with both CTAs", () => {
@@ -54,7 +55,7 @@ describe("Homepage content", () => {
     expect(site.finalCta.cta).toBe("Assess your operations");
   });
 
-  it("should have simplified nav with 4 items", () => {
-    expect(site.nav).toHaveLength(4);
+  it("should have nav with 5 items", () => {
+    expect(site.nav).toHaveLength(5);
   });
 });
