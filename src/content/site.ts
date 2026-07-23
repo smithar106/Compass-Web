@@ -5,129 +5,70 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
 
   hero: {
-    eyebrow: "The decision layer before implementation",
     headline: "What should your company automate next?",
-    subtitle: "Compass investigates how work happens, compares every intervention path, and recommends what is actually worth implementing — with the evidence, expected impact, and blueprint to act.",
+    subtitle: "Compass investigates the problem, compares every intervention, and tells you what is worth implementing — before you build, buy, or hire.",
     cta: "Assess your operations",
     ctaSecondary: "See Compass in action",
     options: ["AI", "Software", "Process Redesign", "Human Work", "Hybrid", "No automation yet"],
   },
 
+  recognition: {
+    headline: "Does this sound familiar?",
+    items: [
+      "Spent months evaluating AI vendors without a clear answer?",
+      "Launched a pilot that never reached production?",
+      "Bought software before defining what success looks like?",
+      "Disagreed internally about which problem to solve first?",
+      "Implemented a solution only to realize it wasn't the real bottleneck?",
+    ],
+    bridge: "If you checked even one, Compass was built for you.",
+  },
+
   pain: {
-    headline: "AI adoption is expensive when the decision is wrong.",
-    subtitle: "Companies are under pressure to adopt AI, but most begin with tools, vendors, and pilots before clearly defining the problem, the expected impact, or the best intervention.",
+    headline: "Why AI projects fail.",
     cards: [
       {
-        headline: "Failed AI pilots",
-        pain: "Companies test AI before validating whether the selected problem is suitable for AI, whether the necessary data and processes exist, or whether another intervention would work better. Pilots launch. Business impact never follows.",
-        failure: "The technology is selected before the problem and root cause are understood.",
-        compassSolves: "Compass establishes the problem, evidence, readiness, and intervention fit before recommending a pilot.",
+        headline: "Wrong problem",
+        pain: "Companies buy AI before agreeing on what problem they are solving.",
+        compassSolves: "Compass starts with the business problem.",
       },
       {
-        headline: "The wrong AI tools",
-        pain: "Teams spend weeks attending demos and evaluating products, while every vendor frames the organization's problem around the solution it sells.",
-        failure: "Tool selection begins before intervention selection.",
-        compassSolves: "Compass recommends the intervention category and requirements before a vendor is considered.",
+        headline: "Wrong tool",
+        pain: "Every vendor says their product is the answer.",
+        compassSolves: "Compass compares every intervention first.",
       },
       {
-        headline: "AI spend without measurable ROI",
-        pain: "Organizations commit budget without clearly documenting the business baseline, expected impact, implementation costs, adoption requirements, or measurable success criteria.",
-        failure: "There is no explicit economic case connecting the problem to the investment.",
-        compassSolves: "Compass defines expected impact, assumptions, success metrics, risks, and measurement requirements before implementation.",
+        headline: "Unclear ROI",
+        pain: "Organizations spend money before defining success.",
+        compassSolves: "Compass predicts impact before implementation.",
       },
       {
-        headline: "Months lost before implementation",
-        pain: "Teams spend months gathering requirements, comparing vendors, running demos, debating scope, and reconciling conflicting recommendations. The implementation clock starts long before anything is built.",
-        failure: "The organization lacks a repeatable decision process.",
-        compassSolves: "Compass compresses problem investigation, intervention comparison, and implementation planning into one structured workflow.",
-      },
-      {
-        headline: "AI adoption without organizational readiness",
-        pain: "AI is introduced into unclear processes, fragmented ownership structures, poor data environments, or workflows that have never been standardized.",
-        failure: "Organizations confuse technical availability with operational readiness.",
-        compassSolves: "Compass identifies process, ownership, evidence, data, and change-management dependencies before recommending AI.",
-      },
-      {
-        headline: "Trust lost after a failed implementation",
-        pain: "When teams cannot explain why a tool was chosen or why results fell short, leadership becomes more skeptical of future automation and AI investments.",
-        failure: "The evidence, assumptions, alternatives, and decision logic were never documented.",
-        compassSolves: "Every Compass recommendation remains traceable and explainable.",
+        headline: "Lost time",
+        pain: "Teams spend months in demos before making a decision.",
+        compassSolves: "Compass creates the blueprint before vendor selection.",
       },
     ],
-    thesis: "Implementation is becoming abundant. Judgment remains scarce.",
-    bridge: "Compass is the decision infrastructure organizations need before they build, buy, automate, or hire.",
   },
 
-  statisticsSection: {
-    headline: "AI investment is growing. Value is not keeping pace.",
-    subtitle: "Organizations do not need another tool telling them what it can build. They need a repeatable way to decide what is worth building.",
+  compassFlow: {
+    headline: "Here is what happens after you click.",
+    steps: [
+      { label: "Problem", description: "Define the business problem and root cause." },
+      { label: "Investigation", description: "Gather evidence and test hypotheses." },
+      { label: "Comparison", description: "Evaluate AI, software, process, human, hybrid, and no-action paths." },
+      { label: "Recommendation", description: "Select the highest-impact intervention with evidence." },
+      { label: "Blueprint", description: "Produce an actionable plan with owners and milestones." },
+    ],
     cta: "Assess your operations",
-    sourceLine: "Sources: Gartner, IBM Institute for Business Value, Boston Consulting Group",
   },
 
-  rootCause: {
-    headline: "The problem is not implementation. It is judgment.",
-    body: "AI has made building, buying, and automating easier. But organizations still make high-cost technology decisions using scattered interviews, vendor demos, spreadsheets, and intuition.",
-    thesis: "Implementation is becoming abundant. Judgment remains scarce.",
-    bridge: "Compass is the decision infrastructure organizations need before they build, buy, automate, or hire.",
-  },
-
-  problem: {
-    headline: "Most companies ask the wrong question.",
-    wrong: "How can we use AI?",
-    better: "What is the best way to solve this problem?",
-    body: "Implementation tools are becoming cheaper and easier to use. Choosing the right intervention is what remains difficult. Compass helps you decide before you build.",
-  },
-
-  exampleRecommendation: {
-    headline: "See Compass in action.",
-    problem: "Customer support misses approximately 100 inbound calls each day. Reps are overwhelmed. Callers abandon. Revenue leaks every shift.",
-    steps: [
-      { label: "Business problem", text: "Customer support misses approximately 100 inbound calls each day during peak hours." },
-      { label: "Root-cause hypotheses", text: "Staffing coverage does not match demand. Call routing concentrates traffic in one queue. Shift changes create coverage gaps. Callback workflows are inconsistent. Some call types do not require live-agent handling." },
-      { label: "Evidence reviewed", text: "Missed calls cluster around peak periods and shift changes. Routing rules disproportionately direct calls to one queue. Staffing is lowest during part of the highest-demand window. No consistent callback SLA exists. Demand by call type has not been fully measured." },
-      { label: "Interventions compared", text: "AI voice agent, deterministic callback and routing software, process redesign, additional or reallocated staffing, hybrid intervention, no action yet." },
-      { label: "Recommended", value: "Redesign call routing and staffing coverage before deploying an AI voice agent." },
-      { label: "Category", value: "Process redesign + deterministic software" },
-      { label: "Confidence", value: "87%" },
-      { label: "Expected impact", value: "20-30% reduction in missed calls", detail: "3-4 weeks to implement" },
-      { label: "Conditions that could change this", text: "A high share of calls are repetitive and low-risk. Reliable call-intent data becomes available. Staffing changes do not improve missed-call rates. Customer acceptance of automated voice support is validated." },
-      { label: "Blueprint summary", text: "Owner: Operations lead. First milestone: Call audit complete within 1 week. Phases: Audit (1 week), routing redesign (1 week), staffing adjustment (1 week), monitoring (ongoing). Success metrics: Missed call rate, average hold time, callback completion rate. Key risks: Staffing availability, routing system limitations." },
-    ],
-  },
-
-  howItWorks: {
-    headline: "From operational problem to implementation blueprint.",
-    steps: [
-      { number: "01", title: "Assess", description: "Understand how work happens, where it fails, and which outcomes matter." },
-      { number: "02", title: "Investigate", description: "Define the problem, test root-cause hypotheses, and identify missing evidence." },
-      { number: "03", title: "Compare", description: "Evaluate AI, software, process, human, hybrid, and no-action paths." },
-      { number: "04", title: "Recommend", description: "Select the highest-leverage intervention and explain why the alternatives ranked lower." },
-      { number: "05", title: "Blueprint", description: "Produce an actionable plan with owners, milestones, assumptions, risks, and measurable outcomes." },
-    ],
-  },
-
-  trust: {
-    headline: "See why, not just what.",
-    body: "Compass does not produce a black-box recommendation. It preserves the reasoning required to evaluate, challenge, and improve the decision.",
-    features: [
-      { label: "Evidence" },
-      { label: "Confidence" },
-      { label: "Assumptions" },
-      { label: "Alternatives considered" },
-      { label: "Expected impact" },
-      { label: "Risks" },
-      { label: "Success metrics" },
-      { label: "Conditions that could change this recommendation" },
-    ],
-    statement: "Leaders remain in control because the evidence and logic remain visible.",
-  },
-
-  differentiation: {
-    headline: "Your tools execute. Compass decides.",
-    body: "Builders, automation platforms, enterprise AI tools, and implementation firms become valuable once an organization knows what it should build. Compass operates before that decision.",
-    executionTools: ["Generate software", "Automate workflows", "Deploy agents", "Search company knowledge", "Implement selected systems"],
-    compassRole: ["Defines the actual business problem", "Investigates root causes", "Determines whether intervention is warranted", "Compares intervention paths", "Estimates impact and readiness", "Recommends what should happen next", "Produces the implementation blueprint"],
+  example: {
+    headline: "See it in action.",
+    problem: "Customer support misses 100 calls per day.",
+    recommendation: "Don't buy an AI agent. Fix call routing and staffing coverage.",
+    confidence: "87%",
+    detail: "20-30% reduction in missed calls · 3-4 weeks to implement",
+    cta: "View full analysis",
   },
 
   designPartners: {
@@ -283,9 +224,9 @@ export const site = {
   },
 
   evidence: {
-    headline: "The evidence behind Compass.",
-    body: "AI adoption is increasing, but the gains are uneven. The difference is not simply access to AI — it is the organizational capacity to select, integrate, and learn from the right interventions.",
-    cta: "Explore the research",
+    headline: "Why now?",
+    body: "The evidence is clear. Organizations do not need more AI. They need better decisions.",
+    cta: "Assess your operations",
   },
 
   evidenceLabels: {
