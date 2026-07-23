@@ -5,32 +5,38 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
 
   hero: {
-    headline: "Every company is under pressure to adopt AI.\nThe hard part isn't implementing AI.\nIt's deciding what should be implemented.",
-    subtitle: "Compass helps operations leaders determine which problems are worth solving, whether AI is the right intervention, and how to implement the right solution with confidence.",
+    headline: "AI is no longer optional.\nMaking the wrong AI investment is expensive.",
+    subtitle: "Compass helps operations leaders determine what problem matters most, whether AI is the right answer, and how success should be measured — before implementation begins.",
+    bullets: [
+      "Define the business problem worth solving",
+      "Compare every intervention path before choosing",
+      "Measure expected ROI before committing budget",
+      "Generate an implementation blueprint before building",
+    ],
     cta: "Assess your operations",
     ctaSecondary: "See an example",
     decisionMistakes: [
       {
-        label: "Failed AI Pilot",
-        pain: "6 months later.\n$180k spent.\nNo measurable ROI.",
-        compassSolves: "Validates the opportunity\nbefore implementation.",
-      },
-      {
-        label: "Wrong Tool",
-        pain: "Vendor chooses solution.\nProblem never defined.",
-        compassSolves: "Compares every intervention\nbefore vendor selection.",
+        label: "Wrong AI Tool",
+        pain: "Vendor chose the solution.",
+        compassSolves: "Compass compares every path.",
       },
       {
         label: "Undefined ROI",
-        pain: "Budget approved.\nSuccess undefined.",
-        compassSolves: "Defines measurable outcomes\nbefore investment.",
+        pain: "Budget approved. Success undefined.",
+        compassSolves: "Compass defines success first.",
       },
       {
         label: "Months Lost",
-        pain: "Meetings. Demos.\nConflicting opinions.",
-        compassSolves: "Produces recommendation\nbefore a decision is made.",
+        pain: "Meetings. Demos. Conflicting opinions.",
+        compassSolves: "Compass recommends first.",
       },
     ],
+  },
+
+  trustedBy: {
+    label: "Trusted by research from",
+    sources: ["Ramp", "IBM", "BCG", "McKinsey", "Gartner"],
   },
 
   example: {
