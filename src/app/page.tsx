@@ -76,10 +76,7 @@ export default function HomePage() {
                       <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-forest/10 border border-forest/20 flex items-center justify-center mt-0.5">
                         <span className="text-sm font-bold text-forest">{"\u2713"}</span>
                       </span>
-                      <div>
-                        <span className="text-xs font-bold text-forest uppercase tracking-wider">Compass</span>
-                        <p className="text-base text-forest font-semibold mt-0.5">{card.compassSolves}</p>
-                      </div>
+                      <p className="text-base text-forest font-semibold">{card.compassSolves}</p>
                     </div>
                   </div>
                 </div>
