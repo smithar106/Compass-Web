@@ -160,10 +160,10 @@ export function OpportunityCardV2({ opportunity, evidence, rank }: OpportunityCa
             <EvidenceTrace evidence={evidence} evidenceIds={opp.evidenceIds} />
           )}
 
-          {/* Implementation Blueprint */}
+          {/* Implementation Plan */}
           {opp.implementationBlueprint && (
             <div>
-              <h4 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">Implementation Blueprint</h4>
+              <h4 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">Implementation Plan</h4>
               <span className={cn(
                 "text-xs px-2 py-0.5 rounded font-medium",
                 opp.implementationBlueprint === "Available" ? "bg-forest text-white" : "bg-amber-100 text-amber-800"

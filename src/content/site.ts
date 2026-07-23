@@ -2,7 +2,7 @@ export const site = {
   name: "Compass",
   tagline: "What should your company automate next?",
   description:
-    "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
+    "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Plan for the chosen solution.",
 
   hero: {
     headline: "Determine the right direction\nbefore implementation.",
@@ -11,7 +11,7 @@ export const site = {
       "Identify the operational problem worth solving",
       "Compare every possible intervention path",
       "Estimate expected impact before committing budget",
-      "Generate an implementation blueprint before building",
+      "Generate an implementation plan before building",
     ],
     cta: "Assess your operations",
     ctaSecondary: "See an example",
@@ -75,7 +75,7 @@ export const site = {
     benefits: [
       "A structured organizational assessment",
       "An Opportunity Map with compared interventions",
-      "A prioritized recommendation and implementation blueprint",
+      "A prioritized recommendation and implementation plan",
       "Direct influence on the product roadmap",
     ],
     form: {
@@ -139,7 +139,7 @@ export const site = {
       body: "Compass will eventually analyze existing tooling environments (Slack, Jira, ticketing systems), support deployment execution, and measure realized outcomes against predictions.",
       items: [
         { title: "Slack / Jira analysis", description: "Analyze existing workflow signals from communication and project management tools" },
-        { title: "Deployment support", description: "Guide implementation from Blueprint to production" },
+        { title: "Deployment support", description: "Guide implementation from plan to production" },
         { title: "Outcome measurement", description: "Track realized outcomes against predictions and assumptions" },
         { title: "Organizational learning", description: "Improve recommendations across assessments over time" },
       ],
@@ -184,7 +184,7 @@ export const site = {
     headline: "Opportunity Map",
     subtitle: "Ranked business problems with competing intervention paths. Every recommendation includes evidence, assumptions, and compared alternatives.",
     noResults: "No assessment results found. Please complete the organizational discovery first.",
-    buildBlueprint: "View Implementation Blueprint",
+    buildBlueprint: "View Implementation Plan",
     comparePaths: "Compare intervention paths",
   },
 
@@ -195,7 +195,7 @@ export const site = {
   },
 
   blueprint: {
-    headline: "Implementation Blueprint",
+    headline: "Implementation Plan",
     sections: [
       "Problem",
       "Root cause",
@@ -242,6 +242,6 @@ export const site = {
   metadata: {
     title: "Compass — What should your company automate next?",
     description:
-      "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination — and generates an Implementation Blueprint for the chosen solution.",
+      "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination — and generates an Implementation Plan for the chosen solution.",
   },
 };

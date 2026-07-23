@@ -67,6 +67,7 @@ export interface AssessmentQuestion {
   type: QuestionType;
   options?: string[];
   category?: string;
+  chip?: boolean;
 }
 
 export interface Answer {

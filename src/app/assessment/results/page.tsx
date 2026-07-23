@@ -6,7 +6,7 @@ import { sampleOpportunityMap } from "@/data/mock-results";
 import { site } from "@/content/site";
 import { InterventionComparison } from "@/components/intervention/intervention-comparison";
 import { EvidenceDisplay } from "@/components/evidence/evidence-display";
-import { ImplementationBlueprintView } from "@/components/blueprint/implementation-blueprint";
+import { ImplementationPlanView } from "@/components/blueprint/implementation-plan";
 import type { Opportunity, ImplementationBlueprint, InterventionType } from "@/types";
 
 const pathLabel: Record<string, string> = {
@@ -149,7 +149,7 @@ function ResultsContent() {
               view === "blueprint" ? "bg-forest text-white" : "text-stone hover:text-ink hover:bg-mist"
             } ${!selectedOpp ? "opacity-40 cursor-not-allowed" : ""}`}
           >
-            Implementation Blueprint
+            Implementation Plan
           </button>
         </div>
 
@@ -354,7 +354,7 @@ function ResultsContent() {
                 <p className="text-xs text-stone mb-4">
                   {selectedOpp.name} &bull; {selectedOpp.department}
                 </p>
-                <ImplementationBlueprintView
+                <ImplementationPlanView
                   blueprint={buildMockBlueprint(selectedOpp)}
                 />
               </div>
@@ -362,7 +362,7 @@ function ResultsContent() {
 
             {view === "blueprint" && !selectedOpp && (
               <div className="bg-white border border-border rounded-lg p-12 text-center">
-                <p className="text-sm text-stone">Select an opportunity to view its Implementation Blueprint</p>
+                <p className="text-sm text-stone">Select an opportunity to view its Implementation Plan</p>
               </div>
             )}
           </div>
