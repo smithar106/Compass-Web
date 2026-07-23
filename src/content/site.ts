@@ -5,59 +5,32 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
 
   hero: {
-    eyebrow: "The decision layer before implementation",
-    headline: "AI is no longer optional.\nNeither are good decisions.",
-    subtitle: "Every company is under pressure to adopt AI. Compass gives operations leaders confidence that they are investing in the right problem, the right intervention, and a measurable outcome before implementation begins.",
+    headline: "Every company is under pressure to adopt AI.\nThe hard part isn't implementing AI.\nIt's knowing where AI actually creates value.",
+    subtitle: "Compass helps operations leaders determine which problems are worth solving, whether AI is the right intervention, and how to implement the right solution with confidence.",
     cta: "Assess your operations",
     ctaSecondary: "See an example",
-    options: ["AI", "Software", "Process Redesign", "Human Work", "Hybrid", "No automation yet"],
-    closing: "Move before competitors do \u2014 without rushing into the wrong solution.",
-  },
-
-  twoRisks: {
-    headline: "Every AI decision carries two risks.",
-    left: {
-      title: "Move too slowly",
-      body: "Competitors gain efficiency, improve customer experiences, and learn faster while your organization remains uncertain about where to begin.",
-    },
-    right: {
-      title: "Move too quickly",
-      body: "You commit budget, months of implementation work, and organizational credibility to a solution before proving it solves the right problem.",
-    },
-    bridge: "Compass helps you move with confidence.",
-  },
-
-  painCards: {
-    headline: "Where AI investments go wrong.",
-    subtitle: "Most failures begin before implementation.",
-    cards: [
+    painCards: [
       {
-        label: "Failed AI pilot",
-        pain: "Months of work produce no measurable business impact.",
-        compassSolves: "Compass validates the problem, expected value, and readiness before recommending a pilot.",
+        label: "AI Pilot",
+        pain: "6 months later... No measurable business impact.",
+        compassSolves: "Compass validates the opportunity before implementation.",
       },
       {
-        label: "Wrong tool",
-        pain: "The vendor defines the problem around the product it sells.",
-        compassSolves: "Compass compares AI, software, process, human, hybrid, and no-action paths before vendor selection.",
+        label: "Wrong Tool",
+        pain: "Every vendor recommends their own product.",
+        compassSolves: "Compass compares every intervention first.",
       },
       {
         label: "Unclear ROI",
-        pain: "Budget is approved before success, baseline performance, and expected impact are defined.",
-        compassSolves: "Compass defines measurable outcomes, assumptions, and success metrics before implementation.",
+        pain: "Budget approved. Success undefined.",
+        compassSolves: "Compass defines measurable outcomes before investment.",
       },
       {
-        label: "Months lost",
-        pain: "Teams cycle through demos, meetings, and conflicting recommendations without a clear decision.",
-        compassSolves: "Compass produces an evidence-backed recommendation and implementation blueprint first.",
+        label: "Months Lost",
+        pain: "Meetings. Demos. Conflicting opinions.",
+        compassSolves: "Compass produces an evidence-backed recommendation first.",
       },
     ],
-  },
-
-  productQuestion: {
-    headline: "What should your company automate next?",
-    subtitle: "Compass investigates the problem, compares every intervention path, and recommends what is actually worth implementing.",
-    cta: "See Compass in action",
   },
 
   example: {
