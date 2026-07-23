@@ -35,25 +35,37 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pain recognition */}
+      {/* Why AI adoption fails */}
       <section className="py-section bg-white px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-5xl">
           <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-heading font-bold text-ink">{site.pain.headline}</h2>
             <p className="mt-4 text-body text-stone">{site.pain.subtitle}</p>
           </div>
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
             {site.pain.cards.map((card) => (
-              <div key={card.pain} className="border border-border rounded-lg p-5 bg-white">
-                <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center mb-3">
-                  <span className="text-xs font-bold text-red-500">!</span>
+              <div key={card.headline} className="border border-border rounded-lg p-5 bg-white">
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
+                    <span className="text-xs font-bold text-red-500">!</span>
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-ink">{card.headline}</h3>
+                    <p className="mt-2 text-xs text-stone leading-relaxed">{card.pain}</p>
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                      <p className="text-xs text-forest font-medium">
+                        <span className="font-semibold">Compass: </span>
+                        {card.compassSolves}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-sm font-semibold text-ink">{card.pain}</h3>
-                <p className="mt-1.5 text-xs text-stone leading-relaxed">{card.detail}</p>
               </div>
             ))}
           </div>
-          <p className="mt-6 text-center text-sm text-forest font-medium">{site.pain.bridge}</p>
+          <div className="mt-8 bg-ink text-cream rounded-lg p-6 text-center max-w-3xl mx-auto">
+            <p className="text-sm leading-relaxed">{site.pain.thesis}</p>
+          </div>
         </div>
       </section>
 

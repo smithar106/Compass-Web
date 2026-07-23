@@ -13,31 +13,31 @@ export const site = {
   },
 
   pain: {
-    headline: "Every company is under pressure to adopt AI.",
-    subtitle: "But most leaders don't know:",
+    headline: "Why AI adoption fails.",
+    subtitle: "Most AI initiatives never reach meaningful business impact. Here is what goes wrong and how Compass fixes it.",
     cards: [
       {
-        pain: "Which problem should we solve first?",
-        detail: "Too many opportunities. Every department has ideas. Nobody knows where to start.",
+        headline: "The wrong problem is selected.",
+        pain: "Companies launch pilots without first validating whether AI is actually the right intervention. Projects stall. Teams lose confidence. Leadership becomes skeptical of future investments.",
+        compassSolves: "Compass starts with the business problem — not the technology. It compares every intervention before recommending AI.",
       },
       {
-        pain: "Every vendor says \"Use AI\" but nobody starts with your problem.",
-        detail: "AI platforms. Software vendors. Consultancies. Everyone sells their solution, not yours.",
+        headline: "AI is chosen before alternatives are compared.",
+        pain: "Organizations evaluate dozens of AI products. Every demo promises transformation. Nobody questions whether the problem should be solved with AI at all.",
+        compassSolves: "Compass compares AI, software, process redesign, human work, hybrid approaches, and no action. Technology is the recommendation — not the assumption.",
       },
       {
-        pain: "Leadership cannot evaluate technical proposals.",
-        detail: "Everyone sounds confident. Nobody can explain why one path is better than another.",
+        headline: "Success is never defined.",
+        pain: "Organizations purchase enterprise AI licenses and run pilots before agreeing on the business problem, expected impact, or success metrics. The result is expensive software with unclear value.",
+        compassSolves: "Every Compass recommendation includes expected ROI, assumptions, measurable success metrics, implementation cost, and confidence — before implementation begins.",
       },
       {
-        pain: "Companies implement the wrong solution — then discover it.",
-        detail: "Months of work. Budget spent. Trust lost. Because the real problem was never diagnosed.",
-      },
-      {
-        pain: "Nobody documents why decisions were made.",
-        detail: "Six months later, everyone asks: why did we build this? No evidence. No record. No way to learn.",
+        headline: "Nobody understands why a decision was made.",
+        pain: "Leadership spends months evaluating vendors, attending demos, and collecting conflicting recommendations. Six months later, nobody remembers why a path was chosen.",
+        compassSolves: "Compass provides evidence, assumptions, confidence scoring, and an implementation blueprint that captures every decision and its rationale.",
       },
     ],
-    bridge: "If that sounds familiar, Compass was built for you.",
+    thesis: "The real problem isn't AI. It's decision-making. AI implementation has become easier. Judgment has not. Compass exists to improve organizational judgment before implementation begins.",
   },
 
   problem: {

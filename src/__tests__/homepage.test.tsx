@@ -19,10 +19,10 @@ describe("Homepage content", () => {
     expect(site.hero.options).toContain("No automation yet");
   });
 
-  it("should have pain recognition section with 5 cards", () => {
-    expect(site.pain.cards).toHaveLength(5);
-    expect(site.pain.bridge).toContain("Compass was built for you");
-    expect(site.pain.cards[0].pain).toContain("Which problem");
+  it("should have 'Why AI adoption fails' section with 4 cards and thesis", () => {
+    expect(site.pain.cards).toHaveLength(4);
+    expect(site.pain.thesis).toContain("The real problem isn't AI");
+    expect(site.pain.cards[0].compassSolves).toBeTruthy();
   });
 
   it("should have example recommendation with realistic data", () => {
