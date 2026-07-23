@@ -9,19 +9,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
   }
 
-  const cookies = request.cookies;
-  const response = NextResponse.json({});
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(supabaseUrl, anonKey, {
     cookies: {
-      get(name: string) {
-        return cookies.get(name)?.value;
+      getAll() {
+        return request.cookies.getAll();
       },
-      set(name: string, value: string, options: any) {
-        response.cookies.set(name, value, options);
-      },
-      remove(name: string, options: any) {
-        response.cookies.set(name, "", options);
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        supabaseResponse = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        );
       },
     },
   });
@@ -32,5 +32,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return NextResponse.json({ user: data.user }, { status: 200, headers: response.headers });
+  return NextResponse.json({ user: data.user }, {
+    headers: supabaseResponse.headers,
+  });
 }
