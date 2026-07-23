@@ -52,8 +52,8 @@ export default function HomePage() {
                 <div className="flex items-start gap-4">
                   <span className="text-5xl font-bold leading-none">52%</span>
                   <div>
-                    <p className="text-base text-cream/90 font-medium">Most AI failures begin before implementation.</p>
-                    <p className="text-sm text-cream/60 mt-1">Compass helps determine whether AI should be implemented in the first place.</p>
+                    <p className="text-base text-cream/90 font-medium">Most AI failures begin before the right direction is chosen.</p>
+                    <p className="text-sm text-cream/60 mt-1">Compass determines the path before resources are committed.</p>
                   </div>
                 </div>
               </div>

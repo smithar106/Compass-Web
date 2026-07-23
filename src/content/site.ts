@@ -5,31 +5,36 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Blueprint for the chosen solution.",
 
   hero: {
-    headline: "Don't start with AI.\nStart with the problem.",
-    subtitle: "Compass helps operations leaders determine whether a business problem should be solved with AI, software, process redesign, staffing, or no intervention at all \u2014 before implementation begins.",
+    headline: "Determine the right direction\nbefore implementation.",
+    subtitle: "Compass analyzes operational problems and recommends the intervention with the greatest expected business impact. AI, software, process redesign, human-in-the-loop, staffing \u2014 Compass determines which path to take before resources are committed.",
     bullets: [
-      "Define the business problem",
-      "Compare every intervention",
-      "Measure expected impact",
-      "Generate an implementation blueprint",
+      "Identify the operational problem worth solving",
+      "Compare every possible intervention path",
+      "Estimate expected impact before committing budget",
+      "Generate an implementation blueprint before building",
     ],
     cta: "Assess your operations",
     ctaSecondary: "See an example",
     decisionMistakes: [
       {
-        label: "Started with technology",
-        pain: "Vendor chose the solution before the problem was defined.",
-        compassSolves: "Compass starts with the business problem.",
+        label: "Started with a solution",
+        pain: "Technology was chosen before the problem was understood.",
+        compassSolves: "Compass starts with the problem.",
       },
       {
         label: "Wrong intervention",
-        pain: "AI wasn't the biggest opportunity.",
+        pain: "The best path was never considered.",
         compassSolves: "Compass compares every implementation path.",
       },
       {
+        label: "Undefined success",
+        pain: "Resources committed before outcomes were defined.",
+        compassSolves: "Compass defines measurable outcomes first.",
+      },
+      {
         label: "Premature implementation",
-        pain: "Months spent building the wrong thing.",
-        compassSolves: "Compass recommends before implementation.",
+        pain: "Direction was set before evidence was gathered.",
+        compassSolves: "Compass determines direction before resources are committed.",
       },
     ],
   },
@@ -56,10 +61,10 @@ export const site = {
   evidence: {
     headline: "Why companies struggle with AI adoption.",
     cards: [
-      { meaning: "More than half of AI initiatives never reach production.", value: "52%", source: "Gartner", connection: "Compass helps determine whether AI should be implemented in the first place.", color: "emerald" },
+      { meaning: "Most AI failures begin before the right direction is chosen.", value: "52%", source: "Gartner", connection: "Compass determines the intervention path before resources are committed.", color: "emerald" },
       { meaning: "Only one in four AI initiatives delivers the expected return.", value: "25%", source: "IBM", connection: "Compass defines success before investment.", color: "blue" },
       { meaning: "Seventy percent of implementation challenges are organizational.", value: "70%", source: "BCG", connection: "Compass evaluates readiness before recommending technology.", color: "amber" },
-      { meaning: "The average AI prototype takes eight months to reach production.", value: "8 mo.", source: "Gartner", connection: "Compass helps organizations decide before that clock starts.", color: "violet" },
+      { meaning: "Implementation begins before direction is set, extending timelines.", value: "8 mo.", source: "Gartner", connection: "Compass determines direction before the implementation clock starts.", color: "violet" },
     ],
     cta: "Start your assessment",
   },
