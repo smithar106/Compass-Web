@@ -117,22 +117,32 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            {/* Steps cards */}
-            {site.example.steps.map((step, i) => (
-              <div key={step.label} className="border-2 border-border rounded-xl p-5 bg-white shadow-sm">
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-mist flex items-center justify-center mt-0.5 text-xs font-bold text-forest">{i + 1}</span>
-                  <div className="min-w-0">
-                    <span className="text-xs font-semibold text-stone uppercase tracking-wider">{step.label}</span>
-                    {step.value ? (
-                      <p className="text-base text-ink font-semibold mt-0.5">{step.value}</p>
-                    ) : (
-                      <p className="text-sm text-stone mt-0.5 leading-relaxed">{step.text}</p>
-                    )}
+            {/* Steps cards — gradient of colors */}
+            {[
+              { border: "border-amber-200", bg: "bg-amber-50/40", circle: "bg-amber-100", text: "text-amber-700" },
+              { border: "border-sky-200", bg: "bg-sky-50/40", circle: "bg-sky-100", text: "text-sky-700" },
+              { border: "border-indigo-200", bg: "bg-indigo-50/40", circle: "bg-indigo-100", text: "text-indigo-700" },
+              { border: "border-forest/30", bg: "bg-forest/[0.04]", circle: "bg-forest/10", text: "text-forest" },
+              { border: "border-leaf/30", bg: "bg-leaf/[0.04]", circle: "bg-leaf/10", text: "text-leaf" },
+            ].map((colors, i) => {
+              const step = site.example.steps[i];
+              if (!step) return null;
+              return (
+                <div key={step.label} className={`border-2 ${colors.border} ${colors.bg} rounded-xl p-5 shadow-sm`}>
+                  <div className="flex items-start gap-3">
+                    <span className={`flex-shrink-0 w-6 h-6 rounded-full ${colors.circle} flex items-center justify-center mt-0.5 text-xs font-bold ${colors.text}`}>{i + 1}</span>
+                    <div className="min-w-0">
+                      <span className={`text-xs font-semibold ${colors.text} uppercase tracking-wider`}>{step.label}</span>
+                      {step.value ? (
+                        <p className="text-base text-ink font-semibold mt-0.5">{step.value}</p>
+                      ) : (
+                        <p className="text-sm text-stone mt-0.5 leading-relaxed">{step.text}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {/* Confidence card */}
             <div className="border-2 border-forest/20 bg-forest/5 rounded-xl p-5 shadow-sm">
               <div className="flex items-center gap-6">
