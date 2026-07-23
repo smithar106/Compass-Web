@@ -19,11 +19,20 @@ export async function POST(_request: NextRequest) {
       body: JSON.stringify({}),
     });
 
-    const body = await res.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await res.json();
+    } catch {
+      const text = await res.text().catch(() => "");
+      return NextResponse.json(
+        { error: `Auth server returned non-JSON response (HTTP ${res.status}): ${text.slice(0, 100)}` },
+        { status: 502 }
+      );
+    }
 
     if (!res.ok) {
       return NextResponse.json(
-        { error: body.msg || body.error || body.message || "Sign-in failed" },
+        { error: body.msg || body.error || body.message || `Sign-in failed (HTTP ${res.status})` },
         { status: 400 }
       );
     }
