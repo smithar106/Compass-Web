@@ -24,6 +24,6 @@ describe("Homepage content", () => {
   });
 
   it("should have final CTA", () => {
-    expect(site.finalCta.cta).toBe("Assess your operations");
+    expect(site.finalCta.cta).toBe("Start an investigation");
   });
 });

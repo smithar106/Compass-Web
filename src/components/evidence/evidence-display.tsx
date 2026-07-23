@@ -18,7 +18,7 @@ const evidenceConfig: Record<string, { label: string; icon: string; note: string
   "user-provided": {
     label: "User-provided evidence",
     icon: "\u270D\ufe0F",
-    note: "Stated by the organization during assessment",
+    note: "Stated by the organization during investigation",
   },
   "deterministic-analysis": {
     label: "Deterministic analysis",

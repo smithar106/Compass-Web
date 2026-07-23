@@ -13,7 +13,7 @@ export const site = {
       "Estimate expected impact before committing budget",
       "Generate an implementation plan before building",
     ],
-    cta: "Assess your operations",
+    cta: "Start an investigation",
     ctaSecondary: "See an example",
     decisionMistakes: [
       {
@@ -66,14 +66,14 @@ export const site = {
       { meaning: "Seventy percent of implementation challenges are organizational.", value: "70%", source: "BCG", connection: "Compass evaluates readiness before recommending technology.", color: "amber" },
       { meaning: "Implementation begins before direction is set, extending timelines.", value: "8 mo.", source: "Gartner", connection: "Compass determines direction before the implementation clock starts.", color: "violet" },
     ],
-    cta: "Start your assessment",
+    cta: "Start your investigation",
   },
 
   designPartners: {
     headline: "Bring Compass a real operational problem.",
     subtitle: "We are working with operations leaders and founders to evaluate real decisions before implementation begins.",
     benefits: [
-      "A structured organizational assessment",
+      "A structured organizational investigation",
       "An Opportunity Map with compared interventions",
       "A prioritized recommendation and implementation plan",
       "Direct influence on the product roadmap",
@@ -95,13 +95,13 @@ export const site = {
       error: "Something went wrong. Please try again.",
     },
     cta: "Become a design partner",
-    ctaSecondary: "Assess your operations",
+    ctaSecondary: "Start an investigation",
   },
 
   finalCta: {
-    headline: "Build the right solution first.",
+    headline: "Investigate before you build.",
     subtitle: "Before you evaluate another AI vendor, determine whether AI is actually the right intervention.",
-    cta: "Assess your operations",
+    cta: "Start an investigation",
   },
 
   footer: {
@@ -111,7 +111,7 @@ export const site = {
       {
         title: "Product",
         links: [
-          { label: "Assessment", href: "/assessment" },
+          { label: "Investigation", href: "/assessment" },
           { label: "Example", href: "/assessment/results?example=true" },
           { label: "Research", href: "/research" },
         ],
@@ -141,7 +141,7 @@ export const site = {
         { title: "Slack / Jira analysis", description: "Analyze existing workflow signals from communication and project management tools" },
         { title: "Deployment support", description: "Guide implementation from plan to production" },
         { title: "Outcome measurement", description: "Track realized outcomes against predictions and assumptions" },
-        { title: "Organizational learning", description: "Improve recommendations across assessments over time" },
+        { title: "Organizational learning", description: "Improve recommendations across investigations over time" },
       ],
     },
     compass: {
@@ -151,19 +151,19 @@ export const site = {
         { name: "North", label: "Direction", description: "We start with the business problem, not the technology. Every recommendation traces back to operational reality." },
         { name: "East", label: "Capability", description: "We reveal what's possible across AI, software, process, and human work — then recommend the best path." },
         { name: "South", label: "Visibility", description: "We show our reasoning. Evidence, assumptions, alternatives, and confidence are always visible." },
-        { name: "West", label: "Learning", description: "Every assessment improves the next. Over time, Compass learns what works across organizations." },
+        { name: "West", label: "Learning", description: "Every investigation improves the next. Over time, Compass learns what works across organizations." },
       ],
     },
   },
 
   assessment: {
     intro: {
-      headline: "Organizational Discovery",
-      body: "We'll ask about your departments, how work happens, where it fails, and what outcome matters. We are not designing a solution — we are understanding where intervention creates leverage.",
-      estimatedTime: "25 minutes",
+      headline: "Operational Investigation",
+      body: "We'll ask about your departments, how work happens, where it fails, and what outcome matters. We are not designing a solution — we are investigating where intervention creates leverage.",
+      estimatedTime: "3-5 minutes",
       sections: "10 departments",
       questions: "Targeted questions about your operations",
-      cta: "Begin organizational discovery",
+      cta: "Start investigation",
     },
     sections: {
       "General": "We'll start by understanding the department, workflow, and desired outcome — focused on the business problem, not the technology.",
@@ -174,16 +174,16 @@ export const site = {
       "Constraints": "Technical constraints, budget, and timeline define what's feasible. We'll factor these into every recommendation.",
     },
     complete: {
-      headline: "Organizational discovery complete.",
-      body: "We've analyzed your responses across all departments. Generate your Opportunity Map to see ranked recommendations with evidence, business cases, and implementation options.",
-      cta: "Generate my Opportunity Map",
+      headline: "Your investigation is complete.",
+      body: "We've analyzed your responses across all departments. View your Opportunity Map to see ranked recommendations with evidence, business cases, and implementation options.",
+      cta: "View recommendations",
     },
   },
 
   results: {
     headline: "Opportunity Map",
     subtitle: "Ranked business problems with competing intervention paths. Every recommendation includes evidence, assumptions, and compared alternatives.",
-    noResults: "No assessment results found. Please complete the organizational discovery first.",
+    noResults: "No investigation results found. Please complete the operational investigation first.",
     buildBlueprint: "View Implementation Plan",
     comparePaths: "Compare intervention paths",
   },

@@ -135,7 +135,7 @@ export default function HomePage() {
               >
                 View full analysis &rarr;
               </Link>
-              <span className="text-xs text-stone/50">Based on assessment evidence and industry benchmarks</span>
+              <span className="text-xs text-stone/50">Based on investigation evidence and industry benchmarks</span>
             </div>
           </div>
         </div>

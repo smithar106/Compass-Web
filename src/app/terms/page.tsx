@@ -12,13 +12,13 @@ export default function TermsPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">1. Description of Service</h2>
           <p>
-            Compass AI provides an AI-powered opportunity-discovery platform for B2B SaaS companies. Our assessment tool generates AI Opportunity Maps based on user-provided information. The results are recommendations and should be evaluated alongside professional judgment.
+            Compass AI provides an AI-powered opportunity-discovery platform for B2B SaaS companies. Our investigation tool generates AI Opportunity Maps based on user-provided information. The results are recommendations and should be evaluated alongside professional judgment.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">2. User Responsibilities</h2>
           <p>You agree to:</p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Provide accurate and complete information in your assessment</li>
+            <li>Provide accurate and complete information in your investigation</li>
             <li>Use the service in compliance with all applicable laws and regulations</li>
             <li>Not attempt to disrupt, overload, or compromise our systems</li>
             <li>Not use the service for any unlawful or unauthorized purpose</li>
@@ -29,7 +29,7 @@ export default function TermsPage() {
             The Compass AI platform, including its design, code, algorithms, and generated content (excluding your input data), is our intellectual property. You may not copy, modify, distribute, or create derivative works without our express permission.
           </p>
           <p>
-            Your assessment responses and their generated results remain your property. We claim no ownership over the information you provide.
+            Your investigation responses and their generated results remain your property. We claim no ownership over the information you provide.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">4. Limitation of Liability</h2>

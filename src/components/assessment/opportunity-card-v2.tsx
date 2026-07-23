@@ -46,9 +46,9 @@ export function OpportunityCardV2({ opportunity, evidence, rank }: OpportunityCa
   const tc = tierConfig[opp.tier] || tierConfig[4];
 
   const businessCase: BusinessCase = {
-    currentCost: opp.currentCost || "Needs assessment",
-    estimatedSavings: opp.estimatedSavings || "Needs assessment",
-    expectedTimeSavings: opp.estimatedHoursLost ? `${opp.estimatedHoursLost} hours/week` : "Needs assessment",
+    currentCost: opp.currentCost || "Needs investigation",
+    estimatedSavings: opp.estimatedSavings || "Needs investigation",
+    expectedTimeSavings: opp.estimatedHoursLost ? `${opp.estimatedHoursLost} hours/week` : "Needs investigation",
     risk: opp.risk || "Unknown",
     confidence: opp.confidence?.score || 0,
     dependencies: opp.dependencies || [],

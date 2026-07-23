@@ -5,7 +5,7 @@ export default function AssessmentLoading() {
         <div className="absolute inset-0 border-2 border-border rounded-full" />
         <div className="absolute inset-0 border-2 border-forest rounded-full border-t-transparent animate-spin" />
       </div>
-      <p className="text-sm text-stone">Loading assessment...</p>
+      <p className="text-sm text-stone">Loading investigation...</p>
     </div>
   );
 }

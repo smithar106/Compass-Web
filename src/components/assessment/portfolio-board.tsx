@@ -10,7 +10,7 @@ interface PortfolioBoardProps {
 
 const tierColumns = [
   { tier: 1, label: "Tier 1: Immediate", description: "Build now. High feasibility, strong business leverage, clear path to value.", color: "border-forest", headerBg: "bg-forest" },
-  { tier: 2, label: "Tier 2: Next Quarter", description: "Validate next. Promising but requires deeper assessment before commitment.", color: "border-blue-500", headerBg: "bg-blue-600" },
+  { tier: 2, label: "Tier 2: Next Quarter", description: "Validate next. Promising but requires deeper investigation before commitment.", color: "border-blue-500", headerBg: "bg-blue-600" },
   { tier: 3, label: "Tier 3: Strategic", description: "Defer. Worth exploring as organizational maturity grows.", color: "border-amber-500", headerBg: "bg-amber-600" },
   { tier: 4, label: "Tier 4: Monitor", description: "Do not pursue at this time. Revisit as conditions change.", color: "border-gray-400", headerBg: "bg-gray-400" },
 ];

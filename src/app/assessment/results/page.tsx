@@ -4,36 +4,39 @@ import { Suspense, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { sampleOpportunityMap } from "@/data/mock-results";
 import { site } from "@/content/site";
-import { InterventionComparison } from "@/components/intervention/intervention-comparison";
 import { EvidenceDisplay } from "@/components/evidence/evidence-display";
 import { ImplementationPlanView } from "@/components/blueprint/implementation-plan";
-import type { Opportunity, ImplementationBlueprint, InterventionType } from "@/types";
+import type { Opportunity, ImplementationBlueprint } from "@/types";
 
 const pathLabel: Record<string, string> = {
-  "AI": "AI",
+  AI: "AI",
   "Deterministic Software": "Software",
   "Process Redesign": "Process",
   "Human Work": "Human",
-  "Hybrid": "Hybrid",
+  Hybrid: "Hybrid",
   "No Action": "Not ready",
 };
 
 const pathBadge: Record<string, string> = {
-  "AI": "border-purple-200 text-purple-700 bg-purple-50",
+  AI: "border-purple-200 text-purple-700 bg-purple-50",
   "Deterministic Software": "border-blue-200 text-blue-700 bg-blue-50",
   "Process Redesign": "border-amber-200 text-amber-700 bg-amber-50",
   "Human Work": "border-gray-200 text-gray-700 bg-gray-50",
-  "Hybrid": "border-green-200 text-green-700 bg-green-50",
+  Hybrid: "border-green-200 text-green-700 bg-green-50",
   "No Action": "border-stone-200 text-stone-500 bg-stone-50",
 };
 
-function countByType(items: { type: string }[]): string[] {
-  const counts = new Map<string, number>();
-  for (const item of items) {
-    counts.set(item.type, (counts.get(item.type) || 0) + 1);
-  }
-  return [...counts.entries()].map(([t, n]) => `${n}x ${pathLabel[t] || t}`);
-}
+const confidenceColor: Record<string, string> = {
+  High: "text-green-700",
+  Medium: "text-amber-700",
+  Low: "text-red-700",
+};
+
+const confidenceBadge: Record<string, string> = {
+  High: "bg-green-50 text-green-700 border-green-200",
+  Medium: "bg-amber-50 text-amber-700 border-amber-200",
+  Low: "bg-red-50 text-red-700 border-red-200",
+};
 
 function buildMockBlueprint(opp: Opportunity): ImplementationBlueprint {
   return {
@@ -42,53 +45,532 @@ function buildMockBlueprint(opp: Opportunity): ImplementationBlueprint {
     recommendedIntervention: opp.intervention,
     alternativesConsidered: opp.whyAlternativesRejected,
     whyThisPathWon: opp.intervention.rejectionRationale,
-    currentWorkflow: opp.workflow ? opp.workflow.split(". ") : opp.description.split(". "),
+    currentWorkflow: opp.workflow
+      ? opp.workflow.split(". ")
+      : opp.description.split(". "),
     futureWorkflow: [
-      `${opp.intervention.title} handles ${opp.intervention.type === "AI" ? "80-90%" : opp.intervention.type === "Deterministic Software" ? "60-70%" : "50-70%"} of routine work`,
-      `Human team focuses on ${opp.intervention.humanOversight.includes("Human-in-the-loop") ? "decisions and exceptions" : "strategic work"}`,
+      `${opp.intervention.title} handles ${
+        opp.intervention.type === "AI"
+          ? "80-90%"
+          : opp.intervention.type === "Deterministic Software"
+            ? "60-70%"
+            : "50-70%"
+      } of routine work`,
+      `Human team focuses on ${
+        opp.intervention.humanOversight.includes("Human-in-the-loop")
+          ? "decisions and exceptions"
+          : "strategic work"
+      }`,
       `Estimated ${opp.intervention.timeToValue} to first measurable outcome`,
     ],
-    requiredSystems: [opp.department === "Sales" ? "CRM" : opp.department === "Customer Success" ? "Product analytics" : "Current toolchain"],
+    requiredSystems: [
+      opp.department === "Sales"
+        ? "CRM"
+        : opp.department === "Customer Success"
+          ? "Product analytics"
+          : "Current toolchain",
+    ],
     requiredApis: ["REST API integration", "Webhook event handlers"],
     requiredData: ["Historical process data", "Current workflow documentation"],
     humanRoles: [`${opp.department} team members`],
     ownership: opp.requiredOwner || `${opp.department} leadership`,
-    securityAndPrivacy: ["Data access controls needed", "Review sensitive data handling"],
-    rolloutPlan: ["Phase 1: Setup and integration", "Phase 2: Pilot with subset", "Phase 3: Full rollout", "Phase 4: Monitor and optimize"],
-    validationPlan: ["Run pilot with 20% of cases", "Compare metrics to baseline", "Adjust thresholds before full rollout"],
-    successMetrics: [opp.intervention.expectedImpact, ...(opp.successDescription ? [opp.successDescription] : [])],
-    risksAndAssumptions: opp.assumptions.map((a) => `${a.assumption} (${a.confidence})`),
+    securityAndPrivacy: [
+      "Data access controls needed",
+      "Review sensitive data handling",
+    ],
+    rolloutPlan: [
+      "Phase 1: Setup and integration",
+      "Phase 2: Pilot with subset",
+      "Phase 3: Full rollout",
+      "Phase 4: Monitor and optimize",
+    ],
+    validationPlan: [
+      "Run pilot with 20% of cases",
+      "Compare metrics to baseline",
+      "Adjust thresholds before full rollout",
+    ],
+    successMetrics: [
+      opp.intervention.expectedImpact,
+      ...(opp.successDescription ? [opp.successDescription] : []),
+    ],
+    risksAndAssumptions: opp.assumptions.map(
+      (a) => `${a.assumption} (${a.confidence})`,
+    ),
     expectedImpact: opp.intervention.expectedImpact,
-    technicalEscalationLevel: opp.intervention.implementationEffort === "Medium-High" || opp.intervention.implementationEffort === "High" ? "Needs engineering team" : "Department-level implementation",
+    technicalEscalationLevel:
+      opp.intervention.implementationEffort === "Medium-High" ||
+      opp.intervention.implementationEffort === "High"
+        ? "Needs engineering team"
+        : "Department-level implementation",
     sections: [],
   };
+}
+
+function buildBulletReasons(opp: Opportunity): string[] {
+  const reasons: string[] = [];
+  const impact = opp.businessImpact?.estimatedImpact;
+  if (impact) reasons.push(`Estimated ${impact}`);
+
+  const shortImpact = opp.intervention.expectedImpact?.split(",")[0]?.trim();
+  if (shortImpact && !reasons.some((r) => r.includes(shortImpact)))
+    reasons.push(shortImpact);
+
+  reasons.push(`Implementation timeline: ${opp.intervention.timeToValue}`);
+
+  if (
+    opp.confidence === "High" ||
+    opp.intervention.confidence === "High"
+  )
+    reasons.push("High confidence — strong evidence supports this path");
+
+  const rationaleLines = opp.intervention.rejectionRationale
+    .split(". ")
+    .filter(Boolean);
+  const bestLine = rationaleLines.find(
+    (l) =>
+      l.toLowerCase().includes("balance") ||
+      l.toLowerCase().includes("best") ||
+      l.toLowerCase().includes("sufficient") ||
+      l.toLowerCase().includes("transparent"),
+  );
+  if (bestLine) reasons.push(bestLine);
+
+  return reasons.slice(0, 5);
+}
+
+function getAnnualImpact(opp: Opportunity): string {
+  if (opp.businessImpact?.estimatedImpact) {
+    const v = opp.businessImpact.estimatedImpact;
+    if (v.includes("$")) return v;
+    return v;
+  }
+  const fromIntervention = opp.intervention.expectedImpact;
+  const dollarMatch = fromIntervention.match(/\$[\dKMB.–-]+/);
+  return dollarMatch ? dollarMatch[0] : "See details";
+}
+
+function DetailPanel({
+  opp,
+  onClose,
+  onViewBlueprint,
+}: {
+  opp: Opportunity;
+  onClose: () => void;
+  onViewBlueprint: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <div
+        className="fixed inset-0 bg-ink/30 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-lg bg-white border-l border-border shadow-xl overflow-y-auto animate-fadeIn">
+        <div className="sticky top-0 z-10 bg-white border-b border-border px-6 py-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-ink">{opp.name}</h2>
+            <p className="text-xs text-stone">
+              Rank #{opp.rank} &middot; {opp.department}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-mist text-stone hover:text-ink transition-colors"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-6">
+          <section>
+            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
+              Why this option ranked #{opp.rank}
+            </h3>
+            <p className="text-sm text-ink leading-relaxed">
+              {opp.intervention.rejectionRationale ||
+                `This intervention scored highest across impact, feasibility, and risk criteria for the ${opp.department} department.`}
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
+              Expected impact
+            </h3>
+            <div className="bg-mist rounded-lg p-4 space-y-2">
+              <p className="text-sm text-ink font-medium">
+                {opp.intervention.expectedImpact}
+              </p>
+              {opp.businessImpact?.estimatedImpact && (
+                <p className="text-sm text-forest font-semibold">
+                  {opp.businessImpact.estimatedImpact}
+                </p>
+              )}
+              {opp.successDescription && (
+                <p className="text-xs text-stone">
+                  {opp.successDescription}
+                </p>
+              )}
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
+              Evidence
+            </h3>
+            <EvidenceDisplay
+              evidence={opp.evidence}
+              assumptions={[]}
+              whyChose=""
+              whyRejected=""
+            />
+          </section>
+
+          <section>
+            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
+              Key assumptions
+            </h3>
+            <div className="space-y-2">
+              {opp.assumptions.map((a, i) => (
+                <div
+                  key={i}
+                  className="border border-amber-200 bg-amber-50/30 rounded-lg p-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-xs text-ink font-medium">
+                      {a.assumption}
+                    </p>
+                    <span
+                      className={`flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium border ${
+                        confidenceBadge[a.confidence] ||
+                        "bg-stone-50 text-stone-500 border-stone-200"
+                      }`}
+                    >
+                      {a.confidence}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone mt-0.5">
+                    <span className="font-medium">Impact if wrong: </span>
+                    {a.impact}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
+              Required conditions
+            </h3>
+            <div className="bg-mist/50 rounded-lg p-4">
+              {opp.technicalHelpRequired && (
+                <p className="text-sm text-stone mb-2">
+                  {opp.technicalHelpRequired}
+                </p>
+              )}
+              {opp.requiredOwner && (
+                <p className="text-xs text-stone">
+                  <span className="font-medium">Owner: </span>
+                  {opp.requiredOwner}
+                </p>
+              )}
+              {opp.dependencies && opp.dependencies.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {opp.dependencies.map((d, i) => (
+                    <span
+                      key={i}
+                      className={`text-[10px] px-2 py-0.5 rounded font-medium ${
+                        d.status === "Available"
+                          ? "bg-green-50 text-green-700 border border-green-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      {d.dependency} ({d.status})
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
+              Main risks
+            </h3>
+            {opp.risks && opp.risks.length > 0 ? (
+              <div className="space-y-2">
+                {opp.risks.map((r, i) => (
+                  <div
+                    key={i}
+                    className="border border-red-100 bg-red-50/30 rounded-lg p-3"
+                  >
+                    <p className="text-xs text-ink font-medium">{r.risk}</p>
+                    <div className="flex gap-3 mt-1 text-[10px] text-stone">
+                      <span>Likelihood: {r.likelihood}</span>
+                      <span>Impact: {r.impact}</span>
+                    </div>
+                    {r.mitigation && (
+                      <p className="text-xs text-stone mt-1">
+                        <span className="font-medium">Mitigation: </span>
+                        {r.mitigation}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-stone italic">
+                No significant risks identified at this stage.
+              </p>
+            )}
+          </section>
+
+          <section>
+            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
+              Why it beat alternatives
+            </h3>
+            <div className="bg-forest/5 border border-forest/10 rounded-lg p-4">
+              <p className="text-sm text-stone leading-relaxed">
+                {opp.whyAlternativesRejected ||
+                  opp.intervention.rejectionRationale ||
+                  "This path was chosen as the best fit for this specific business problem and workflow."}
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
+              Implementation outline
+            </h3>
+            <div className="bg-mist/50 rounded-lg p-4 space-y-2">
+              <div className="flex items-center gap-2 text-xs text-stone">
+                <span className="font-medium text-ink">Timeline:</span>
+                {opp.intervention.timeToValue}
+              </div>
+              <div className="flex items-center gap-2 text-xs text-stone">
+                <span className="font-medium text-ink">Effort:</span>
+                {opp.intervention.implementationEffort}
+              </div>
+              <div className="flex items-center gap-2 text-xs text-stone">
+                <span className="font-medium text-ink">Oversight:</span>
+                {opp.intervention.humanOversight}
+              </div>
+              <button
+                onClick={onViewBlueprint}
+                className="mt-3 w-full text-sm px-4 py-2 bg-forest text-white rounded-lg hover:bg-leaf transition-colors"
+              >
+                View full implementation plan
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ResultCard({
+  opp,
+  isCompassChoice,
+  onViewDetails,
+  onSelectBlueprint,
+}: {
+  opp: Opportunity;
+  isCompassChoice: boolean;
+  onViewDetails: () => void;
+  onSelectBlueprint: () => void;
+}) {
+  const reasons = useMemo(() => buildBulletReasons(opp), [opp]);
+  const impact = useMemo(() => getAnnualImpact(opp), [opp]);
+
+  return (
+    <div
+      className={`flex flex-col h-full rounded-xl border transition-all duration-200 bg-white ${
+        isCompassChoice
+          ? "border-forest ring-2 ring-forest/20 shadow-lg scale-[1.02] lg:scale-105"
+          : "border-border hover:border-forest/40 shadow-sm hover:shadow-md"
+      }`}
+    >
+      {isCompassChoice && (
+        <div className="flex items-center gap-1.5 px-5 pt-4 pb-0">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-forest text-cream text-[10px] font-semibold uppercase tracking-wider">
+            <svg
+              className="w-3 h-3"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            Compass&apos; Choice
+          </span>
+        </div>
+      )}
+
+      <div className="p-5 flex flex-col flex-1">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-bold text-forest">
+            Rank #{opp.rank}
+          </span>
+          {!isCompassChoice && (
+            <span
+              className={`text-xs px-1.5 py-0.5 rounded border font-medium ${
+                pathBadge[opp.intervention.type] || ""
+              }`}
+            >
+              {pathLabel[opp.intervention.type] || opp.intervention.type}
+            </span>
+          )}
+        </div>
+
+        {isCompassChoice && (
+          <div className="mb-2">
+            <span
+              className={`text-xs px-1.5 py-0.5 rounded border font-medium ${
+                pathBadge[opp.intervention.type] || ""
+              }`}
+            >
+              {pathLabel[opp.intervention.type] || opp.intervention.type}
+            </span>
+          </div>
+        )}
+
+        <h3 className="text-base font-semibold text-ink mb-1">
+          {opp.intervention.title}
+        </h3>
+
+        <p className="text-xs text-stone leading-relaxed mb-4">
+          {opp.intervention.description}
+        </p>
+
+        <div className="border-t border-border pt-3 mb-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+          <div>
+            <span className="text-stone/70 block">Annual impact</span>
+            <span className="text-ink font-semibold text-sm">{impact}</span>
+          </div>
+          <div>
+            <span className="text-stone/70 block">Timeline</span>
+            <span className="text-ink font-medium">
+              {opp.intervention.timeToValue}
+            </span>
+          </div>
+          <div>
+            <span className="text-stone/70 block">Complexity</span>
+            <span className="text-ink font-medium">
+              {opp.intervention.implementationEffort === "Low-Medium" ||
+              opp.intervention.implementationEffort === "Low"
+                ? "Low"
+                : opp.intervention.implementationEffort === "Medium-High" ||
+                    opp.intervention.implementationEffort === "High"
+                  ? "High"
+                  : "Moderate"}
+            </span>
+          </div>
+          <div>
+            <span className="text-stone/70 block">Confidence</span>
+            <span
+              className={`font-medium ${
+                confidenceColor[opp.confidence] ||
+                confidenceColor[opp.intervention.confidence] ||
+                "text-stone"
+              }`}
+            >
+              {opp.confidence || opp.intervention.confidence}
+            </span>
+          </div>
+        </div>
+
+        <div className="border-t border-border pt-3 mb-4">
+          <span className="text-[10px] font-semibold text-stone uppercase tracking-wider block mb-1.5">
+            Why this option
+          </span>
+          <ul className="space-y-1">
+            {reasons.map((reason, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-xs">
+                <span className="w-1 h-1 rounded-full bg-forest mt-1.5 flex-shrink-0" />
+                <span className="text-stone">{reason}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-auto space-y-2">
+          <button
+            onClick={onViewDetails}
+            className={`w-full text-sm px-4 py-2 rounded-lg border transition-colors ${
+              isCompassChoice
+                ? "bg-forest text-white border-forest hover:bg-leaf"
+                : "border-forest text-forest hover:bg-mist"
+            }`}
+          >
+            View details
+          </button>
+        </div>
+      </div>
+
+      {isCompassChoice && (
+        <div className="px-5 pb-4">
+          <button
+            onClick={onSelectBlueprint}
+            className="w-full text-sm px-4 py-2 border border-forest/30 text-forest rounded-lg hover:bg-mist transition-colors"
+          >
+            View implementation plan
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ResultsContent() {
   const searchParams = useSearchParams();
   const isExample = searchParams.get("example") === "true";
-  const [selectedRank, setSelectedRank] = useState<number | null>(null);
-  const [view, setView] = useState<"map" | "compare" | "blueprint">("map");
-  const [expandedOpp, setExpandedOpp] = useState<number | null>(null);
+  const [detailOppRank, setDetailOppRank] = useState<number | null>(null);
+  const [view, setView] = useState<"cards" | "blueprint">("cards");
 
   const map = isExample ? sampleOpportunityMap : null;
-  const opportunities = map?.rankings || [];
+  const allOpportunities = map?.rankings || [];
 
-  const selectedOpp = useMemo(() => {
-    if (!selectedRank) return null;
-    return opportunities.find((o) => o.rank === selectedRank) || null;
-  }, [selectedRank, opportunities]);
+  const rankedOpps = useMemo(
+    () =>
+      allOpportunities
+        .filter((o) => o.rank >= 1 && o.rank <= 3)
+        .sort((a, b) => b.rank - a.rank),
+    [allOpportunities],
+  );
 
-  const handleSelectIntervention = (type: InterventionType) => {
-    if (!selectedOpp) return;
-  };
+  const compassChoice = useMemo(
+    () => allOpportunities.find((o) => o.rank === 1) || null,
+    [allOpportunities],
+  );
+
+  const detailOpp = useMemo(
+    () =>
+      detailOppRank
+        ? allOpportunities.find((o) => o.rank === detailOppRank) || null
+        : null,
+    [detailOppRank, allOpportunities],
+  );
 
   if (!map) {
     return (
       <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-heading font-bold text-ink">{site.results.headline}</h1>
-          <p className="mt-4 text-body text-stone">{site.results.noResults}</p>
+          <h1 className="text-heading font-bold text-ink">
+            {site.results.headline}
+          </h1>
+          <p className="mt-4 text-body text-stone">
+            {site.results.noResults}
+          </p>
           {!isExample && (
             <a
               href="/assessment/results?example=true"
@@ -97,6 +579,43 @@ function ResultsContent() {
               View example Opportunity Map
             </a>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "blueprint" && compassChoice) {
+    return (
+      <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <button
+            onClick={() => setView("cards")}
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-forest hover:text-leaf font-medium transition-colors"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to recommendations
+          </button>
+          <h1 className="text-heading font-bold text-ink mb-1">
+            Implementation Plan
+          </h1>
+          <p className="text-sm text-stone mb-6">
+            {compassChoice.name} &middot; {compassChoice.department}
+          </p>
+          <ImplementationPlanView
+            blueprint={buildMockBlueprint(compassChoice)}
+          />
         </div>
       </div>
     );
@@ -111,274 +630,95 @@ function ResultsContent() {
               Example Opportunity Map
             </div>
           )}
-          <h1 className="text-heading font-bold text-ink">{site.results.headline}</h1>
-          <p className="mt-2 text-body text-stone">{site.results.subtitle}</p>
+          <h1 className="text-heading font-bold text-ink">
+            {site.results.headline}
+          </h1>
+          <p className="mt-2 text-body text-stone">
+            {site.results.subtitle}
+          </p>
         </div>
 
-        <div className="bg-forest text-white rounded-lg p-6 mb-8">
-          <p className="text-sm text-leaf font-medium mb-1">{map.executiveSummary.headline}</p>
-          <p className="text-sm leading-relaxed text-cream/90">{map.executiveSummary.finding}</p>
+        <div className="bg-forest text-white rounded-xl p-6 mb-10">
+          <p className="text-sm text-leaf font-medium mb-1">
+            {map.executiveSummary.headline}
+          </p>
+          <p className="text-sm leading-relaxed text-cream/90">
+            {map.executiveSummary.finding}
+          </p>
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-cream/80">
-            <span>Recommended focus: {map.executiveSummary.recommendedFocus}</span>
+            <span>
+              Recommended focus: {map.executiveSummary.recommendedFocus}
+            </span>
             <span>Quick wins: {map.executiveSummary.quickWins}</span>
           </div>
         </div>
 
-        <div className="flex gap-2 mb-6 border-b border-border pb-3">
-          <button
-            onClick={() => setView("map")}
-            className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors ${
-              view === "map" ? "bg-forest text-white" : "text-stone hover:text-ink hover:bg-mist"
-            }`}
-          >
-            Opportunity Map
-          </button>
-          <button
-            onClick={() => setView("compare")}
-            disabled={!selectedOpp}
-            className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors ${
-              view === "compare" ? "bg-forest text-white" : "text-stone hover:text-ink hover:bg-mist"
-            } ${!selectedOpp ? "opacity-40 cursor-not-allowed" : ""}`}
-          >
-            Compare paths
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
+          {rankedOpps.map((opp) => {
+            const isFirst = opp.rank === 1;
+            return (
+              <div
+                key={opp.rank}
+                className={
+                  isFirst
+                    ? "md:order-3 md:col-span-1"
+                    : opp.rank === 2
+                      ? "md:order-2 md:col-span-1"
+                      : "md:order-1 md:col-span-1"
+                }
+              >
+                <ResultCard
+                  opp={opp}
+                  isCompassChoice={isFirst}
+                  onViewDetails={() => setDetailOppRank(opp.rank)}
+                  onSelectBlueprint={() => {
+                    if (isFirst) setView("blueprint");
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-10 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={() => setView("blueprint")}
-            disabled={!selectedOpp}
-            className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors ${
-              view === "blueprint" ? "bg-forest text-white" : "text-stone hover:text-ink hover:bg-mist"
-            } ${!selectedOpp ? "opacity-40 cursor-not-allowed" : ""}`}
+            className="px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors shadow-sm"
           >
-            Implementation Plan
+            Accept and proceed to implementation plan
           </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 space-y-3">
-            <h2 className="text-xs font-semibold text-stone uppercase tracking-wider mb-3">
-              {opportunities.length} opportunities ranked
-            </h2>
-            {opportunities.map((opp) => (
-              <button
-                key={opp.rank}
-                onClick={() => {
-                  setSelectedRank(opp.rank);
-                  setExpandedOpp(expandedOpp === opp.rank ? null : opp.rank);
-                }}
-                className={`w-full text-left border rounded-lg p-4 transition-colors ${
-                  selectedRank === opp.rank
-                    ? "border-forest bg-mist/30 ring-1 ring-forest"
-                    : "border-border hover:border-forest/30 bg-white"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-forest">#{opp.rank}</span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-                    opp.confidence === "High" ? "bg-green-100 text-green-700" :
-                    opp.confidence === "Medium" ? "bg-amber-100 text-amber-700" :
-                    "bg-red-100 text-red-700"
-                  }`}>
-                    {opp.confidence}
-                  </span>
-                </div>
-                <h3 className="text-sm font-semibold text-ink">{opp.name}</h3>
-                <p className="text-xs text-stone mt-1">{opp.department}</p>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium ${pathBadge[opp.intervention.type] || ""}`}>
-                    {pathLabel[opp.intervention.type] || opp.intervention.type}
-                  </span>
-                  <span className="text-[10px] text-stone">{opp.intervention.timeToValue}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <div className="lg:col-span-2">
-            {view === "map" && selectedOpp && (
-              <div className="bg-white border border-border rounded-lg p-6 space-y-6">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-subhead font-semibold text-ink">{selectedOpp.name}</h2>
-                    <span className={`text-xs px-2 py-0.5 rounded border font-medium ${pathBadge[selectedOpp.intervention.type] || ""}`}>
-                      {pathLabel[selectedOpp.intervention.type] || selectedOpp.intervention.type}
-                    </span>
-                  </div>
-                  <p className="text-xs text-stone mt-1">{selectedOpp.department} &bull; Rank #{selectedOpp.rank}</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
-                  <div className="col-span-2">
-                    <span className="text-xs text-stone block mb-1 font-medium">Business problem</span>
-                    <span className="text-ink">{selectedOpp.businessProblem}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-stone block mb-1 font-medium">Department</span>
-                    <span className="text-ink">{selectedOpp.department}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-stone block mb-1 font-medium">Required owner</span>
-                    <span className="text-ink">{selectedOpp.requiredOwner || `${selectedOpp.department} team`}</span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-xs text-stone block mb-1 font-medium">Current workflow</span>
-                    <span className="text-ink">{selectedOpp.workflow || selectedOpp.description}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-stone block mb-1 font-medium">Root cause</span>
-                    <span className="text-ink">{selectedOpp.rootCause}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-stone block mb-1 font-medium">Current impact</span>
-                    <span className="text-ink">{selectedOpp.currentImpact}</span>
-                  </div>
-                </div>
-
-                <div className="border-t border-border pt-4">
-                  <div className="flex flex-wrap gap-5 text-xs">
-                    <div>
-                      <span className="text-stone block mb-0.5">Recommended intervention</span>
-                      <span className="text-ink font-medium">{selectedOpp.intervention.title}</span>
-                    </div>
-                    <div>
-                      <span className="text-stone block mb-0.5">Confidence</span>
-                      <span className={`font-medium ${
-                        selectedOpp.intervention.confidence === "High" || selectedOpp.intervention.confidence === "Confirmed" ? "text-green-700" :
-                        selectedOpp.intervention.confidence === "Medium" ? "text-amber-700" : "text-red-700"
-                      }`}>{selectedOpp.intervention.confidence}</span>
-                    </div>
-                    <div>
-                      <span className="text-stone block mb-0.5">Expected impact</span>
-                      <span className="text-ink font-medium">{selectedOpp.intervention.expectedImpact}</span>
-                    </div>
-                    <div>
-                      <span className="text-stone block mb-0.5">Effort</span>
-                      <span className="text-ink font-medium">{selectedOpp.intervention.implementationEffort}</span>
-                    </div>
-                    <div>
-                      <span className="text-stone block mb-0.5">Time to value</span>
-                      <span className="text-ink font-medium">{selectedOpp.intervention.timeToValue}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-border pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <span className="text-stone block mb-2 font-medium">Evidence summary</span>
-                    <ul className="space-y-1">
-                      {selectedOpp.evidence.map((e, i) => (
-                        <li key={i} className="flex items-start gap-1.5">
-                          <span className="w-1 h-1 rounded-full bg-forest mt-1.5 flex-shrink-0" />
-                          <span className="text-stone">{e.detail}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <span className="text-stone block mb-2 font-medium">Assumption summary</span>
-                    <ul className="space-y-1">
-                      {selectedOpp.assumptions.map((a, i) => (
-                        <li key={i} className="flex items-start gap-1.5">
-                          <span className="w-1 h-1 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
-                          <span className="text-stone">{a.assumption}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="border-t border-border pt-4">
-                  <EvidenceDisplay
-                    evidence={selectedOpp.evidence}
-                    assumptions={selectedOpp.assumptions}
-                    whyChose={selectedOpp.intervention.rejectionRationale}
-                    whyRejected={selectedOpp.whyAlternativesRejected}
-                    alternativesConsidered={selectedOpp.intervention.comparedPaths
-                      .filter((p) => p.intervention !== selectedOpp.intervention.type && p.intervention !== "No Action")
-                      .map((p) => `${pathLabel[p.intervention] || p.intervention}: ${p.title}`)
-                      .join(", ")}
-                    whatCouldChange={selectedOpp.tradeoff}
-                    howSuccessMeasured={selectedOpp.successDescription || selectedOpp.intervention.expectedImpact}
-                    whenTechnicalHelpRequired={selectedOpp.technicalHelpRequired || (
-                      selectedOpp.intervention.implementationEffort === "Medium-High" || selectedOpp.intervention.implementationEffort === "High"
-                        ? "Engineering team involvement recommended"
-                        : "Can be handled at department level"
-                    )}
-                  />
-                </div>
-
-                <div className="border-t border-border pt-4 flex gap-3">
-                  <button
-                    onClick={() => setView("compare")}
-                    className="text-sm px-4 py-2 bg-forest text-white rounded-lg hover:bg-leaf transition-colors"
-                  >
-                    {site.results.comparePaths}
-                  </button>
-                  <button
-                    onClick={() => setView("blueprint")}
-                    className="text-sm px-4 py-2 border border-forest text-forest rounded-lg hover:bg-mist transition-colors"
-                  >
-                    {site.results.buildBlueprint}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {view === "map" && !selectedOpp && (
-              <div className="bg-white border border-border rounded-lg p-12 text-center">
-                <p className="text-sm text-stone">Select an opportunity to view details</p>
-              </div>
-            )}
-
-            {view === "compare" && selectedOpp && (
-              <div className="bg-white border border-border rounded-lg p-6">
-                <h2 className="text-subhead font-semibold text-ink mb-2">Compare intervention paths</h2>
-                <p className="text-xs text-stone mb-4">
-                  {selectedOpp.name} &bull; {selectedOpp.department}
-                </p>
-                <InterventionComparison
-                  paths={selectedOpp.intervention.comparedPaths}
-                  selected={selectedOpp.intervention.type}
-                  onSelect={(type) => handleSelectIntervention(type)}
-                />
-              </div>
-            )}
-
-            {view === "compare" && !selectedOpp && (
-              <div className="bg-white border border-border rounded-lg p-12 text-center">
-                <p className="text-sm text-stone">Select an opportunity to compare intervention paths</p>
-              </div>
-            )}
-
-            {view === "blueprint" && selectedOpp && (
-              <div>
-                <p className="text-xs text-stone mb-4">
-                  {selectedOpp.name} &bull; {selectedOpp.department}
-                </p>
-                <ImplementationPlanView
-                  blueprint={buildMockBlueprint(selectedOpp)}
-                />
-              </div>
-            )}
-
-            {view === "blueprint" && !selectedOpp && (
-              <div className="bg-white border border-border rounded-lg p-12 text-center">
-                <p className="text-sm text-stone">Select an opportunity to view its Implementation Plan</p>
-              </div>
-            )}
-          </div>
+          <a
+            href="/assessment"
+            className="px-8 py-3 border border-border text-stone text-sm font-medium rounded-lg hover:border-forest/40 hover:text-ink transition-colors"
+          >
+            Revisit your submission
+          </a>
         </div>
       </div>
+
+      {detailOpp && (
+        <DetailPanel
+          opp={detailOpp}
+          onClose={() => setDetailOppRank(null)}
+          onViewBlueprint={() => {
+            setDetailOppRank(null);
+            setView("blueprint");
+          }}
+        />
+      )}
     </div>
   );
 }
 
 export default function ResultsPage() {
   return (
-    <Suspense fallback={
-      <div className="pt-32 pb-20 px-4 flex items-center justify-center min-h-[50vh]">
-        <div className="text-stone text-sm">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="pt-32 pb-20 px-4 flex items-center justify-center min-h-[50vh]">
+          <div className="text-stone text-sm">Loading...</div>
+        </div>
+      }
+    >
       <ResultsContent />
     </Suspense>
   );

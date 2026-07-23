@@ -12,7 +12,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">1. Information We Collect</h2>
           <p>
-            We collect information you provide directly to us, including your name, email address, company name, and other details when you fill out our assessment or design partner application form.
+            We collect information you provide directly to us, including your name, email address, company name, and other details when you fill out our investigation or design partner application form.
           </p>
           <p>
             We also collect technical information automatically, such as your IP address, browser type, device information, and usage data through analytics tools including PostHog (when configured).
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
           <h2 className="text-subhead font-semibold text-ink mt-8">2. How We Use Your Information</h2>
           <p>We use the information we collect to:</p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Generate your AI Opportunity Map based on your assessment responses</li>
+            <li>Generate your AI Opportunity Map based on your investigation responses</li>
             <li>Communicate with you about our services and design partner program</li>
             <li>Improve and develop our products and services</li>
             <li>Analyze usage patterns to enhance user experience</li>
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">3. Data Storage and Security</h2>
           <p>
-            We implement appropriate technical and organizational measures to protect your personal information. Your assessment data is stored securely and is not shared with third parties without your consent.
+            We implement appropriate technical and organizational measures to protect your personal information. Your investigation data is stored securely and is not shared with third parties without your consent.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">4. Third-Party Services</h2>

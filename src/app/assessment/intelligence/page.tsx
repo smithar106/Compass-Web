@@ -43,7 +43,7 @@ export default function IntelligencePage() {
           // Build organizational profile from assessment context
           const summary = maps[0].executive_summary;
           setProfile({
-            decisionVelocity: { score: 5, label: "Moderate", description: "Based on organizational complexity signals from your assessment." },
+            decisionVelocity: { score: 5, label: "Moderate", description: "Based on organizational complexity signals from your investigation." },
             knowledgeFragmentation: { score: 6, label: "Moderate", description: "Cross-referencing tool stack and process documentation answers." },
             workflowStandardization: { score: 4, label: "Low", description: "Based on process documentation and automation maturity signals." },
             aiReadiness: { score: 5, label: "Moderate", description: "Derived from current AI adoption and technical maturity indicators." },
@@ -80,12 +80,12 @@ export default function IntelligencePage() {
 
         {!hasSession && (
           <div className="text-center py-16 border border-border rounded-lg bg-white">
-            <p className="text-stone text-sm mb-4">Complete an organizational discovery to see your intelligence profile.</p>
+            <p className="text-stone text-sm mb-4">Complete an operational investigation to see your intelligence profile.</p>
             <Link
               href="/assessment"
               className="inline-flex items-center px-6 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors"
             >
-              Begin organizational discovery
+              {site.assessment.intro.cta}
             </Link>
           </div>
         )}

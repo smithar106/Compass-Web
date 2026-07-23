@@ -16,7 +16,7 @@ export default function AssessmentError({
       </div>
       <h2 className="text-subhead font-semibold text-ink mb-2">Something went wrong</h2>
       <p className="text-sm text-stone mb-6 max-w-md text-center">
-        {error.message || "The assessment could not be loaded. Please try again."}
+        {error.message || "The investigation could not be loaded. Please try again."}
       </p>
       <button
         onClick={reset}
