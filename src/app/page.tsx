@@ -10,7 +10,11 @@ export default function HomePage() {
           <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-mist rounded-full text-xs font-medium text-forest">
             {site.hero.eyebrow}
           </div>
-          <h1 className="text-display font-bold text-ink">{site.hero.headline}</h1>
+          <h1 className="text-display font-bold text-ink leading-[1.1]">
+            {site.hero.headline.split("\n").map((line, i) => (
+              <span key={i}>{line}{i === 0 ? <br /> : null}</span>
+            ))}
+          </h1>
           <p className="mt-6 text-subhead text-stone max-w-2xl mx-auto leading-relaxed">
             {site.hero.subtitle}
           </p>
@@ -35,19 +39,50 @@ export default function HomePage() {
               </span>
             ))}
           </div>
+          <p className="mt-6 text-xs text-stone/60 max-w-md mx-auto">{site.hero.closing}</p>
         </div>
       </section>
 
-      {/* Recognition */}
+      {/* Two risks */}
       <section className="py-section bg-white px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <h2 className="text-heading font-bold text-ink text-center">{site.recognition.headline}</h2>
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {site.recognition.cards.map((card) => (
-              <div key={card.pain} className="border border-border rounded-lg p-5 bg-white">
-                <p className="text-sm text-ink leading-relaxed">&ldquo;{card.pain}&rdquo;</p>
-                <div className="mt-4 pt-4 border-t border-border/50">
-                  <p className="text-sm text-forest font-medium">{card.compassSolves}</p>
+          <h2 className="text-heading font-bold text-ink text-center">{site.twoRisks.headline}</h2>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border border-border rounded-lg p-6 bg-white">
+              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center mb-3">
+                <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-ink">{site.twoRisks.left.title}</h3>
+              <p className="mt-2 text-sm text-stone leading-relaxed">{site.twoRisks.left.body}</p>
+            </div>
+            <div className="border border-border rounded-lg p-6 bg-white">
+              <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mb-3">
+                <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-ink">{site.twoRisks.right.title}</h3>
+              <p className="mt-2 text-sm text-stone leading-relaxed">{site.twoRisks.right.body}</p>
+            </div>
+          </div>
+          <p className="mt-6 text-center text-sm text-forest font-medium">{site.twoRisks.bridge}</p>
+        </div>
+      </section>
+
+      {/* Pain cards */}
+      <section className="py-section bg-cream px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-heading font-bold text-ink text-center">{site.painCards.headline}</h2>
+          <p className="mt-2 text-sm text-stone text-center">{site.painCards.subtitle}</p>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {site.painCards.cards.map((card) => (
+              <div key={card.label} className="border border-border rounded-lg p-5 bg-white flex flex-col">
+                <span className="text-xs font-semibold text-stone uppercase tracking-wider">{card.label}</span>
+                <p className="mt-2 text-sm text-ink font-medium leading-snug">{card.pain}</p>
+                <div className="mt-3 pt-3 border-t border-border/50">
+                  <p className="text-xs text-forest leading-relaxed">{card.compassSolves}</p>
                 </div>
               </div>
             ))}
@@ -55,13 +90,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Missing layer */}
-      <section className="py-section bg-ink text-cream px-4 sm:px-6 lg:px-8">
+      {/* Product question */}
+      <section className="py-section bg-forest px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-heading font-bold">{site.missingLayer.headline}</h2>
-          <p className="mt-4 text-body text-cream/80 leading-relaxed">{site.missingLayer.body}</p>
-          <p className="mt-8 text-xl font-bold text-cream leading-relaxed">{site.missingLayer.thesis}</p>
-          <p className="mt-6 text-sm text-cream/70 leading-relaxed">{site.missingLayer.bridge}</p>
+          <h2 className="text-heading font-bold text-cream">{site.productQuestion.headline}</h2>
+          <p className="mt-4 text-body text-cream/80 leading-relaxed">{site.productQuestion.subtitle}</p>
+          <div className="mt-8">
+            <a
+              href="#example"
+              className="inline-flex items-center px-8 py-3 bg-cream text-ink text-sm font-medium rounded-lg hover:bg-white transition-colors"
+            >
+              {site.productQuestion.cta}
+            </a>
+          </div>
         </div>
       </section>
 

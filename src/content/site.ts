@@ -6,40 +6,58 @@ export const site = {
 
   hero: {
     eyebrow: "The decision layer before implementation",
-    headline: "What should your company automate next?",
-    subtitle: "Compass investigates operational problems, compares every intervention path, and recommends what is actually worth implementing.",
+    headline: "AI is no longer optional.\nNeither are good decisions.",
+    subtitle: "Every company is under pressure to adopt AI. Compass gives operations leaders confidence that they are investing in the right problem, the right intervention, and a measurable outcome before implementation begins.",
     cta: "Assess your operations",
     ctaSecondary: "See an example",
     options: ["AI", "Software", "Process Redesign", "Human Work", "Hybrid", "No automation yet"],
+    closing: "Move before competitors do \u2014 without rushing into the wrong solution.",
   },
 
-  recognition: {
-    headline: "Does this sound familiar?",
+  twoRisks: {
+    headline: "Every AI decision carries two risks.",
+    left: {
+      title: "Move too slowly",
+      body: "Competitors gain efficiency, improve customer experiences, and learn faster while your organization remains uncertain about where to begin.",
+    },
+    right: {
+      title: "Move too quickly",
+      body: "You commit budget, months of implementation work, and organizational credibility to a solution before proving it solves the right problem.",
+    },
+    bridge: "Compass helps you move with confidence.",
+  },
+
+  painCards: {
+    headline: "Where AI investments go wrong.",
+    subtitle: "Most failures begin before implementation.",
     cards: [
       {
-        pain: "We launched an AI pilot. It never delivered measurable business value.",
-        compassSolves: "Compass validates the problem before recommending implementation.",
+        label: "Failed AI pilot",
+        pain: "Months of work produce no measurable business impact.",
+        compassSolves: "Compass validates the problem, expected value, and readiness before recommending a pilot.",
       },
       {
-        pain: "We have spent months evaluating AI vendors.",
-        compassSolves: "Compass compares interventions before vendors.",
+        label: "Wrong tool",
+        pain: "The vendor defines the problem around the product it sells.",
+        compassSolves: "Compass compares AI, software, process, human, hybrid, and no-action paths before vendor selection.",
       },
       {
-        pain: "We bought AI. Nobody agreed on what success looks like.",
-        compassSolves: "Compass defines measurable outcomes before investment.",
+        label: "Unclear ROI",
+        pain: "Budget is approved before success, baseline performance, and expected impact are defined.",
+        compassSolves: "Compass defines measurable outcomes, assumptions, and success metrics before implementation.",
       },
       {
-        pain: "We know AI matters. We do not know where it creates the most value.",
-        compassSolves: "Compass identifies the highest-leverage opportunity.",
+        label: "Months lost",
+        pain: "Teams cycle through demos, meetings, and conflicting recommendations without a clear decision.",
+        compassSolves: "Compass produces an evidence-backed recommendation and implementation blueprint first.",
       },
     ],
   },
 
-  missingLayer: {
-    headline: "The problem isn't implementation. It's judgment.",
-    body: "AI has made building, buying, and automating dramatically easier. But organizations still make expensive technology decisions using scattered interviews, vendor demos, and intuition.",
-    thesis: "Implementation is becoming abundant. Judgment remains scarce.",
-    bridge: "Compass is the decision infrastructure organizations use before they build, buy, automate, or hire.",
+  productQuestion: {
+    headline: "What should your company automate next?",
+    subtitle: "Compass investigates the problem, compares every intervention path, and recommends what is actually worth implementing.",
+    cta: "See Compass in action",
   },
 
   example: {
