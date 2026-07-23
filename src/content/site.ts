@@ -7,7 +7,6 @@ export const site = {
   hero: {
     headline: "Every company is under pressure to adopt AI.\nThe hard part isn't implementing AI.\nIt's deciding what should be implemented.",
     subtitle: "Compass helps operations leaders determine which problems are worth solving, whether AI is the right intervention, and how to implement the right solution with confidence.",
-    bridge: "Companies don't fail because they lack AI. They fail because they implement the wrong solution.",
     cta: "Assess your operations",
     ctaSecondary: "See an example",
     decisionMistakes: [
