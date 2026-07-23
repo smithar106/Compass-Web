@@ -6,70 +6,62 @@ export const site = {
 
   hero: {
     headline: "What should your company automate next?",
-    subtitle: "Compass analyzes operational problems, compares every possible intervention, and recommends the one worth implementing.",
+    subtitle: "Compass analyzes how your business operates, compares AI, software, process redesign, and human work, then recommends the highest-impact intervention and generates an implementation blueprint.",
     cta: "Assess your operations",
     ctaSecondary: "See an example map",
     options: ["AI", "Software", "Process Redesign", "Human Work", "Hybrid", "No automation yet"],
   },
 
   problem: {
-    headline: "You have tools. You need confidence.",
-    body: "Companies have many AI tools but lack confidence about where to use them. Vendors start with their solution, not your problem. Building the wrong system wastes money and organizational trust. Compass begins with the business problem.",
+    headline: "Most companies ask the wrong question.",
+    subtitle: "The question is not \"How can we use AI?\" It is \"What is the best way to solve this problem?\"",
     items: [
-      "Companies have many AI tools but lack confidence where to use them",
+      "AI is not the answer to every problem",
       "Vendors start with their solution, not your problem",
       "Building the wrong system wastes money and trust",
-      "Compass begins with the business problem",
+      "Compass starts with the business problem, then compares every path",
     ],
   },
 
-  insight: {
-    headline: "Implementation is becoming cheaper. Judgment is becoming more valuable.",
-    body: "As building software becomes cheaper and easier, the scarce resource shifts from implementation to judgment. Compass operates before implementation to help leaders decide what is worth building.",
-  },
-
-  productLoop: {
-    headline: "From assessment to blueprint.",
-    subtitle: "Every recommendation is backed by evidence, assumptions, and measurable outcomes.",
+  exampleRecommendation: {
+    headline: "See Compass in action.",
+    problem: "Customer service misses 100 calls per day during peak hours. Reps are overwhelmed and revenue leaks every shift.",
     steps: [
-      "Assessment",
-      "Opportunity Map",
-      "Compare Intervention Paths",
-      "Prioritize One Intervention",
-      "Implementation Blueprint",
+      { label: "Root causes identified", text: "5 root causes found across call routing, staffing, IVR menu, agent knowledge base, and callback system." },
+      { label: "Interventions compared", text: "6 paths evaluated: AI call triage, IVR redesign, hybrid AI-human routing, hire more reps, process change, no change." },
+      { label: "Recommended", value: "Improve call routing before deploying AI." },
+      { label: "Confidence", value: "91%" },
+      { label: "Expected impact", value: "25% reduction in missed calls" },
+      { label: "Time to implement", value: "3 weeks" },
     ],
   },
 
-  existingTools: {
-    headline: "Your tools execute. Compass decides.",
-    body: "Builders, automation platforms, and enterprise-search tools help execute a chosen solution. They are powerful once you know what to build. Compass determines what should be built — and whether anything should be built at all. Compass operates before implementation.",
+  howItWorks: {
+    headline: "How Compass works",
+    steps: [
+      { number: "01", title: "Assess", description: "25-minute assessment across your departments. We learn how work happens, where it fails, and what outcome matters." },
+      { number: "02", title: "Discover", description: "Compass identifies root causes, maps workflows, and surfaces every possible intervention path." },
+      { number: "03", title: "Compare", description: "Every path is scored on feasibility, impact, effort, risk, and confidence. No path is assumed correct." },
+      { number: "04", title: "Recommend", description: "The highest-impact path is recommended with evidence, assumptions, and alternatives." },
+      { number: "05", title: "Blueprint", description: "A detailed implementation plan: systems, APIs, data, human roles, rollout phases, and success metrics." },
+    ],
   },
 
   trust: {
-    headline: "See why, not just what.",
-    body: "Compass shows leaders why a recommendation was made, which assumptions it depends on, and what success should look like before implementation begins.",
+    headline: "Every recommendation is explainable.",
+    body: "No black boxes. Every recommendation shows why it was chosen, what it depends on, and how success is measured.",
     features: [
-      { label: "Supporting evidence" },
-      { label: "Assumptions" },
-      { label: "Alternative paths compared" },
+      { label: "Evidence" },
+      { label: "Confidence score" },
+      { label: "Alternatives considered" },
       { label: "Expected impact" },
-      { label: "Success metrics" },
-      { label: "Escalation requirements" },
+      { label: "Assumptions" },
     ],
   },
 
-  exampleMap: {
-    headline: "See Compass in action",
-    subtitle: "Customer service misses 100 calls per day. Here is how Compass analyzes the problem, compares interventions, and recommends the best path forward.",
-    problem: "Customer service misses 100 calls per day during peak hours. Reps are overwhelmed, callers abandon after 4 minutes, and revenue leaks every shift.",
-    steps: [
-      { label: "Root cause", text: "No intelligent call routing. All calls go to a shared queue. High-value callers wait alongside routine inquiries." },
-      { label: "Evidence", text: "Call logs show 40% of missed calls are from accounts with >$10K ARR. Average handle time is 8 minutes for simple billing questions." },
-      { label: "Interventions compared", text: "AI call triage, IVR redesign, hybrid human + AI routing, add more reps, no change" },
-      { label: "Recommended", text: "Hybrid: AI screens and routes calls by urgency and account value. Human agents handle complex issues." },
-      { label: "Confidence", text: "High — 75% of calls are routine and can be deflected or routed automatically." },
-      { label: "Blueprint", text: "6-week rollout: AI routing model (2 weeks), IVR integration (2 weeks), agent training and go-live (2 weeks)." },
-    ],
+  yourTools: {
+    headline: "Your tools execute. Compass decides.",
+    body: "Builders, automation platforms, and engineering teams help implement solutions. Compass determines what should be built, and whether anything should be built at all.",
   },
 
   designPartners: {
