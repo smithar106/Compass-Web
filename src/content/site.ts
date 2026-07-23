@@ -12,6 +12,34 @@ export const site = {
     options: ["AI", "Software", "Process Redesign", "Human Work", "Hybrid", "No automation yet"],
   },
 
+  pain: {
+    headline: "Every company is under pressure to adopt AI.",
+    subtitle: "But most leaders don't know:",
+    cards: [
+      {
+        pain: "Which problem should we solve first?",
+        detail: "Too many opportunities. Every department has ideas. Nobody knows where to start.",
+      },
+      {
+        pain: "Every vendor says \"Use AI\" but nobody starts with your problem.",
+        detail: "AI platforms. Software vendors. Consultancies. Everyone sells their solution, not yours.",
+      },
+      {
+        pain: "Leadership cannot evaluate technical proposals.",
+        detail: "Everyone sounds confident. Nobody can explain why one path is better than another.",
+      },
+      {
+        pain: "Companies implement the wrong solution — then discover it.",
+        detail: "Months of work. Budget spent. Trust lost. Because the real problem was never diagnosed.",
+      },
+      {
+        pain: "Nobody documents why decisions were made.",
+        detail: "Six months later, everyone asks: why did we build this? No evidence. No record. No way to learn.",
+      },
+    ],
+    bridge: "If that sounds familiar, Compass was built for you.",
+  },
+
   problem: {
     headline: "Most companies ask the wrong question.",
     wrong: "How can we use AI?",
@@ -219,6 +247,37 @@ export const site = {
   },
 
   evidence: {
+    headline: "The evidence behind Compass.",
+    body: "The world is changing. The research agrees. Here is what the data actually shows about AI adoption and organizational performance.",
+    papers: [
+      {
+        source: "Ramp Economics Lab + Revelio Labs",
+        year: "2026",
+        title: "Firms making sustained, high-intensity AI investments grew employment by about 10%, while low-intensity adopters saw no significant gains.",
+        misinterpretation: "AI creates jobs.",
+        compassInterpretation: "The companies succeeding with AI are not simply buying AI tools. They are making better decisions about where and how to invest. Compass helps organizations become high-intensity adopters by choosing the right interventions first.",
+        url: "https://www.ramp.com/economics",
+      },
+      {
+        source: "Anthropic Economic Index",
+        year: "2025",
+        title: "AI adoption is concentrated in software engineering and technical writing, but the highest potential impact is in augmenting decision-making across non-technical roles.",
+        misinterpretation: "AI is primarily a coding tool.",
+        compassInterpretation: "The biggest opportunity is not automating what engineers do. It is giving every department — sales, support, operations — access to structured decision support. Compass focuses on this broader operational surface area.",
+        url: "https://www.anthropic.com/research",
+      },
+      {
+        source: "McKinsey Global Institute",
+        year: "2025",
+        title: "Organizations that pair AI adoption with process redesign see 3\u20135x greater productivity gains than those that deploy AI alone.",
+        misinterpretation: "AI alone drives productivity.",
+        compassInterpretation: "Technology without workflow change underperforms. Compass evaluates every intervention path — AI, software, process redesign, human work, and hybrid — because the right answer is rarely technology alone.",
+        url: "https://www.mckinsey.com/mgi",
+      },
+    ],
+  },
+
+  evidenceLabels: {
     headline: "Evidence and assumptions",
     labels: {
       "user-provided": "User-provided evidence",
