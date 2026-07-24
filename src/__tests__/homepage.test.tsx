@@ -2,26 +2,32 @@ import { describe, it, expect } from "vitest";
 import { site } from "@/content/site";
 
 describe("Homepage content", () => {
-  it("should have headline about best implementation decision", () => {
-    expect(site.hero.headline).toContain("best implementation decision possible");
+  it("should have outcome-focused headline", () => {
+    expect(site.hero.headline).toBe("Stop solving the wrong problem.");
   });
 
-  it("should have 4 decision mistakes with Traditional approach", () => {
-    expect(site.hero.decisionMistakes).toHaveLength(4);
-    const labels = site.hero.decisionMistakes.map((c) => c.label);
-    expect(labels).toContain("Traditional approach");
+  it("should have 3 bullets", () => {
+    expect(site.hero.bullets.length).toBe(3);
+    expect(site.hero.bullets[0]).toContain("Compare AI");
   });
 
-  it("should have evidence cards with self-contained statistics", () => {
-    expect(site.evidence.cards[0].meaning).toContain("52%");
-    expect(site.evidence.cards[0].source).toBe("Gartner");
+  it("should have 4 outcome metrics", () => {
+    expect(site.hero.outcomes).toHaveLength(4);
+    expect(site.hero.outcomes[0].value).toBe("+$2.4M");
+    expect(site.hero.outcomes[3].value).toBe("28\u00D7");
   });
 
-  it("should have example", () => {
-    expect(site.example.confidence).toBe("87%");
+  it("should have example with recommendation", () => {
+    expect(site.example.recommendation).toContain("Hybrid AI-assisted");
+    expect(site.example.impact).toBe("+$2.1M");
+  });
+
+  it("should have evidence section without cards", () => {
+    expect(site.evidence.headline).toBeTruthy();
+    expect((site.evidence as any).cards).toBeUndefined();
   });
 
   it("should have final CTA", () => {
-    expect(site.finalCta.cta).toBe("Start an investigation");
+    expect(site.finalCta.cta).toBe("Start investigation");
   });
 });

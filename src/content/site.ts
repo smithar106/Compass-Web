@@ -5,68 +5,35 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Plan for the chosen solution.",
 
   hero: {
-    headline: "Compass helps you make the best implementation decision possible.",
-    subtitle: "So your organization solves the right problem, in the right way. Compass investigates your operational problem, compares every viable intervention, and recommends the solution with the greatest expected business impact.",
+    headline: "Stop solving the wrong problem.",
+    subtitle: "Compass helps business leaders determine the highest-impact solution before committing budget, engineering resources, or implementation time. The wrong implementation is far more expensive than making the right decision first.",
     bullets: [
-      "Identify the real problem worth solving",
-      "Compare AI, software, process, staffing, and automation",
-      "Estimate business impact before committing budget",
-      "Leave with an implementation plan",
+      "Compare AI, software, process redesign, staffing, and automation",
+      "Estimate business impact before spending",
+      "Leave with an implementation plan in minutes",
     ],
-    cta: "Start an investigation",
+    cta: "Start investigation",
     ctaSecondary: "View example",
-    decisionMistakes: [
-      {
-        label: "Traditional approach",
-        pain: "Pick a technology first.",
-        compassSolves: "Start with the business problem.",
-      },
-      {
-        label: "Traditional approach",
-        pain: "Compare vendors.",
-        compassSolves: "Compare interventions.",
-      },
-      {
-        label: "Traditional approach",
-        pain: "Build, then measure success.",
-        compassSolves: "Define success before investing.",
-      },
-      {
-        label: "Traditional approach",
-        pain: "Commit budget early.",
-        compassSolves: "Estimate impact before spending.",
-      },
+    outcomes: [
+      { label: "Annual Business Impact", value: "+$2.4M", detail: "Revenue recovered" },
+      { label: "Capacity Returned", value: "18,200 hrs", detail: "Equivalent to 9 FTEs" },
+      { label: "Opportunities Recovered", value: "16,700", detail: "Customer interactions" },
+      { label: "Expected ROI", value: "28\u00D7", detail: "Payback in 6 months" },
     ],
-  },
-
-  trustedBy: {
-    label: "Built on evidence from",
-    sources: ["Ramp", "IBM", "BCG", "McKinsey", "Gartner"],
-  },
-
-  example: {
-    headline: "Compass in action.",
-    problem: "Customer support misses 100 calls per day.",
-    steps: [
-      { label: "Root causes", text: "Staffing gaps during peak hours. Routing concentrates traffic in one queue. Shift changes create coverage holes." },
-      { label: "Evidence", text: "Missed calls cluster around shift changes. Routing data shows disproportionate load on one team." },
-      { label: "Interventions compared", text: "AI voice agent, callback software, process redesign, additional staffing, hybrid, no action." },
-      { label: "Recommendation", value: "Process redesign plus deterministic routing improvements." },
-      { label: "Blueprint", text: "Owner: Operations lead. Phases: audit, routing redesign, staffing adjustment, monitoring. Duration: 3-4 weeks." },
-    ],
-    confidence: "87%",
-    cta: "View full analysis",
   },
 
   evidence: {
-    headline: "Why companies struggle with AI adoption.",
-    cards: [
-      { meaning: "Only 52% of AI initiatives achieve their intended business outcomes. Many failures begin before implementation, when organizations commit to technology before determining the best intervention.", value: "52%", source: "Gartner", connection: "Compass determines the intervention path before resources are committed.", color: "emerald" },
-      { meaning: "Only 25% of AI initiatives deliver the expected return on investment. Organizations often invest before defining the business problem, success criteria, and baseline.", value: "25%", source: "IBM", connection: "Compass defines success before investment.", color: "blue" },
-      { meaning: "70% of implementation challenges are organizational, not technical. The dominant barriers are workflows, ownership, readiness, and change management.", value: "70%", source: "BCG", connection: "Compass evaluates readiness before recommending technology.", color: "amber" },
-      { meaning: "The average AI prototype takes 8 months to reach production. Organizations begin building before confirming the intervention is correct.", value: "8 mo.", source: "Gartner", connection: "Compass determines direction before the implementation clock starts.", color: "violet" },
-    ],
-    cta: "Start your investigation",
+    headline: "Every recommendation is backed by evidence.",
+    subtitle: "We compare AI, software, process redesign, staffing, automation, outsourcing, and governance using implementation outcomes, industry research, and organizational evidence.",
+  },
+
+  example: {
+    headline: "Example recommendation.",
+    problem: "Sales misses 100 inbound calls every day.",
+    recommendation: "Hybrid AI-assisted qualification",
+    impact: "+$2.1M",
+    detail: "18,300 recovered calls \u00B7 6 weeks \u00B7 89% confidence",
+    cta: "See full recommendation",
   },
 
   designPartners: {
@@ -101,7 +68,7 @@ export const site = {
   finalCta: {
     headline: "Investigate before you build.",
     subtitle: "Before you evaluate another AI vendor, determine whether AI is actually the right intervention.",
-    cta: "Start an investigation",
+    cta: "Start investigation",
   },
 
   footer: {
