@@ -13,7 +13,7 @@ export default function HomePage() {
               <h1 className="text-[2.5rem] md:text-display font-bold text-ink leading-[1.1] tracking-tight">
                 {site.hero.headline}
               </h1>
-              <p className="mt-5 text-[15px] text-ink/80 leading-relaxed font-[500]">
+              <p className="mt-5 text-[15px] text-ink/90 leading-relaxed font-[500]">
                 {site.hero.subtitle}
               </p>
               <ul className="mt-5 space-y-2.5">
@@ -42,7 +42,7 @@ export default function HomePage() {
                 <div key={o.label} className="border-2 border-border rounded-xl bg-white p-5 shadow-sm">
                   <p className="text-xs text-stone font-medium uppercase tracking-wider">{o.label}</p>
                   <p className="text-3xl font-bold text-forest mt-1">{o.value}</p>
-                  <p className="text-sm text-ink/70 mt-0.5">{o.detail}</p>
+                  <p className="text-sm text-ink/80 mt-0.5">{o.detail}</p>
                 </div>
               ))}
             </div>
@@ -53,8 +53,8 @@ export default function HomePage() {
       {/* Evidence bar */}
       <section className="py-6 bg-cream border-t border-border px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl text-center">
-          <p className="text-sm text-stone/70 font-medium">{site.evidence.headline}</p>
-          <p className="text-xs text-stone/50 mt-1 max-w-xl mx-auto">{site.evidence.subtitle}</p>
+          <p className="text-sm text-stone font-medium">{site.evidence.headline}</p>
+          <p className="text-xs text-stone/70 mt-1 max-w-xl mx-auto">{site.evidence.subtitle}</p>
         </div>
       </section>
 
@@ -96,7 +96,7 @@ export default function HomePage() {
               <Link href="/assessment/results?example=true" className="text-sm text-forest font-semibold hover:text-leaf transition-colors">
                 {site.example.cta} &rarr;
               </Link>
-              <span className="text-xs text-stone/50">Example based on real operational data</span>
+              <span className="text-xs text-stone/70">Example based on real operational data</span>
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function HomePage() {
       <section className="py-[3.5rem] bg-ink text-cream px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-[28px] font-bold">{site.finalCta.headline}</h2>
-          <p className="mt-4 text-[15px] text-cream/80">{site.finalCta.subtitle}</p>
+          <p className="mt-4 text-[15px] text-cream/90">{site.finalCta.subtitle}</p>
           <div className="mt-8">
             <Link href="/assessment" className="inline-flex items-center px-8 py-3.5 bg-cream text-ink text-base font-semibold rounded-lg hover:bg-white transition-colors shadow-sm">
               {site.finalCta.cta}
