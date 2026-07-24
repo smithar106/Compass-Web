@@ -6,7 +6,7 @@ export const site = {
 
   hero: {
     headline: "Compass helps you determine the best solution before you build it.",
-    subtitle: "Compass investigates your operational problem, compares every viable intervention \u2014 from AI and software to process redesign and staffing \u2014 and recommends the solution with the greatest expected business impact before you commit time, budget, or engineering resources.",
+    subtitle: "Compass investigates your operational problem, compares every viable intervention, and recommends the solution with the greatest expected business impact.",
     bullets: [
       "Identify the real problem worth solving",
       "Compare every viable intervention path",
@@ -21,31 +21,55 @@ export const site = {
       { problem: "Lost customer opportunities", label: "Best Path", value: "16,700", detail: "Customer interactions" },
       { problem: "Uncertain investment return", label: "Best Path", value: "28\u00D7", detail: "Payback in 6 months" },
     ],
+    recommendation: {
+      problem: "Sales misses 100 inbound calls every day.",
+      recommendation: "Hybrid AI-assisted qualification",
+      impact: "+$2.1M",
+      confidence: "89%",
+      timeline: "6 weeks",
+      type: "Hybrid",
+    },
   },
 
-  evidence: {
-    headline: "Every recommendation is backed by evidence.",
-    subtitle: "We compare AI, software, process redesign, staffing, automation, outsourcing, and governance using implementation outcomes, industry research, and organizational evidence.",
-  },
-
-  example: {
-    headline: "Example recommendation.",
+  exampleSales: {
     problem: "Sales misses 100 inbound calls every day.",
     recommendation: "Hybrid AI-assisted qualification",
     impact: "+$2.1M",
+    confidence: "89%",
+    timeline: "6 weeks",
+    type: "Hybrid",
     detail: "18,300 recovered calls \u00B7 6 weeks \u00B7 89% confidence",
     cta: "See full recommendation",
     confidenceNote: "Confidence based on comparable implementations, industry benchmarks, and your organization's inputs.",
   },
 
   exampleFinance: {
-    headline: "Another example.",
     problem: "Finance team spends 40 hours per week on manual invoice reconciliation.",
     recommendation: "Automated invoice matching with exception-based review",
     impact: "+$420K",
+    confidence: "91%",
+    timeline: "4 weeks",
+    type: "Software",
     detail: "1,800 hours returned \u00B7 4 weeks \u00B7 91% confidence",
     cta: "See full recommendation",
     confidenceNote: "Confidence based on comparable implementations, industry benchmarks, and your organization's inputs.",
+  },
+
+  exampleHealthcare: {
+    problem: "Insurance claims processing takes 14 days on average.",
+    recommendation: "AI-assisted claims triage with deterministic validation",
+    impact: "+$3.8M",
+    confidence: "86%",
+    timeline: "8 weeks",
+    type: "AI",
+    detail: "2,100 claims processed faster \u00B7 8 weeks \u00B7 86% confidence",
+    cta: "See full recommendation",
+    confidenceNote: "Confidence based on comparable implementations, industry benchmarks, and your organization's inputs.",
+  },
+
+  evidence: {
+    headline: "Every recommendation is backed by evidence.",
+    subtitle: "We compare AI, software, process redesign, staffing, automation, outsourcing, and governance using implementation outcomes, industry research, and organizational evidence.",
   },
 
   designPartners: {

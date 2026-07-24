@@ -5,68 +5,66 @@ import { useState } from "react";
 import { site } from "@/content/site";
 import { researchStatistics } from "@/data/research";
 
-function RecommendationCard({ data, color }: { data: any; color: string }) {
+function RecommendationPanel({ data, accent }: { data: any; accent: string }) {
   const [showEvidence, setShowEvidence] = useState(false);
-  const colorMap: Record<string, { bg: string; text: string }> = {
-    amber: { bg: "bg-amber-50", text: "text-amber-800" },
-    sky: { bg: "bg-sky-50", text: "text-sky-800" },
+  const accentMap: Record<string, { border: string; bg: string; text: string; pill: string }> = {
+    amber: { border: "border-amber-200", bg: "bg-amber-50", text: "text-amber-800", pill: "bg-amber-100 text-amber-700" },
+    sky: { border: "border-sky-200", bg: "bg-sky-50", text: "text-sky-800", pill: "bg-sky-100 text-sky-700" },
+    emerald: { border: "border-emerald-200", bg: "bg-emerald-50", text: "text-emerald-800", pill: "bg-emerald-100 text-emerald-700" },
   };
-  const c = colorMap[color] || colorMap.amber;
+  const c = accentMap[accent] || accentMap.amber;
 
   return (
-    <div className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
-      <div className={`${c.bg} border-b-2 border-border/40 px-6 py-5`}>
-        <span className={`text-xs font-bold ${c.text} uppercase tracking-wider`}>Customer problem</span>
-        <p className="text-lg text-ink font-semibold mt-1">{data.problem}</p>
+    <div className={`border-2 ${c.border} rounded-2xl bg-white shadow-md overflow-hidden`}>
+      <div className={`${c.bg} px-5 py-4 border-b-2 ${c.border}`}>
+        <span className={`text-[11px] font-bold ${c.text} uppercase tracking-wider`}>Customer problem</span>
+        <p className="text-base text-ink font-semibold mt-1">{data.problem}</p>
       </div>
-      <div className="px-6 py-5 border-b-2 border-border/40">
-        <span className="text-xs font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
-        <p className="text-lg text-ink font-semibold mt-1">{data.recommendation}</p>
+      <div className="px-5 py-4 border-b border-border">
+        <span className="text-[11px] font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
+        <p className="text-base text-ink font-semibold mt-1">{data.recommendation}</p>
       </div>
-      <div className="px-6 py-5 flex items-center gap-6">
+      <div className="px-5 py-4 grid grid-cols-2 gap-4">
         <div>
-          <span className="text-xs text-stone font-medium">Projected annual impact</span>
-          <p className="text-4xl font-bold text-forest mt-1 tracking-tight">{data.impact}</p>
+          <span className="text-[11px] text-stone font-medium">Projected impact</span>
+          <p className="text-2xl font-bold text-forest tracking-tight">{data.impact}</p>
         </div>
-        <div className="h-10 w-px bg-border flex-shrink-0" />
-        <p className="text-sm text-ink leading-relaxed">{data.detail}</p>
+        <div>
+          <span className="text-[11px] text-stone font-medium">Confidence</span>
+          <p className="text-2xl font-bold text-forest tracking-tight">{data.confidence}</p>
+        </div>
+        <div>
+          <span className="text-[11px] text-stone font-medium">Timeline</span>
+          <p className="text-lg font-semibold text-ink">{data.timeline}</p>
+        </div>
+        <div>
+          <span className="text-[11px] text-stone font-medium">Intervention</span>
+          <span className={`inline-block mt-0.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ${c.pill}`}>{data.type}</span>
+        </div>
       </div>
-      <div className="bg-mist/30 px-6 py-3 border-t border-border/40">
-        <p className="text-xs text-ink">{data.confidenceNote}</p>
+      <div className="px-5 py-3 bg-mist/30 border-t border-border/40">
         <button
           onClick={() => setShowEvidence(!showEvidence)}
-          className="mt-1 text-xs text-forest font-semibold hover:text-leaf transition-colors"
+          className="text-xs text-forest font-semibold hover:text-leaf transition-colors"
         >
           {showEvidence ? "Hide evidence" : "Why this confidence? \u2192"}
         </button>
         {showEvidence && (
-          <div className="mt-3 space-y-2">
-            <div className="flex items-start gap-2 text-xs">
-              <span className="flex-shrink-0 w-4 h-4 rounded bg-forest/10 flex items-center justify-center mt-0.5">
-                <span className="text-[10px] font-bold text-forest">{"\u2713"}</span>
-              </span>
-              <span className="text-ink"><span className="font-semibold">Industry benchmarks:</span> Comparable implementations show similar call recovery rates.</span>
+          <div className="mt-2 space-y-1.5">
+            <div className="flex items-start gap-2 text-xs text-ink">
+              <span className="text-forest font-bold">{"\u2713"}</span>
+              <span><span className="font-semibold">Industry benchmarks:</span> Comparable implementations show similar outcomes.</span>
             </div>
-            <div className="flex items-start gap-2 text-xs">
-              <span className="flex-shrink-0 w-4 h-4 rounded bg-forest/10 flex items-center justify-center mt-0.5">
-                <span className="text-[10px] font-bold text-forest">{"\u2713"}</span>
-              </span>
-              <span className="text-ink"><span className="font-semibold">Research sources:</span> Gartner, IBM, and BCG studies on AI implementation outcomes.</span>
+            <div className="flex items-start gap-2 text-xs text-ink">
+              <span className="text-forest font-bold">{"\u2713"}</span>
+              <span><span className="font-semibold">Research sources:</span> Gartner, IBM, BCG studies on implementation outcomes.</span>
             </div>
-            <div className="flex items-start gap-2 text-xs">
-              <span className="flex-shrink-0 w-4 h-4 rounded bg-forest/10 flex items-center justify-center mt-0.5">
-                <span className="text-[10px] font-bold text-forest">{"\u2713"}</span>
-              </span>
-              <span className="text-ink"><span className="font-semibold">Customer inputs:</span> CRM data, call volume metrics, and staffing information provided during investigation.</span>
+            <div className="flex items-start gap-2 text-xs text-ink">
+              <span className="text-forest font-bold">{"\u2713"}</span>
+              <span><span className="font-semibold">Customer inputs:</span> Operational data provided during investigation.</span>
             </div>
           </div>
         )}
-      </div>
-      <div className="bg-mist/50 border-t-2 border-border/40 px-6 py-4 flex items-center justify-between">
-        <Link href="/assessment/results?example=true" className="text-sm text-forest font-semibold hover:text-leaf transition-colors">
-          {data.cta} &rarr;
-        </Link>
-        <span className="text-xs text-stone">Example based on real operational data</span>
       </div>
     </div>
   );
@@ -75,96 +73,72 @@ function RecommendationCard({ data, color }: { data: any; color: string }) {
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
-      <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+      {/* Hero — product first */}
+      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left */}
-            <div className="bg-white border-2 border-border rounded-xl p-8 shadow-sm">
-              <h1 className="text-[2.5rem] md:text-display font-bold text-ink leading-[1.1] tracking-tight">
+            <div>
+              <h1 className="text-[2.5rem] md:text-[3.25rem] font-bold text-ink leading-[1.1] tracking-tight">
                 {site.hero.headline}
               </h1>
-              <p className="mt-5 text-base text-ink leading-relaxed font-[500]">
+              <p className="mt-5 text-lg text-ink/80 leading-relaxed font-[500] max-w-lg">
                 {site.hero.subtitle}
               </p>
-              <ul className="mt-5 space-y-2.5">
-                {site.hero.bullets.map((b) => (
-                  <li key={b} className="flex items-start gap-3 text-sm text-ink font-medium">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-forest/10 flex items-center justify-center mt-0.5">
-                      <span className="text-xs font-bold text-forest">{"\u2713"}</span>
-                    </span>
-                    {b}
-                  </li>
-                ))}
-              </ul>
               <div className="mt-8 flex flex-wrap gap-4">
-                <Link href="/assessment" className="inline-flex items-center px-8 py-3.5 bg-forest text-white text-base font-semibold rounded-lg hover:bg-leaf transition-colors shadow-sm">
+                <Link href="/assessment" className="inline-flex items-center px-8 py-4 bg-forest text-white text-lg font-semibold rounded-xl hover:bg-leaf transition-colors shadow-sm">
                   {site.hero.cta}
                 </Link>
-                <a href="#example" className="inline-flex items-center px-8 py-3.5 border-2 border-forest text-forest text-base font-semibold rounded-lg hover:bg-mist transition-colors">
+                <a href="#examples" className="inline-flex items-center px-8 py-4 border-2 border-forest text-forest text-lg font-semibold rounded-xl hover:bg-mist transition-colors">
                   {site.hero.ctaSecondary}
                 </a>
               </div>
             </div>
 
-            {/* Right: arrow flow cards */}
-            <div className="space-y-4">
-              {site.hero.outcomes.map((o) => (
-                <div key={o.label} className="border-2 border-border rounded-xl bg-white p-5 shadow-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-ink uppercase tracking-wider">Problem</p>
-                      <p className="text-base text-ink font-semibold mt-0.5">{o.problem}</p>
-                    </div>
-                    <svg className="w-8 h-8 text-forest flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                    <div className="flex-shrink-0 text-center">
-                      <p className="text-xs font-bold text-forest uppercase">Compass</p>
-                      <p className="text-xs text-ink font-medium mt-0.5">{o.label}</p>
-                    </div>
-                    <svg className="w-8 h-8 text-forest flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                    <div className="flex-1 min-w-0 text-right">
-                      <p className="text-xs font-semibold text-ink uppercase tracking-wider">Outcome</p>
-                      <p className="text-lg font-bold text-forest mt-0.5">{o.value}</p>
-                      <p className="text-sm text-ink">{o.detail}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Right — the product */}
+            <RecommendationPanel data={site.hero.recommendation} accent="amber" />
           </div>
         </div>
       </section>
 
-      {/* Evidence bar */}
-      <section className="py-6 bg-cream border-t border-border px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-base text-ink font-semibold">{site.evidence.headline}</p>
-          <p className="text-sm text-ink/80 mt-1 max-w-2xl mx-auto">{site.evidence.subtitle}</p>
-        </div>
-      </section>
-
-      {/* Example: Sales */}
-      <section id="example" className="py-[3.5rem] px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          <RecommendationCard data={site.example} color="amber" />
-        </div>
-      </section>
-
-      {/* Example: Finance */}
-      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-cream">
-        <div className="mx-auto max-w-4xl">
-          <RecommendationCard data={site.exampleFinance} color="sky" />
-        </div>
-      </section>
-
-      {/* Statistics — amber/warm tones */}
-      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-amber-50/30">
+      {/* How Compass works */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-indigo-50/40">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-[22px] font-bold text-ink text-center">Why implementation decisions go wrong.</h2>
+          <h2 className="text-xl font-bold text-ink text-center">How Compass works.</h2>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-3">
+            {[
+              { step: "Problem", desc: "Identify the operational issue." },
+              { step: "Evidence", desc: "Gather data and assess readiness." },
+              { step: "Compare", desc: "Evaluate every intervention path." },
+              { step: "Recommend", desc: "Select the highest-impact solution." },
+              { step: "Blueprint", desc: "Produce the implementation plan." },
+            ].map((item, i) => (
+              <div key={item.step} className="border-2 border-indigo-200 rounded-xl p-5 text-center bg-white shadow-sm">
+                <span className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto text-sm font-bold">{i + 1}</span>
+                <p className="mt-2 text-sm font-bold text-ink">{item.step}</p>
+                <p className="mt-1 text-xs text-ink/70">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Industry examples */}
+      <section id="examples" className="py-16 px-4 sm:px-6 lg:px-8 bg-cream">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-xl font-bold text-ink text-center">Real recommendations across industries.</h2>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <RecommendationPanel data={site.exampleSales} accent="amber" />
+            <RecommendationPanel data={site.exampleFinance} accent="sky" />
+            <RecommendationPanel data={site.exampleHealthcare} accent="emerald" />
+          </div>
+        </div>
+      </section>
+
+      {/* Evidence */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-xl font-bold text-ink text-center">Why implementation decisions go wrong.</h2>
           <p className="mt-2 text-sm text-ink/80 text-center">Before organizations find Compass, they often learn the hard way.</p>
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
             {researchStatistics.map((stat) => (
@@ -180,12 +154,12 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="py-[3.5rem] bg-ink text-cream px-4 sm:px-6 lg:px-8">
+      <section className="py-16 bg-ink text-cream px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-[28px] font-bold">{site.finalCta.headline}</h2>
-          <p className="mt-4 text-base text-cream/90">{site.finalCta.subtitle}</p>
+          <p className="mt-4 text-lg text-cream/90">{site.finalCta.subtitle}</p>
           <div className="mt-8">
-            <Link href="/assessment" className="inline-flex items-center px-8 py-3.5 bg-cream text-ink text-base font-semibold rounded-lg hover:bg-white transition-colors shadow-sm">
+            <Link href="/assessment" className="inline-flex items-center px-8 py-4 bg-cream text-ink text-lg font-semibold rounded-xl hover:bg-white transition-colors shadow-sm">
               {site.finalCta.cta}
             </Link>
           </div>
