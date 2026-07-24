@@ -8,6 +8,20 @@ const requestSchema = z.object({
   sessionId: z.string().min(1, "sessionId is required"),
 });
 
+const COMPASS_API_URL = process.env.COMPASS_API_URL || "http://127.0.0.1:8001";
+const DEPARTMENT_WORKFLOWS: Record<string, string> = {
+  Sales: "lead_qualification",
+  Marketing: "marketing_automation",
+  Customer_Success: "customer_health_scoring",
+  Support: "ticketing",
+  Finance: "invoice_processing",
+  Product: "product_analytics",
+  Engineering: "ci_cd",
+  People_HR: "onboarding",
+  Legal: "contract_review",
+  Operations: "process_automation",
+};
+
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";

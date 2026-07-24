@@ -70,6 +70,11 @@ function AssessmentForm() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [currentInsight, setCurrentInsight] = useState<string>("");
+  const [persisting, setPersisting] = useState(false);
+  const [dbSessionId, setDbSessionId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const answerTimestamps = useRef<Map<number, number>>(new Map());
 
   useEffect(() => {
     const saved = loadSession();
@@ -151,7 +156,9 @@ function AssessmentForm() {
     }
   }, [currentQuestion, session]);
 
-  const goToResults = () => {
+  const goToResults = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     clearSession();
     router.push("/assessment/results");
   };
@@ -212,8 +219,17 @@ function AssessmentForm() {
           <h1 className="text-heading font-bold text-ink">{site.assessment.complete.headline}</h1>
           <p className="mt-4 text-body text-stone">{site.assessment.complete.body}</p>
           <div className="mt-10">
-            <button onClick={goToResults} className="inline-flex items-center px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors">
-              {site.assessment.complete.cta}
+            <button
+              onClick={goToResults}
+              disabled={submitting}
+              className="inline-flex items-center px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Compiling your AI Opportunity Portfolio...
+                </span>
+              ) : site.assessment.complete.cta}
             </button>
           </div>
         </div>

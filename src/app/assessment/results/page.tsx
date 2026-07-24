@@ -1,725 +1,361 @@
 "use client";
 
-import { Suspense, useState, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
-import { sampleOpportunityMap } from "@/data/mock-results";
-import { site } from "@/content/site";
-import { EvidenceDisplay } from "@/components/evidence/evidence-display";
-import { ImplementationPlanView } from "@/components/blueprint/implementation-plan";
-import type { Opportunity, ImplementationBlueprint } from "@/types";
+import { Suspense, useState, useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase";
+import { CompassChoice, type RecommendationData } from "@/components/results/compass-choice";
+import { AlternativeCards } from "@/components/results/alternative-cards";
+import { WhyCompassChose } from "@/components/results/why-compass-chose";
+import { EvidenceTable } from "@/components/results/evidence-table";
+import { NegativeEvidencePanel } from "@/components/results/negative-evidence";
+import { ConfidenceMeter } from "@/components/results/confidence-meter";
+import { AssumptionsRisks } from "@/components/results/assumptions-risks";
+import { NextStepCTA } from "@/components/results/next-step-cta";
 
-const pathLabel: Record<string, string> = {
-  AI: "AI",
-  "Deterministic Software": "Software",
-  "Process Redesign": "Process",
-  "Human Work": "Human",
-  Hybrid: "Hybrid",
-  "No Action": "Not ready",
-};
+const STORAGE_KEY = "compass-assessment-session";
+const ENGINE_VERSION = "2.0.0";
+const DATASET_VERSION = "v1 (baseline)";
 
-const pathBadge: Record<string, string> = {
-  AI: "border-purple-200 text-purple-700 bg-purple-50",
-  "Deterministic Software": "border-blue-200 text-blue-700 bg-blue-50",
-  "Process Redesign": "border-amber-200 text-amber-700 bg-amber-50",
-  "Human Work": "border-gray-200 text-gray-700 bg-gray-50",
-  Hybrid: "border-green-200 text-green-700 bg-green-50",
-  "No Action": "border-stone-200 text-stone-500 bg-stone-50",
-};
-
-const confidenceColor: Record<string, string> = {
-  High: "text-green-700",
-  Medium: "text-amber-700",
-  Low: "text-red-700",
-};
-
-const confidenceBadge: Record<string, string> = {
-  High: "bg-green-50 text-green-700 border-green-200",
-  Medium: "bg-amber-50 text-amber-700 border-amber-200",
-  Low: "bg-red-50 text-red-700 border-red-200",
-};
-
-function buildMockBlueprint(opp: Opportunity): ImplementationBlueprint {
-  return {
-    problem: opp.businessProblem,
-    rootCause: opp.rootCause,
-    recommendedIntervention: opp.intervention,
-    alternativesConsidered: opp.whyAlternativesRejected,
-    whyThisPathWon: opp.intervention.rejectionRationale,
-    currentWorkflow: opp.workflow
-      ? opp.workflow.split(". ")
-      : opp.description.split(". "),
-    futureWorkflow: [
-      `${opp.intervention.title} handles ${
-        opp.intervention.type === "AI"
-          ? "80-90%"
-          : opp.intervention.type === "Deterministic Software"
-            ? "60-70%"
-            : "50-70%"
-      } of routine work`,
-      `Human team focuses on ${
-        opp.intervention.humanOversight.includes("Human-in-the-loop")
-          ? "decisions and exceptions"
-          : "strategic work"
-      }`,
-      `Estimated ${opp.intervention.timeToValue} to first measurable outcome`,
-    ],
-    requiredSystems: [
-      opp.department === "Sales"
-        ? "CRM"
-        : opp.department === "Customer Success"
-          ? "Product analytics"
-          : "Current toolchain",
-    ],
-    requiredApis: ["REST API integration", "Webhook event handlers"],
-    requiredData: ["Historical process data", "Current workflow documentation"],
-    humanRoles: [`${opp.department} team members`],
-    ownership: opp.requiredOwner || `${opp.department} leadership`,
-    securityAndPrivacy: [
-      "Data access controls needed",
-      "Review sensitive data handling",
-    ],
-    rolloutPlan: [
-      "Phase 1: Setup and integration",
-      "Phase 2: Pilot with subset",
-      "Phase 3: Full rollout",
-      "Phase 4: Monitor and optimize",
-    ],
-    validationPlan: [
-      "Run pilot with 20% of cases",
-      "Compare metrics to baseline",
-      "Adjust thresholds before full rollout",
-    ],
-    successMetrics: [
-      opp.intervention.expectedImpact,
-      ...(opp.successDescription ? [opp.successDescription] : []),
-    ],
-    risksAndAssumptions: opp.assumptions.map(
-      (a) => `${a.assumption} (${a.confidence})`,
-    ),
-    expectedImpact: opp.intervention.expectedImpact,
-    technicalEscalationLevel:
-      opp.intervention.implementationEffort === "Medium-High" ||
-      opp.intervention.implementationEffort === "High"
-        ? "Needs engineering team"
-        : "Department-level implementation",
-    sections: [],
-  };
-}
-
-function buildBulletReasons(opp: Opportunity): string[] {
-  const reasons: string[] = [];
-  const impact = opp.businessImpact?.estimatedImpact;
-  if (impact) reasons.push(`Estimated ${impact}`);
-
-  const shortImpact = opp.intervention.expectedImpact?.split(",")[0]?.trim();
-  if (shortImpact && !reasons.some((r) => r.includes(shortImpact)))
-    reasons.push(shortImpact);
-
-  reasons.push(`Implementation timeline: ${opp.intervention.timeToValue}`);
-
-  if (
-    opp.confidence === "High" ||
-    opp.intervention.confidence === "High"
-  )
-    reasons.push("High confidence — strong evidence supports this path");
-
-  const rationaleLines = opp.intervention.rejectionRationale
-    .split(". ")
-    .filter(Boolean);
-  const bestLine = rationaleLines.find(
-    (l) =>
-      l.toLowerCase().includes("balance") ||
-      l.toLowerCase().includes("best") ||
-      l.toLowerCase().includes("sufficient") ||
-      l.toLowerCase().includes("transparent"),
-  );
-  if (bestLine) reasons.push(bestLine);
-
-  return reasons.slice(0, 5);
-}
-
-function getAnnualImpact(opp: Opportunity): string {
-  if (opp.businessImpact?.estimatedImpact) {
-    const v = opp.businessImpact.estimatedImpact;
-    if (v.includes("$")) return v;
-    return v;
-  }
-  const fromIntervention = opp.intervention.expectedImpact;
-  const dollarMatch = fromIntervention.match(/\$[\dKMB.–-]+/);
-  return dollarMatch ? dollarMatch[0] : "See details";
-}
-
-function DetailPanel({
-  opp,
-  onClose,
-  onViewBlueprint,
-}: {
-  opp: Opportunity;
-  onClose: () => void;
-  onViewBlueprint: () => void;
-}) {
+export default function ResultsPage() {
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      <div
-        className="fixed inset-0 bg-ink/30 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative w-full max-w-lg bg-white border-l border-border shadow-xl overflow-y-auto animate-fadeIn">
-        <div className="sticky top-0 z-10 bg-white border-b border-border px-6 py-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold text-ink">{opp.name}</h2>
-            <p className="text-xs text-stone">
-              Rank #{opp.rank} &middot; {opp.department}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-mist text-stone hover:text-ink transition-colors"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <div className="px-6 py-5 space-y-6">
-          <section>
-            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
-              Why this option ranked #{opp.rank}
-            </h3>
-            <p className="text-sm text-ink leading-relaxed">
-              {opp.intervention.rejectionRationale ||
-                `This intervention scored highest across impact, feasibility, and risk criteria for the ${opp.department} department.`}
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
-              Expected impact
-            </h3>
-            <div className="bg-mist rounded-lg p-4 space-y-2">
-              <p className="text-sm text-ink font-medium">
-                {opp.intervention.expectedImpact}
-              </p>
-              {opp.businessImpact?.estimatedImpact && (
-                <p className="text-sm text-forest font-semibold">
-                  {opp.businessImpact.estimatedImpact}
-                </p>
-              )}
-              {opp.successDescription && (
-                <p className="text-xs text-stone">
-                  {opp.successDescription}
-                </p>
-              )}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
-              Evidence
-            </h3>
-            <EvidenceDisplay
-              evidence={opp.evidence}
-              assumptions={[]}
-              whyChose=""
-              whyRejected=""
-            />
-          </section>
-
-          <section>
-            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
-              Key assumptions
-            </h3>
-            <div className="space-y-2">
-              {opp.assumptions.map((a, i) => (
-                <div
-                  key={i}
-                  className="border border-amber-200 bg-amber-50/30 rounded-lg p-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-xs text-ink font-medium">
-                      {a.assumption}
-                    </p>
-                    <span
-                      className={`flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium border ${
-                        confidenceBadge[a.confidence] ||
-                        "bg-stone-50 text-stone-500 border-stone-200"
-                      }`}
-                    >
-                      {a.confidence}
-                    </span>
-                  </div>
-                  <p className="text-xs text-stone mt-0.5">
-                    <span className="font-medium">Impact if wrong: </span>
-                    {a.impact}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
-              Required conditions
-            </h3>
-            <div className="bg-mist/50 rounded-lg p-4">
-              {opp.technicalHelpRequired && (
-                <p className="text-sm text-stone mb-2">
-                  {opp.technicalHelpRequired}
-                </p>
-              )}
-              {opp.requiredOwner && (
-                <p className="text-xs text-stone">
-                  <span className="font-medium">Owner: </span>
-                  {opp.requiredOwner}
-                </p>
-              )}
-              {opp.dependencies && opp.dependencies.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {opp.dependencies.map((d, i) => (
-                    <span
-                      key={i}
-                      className={`text-[10px] px-2 py-0.5 rounded font-medium ${
-                        d.status === "Available"
-                          ? "bg-green-50 text-green-700 border border-green-200"
-                          : "bg-amber-50 text-amber-700 border border-amber-200"
-                      }`}
-                    >
-                      {d.dependency} ({d.status})
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
-              Main risks
-            </h3>
-            {opp.risks && opp.risks.length > 0 ? (
-              <div className="space-y-2">
-                {opp.risks.map((r, i) => (
-                  <div
-                    key={i}
-                    className="border border-red-100 bg-red-50/30 rounded-lg p-3"
-                  >
-                    <p className="text-xs text-ink font-medium">{r.risk}</p>
-                    <div className="flex gap-3 mt-1 text-[10px] text-stone">
-                      <span>Likelihood: {r.likelihood}</span>
-                      <span>Impact: {r.impact}</span>
-                    </div>
-                    {r.mitigation && (
-                      <p className="text-xs text-stone mt-1">
-                        <span className="font-medium">Mitigation: </span>
-                        {r.mitigation}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-stone italic">
-                No significant risks identified at this stage.
-              </p>
-            )}
-          </section>
-
-          <section>
-            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
-              Why it beat alternatives
-            </h3>
-            <div className="bg-forest/5 border border-forest/10 rounded-lg p-4">
-              <p className="text-sm text-stone leading-relaxed">
-                {opp.whyAlternativesRejected ||
-                  opp.intervention.rejectionRationale ||
-                  "This path was chosen as the best fit for this specific business problem and workflow."}
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-xs font-semibold text-stone uppercase tracking-wider mb-2">
-              Implementation outline
-            </h3>
-            <div className="bg-mist/50 rounded-lg p-4 space-y-2">
-              <div className="flex items-center gap-2 text-xs text-stone">
-                <span className="font-medium text-ink">Timeline:</span>
-                {opp.intervention.timeToValue}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-stone">
-                <span className="font-medium text-ink">Effort:</span>
-                {opp.intervention.implementationEffort}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-stone">
-                <span className="font-medium text-ink">Oversight:</span>
-                {opp.intervention.humanOversight}
-              </div>
-              <button
-                onClick={onViewBlueprint}
-                className="mt-3 w-full text-sm px-4 py-2 bg-forest text-white rounded-lg hover:bg-leaf transition-colors"
-              >
-                View full implementation plan
-              </button>
-            </div>
-          </section>
+    <Suspense fallback={
+      <div className="bg-white min-h-[50vh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-lime-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-400">Loading your AI Opportunity Portfolio...</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ResultCard({
-  opp,
-  isCompassChoice,
-  onViewDetails,
-  onSelectBlueprint,
-}: {
-  opp: Opportunity;
-  isCompassChoice: boolean;
-  onViewDetails: () => void;
-  onSelectBlueprint: () => void;
-}) {
-  const reasons = useMemo(() => buildBulletReasons(opp), [opp]);
-  const impact = useMemo(() => getAnnualImpact(opp), [opp]);
-
-  return (
-    <div
-      className={`flex flex-col h-full rounded-xl border transition-all duration-200 bg-white ${
-        isCompassChoice
-          ? "border-forest ring-2 ring-forest/20 shadow-lg scale-[1.02] lg:scale-105"
-          : "border-border hover:border-forest/40 shadow-sm hover:shadow-md"
-      }`}
-    >
-      {isCompassChoice && (
-        <div className="flex items-center gap-1.5 px-5 pt-4 pb-0">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-forest text-cream text-[10px] font-semibold uppercase tracking-wider">
-            <svg
-              className="w-3 h-3"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-            Compass&apos; Choice
-          </span>
-        </div>
-      )}
-
-      <div className="p-5 flex flex-col flex-1">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold text-forest">
-            Rank #{opp.rank}
-          </span>
-          {!isCompassChoice && (
-            <span
-              className={`text-xs px-1.5 py-0.5 rounded border font-medium ${
-                pathBadge[opp.intervention.type] || ""
-              }`}
-            >
-              {pathLabel[opp.intervention.type] || opp.intervention.type}
-            </span>
-          )}
-        </div>
-
-        {isCompassChoice && (
-          <div className="mb-2">
-            <span
-              className={`text-xs px-1.5 py-0.5 rounded border font-medium ${
-                pathBadge[opp.intervention.type] || ""
-              }`}
-            >
-              {pathLabel[opp.intervention.type] || opp.intervention.type}
-            </span>
-          </div>
-        )}
-
-        <h3 className="text-base font-semibold text-ink mb-1">
-          {opp.intervention.title}
-        </h3>
-
-        <p className="text-xs text-stone leading-relaxed mb-4">
-          {opp.intervention.description}
-        </p>
-
-        <div className="border-t border-border pt-3 mb-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
-          <div>
-            <span className="text-stone/70 block">Annual impact</span>
-            <span className="text-ink font-semibold text-sm">{impact}</span>
-          </div>
-          <div>
-            <span className="text-stone/70 block">Timeline</span>
-            <span className="text-ink font-medium">
-              {opp.intervention.timeToValue}
-            </span>
-          </div>
-          <div>
-            <span className="text-stone/70 block">Complexity</span>
-            <span className="text-ink font-medium">
-              {opp.intervention.implementationEffort === "Low-Medium" ||
-              opp.intervention.implementationEffort === "Low"
-                ? "Low"
-                : opp.intervention.implementationEffort === "Medium-High" ||
-                    opp.intervention.implementationEffort === "High"
-                  ? "High"
-                  : "Moderate"}
-            </span>
-          </div>
-          <div>
-            <span className="text-stone/70 block">Confidence</span>
-            <span
-              className={`font-medium ${
-                confidenceColor[opp.confidence] ||
-                confidenceColor[opp.intervention.confidence] ||
-                "text-stone"
-              }`}
-            >
-              {opp.confidence || opp.intervention.confidence}
-            </span>
-          </div>
-        </div>
-
-        <div className="border-t border-border pt-3 mb-4">
-          <span className="text-[10px] font-semibold text-stone uppercase tracking-wider block mb-1.5">
-            Why this option
-          </span>
-          <ul className="space-y-1">
-            {reasons.map((reason, i) => (
-              <li key={i} className="flex items-start gap-1.5 text-xs">
-                <span className="w-1 h-1 rounded-full bg-forest mt-1.5 flex-shrink-0" />
-                <span className="text-stone">{reason}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="mt-auto space-y-2">
-          <button
-            onClick={onViewDetails}
-            className={`w-full text-sm px-4 py-2 rounded-lg border transition-colors ${
-              isCompassChoice
-                ? "bg-forest text-white border-forest hover:bg-leaf"
-                : "border-forest text-forest hover:bg-mist"
-            }`}
-          >
-            View details
-          </button>
-        </div>
-      </div>
-
-      {isCompassChoice && (
-        <div className="px-5 pb-4">
-          <button
-            onClick={onSelectBlueprint}
-            className="w-full text-sm px-4 py-2 border border-forest/30 text-forest rounded-lg hover:bg-mist transition-colors"
-          >
-            View implementation plan
-          </button>
-        </div>
-      )}
-    </div>
+    }>
+      <ResultsContent />
+    </Suspense>
   );
 }
 
 function ResultsContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const isExample = searchParams.get("example") === "true";
-  const [detailOppRank, setDetailOppRank] = useState<number | null>(null);
-  const [view, setView] = useState<"cards" | "blueprint">("cards");
+  const supabase = useMemo(() => typeof window !== "undefined" ? createClient() : null, []);
+  const [recommendations, setRecommendations] = useState<RecommendationData[]>([]);
+  const [confidenceBreakdown, setConfidenceBreakdown] = useState<Record<string, unknown>>({});
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [showEvidence, setShowEvidence] = useState(false);
+  const [progressIdx, setProgressIdx] = useState(0);
 
-  const map = isExample ? sampleOpportunityMap : null;
-  const allOpportunities = map?.rankings || [];
+  const progressMessages = [
+    "Analyzing your workflow",
+    "Comparing intervention paths",
+    "Retrieving comparable implementations",
+    "Evaluating evidence strength",
+  ];
 
-  const rankedOpps = useMemo(
-    () =>
-      allOpportunities
-        .filter((o) => o.rank >= 1 && o.rank <= 3)
-        .sort((a, b) => b.rank - a.rank),
-    [allOpportunities],
-  );
+  useEffect(() => {
+    const runId = searchParams?.get("run_id");
+    if (runId) {
+      loadExistingRun(runId);
+    } else {
+      runRecommendation();
+    }
+  }, [searchParams]);
 
-  const compassChoice = useMemo(
-    () => allOpportunities.find((o) => o.rank === 1) || null,
-    [allOpportunities],
-  );
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setProgressIdx((i) => Math.min(i + 1, progressMessages.length - 1));
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
-  const detailOpp = useMemo(
-    () =>
-      detailOppRank
-        ? allOpportunities.find((o) => o.rank === detailOppRank) || null
-        : null,
-    [detailOppRank, allOpportunities],
-  );
+  async function loadExistingRun(runId: string) {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/recommendations?run_id=${runId}`);
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Failed to load recommendations");
+      }
+      const data = await response.json();
+      setRecommendations(data.recommendations || []);
+      setConfidenceBreakdown(data.confidence_breakdown || {});
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Failed to load results");
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  if (!map) {
+  async function runRecommendation() {
+    try {
+      setLoading(true);
+
+      const stored = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : null;
+      if (!stored) {
+        router.replace("/assessment");
+        return;
+      }
+
+      const session = JSON.parse(stored);
+      if (!session.completed || !session.sessionId) {
+        router.replace("/assessment");
+        return;
+      }
+      if (!supabase) return;
+
+      const { data: sessionData } = await supabase
+        .from("assessment_sessions" as any)
+        .select("*, organizations(*)")
+        .eq("id", session.sessionId)
+        .single();
+
+      const { data: answers } = await supabase
+        .from("assessment_answers" as any)
+        .select("*")
+        .eq("session_id", session.sessionId);
+
+      const profile = extractProfile(answers || [], sessionData);
+
+      const response = await fetch("/api/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: session.sessionId,
+          ...profile,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Recommendation failed");
+      }
+
+      const data = await response.json();
+      setRecommendations(data.recommendations || []);
+      setConfidenceBreakdown(data.confidence_breakdown || {});
+
+      const newUrl = `/assessment/results?run_id=${data.recommendation_run_id}`;
+      window.history.replaceState({}, "", newUrl);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Failed to generate recommendations");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
     return (
-      <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-heading font-bold text-ink">
-            {site.results.headline}
-          </h1>
-          <p className="mt-4 text-body text-stone">
-            {site.results.noResults}
-          </p>
-          {!isExample && (
-            <a
-              href="/assessment/results?example=true"
-              className="mt-6 inline-flex items-center px-6 py-2.5 border border-forest text-forest text-sm font-medium rounded-lg hover:bg-mist transition-colors"
-            >
-              View example Opportunity Map
-            </a>
-          )}
+      <div className="bg-white min-h-[70vh] flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-lime-500 rounded-full animate-spin mx-auto mb-4" />
+          <div className="text-sm text-gray-400 mb-1">{progressMessages[progressIdx]}</div>
+          <div className="w-full bg-gray-100 rounded-full h-1 mt-4 overflow-hidden">
+            <div
+              className="h-full bg-lime-500 rounded-full transition-all duration-1000"
+              style={{ width: `${((progressIdx + 1) / progressMessages.length) * 100}%` }}
+            />
+          </div>
         </div>
       </div>
     );
   }
 
-  if (view === "blueprint" && compassChoice) {
+  if (loadError) {
     return (
-      <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          <button
-            onClick={() => setView("cards")}
-            className="mb-6 inline-flex items-center gap-1.5 text-sm text-forest hover:text-leaf font-medium transition-colors"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
+      <div className="bg-white min-h-[70vh] flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="w-10 h-10 rounded-full bg-red-50 border border-red-200 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
-            Back to recommendations
-          </button>
-          <h1 className="text-heading font-bold text-ink mb-1">
-            Implementation Plan
-          </h1>
-          <p className="text-sm text-stone mb-6">
-            {compassChoice.name} &middot; {compassChoice.department}
-          </p>
-          <ImplementationPlanView
-            blueprint={buildMockBlueprint(compassChoice)}
-          />
+          </div>
+          <h2 className="text-lg font-semibold text-ink mb-2">Failed to Generate Recommendations</h2>
+          <p className="text-sm text-gray-500 mb-6">{loadError}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => { setLoadError(null); runRecommendation(); }}
+              className="px-5 py-2 bg-lime-500 text-white text-sm font-semibold rounded-lg hover:bg-lime-600 transition-colors border border-lime-500"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => router.push("/assessment")}
+              className="px-5 py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Retake Assessment
+            </button>
+          </div>
         </div>
       </div>
     );
   }
+
+  if (recommendations.length === 0) {
+    return (
+      <div className="bg-white min-h-[70vh] flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <h2 className="text-lg font-semibold text-ink mb-2">No Recommendations Generated</h2>
+          <p className="text-sm text-gray-500 mb-6">Unable to generate recommendations from your assessment data.</p>
+          <button
+            onClick={() => router.push("/assessment")}
+            className="px-5 py-2 bg-lime-500 text-white text-sm font-semibold rounded-lg hover:bg-lime-600 transition-colors border border-lime-500"
+          >
+            Retake Assessment
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const primary = recommendations[0];
+  const alternatives = recommendations.slice(1);
+  const generatedAt = new Date().toISOString();
 
   return (
-    <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-8">
-          {isExample && (
-            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-amber-100 border border-amber-300 rounded-full text-xs font-medium text-amber-800">
-              Example Opportunity Map
-            </div>
-          )}
-          <h1 className="text-heading font-bold text-ink">
-            {site.results.headline}
-          </h1>
-          <p className="mt-2 text-body text-stone">
-            {site.results.subtitle}
-          </p>
-        </div>
+    <div className="bg-white min-h-screen">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
 
-        <div className="bg-forest text-white rounded-xl p-6 mb-10">
-          <p className="text-sm text-leaf font-medium mb-1">
-            {map.executiveSummary.headline}
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-lime-500">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <h1 className="text-2xl font-bold text-ink">Compass Recommendation</h1>
+          </div>
+          <p className="text-sm text-gray-500 max-w-2xl mb-4">
+            We evaluated multiple intervention strategies and identified the highest-confidence recommendation based on comparable implementations and available evidence.
           </p>
-          <p className="text-sm leading-relaxed text-cream/90">
-            {map.executiveSummary.finding}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-4 text-xs text-cream/80">
-            <span>
-              Recommended focus: {map.executiveSummary.recommendedFocus}
-            </span>
-            <span>Quick wins: {map.executiveSummary.quickWins}</span>
+          <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-gray-400">
+            <span>Investigation completed</span>
+            <span>Engine v{ENGINE_VERSION}</span>
+            <span>Dataset: {DATASET_VERSION}</span>
+            <span>Generated {generatedAt}</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
-          {rankedOpps.map((opp) => {
-            const isFirst = opp.rank === 1;
-            return (
-              <div
-                key={opp.rank}
-                className={
-                  isFirst
-                    ? "md:order-3 md:col-span-1"
-                    : opp.rank === 2
-                      ? "md:order-2 md:col-span-1"
-                      : "md:order-1 md:col-span-1"
-                }
-              >
-                <ResultCard
-                  opp={opp}
-                  isCompassChoice={isFirst}
-                  onViewDetails={() => setDetailOppRank(opp.rank)}
-                  onSelectBlueprint={() => {
-                    if (isFirst) setView("blueprint");
-                  }}
-                />
-              </div>
-            );
-          })}
+        <div className="mb-8">
+          <CompassChoice
+            recommendation={primary}
+            onViewEvidence={() => setShowEvidence(!showEvidence)}
+            onBlueprint={() => {}}
+            onCompare={() => {
+              const el = document.getElementById("alternatives-section");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
+            showEvidence={showEvidence}
+          />
         </div>
 
-        <div className="mt-10 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={() => setView("blueprint")}
-            className="px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors shadow-sm"
-          >
-            Accept and proceed to implementation plan
-          </button>
-          <a
-            href="/assessment"
-            className="px-8 py-3 border border-border text-stone text-sm font-medium rounded-lg hover:border-forest/40 hover:text-ink transition-colors"
-          >
-            Revisit your submission
-          </a>
+        {alternatives.length > 0 && (
+          <div id="alternatives-section" className="mb-10">
+            <AlternativeCards alternatives={alternatives} />
+          </div>
+        )}
+
+        <div className="mb-10">
+          <WhyCompassChose
+            why_it_ranked={primary.why_it_ranked}
+            total_comparables={primary.evidence_summary.total_comparables}
+            confidence_score={primary.confidence.score}
+            evidence_quality={primary.evidence_summary.overall_tier}
+          />
+        </div>
+
+        {showEvidence && (
+          <div id="evidence-section" className="mb-10 animate-fadeIn">
+            <EvidenceTable comparables={primary.comparables} />
+          </div>
+        )}
+
+        {showEvidence && primary.negative_evidence.length > 0 && (
+          <div className="mb-10 animate-fadeIn">
+            <NegativeEvidencePanel negativeEvidence={primary.negative_evidence} />
+          </div>
+        )}
+
+        <div className="mb-10">
+          <ConfidenceMeter
+            breakdown={confidenceBreakdown}
+            confidence_explanation={primary.confidence.explanation}
+          />
+        </div>
+
+        {(primary.assumptions.length > 0 || primary.risks.length > 0) && (
+          <div className="mb-10">
+            <AssumptionsRisks
+              assumptions={primary.assumptions}
+              risks={primary.risks}
+            />
+          </div>
+        )}
+
+        <div className="mb-8">
+          <NextStepCTA title={primary.title} />
+        </div>
+
+        <div className="text-center text-[11px] text-gray-300">
+          Compass AI &mdash; Evidence-driven recommendation engine
         </div>
       </div>
-
-      {detailOpp && (
-        <DetailPanel
-          opp={detailOpp}
-          onClose={() => setDetailOppRank(null)}
-          onViewBlueprint={() => {
-            setDetailOppRank(null);
-            setView("blueprint");
-          }}
-        />
-      )}
     </div>
   );
 }
 
-export default function ResultsPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="pt-32 pb-20 px-4 flex items-center justify-center min-h-[50vh]">
-          <div className="text-stone text-sm">Loading...</div>
-        </div>
-      }
-    >
-      <ResultsContent />
-    </Suspense>
-  );
+function extractProfile(answers: any[] | null, sessionData: any) {
+  const answerMap = new Map<number, any>();
+  for (const a of answers || []) {
+    const qid = typeof a.question_id === "number" ? a.question_id : parseInt(a.question_id);
+    answerMap.set(qid, a.answer_value ?? a.answer ?? a.value);
+  }
+
+  const deptPain: Record<string, number> = {
+    Sales: 0, Marketing: 0, Customer_Success: 0, Support: 0,
+    Finance: 0, Product: 0, Engineering: 0, People_HR: 0, Legal: 0, Operations: 0,
+  };
+
+  if (answerMap.get(1) === false || answerMap.get(1) === "No") deptPain.Sales += 8;
+  if (answerMap.get(4) === false || answerMap.get(4) === "No") deptPain.Marketing += 7;
+  if (answerMap.get(7) === false || answerMap.get(7) === "No") deptPain.Customer_Success += 7;
+  if (answerMap.get(11) === false || answerMap.get(11) === "No") deptPain.Support += 7;
+  if (answerMap.get(13) === false || answerMap.get(13) === "No") deptPain.Finance += 8;
+  if (answerMap.get(15) === false || answerMap.get(15) === "No") deptPain.Product += 6;
+  if (answerMap.get(17) === false || answerMap.get(17) === "No") deptPain.Engineering += 6;
+  if (answerMap.get(20) === false || answerMap.get(20) === "No") deptPain.People_HR += 6;
+  if (answerMap.get(22) === false || answerMap.get(22) === "No") deptPain.Legal += 6;
+  if (answerMap.get(24) === false || answerMap.get(24) === "No") deptPain.Operations += 8;
+
+  let worstDept = "Operations";
+  let worstScore = -1;
+  for (const [dept, score] of Object.entries(deptPain)) {
+    if (score > worstScore) { worstScore = score; worstDept = dept; }
+  }
+
+  const workflowMap: Record<string, string> = {
+    Sales: "lead_qualification", Marketing: "marketing_automation",
+    Customer_Success: "customer_health_scoring", Support: "ticketing",
+    Finance: "invoice_processing", Product: "product_analytics",
+    Engineering: "ci_cd", People_HR: "onboarding", Legal: "contract_review",
+    Operations: "process_automation",
+  };
+
+  const raw = answerMap.get(25);
+  const desiredOutcome = typeof raw === "string"
+    ? raw.toLowerCase().includes("cost") ? "cost"
+    : raw.toLowerCase().includes("time") ? "time"
+    : raw.toLowerCase().includes("revenue") ? "revenue"
+    : raw.toLowerCase().includes("satisfaction") ? "satisfaction"
+    : "efficiency"
+    : "efficiency";
+
+  const org = (sessionData as any)?.organizations;
+  const deptDisplay = worstDept === "Customer_Success" ? "customer_success"
+    : worstDept === "People_HR" ? "human_resources"
+    : worstDept.toLowerCase();
+
+  return {
+    business_function: deptDisplay,
+    workflow: workflowMap[worstDept] || "process_automation",
+    problem_statement: `${worstDept} operations need optimization`,
+    industry: org?.industry || "technology",
+    company_size: org?.size_range || "",
+    desired_outcome: desiredOutcome,
+  };
 }
