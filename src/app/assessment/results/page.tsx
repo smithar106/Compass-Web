@@ -153,11 +153,17 @@ function ResultsContent() {
         const errText = await response.text();
         console.error("[Results] API error:", response.status, errText);
         let errMsg = `Recommendation failed (${response.status})`;
+        let errType = "server_error";
         try {
           const err = JSON.parse(errText);
           errMsg = err.error || errMsg;
+          errType = err.type || errType;
         } catch {}
-        throw new Error(errMsg);
+        const prefix = errType === "config_error" ? "Configuration Error"
+          : errType === "engine_unreachable" ? "Engine Unreachable"
+          : errType === "engine_error" ? "Engine Error"
+          : "Error";
+        throw new Error(`${prefix}: ${errMsg}`);
       }
 
       const data = await response.json();

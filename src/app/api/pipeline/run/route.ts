@@ -8,7 +8,10 @@ const requestSchema = z.object({
   sessionId: z.string().min(1, "sessionId is required"),
 });
 
-const COMPASS_API_URL = process.env.COMPASS_API_URL || "http://127.0.0.1:8001";
+const compassApiUrl =
+  process.env.COMPASS_API_URL ??
+  (process.env.NODE_ENV === "development" ? "http://127.0.0.1:8001" : null);
+
 const DEPARTMENT_WORKFLOWS: Record<string, string> = {
   Sales: "lead_qualification",
   Marketing: "marketing_automation",
@@ -23,6 +26,7 @@ const DEPARTMENT_WORKFLOWS: Record<string, string> = {
 };
 
 export async function POST(request: NextRequest) {
+  const requestId = Math.random().toString(36).slice(2, 8);
   try {
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
     if (!checkRateLimit(`pipeline:${ip}`, 10, 60_000)) {
@@ -68,6 +72,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(metadata.pipeline_result, { status: 200 });
     }
 
+    if (!compassApiUrl) {
+      console.error(`[Pipeline:${requestId}] COMPASS_API_URL not configured in production`);
+      return NextResponse.json(
+        { error: "Compass Engine URL is not configured. Set COMPASS_API_URL environment variable." },
+        { status: 500 }
+      );
+    }
+
+    console.log(`[Pipeline:${requestId}] Resolved COMPASS_API_URL: ${compassApiUrl}`);
+
     const { data: profileData } = await (adminClient as any)
       .from("assessment_answers")
       .select("question_id, answer_value, answer")
@@ -95,16 +109,22 @@ export async function POST(request: NextRequest) {
     }
 
     const profile = extractProfileFromAnswers(profileData || [], industry, size_range);
+    console.log(`[Pipeline:${requestId}] Sending to ${compassApiUrl}/api/recommendations`);
+    const requestStart = Date.now();
 
-    const pythonResponse = await fetch(`${COMPASS_API_URL}/api/recommendations`, {
+    const pythonResponse = await fetch(`${compassApiUrl}/api/recommendations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(profile),
     });
 
+    const elapsed = Date.now() - requestStart;
+    console.log(`[Pipeline:${requestId}] Engine responded in ${elapsed}ms with status ${pythonResponse.status}`);
+
     if (!pythonResponse.ok) {
       const errText = await pythonResponse.text();
-      throw new Error(`Compass engine error (${pythonResponse.status}): ${errText}`);
+      console.error(`[Pipeline:${requestId}] Engine error body: ${errText.slice(0, 500)}`);
+      throw new Error(`Compass engine error (${pythonResponse.status}): ${errText.slice(0, 200)}`);
     }
 
     const result = await pythonResponse.json();
@@ -119,9 +139,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
-    console.error("Pipeline error:", error);
+    console.error(`[Pipeline:${requestId}] Error:`, error);
     return NextResponse.json(
-      { error: "Pipeline execution failed" },
+      { error: error instanceof Error ? error.message : "Pipeline execution failed" },
       { status: 500 }
     );
   }
