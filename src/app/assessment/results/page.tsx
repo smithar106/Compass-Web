@@ -2,7 +2,6 @@
 
 import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase";
 import { CompassChoice, type RecommendationData } from "@/components/results/compass-choice";
 import { AlternativeCards } from "@/components/results/alternative-cards";
 import { WhyCompassChose } from "@/components/results/why-compass-chose";
@@ -34,13 +33,13 @@ export default function ResultsPage() {
 function ResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = useMemo(() => typeof window !== "undefined" ? createClient() : null, []);
   const [recommendations, setRecommendations] = useState<RecommendationData[]>([]);
   const [confidenceBreakdown, setConfidenceBreakdown] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showEvidence, setShowEvidence] = useState(false);
   const [progressIdx, setProgressIdx] = useState(0);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   const progressMessages = [
     "Analyzing your workflow",
@@ -69,14 +68,12 @@ function ResultsContent() {
   async function loadExistingRun(runId: string) {
     try {
       setLoading(true);
-      console.log("[Results] Loading existing run:", runId);
       const response = await fetch(`/api/recommendations?run_id=${runId}`);
       if (!response.ok) {
         const err = await response.json();
         throw new Error(err.error || "Failed to load recommendations");
       }
       const data = await response.json();
-      console.log("[Results] Loaded existing run, recommendations:", data.recommendations?.length);
       setRecommendations(data.recommendations || []);
       setConfidenceBreakdown(data.confidence_breakdown || {});
     } catch (err) {
@@ -92,6 +89,8 @@ function ResultsContent() {
       setLoading(true);
 
       const stored = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : null;
+      console.log("[Results] Raw sessionStorage:", stored?.slice(0, 200) + "...");
+
       if (!stored) {
         console.error("[Results] No investigation session found in sessionStorage");
         setLoadError("Investigation session not found. Please complete the investigation first.");
@@ -99,43 +98,55 @@ function ResultsContent() {
         return;
       }
 
-      const session = JSON.parse(stored);
-      if (!session.completed || !session.sessionId) {
-        console.error("[Results] Investigation incomplete or missing sessionId");
+      let session: any;
+      try {
+        session = JSON.parse(stored);
+      } catch {
+        console.error("[Results] Failed to parse session JSON");
+        setLoadError("Investigation data is corrupted. Please retake the assessment.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("[Results] Session loaded:", {
+        completed: session.completed,
+        answerCount: session.answers?.length,
+        questionIds: session.answers?.map((a: any) => a.questionId),
+        keys: Object.keys(session),
+      });
+
+      if (session.completed !== true) {
+        console.error("[Results] session.completed is not true:", session.completed);
         setLoadError("Investigation is incomplete. Please complete all questions.");
         setLoading(false);
         return;
       }
-      if (!supabase) {
-        console.error("[Results] Supabase client not available");
-        setLoadError("Database connection not available. Please refresh and try again.");
+
+      if (!session.answers || session.answers.length === 0) {
+        console.error("[Results] No answers in session");
+        setLoadError("No answers found in investigation session.");
         setLoading(false);
         return;
       }
 
-      console.log("[Results] Fetching session data from Supabase:", session.sessionId);
-      const { data: sessionData } = await supabase
-        .from("assessment_sessions" as any)
-        .select("*, organizations(*)")
-        .eq("id", session.sessionId)
-        .single();
+      const profile = buildProfile(session.answers);
+      console.log("[Results] Normalized profile:", JSON.stringify(profile, null, 2));
 
-      const { data: answers } = await supabase
-        .from("assessment_answers" as any)
-        .select("*")
-        .eq("session_id", session.sessionId);
+      const missingFields = Object.entries(profile)
+        .filter(([k, v]) => v === "" || v === undefined || v === null)
+        .map(([k]) => k);
 
-      const profile = extractProfile(answers || [], sessionData);
-      console.log("[Results] Profile extracted:", profile);
+      if (missingFields.length > 0) {
+        console.log("[Results] Optional empty fields:", missingFields);
+      }
 
-      console.log("[Results] POST /api/recommendations with profile");
+      const payload = { ...profile };
+
+      console.log("[Results] POST /api/recommendations payload:", JSON.stringify(payload, null, 2));
       const response = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: session.sessionId,
-          ...profile,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -213,6 +224,15 @@ function ResultsContent() {
               Retake Assessment
             </button>
           </div>
+          <button
+            onClick={() => setShowDiagnostics(!showDiagnostics)}
+            className="mt-4 text-xs text-gray-400 hover:text-gray-600 underline"
+          >
+            {showDiagnostics ? "Hide diagnostics" : "Show diagnostics"}
+          </button>
+          {showDiagnostics && (
+            <DiagnosticPanel />
+          )}
         </div>
       </div>
     );
@@ -329,63 +349,101 @@ function ResultsContent() {
   );
 }
 
-function extractProfile(answers: any[] | null, sessionData: any) {
-  const answerMap = new Map<number, any>();
+function DiagnosticPanel() {
+  const [stored, setStored] = useState<string | null>(null);
+  const [parsed, setParsed] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const raw = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : null;
+    setStored(raw);
+    if (raw) {
+      try {
+        const obj = JSON.parse(raw);
+        setParsed(obj);
+        if (obj.answers) {
+          setProfile(buildProfile(obj.answers));
+        }
+      } catch {}
+    }
+  }, []);
+
+  return (
+    <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg text-left text-xs font-mono">
+      <h4 className="font-bold text-ink mb-2">Diagnostics</h4>
+      {!stored && <p className="text-red-600">No session in storage</p>}
+      {parsed && (
+        <>
+          <p className="text-gray-600 mb-1">Answers: {parsed.answers?.length || 0}/{parsed._totalQuestions || "?"} questions</p>
+          <p className="text-gray-600 mb-1">Completed: {String(parsed.completed)}</p>
+          <p className="text-gray-600 mb-1">Answer IDs: {JSON.stringify(parsed.answers?.map((a: any) => a.questionId))}</p>
+          <p className="text-gray-600 mb-1">Session keys: {JSON.stringify(Object.keys(parsed))}</p>
+          {profile && (
+            <>
+              <p className="text-gray-600 mb-1">Profile fields: {JSON.stringify(Object.keys(profile))}</p>
+              <p className="text-gray-600 mb-1">Empty fields: {JSON.stringify(Object.entries(profile).filter(([,v]) => !v).map(([k]) => k))}</p>
+              <pre className="mt-2 p-2 bg-white border border-gray-200 rounded text-[10px] overflow-x-auto">
+                {JSON.stringify(profile, null, 2)}
+              </pre>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function buildProfile(answers: { questionId: string; value: any }[]) {
+  const answerMap = new Map<string, any>();
   for (const a of answers || []) {
-    const qid = typeof a.question_id === "number" ? a.question_id : parseInt(a.question_id);
-    answerMap.set(qid, a.answer_value ?? a.answer ?? a.value);
+    answerMap.set(a.questionId, a.value);
   }
 
-  const deptPain: Record<string, number> = {
-    Sales: 0, Marketing: 0, Customer_Success: 0, Support: 0,
-    Finance: 0, Product: 0, Engineering: 0, People_HR: 0, Legal: 0, Operations: 0,
-  };
-
-  if (answerMap.get(1) === false || answerMap.get(1) === "No") deptPain.Sales += 8;
-  if (answerMap.get(4) === false || answerMap.get(4) === "No") deptPain.Marketing += 7;
-  if (answerMap.get(7) === false || answerMap.get(7) === "No") deptPain.Customer_Success += 7;
-  if (answerMap.get(11) === false || answerMap.get(11) === "No") deptPain.Support += 7;
-  if (answerMap.get(13) === false || answerMap.get(13) === "No") deptPain.Finance += 8;
-  if (answerMap.get(15) === false || answerMap.get(15) === "No") deptPain.Product += 6;
-  if (answerMap.get(17) === false || answerMap.get(17) === "No") deptPain.Engineering += 6;
-  if (answerMap.get(20) === false || answerMap.get(20) === "No") deptPain.People_HR += 6;
-  if (answerMap.get(22) === false || answerMap.get(22) === "No") deptPain.Legal += 6;
-  if (answerMap.get(24) === false || answerMap.get(24) === "No") deptPain.Operations += 8;
-
-  let worstDept = "Operations";
-  let worstScore = -1;
-  for (const [dept, score] of Object.entries(deptPain)) {
-    if (score > worstScore) { worstScore = score; worstDept = dept; }
-  }
+  const department = (answerMap.get("dept") as string) || "Operations";
+  const deptDisplay = department === "Customer Success" ? "customer_success"
+    : department === "People/HR" ? "human_resources"
+    : department.toLowerCase();
 
   const workflowMap: Record<string, string> = {
-    Sales: "lead_qualification", Marketing: "marketing_automation",
-    Customer_Success: "customer_health_scoring", Support: "ticketing",
-    Finance: "invoice_processing", Product: "product_analytics",
-    Engineering: "ci_cd", People_HR: "onboarding", Legal: "contract_review",
-    Operations: "process_automation",
+    "Sales": "lead_qualification",
+    "Marketing": "marketing_automation",
+    "Customer Success": "customer_health_scoring",
+    "Support": "ticketing",
+    "Finance": "invoice_processing",
+    "Product": "product_analytics",
+    "Engineering": "ci_cd",
+    "People/HR": "onboarding",
+    "Legal": "contract_review",
+    "Operations": "process_automation",
   };
 
-  const raw = answerMap.get(25);
-  const desiredOutcome = typeof raw === "string"
-    ? raw.toLowerCase().includes("cost") ? "cost"
-    : raw.toLowerCase().includes("time") ? "time"
-    : raw.toLowerCase().includes("revenue") ? "revenue"
-    : raw.toLowerCase().includes("satisfaction") ? "satisfaction"
+  const rawOutcome = answerMap.get("desired-outcome") || "";
+  const desiredOutcome = typeof rawOutcome === "string"
+    ? rawOutcome.toLowerCase().includes("time") ? "time"
+    : rawOutcome.toLowerCase().includes("accuracy") ? "quality"
+    : rawOutcome.toLowerCase().includes("scale") ? "scale"
+    : rawOutcome.toLowerCase().includes("cost") ? "cost"
+    : rawOutcome.toLowerCase().includes("satisfaction") ? "satisfaction"
+    : rawOutcome.toLowerCase().includes("compliance") ? "compliance"
     : "efficiency"
     : "efficiency";
 
-  const org = (sessionData as any)?.organizations;
-  const deptDisplay = worstDept === "Customer_Success" ? "customer_success"
-    : worstDept === "People_HR" ? "human_resources"
-    : worstDept.toLowerCase();
-
   return {
     business_function: deptDisplay,
-    workflow: workflowMap[worstDept] || "process_automation",
-    problem_statement: `${worstDept} operations need optimization`,
-    industry: org?.industry || "technology",
-    company_size: org?.size_range || "",
+    workflow: workflowMap[department] || "process_automation",
+    problem_statement: answerMap.get("situation") || `${department} operations need optimization`,
+    industry: "technology",
+    company_size: "",
+    workflow_frequency: answerMap.get("frequency") || "",
+    people_involved: answerMap.get("people") || "",
+    handoffs: answerMap.get("handoffs") || "",
+    current_tools: [],
+    exception_rate: answerMap.get("exceptions") || "",
+    budget_range: answerMap.get("budget") || "",
+    implementation_timeline: answerMap.get("timeline") || "",
+    business_risk: answerMap.get("risk") || "",
+    process_stability: answerMap.get("stability") || "",
+    previous_attempts: answerMap.get("prior-attempts") || "",
     desired_outcome: desiredOutcome,
   };
 }
