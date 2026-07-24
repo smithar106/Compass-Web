@@ -72,7 +72,7 @@ function RecommendationPanel({ data, accent }: { data: any; accent: string }) {
           onClick={() => setShowEvidence(!showEvidence)}
           className="text-xs text-forest font-semibold hover:text-leaf transition-colors"
         >
-          {showEvidence ? "Hide evidence" : "Why this confidence? \u2192"}
+          {showEvidence ? "Hide evidence" : "Why this solution? \u2192"}
         </button>
         {showEvidence && (
           <div className="mt-2 space-y-1.5">
