@@ -69,15 +69,18 @@ function ResultsContent() {
   async function loadExistingRun(runId: string) {
     try {
       setLoading(true);
+      console.log("[Results] Loading existing run:", runId);
       const response = await fetch(`/api/recommendations?run_id=${runId}`);
       if (!response.ok) {
         const err = await response.json();
         throw new Error(err.error || "Failed to load recommendations");
       }
       const data = await response.json();
+      console.log("[Results] Loaded existing run, recommendations:", data.recommendations?.length);
       setRecommendations(data.recommendations || []);
       setConfidenceBreakdown(data.confidence_breakdown || {});
     } catch (err) {
+      console.error("[Results] loadExistingRun error:", err);
       setLoadError(err instanceof Error ? err.message : "Failed to load results");
     } finally {
       setLoading(false);
@@ -90,17 +93,27 @@ function ResultsContent() {
 
       const stored = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : null;
       if (!stored) {
-        router.replace("/assessment");
+        console.error("[Results] No investigation session found in sessionStorage");
+        setLoadError("Investigation session not found. Please complete the investigation first.");
+        setLoading(false);
         return;
       }
 
       const session = JSON.parse(stored);
       if (!session.completed || !session.sessionId) {
-        router.replace("/assessment");
+        console.error("[Results] Investigation incomplete or missing sessionId");
+        setLoadError("Investigation is incomplete. Please complete all questions.");
+        setLoading(false);
         return;
       }
-      if (!supabase) return;
+      if (!supabase) {
+        console.error("[Results] Supabase client not available");
+        setLoadError("Database connection not available. Please refresh and try again.");
+        setLoading(false);
+        return;
+      }
 
+      console.log("[Results] Fetching session data from Supabase:", session.sessionId);
       const { data: sessionData } = await supabase
         .from("assessment_sessions" as any)
         .select("*, organizations(*)")
@@ -113,7 +126,9 @@ function ResultsContent() {
         .eq("session_id", session.sessionId);
 
       const profile = extractProfile(answers || [], sessionData);
+      console.log("[Results] Profile extracted:", profile);
 
+      console.log("[Results] POST /api/recommendations with profile");
       const response = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,17 +139,32 @@ function ResultsContent() {
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Recommendation failed");
+        const errText = await response.text();
+        console.error("[Results] API error:", response.status, errText);
+        let errMsg = `Recommendation failed (${response.status})`;
+        try {
+          const err = JSON.parse(errText);
+          errMsg = err.error || errMsg;
+        } catch {}
+        throw new Error(errMsg);
       }
 
       const data = await response.json();
+      console.log("[Results] API response received, recommendations:", data.recommendations?.length, "run_id:", data.recommendation_run_id);
       setRecommendations(data.recommendations || []);
       setConfidenceBreakdown(data.confidence_breakdown || {});
 
-      const newUrl = `/assessment/results?run_id=${data.recommendation_run_id}`;
-      window.history.replaceState({}, "", newUrl);
+      if (data.recommendation_run_id) {
+        const newUrl = `/assessment/results?run_id=${data.recommendation_run_id}`;
+        console.log("[Results] Updating URL to:", newUrl);
+        window.history.replaceState({}, "", newUrl);
+        sessionStorage.removeItem(STORAGE_KEY);
+        console.log("[Results] Session cleared from storage");
+      } else {
+        console.warn("[Results] No recommendation_run_id in response");
+      }
     } catch (err) {
+      console.error("[Results] runRecommendation error:", err);
       setLoadError(err instanceof Error ? err.message : "Failed to generate recommendations");
     } finally {
       setLoading(false);

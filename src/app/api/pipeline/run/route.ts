@@ -68,24 +68,54 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(metadata.pipeline_result, { status: 200 });
     }
 
-    const { runAssessment } = await import("@compass/pipeline");
+    const { data: profileData } = await (adminClient as any)
+      .from("assessment_answers")
+      .select("question_id, answer_value, answer")
+      .eq("session_id", sessionId);
 
-    const result = await runAssessment(
-      { sessionId, userId: user.id },
-      adminClient
-    );
+    const profiles = await (adminClient as any)
+      .from("assessment_sessions")
+      .select("organization_id")
+      .eq("id", sessionId)
+      .single();
 
-    const { error: updateError } = await (adminClient as any)
+    const orgId = profiles.data?.organization_id;
+    let industry = "technology";
+    let size_range = "";
+    if (orgId) {
+      const { data: org } = await (adminClient as any)
+        .from("organizations")
+        .select("industry, size_range")
+        .eq("id", orgId)
+        .single();
+      if (org) {
+        industry = org.industry || "technology";
+        size_range = org.size_range || "";
+      }
+    }
+
+    const profile = extractProfileFromAnswers(profileData || [], industry, size_range);
+
+    const pythonResponse = await fetch(`${COMPASS_API_URL}/api/recommendations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+    });
+
+    if (!pythonResponse.ok) {
+      const errText = await pythonResponse.text();
+      throw new Error(`Compass engine error (${pythonResponse.status}): ${errText}`);
+    }
+
+    const result = await pythonResponse.json();
+
+    await (adminClient as any)
       .from("assessment_sessions")
       .update({
         status: "completed",
         metadata: { ...metadata, pipeline_result: result },
       })
       .eq("id", sessionId);
-
-    if (updateError) {
-      console.error("Failed to store pipeline result:", updateError);
-    }
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
@@ -95,4 +125,56 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function extractProfileFromAnswers(answers: any[], industry: string, size_range: string) {
+  const answerMap = new Map<number, any>();
+  for (const a of answers || []) {
+    const qid = typeof a.question_id === "number" ? a.question_id : parseInt(a.question_id);
+    answerMap.set(qid, a.answer_value ?? a.answer ?? a.value);
+  }
+
+  const deptPain: Record<string, number> = {
+    Sales: 0, Marketing: 0, Customer_Success: 0, Support: 0,
+    Finance: 0, Product: 0, Engineering: 0, People_HR: 0, Legal: 0, Operations: 0,
+  };
+
+  if (answerMap.get(1) === false || answerMap.get(1) === "No") deptPain.Sales += 8;
+  if (answerMap.get(4) === false || answerMap.get(4) === "No") deptPain.Marketing += 7;
+  if (answerMap.get(7) === false || answerMap.get(7) === "No") deptPain.Customer_Success += 7;
+  if (answerMap.get(11) === false || answerMap.get(11) === "No") deptPain.Support += 7;
+  if (answerMap.get(13) === false || answerMap.get(13) === "No") deptPain.Finance += 8;
+  if (answerMap.get(15) === false || answerMap.get(15) === "No") deptPain.Product += 6;
+  if (answerMap.get(17) === false || answerMap.get(17) === "No") deptPain.Engineering += 6;
+  if (answerMap.get(20) === false || answerMap.get(20) === "No") deptPain.People_HR += 6;
+  if (answerMap.get(22) === false || answerMap.get(22) === "No") deptPain.Legal += 6;
+  if (answerMap.get(24) === false || answerMap.get(24) === "No") deptPain.Operations += 8;
+
+  let worstDept = "Operations";
+  let worstScore = -1;
+  for (const [dept, score] of Object.entries(deptPain)) {
+    if (score > worstScore) { worstScore = score; worstDept = dept; }
+  }
+
+  const deptDisplay = worstDept === "Customer_Success" ? "customer_success"
+    : worstDept === "People_HR" ? "human_resources"
+    : worstDept.toLowerCase();
+
+  const raw = answerMap.get(25);
+  const desiredOutcome = typeof raw === "string"
+    ? raw.toLowerCase().includes("cost") ? "cost"
+    : raw.toLowerCase().includes("time") ? "time"
+    : raw.toLowerCase().includes("revenue") ? "revenue"
+    : raw.toLowerCase().includes("satisfaction") ? "satisfaction"
+    : "efficiency"
+    : "efficiency";
+
+  return {
+    business_function: deptDisplay,
+    workflow: DEPARTMENT_WORKFLOWS[worstDept] || "process_automation",
+    problem_statement: `${worstDept} operations need optimization`,
+    industry,
+    company_size: size_range,
+    desired_outcome: desiredOutcome,
+  };
 }

@@ -158,8 +158,8 @@ function AssessmentForm() {
 
   const goToResults = async () => {
     if (submitting) return;
+    console.log("[Assessment] Get Recommendations clicked, navigating to results page");
     setSubmitting(true);
-    clearSession();
     router.push("/assessment/results");
   };
 
