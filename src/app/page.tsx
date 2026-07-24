@@ -38,6 +38,13 @@ export default function HomePage() {
 
             {/* Right: outcome metrics */}
             <div className="space-y-3">
+              <div className="flex items-center gap-3 text-xs text-stone font-medium bg-mist/50 rounded-xl px-5 py-3 border border-border">
+                <span>Problem</span>
+                <svg className="w-4 h-4 text-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                <span className="text-forest font-semibold">Compass</span>
+                <svg className="w-4 h-4 text-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                <span>Outcome</span>
+              </div>
               {site.hero.outcomes.map((o) => (
                 <div key={o.label} className="border-2 border-border rounded-xl bg-white p-5 shadow-sm">
                   <p className="text-xs text-stone font-medium uppercase tracking-wider">{o.label}</p>
