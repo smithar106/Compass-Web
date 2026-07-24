@@ -77,29 +77,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How Compass works — indigo */}
-      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-indigo-50/40">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-[22px] font-bold text-ink text-center">How Compass works.</h2>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-4">
-            {[
-              { step: "Problem", desc: "Identify the operational issue and its root causes." },
-              { step: "Investigate", desc: "Gather evidence and assess readiness." },
-              { step: "Compare", desc: "Evaluate AI, software, process, and human paths." },
-              { step: "Recommend", desc: "Select the highest-impact intervention." },
-              { step: "Plan", desc: "Produce an implementation roadmap." },
-            ].map((item, i) => (
-              <div key={item.step} className="border-2 border-indigo-200 rounded-xl p-5 text-center bg-white shadow-sm">
-                <span className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto text-base font-bold">{i + 1}</span>
-                <p className="mt-3 text-base font-semibold text-ink">{item.step}</p>
-                <p className="mt-1.5 text-sm text-ink/70 leading-snug">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Example recommendation */}
+      {/* Example: Sales */}
       <section id="example" className="py-[3.5rem] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
@@ -129,10 +107,40 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Example: Finance */}
+      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-cream">
+        <div className="mx-auto max-w-4xl">
+          <div className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
+            <div className="bg-sky-50 border-b-2 border-border/40 px-6 py-5">
+              <span className="text-xs font-bold text-sky-800 uppercase tracking-wider">Customer problem</span>
+              <p className="text-lg text-ink font-semibold mt-1">{site.exampleFinance.problem}</p>
+            </div>
+            <div className="px-6 py-5 border-b-2 border-border/40">
+              <span className="text-xs font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
+              <p className="text-lg text-ink font-semibold mt-1">{site.exampleFinance.recommendation}</p>
+            </div>
+            <div className="px-6 py-5 flex items-center gap-6">
+              <div>
+                <span className="text-xs text-stone font-medium">Projected annual impact</span>
+                <p className="text-4xl font-bold text-forest mt-1 tracking-tight">{site.exampleFinance.impact}</p>
+              </div>
+              <div className="h-10 w-px bg-border flex-shrink-0" />
+              <p className="text-sm text-ink leading-relaxed">{site.exampleFinance.detail}</p>
+            </div>
+            <div className="bg-mist/50 border-t-2 border-border/40 px-6 py-4 flex items-center justify-between">
+              <Link href="/assessment/results?example=true" className="text-sm text-forest font-semibold hover:text-leaf transition-colors">
+                {site.exampleFinance.cta} &rarr;
+              </Link>
+              <span className="text-xs text-stone">Example based on real operational data</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Statistics — amber/warm tones */}
       <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-amber-50/30">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-[22px] font-bold text-ink text-center">Why most AI implementations fail.</h2>
+          <h2 className="text-[22px] font-bold text-ink text-center">Why implementation decisions go wrong.</h2>
           <p className="mt-2 text-sm text-ink/80 text-center">Before organizations find Compass, they often learn the hard way.</p>
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
             {researchStatistics.map((stat) => (

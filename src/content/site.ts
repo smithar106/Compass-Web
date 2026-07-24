@@ -5,20 +5,21 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Plan for the chosen solution.",
 
   hero: {
-    headline: "Compass helps you solve the right problem, the right way.",
+    headline: "Compass helps you determine the best solution before you build it.",
     subtitle: "Compass investigates your operational problem, compares every viable intervention \u2014 from AI and software to process redesign and staffing \u2014 and recommends the solution with the greatest expected business impact before you commit time, budget, or engineering resources.",
     bullets: [
-      "Compare AI, software, process redesign, staffing, and automation",
-      "Estimate business impact before spending",
-      "Leave with an implementation plan in minutes",
+      "Identify the real problem worth solving",
+      "Compare every viable intervention path",
+      "Estimate business impact before committing budget",
+      "Leave with an implementation plan",
     ],
     cta: "Start investigation",
     ctaSecondary: "View example",
     outcomes: [
-      { problem: "Missed sales calls", label: "Annual Business Impact", value: "+$2.4M", detail: "Revenue recovered" },
-      { problem: "Wasted employee time", label: "Capacity Returned", value: "18,200 hrs", detail: "Equivalent to 9 FTEs" },
-      { problem: "Lost customer opportunities", label: "Opportunities Recovered", value: "16,700", detail: "Customer interactions" },
-      { problem: "Uncertain investment return", label: "Expected ROI", value: "28\u00D7", detail: "Payback in 6 months" },
+      { problem: "Missed sales calls", label: "Best Path", value: "+$2.4M", detail: "Revenue recovered" },
+      { problem: "Wasted employee time", label: "Best Path", value: "18,200 hrs", detail: "Equivalent to 9 FTEs" },
+      { problem: "Lost customer opportunities", label: "Best Path", value: "16,700", detail: "Customer interactions" },
+      { problem: "Uncertain investment return", label: "Best Path", value: "28\u00D7", detail: "Payback in 6 months" },
     ],
   },
 
@@ -33,6 +34,15 @@ export const site = {
     recommendation: "Hybrid AI-assisted qualification",
     impact: "+$2.1M",
     detail: "18,300 recovered calls \u00B7 6 weeks \u00B7 89% confidence",
+    cta: "See full recommendation",
+  },
+
+  exampleFinance: {
+    headline: "Another example.",
+    problem: "Finance team spends 40 hours per week on manual invoice reconciliation.",
+    recommendation: "Automated invoice matching with exception-based review",
+    impact: "+$420K",
+    detail: "1,800 hours returned \u00B7 4 weeks \u00B7 91% confidence",
     cta: "See full recommendation",
   },
 
