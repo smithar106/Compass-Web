@@ -15,10 +15,10 @@ export const site = {
     cta: "Start investigation",
     ctaSecondary: "View example",
     outcomes: [
-      { label: "Annual Business Impact", value: "+$2.4M", detail: "Revenue recovered" },
-      { label: "Capacity Returned", value: "18,200 hrs", detail: "Equivalent to 9 FTEs" },
-      { label: "Opportunities Recovered", value: "16,700", detail: "Customer interactions" },
-      { label: "Expected ROI", value: "28\u00D7", detail: "Payback in 6 months" },
+      { problem: "Missed sales calls", label: "Annual Business Impact", value: "+$2.4M", detail: "Revenue recovered" },
+      { problem: "Wasted employee time", label: "Capacity Returned", value: "18,200 hrs", detail: "Equivalent to 9 FTEs" },
+      { problem: "Lost customer opportunities", label: "Opportunities Recovered", value: "16,700", detail: "Customer interactions" },
+      { problem: "Uncertain investment return", label: "Expected ROI", value: "28\u00D7", detail: "Payback in 6 months" },
     ],
   },
 

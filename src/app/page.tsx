@@ -36,20 +36,18 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: outcome metrics */}
+            {/* Right: outcome metrics — each card shows flow */}
             <div className="space-y-3">
-              <div className="flex items-center gap-3 text-xs text-stone font-medium bg-mist/50 rounded-xl px-5 py-3 border border-border">
-                <span>Problem</span>
-                <svg className="w-4 h-4 text-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                <span className="text-forest font-semibold">Compass</span>
-                <svg className="w-4 h-4 text-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                <span>Outcome</span>
-              </div>
               {site.hero.outcomes.map((o) => (
-                <div key={o.label} className="border-2 border-border rounded-xl bg-white p-5 shadow-sm">
-                  <p className="text-xs text-stone font-medium uppercase tracking-wider">{o.label}</p>
-                  <p className="text-3xl font-bold text-forest mt-1">{o.value}</p>
-                  <p className="text-sm text-ink/80 mt-0.5">{o.detail}</p>
+                <div key={o.label} className="border-2 border-border rounded-xl bg-white p-4 shadow-sm">
+                  <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                    <span className="text-stone/60 font-medium">Problem</span>
+                    <span className="text-ink">{o.problem}</span>
+                    <span className="text-forest font-semibold">Compass</span>
+                    <span className="text-forest">{o.label.toLowerCase()}</span>
+                    <span className="text-stone/60 font-medium">Outcome</span>
+                    <span className="text-ink font-semibold">{o.value} &middot; {o.detail}</span>
+                  </div>
                 </div>
               ))}
             </div>
