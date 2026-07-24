@@ -15,43 +15,54 @@ function RecommendationPanel({ data, accent }: { data: any; accent: string }) {
   const c = accentMap[accent] || accentMap.amber;
 
   return (
-    <div className={`border ${c.border} rounded-xl bg-white shadow-sm overflow-hidden text-xs`}>
-      <div className="px-4 py-2 border-b border-border/40">
-        <span className="text-stone">Problem: </span>
-        <span className="text-ink">{data.problem}</span>
+    <div className={`border-2 ${c.border} rounded-2xl bg-white shadow-md overflow-hidden`}>
+      <div className={`${c.bg} px-5 py-4 border-b-2 ${c.border}`}>
+        <span className={`text-[11px] font-bold ${c.text} uppercase tracking-wider`}>Customer problem</span>
+        <p className="text-base text-ink font-semibold mt-1">{data.problem}</p>
       </div>
-      <div className="px-4 py-2 border-b border-border/40">
-        <span className="text-stone">Recommendation: </span>
-        <span className="text-ink font-semibold">{data.recommendation}</span>
+      <div className="px-5 py-4 border-b border-border">
+        <span className="text-[11px] font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
+        <p className="text-base text-ink font-semibold mt-1">{data.recommendation}</p>
       </div>
-      <div className="px-4 py-2 flex flex-wrap gap-x-3 text-xs">
-        <span className="text-forest font-bold">{data.impact}</span>
-        <span className="text-stone">|</span>
-        <span className="text-stone">{data.confidence} confidence</span>
-        <span className="text-stone">|</span>
-        <span className="text-stone">{data.timeline}</span>
-        <span className="text-stone">|</span>
-        <span className={`font-semibold px-1.5 py-0.5 rounded ${c.pill}`}>{data.type}</span>
+      <div className="px-5 py-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <span className="text-[11px] text-stone font-medium">Projected impact</span>
+            <p className="text-2xl font-bold text-forest tracking-tight">{data.impact}</p>
+          </div>
+          <div>
+            <span className="text-[11px] text-stone font-medium">Confidence</span>
+            <p className="text-2xl font-bold text-forest tracking-tight">{data.confidence}</p>
+          </div>
+          <div>
+            <span className="text-[11px] text-stone font-medium">Timeline</span>
+            <p className="text-lg font-semibold text-ink">{data.timeline}</p>
+          </div>
+        </div>
+        <div className="mt-4 pt-4 border-t border-border">
+          <span className="text-[11px] text-stone font-medium">Intervention</span>
+          <span className={`inline-block mt-0.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ${c.pill}`}>{data.type}</span>
+        </div>
       </div>
-      <div className="border-t border-border/40">
+      <div className="px-5 py-3 bg-mist/30 border-t border-border/40">
         <button
           onClick={() => setShowEvidence(!showEvidence)}
-          className="w-full px-4 py-1.5 text-left text-xs text-forest font-semibold hover:bg-mist/30 transition-colors"
+          className="text-xs text-forest font-semibold hover:text-leaf transition-colors"
         >
-          {showEvidence ? "\u25B2 Hide evidence" : "Why this confidence? \u2192"}
+          {showEvidence ? "Hide evidence" : "Why this confidence? \u2192"}
         </button>
         {showEvidence && (
-          <div className="px-4 py-2 bg-mist/30 border-t border-border/40 space-y-1">
-            <div className="flex items-start gap-1.5 text-[11px] text-ink">
-              <span className="text-forest shrink-0">{"\u2713"}</span>
+          <div className="mt-2 space-y-1.5">
+            <div className="flex items-start gap-2 text-xs text-ink">
+              <span className="text-forest font-bold">{"\u2713"}</span>
               <span><span className="font-semibold">Industry benchmarks:</span> Comparable implementations show similar outcomes.</span>
             </div>
-            <div className="flex items-start gap-1.5 text-[11px] text-ink">
-              <span className="text-forest shrink-0">{"\u2713"}</span>
+            <div className="flex items-start gap-2 text-xs text-ink">
+              <span className="text-forest font-bold">{"\u2713"}</span>
               <span><span className="font-semibold">Research sources:</span> Gartner, IBM, BCG studies on implementation outcomes.</span>
             </div>
-            <div className="flex items-start gap-1.5 text-[11px] text-ink">
-              <span className="text-forest shrink-0">{"\u2713"}</span>
+            <div className="flex items-start gap-2 text-xs text-ink">
+              <span className="text-forest font-bold">{"\u2713"}</span>
               <span><span className="font-semibold">Customer inputs:</span> Operational data provided during investigation.</span>
             </div>
           </div>
@@ -68,6 +79,7 @@ export default function HomePage() {
       <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left */}
             <div>
               <h1 className="text-[2.5rem] md:text-[3.25rem] font-bold text-ink leading-[1.1] tracking-tight">
                 {site.hero.headline}
@@ -84,6 +96,8 @@ export default function HomePage() {
                 </a>
               </div>
             </div>
+
+            {/* Right — the product */}
             <RecommendationPanel data={site.hero.recommendation} accent="amber" />
           </div>
         </div>
@@ -128,16 +142,13 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl">
           <h2 className="text-xl font-bold text-ink text-center">Why implementation decisions go wrong.</h2>
           <p className="mt-2 text-sm text-ink/80 text-center">Before organizations find Compass, they often learn the hard way.</p>
-          <div className="mt-6 flex flex-wrap gap-3 justify-center">
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
             {researchStatistics.map((stat) => (
-              <div key={stat.label} className="border border-amber-200 rounded-lg px-4 py-2 bg-white shadow-sm text-xs whitespace-nowrap">
-                <span className="font-bold text-ink">{stat.value}</span>
-                <span className="text-ink/70 mx-1.5">|</span>
-                <span className="font-semibold text-amber-800 uppercase text-[11px]">{stat.label}</span>
-                <span className="text-ink/70 mx-1.5">|</span>
-                <span className="text-ink/60">{stat.detail}</span>
-                <span className="text-ink/70 mx-1.5">|</span>
-                <span className="text-stone">{stat.source}</span>
+              <div key={stat.label} className="border-2 border-amber-200 rounded-xl p-5 bg-white shadow-sm text-center">
+                <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">{stat.label}</p>
+                <p className="text-3xl font-bold text-ink mt-2">{stat.value}</p>
+                <p className="text-sm text-ink mt-1 leading-snug">{stat.detail}</p>
+                <p className="text-xs text-stone mt-2">{stat.source}</p>
               </div>
             ))}
           </div>
