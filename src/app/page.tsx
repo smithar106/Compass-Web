@@ -85,18 +85,19 @@ export default function HomePage() {
               <span className="text-xs font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
               <p className="text-lg text-ink font-semibold mt-1">{site.example.recommendation}</p>
             </div>
-            <div className="px-6 py-5 flex flex-wrap gap-8">
+            <div className="px-6 py-5 flex items-center gap-6">
               <div>
-                <span className="text-xs text-stone">Projected annual impact</span>
-                <p className="text-3xl font-bold text-forest mt-1">{site.example.impact}</p>
+                <span className="text-xs text-stone font-medium">Projected annual impact</span>
+                <p className="text-4xl font-bold text-forest mt-1 tracking-tight">{site.example.impact}</p>
               </div>
-              <div className="text-sm text-stone mt-2">{site.example.detail}</div>
+              <div className="h-10 w-px bg-border/60 flex-shrink-0" />
+              <p className="text-sm text-stone leading-relaxed">{site.example.detail}</p>
             </div>
-            <div className="bg-mist/30 border-t-2 border-border/40 px-6 py-4 flex items-center justify-between">
+            <div className="bg-mist/50 border-t-2 border-border/40 px-6 py-4 flex items-center justify-between">
               <Link href="/assessment/results?example=true" className="text-sm text-forest font-semibold hover:text-leaf transition-colors">
                 {site.example.cta} &rarr;
               </Link>
-              <span className="text-xs text-stone/70">Example based on real operational data</span>
+              <span className="text-xs text-stone/60">Example based on real operational data</span>
             </div>
           </div>
         </div>
