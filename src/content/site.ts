@@ -6,14 +6,14 @@ export const site = {
 
   hero: {
     headline: "Compass helps you determine the best solution before you build it.",
-    subtitle: "Compass investigates your operational problem, compares every viable intervention, and recommends the solution with the greatest expected business impact.",
+    subtitle: "Compass investigates your operational challenges, compares every viable solution, and recommends the path with the greatest business impact.",
     bullets: [
       "Identify the real problem worth solving",
       "Compare every viable intervention path",
       "Estimate business impact before committing budget",
       "Leave with an implementation plan",
     ],
-    cta: "Start investigation",
+    cta: "Get my recommendations",
     ctaSecondary: "View example",
     outcomes: [
       { problem: "Missed sales calls", label: "Best Path", value: "+$2.4M", detail: "Revenue recovered" },
@@ -163,7 +163,7 @@ export const site = {
       estimatedTime: "3-5 minutes",
       sections: "10 departments",
       questions: "Targeted questions about your operations",
-      cta: "Start investigation",
+cta: "Get my recommendations",
     },
     sections: {
       "General": "We'll start by understanding the department, workflow, and desired outcome — focused on the business problem, not the technology.",

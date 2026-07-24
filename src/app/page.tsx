@@ -7,6 +7,7 @@ import { researchStatistics } from "@/data/research";
 
 function RecommendationPanel({ data, accent }: { data: any; accent: string }) {
   const [showEvidence, setShowEvidence] = useState(false);
+  const [tooltip, setTooltip] = useState<string | null>(null);
   const accentMap: Record<string, { border: string; bg: string; text: string; pill: string }> = {
     amber: { border: "border-amber-200", bg: "bg-amber-50", text: "text-amber-800", pill: "bg-amber-100 text-amber-700" },
     sky: { border: "border-sky-200", bg: "bg-sky-50", text: "text-sky-800", pill: "bg-sky-100 text-sky-700" },
@@ -16,35 +17,57 @@ function RecommendationPanel({ data, accent }: { data: any; accent: string }) {
 
   return (
     <div className={`border-2 ${c.border} rounded-2xl bg-white shadow-md overflow-hidden`}>
-      <div className={`${c.bg} px-5 py-4 border-b-2 ${c.border}`}>
-        <span className={`text-[11px] font-bold ${c.text} uppercase tracking-wider`}>Customer problem</span>
-        <p className="text-base text-ink font-semibold mt-1">{data.problem}</p>
+      <div className="px-5 py-4">
+        <p className="text-base text-ink font-semibold">{data.problem}</p>
       </div>
-      <div className="px-5 py-4 border-b border-border">
-        <span className="text-[11px] font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
+      <div className={`h-px ${c.bg}`} />
+      <div className="px-5 py-4">
+        <span className="text-[11px] font-bold text-forest uppercase tracking-wider">Recommendation</span>
         <p className="text-base text-ink font-semibold mt-1">{data.recommendation}</p>
       </div>
+      <div className={`h-px ${c.bg}`} />
       <div className="px-5 py-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="relative"
+            onMouseEnter={() => setTooltip("impact")}
+            onMouseLeave={() => setTooltip(null)}
+          >
             <span className="text-[11px] text-stone font-medium">Projected impact</span>
             <p className="text-2xl font-bold text-forest tracking-tight">{data.impact}</p>
+            {tooltip === "impact" && (
+              <div className="absolute bottom-full left-0 mb-2 w-56 bg-ink text-cream text-[11px] rounded-lg p-3 shadow-lg z-10 leading-relaxed">
+                Calculated from:<br />
+                {"\u2022"} Industry benchmarks<br />
+                {"\u2022"} Company inputs<br />
+                {"\u2022"} Similar implementations<br />
+                {"\u2022"} Revenue assumptions
+              </div>
+            )}
           </div>
-          <div>
+          <div className="relative"
+            onMouseEnter={() => setTooltip("confidence")}
+            onMouseLeave={() => setTooltip(null)}
+          >
             <span className="text-[11px] text-stone font-medium">Confidence</span>
             <p className="text-2xl font-bold text-forest tracking-tight">{data.confidence}</p>
+            {tooltip === "confidence" && (
+              <div className="absolute bottom-full left-0 mb-2 w-56 bg-ink text-cream text-[11px] rounded-lg p-3 shadow-lg z-10 leading-relaxed">
+                Evidence from:<br />
+                {"\u2022"} Gartner, IBM, BCG research<br />
+                {"\u2022"} Comparable implementations<br />
+                {"\u2022"} Your organizational inputs
+              </div>
+            )}
           </div>
           <div>
             <span className="text-[11px] text-stone font-medium">Timeline</span>
             <p className="text-lg font-semibold text-ink">{data.timeline}</p>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-border">
-          <span className="text-[11px] text-stone font-medium">Intervention</span>
-          <span className={`inline-block mt-0.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ${c.pill}`}>{data.type}</span>
-        </div>
+        <p className="mt-3 text-[11px] text-stone/70 italic">Based on 143 comparable implementations</p>
       </div>
-      <div className="px-5 py-3 bg-mist/30 border-t border-border/40">
+      <div className={`h-px ${c.bg}`} />
+      <div className="px-5 py-3 bg-mist/30">
         <button
           onClick={() => setShowEvidence(!showEvidence)}
           className="text-xs text-forest font-semibold hover:text-leaf transition-colors"
@@ -79,7 +102,6 @@ export default function HomePage() {
       <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left */}
             <div>
               <h1 className="text-[2.5rem] md:text-[3.25rem] font-bold text-ink leading-[1.1] tracking-tight">
                 {site.hero.headline}
@@ -96,8 +118,6 @@ export default function HomePage() {
                 </a>
               </div>
             </div>
-
-            {/* Right — the product */}
             <RecommendationPanel data={site.hero.recommendation} accent="amber" />
           </div>
         </div>
@@ -110,10 +130,10 @@ export default function HomePage() {
           <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-3">
             {[
               { step: "Problem", desc: "Identify the operational issue." },
-              { step: "Evidence", desc: "Gather data and assess readiness." },
+              { step: "Investigate", desc: "Gather data and assess readiness." },
               { step: "Compare", desc: "Evaluate every intervention path." },
               { step: "Recommend", desc: "Select the highest-impact solution." },
-              { step: "Blueprint", desc: "Produce the implementation plan." },
+              { step: "Implementation Plan", desc: "Produce the implementation plan." },
             ].map((item, i) => (
               <div key={item.step} className="border-2 border-indigo-200 rounded-xl p-5 text-center bg-white shadow-sm">
                 <span className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto text-sm font-bold">{i + 1}</span>
