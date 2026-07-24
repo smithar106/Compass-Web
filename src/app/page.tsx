@@ -5,7 +5,7 @@ import { researchStatistics } from "@/data/research";
 export default function HomePage() {
   return (
     <>
-      {/* Hero — outcome-focused */}
+      {/* Hero */}
       <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
@@ -14,7 +14,7 @@ export default function HomePage() {
               <h1 className="text-[2.5rem] md:text-display font-bold text-ink leading-[1.1] tracking-tight">
                 {site.hero.headline}
               </h1>
-              <p className="mt-5 text-[15px] text-ink/90 leading-relaxed font-[500]">
+              <p className="mt-5 text-base text-ink leading-relaxed font-[500]">
                 {site.hero.subtitle}
               </p>
               <ul className="mt-5 space-y-2.5">
@@ -37,28 +37,29 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: outcome metrics — each card shows flow */}
-            <div className="space-y-3">
+            {/* Right: arrow flow cards */}
+            <div className="space-y-4">
               {site.hero.outcomes.map((o) => (
-                <div key={o.label} className="border-2 border-border rounded-xl bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
+                <div key={o.label} className="border-2 border-border rounded-xl bg-white p-5 shadow-sm">
+                  <div className="flex items-center gap-4">
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-stone/60 font-medium">Problem</p>
-                      <p className="text-sm text-ink font-medium truncate">{o.problem}</p>
+                      <p className="text-xs font-semibold text-ink uppercase tracking-wider">Problem</p>
+                      <p className="text-base text-ink font-semibold mt-0.5">{o.problem}</p>
                     </div>
-                    <svg className="w-6 h-6 text-forest flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    <svg className="w-8 h-8 text-forest flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
-                    <div className="flex-shrink-0 w-16 text-center">
+                    <div className="flex-shrink-0 text-center">
                       <p className="text-xs font-bold text-forest uppercase">Compass</p>
+                      <p className="text-xs text-ink font-medium mt-0.5">{o.label}</p>
                     </div>
-                    <svg className="w-6 h-6 text-forest flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    <svg className="w-8 h-8 text-forest flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                     <div className="flex-1 min-w-0 text-right">
-                      <p className="text-xs text-stone/60 font-medium">Outcome</p>
-                      <p className="text-sm text-ink font-semibold">{o.value}</p>
-                      <p className="text-xs text-stone">{o.detail}</p>
+                      <p className="text-xs font-semibold text-ink uppercase tracking-wider">Outcome</p>
+                      <p className="text-lg font-bold text-forest mt-0.5">{o.value}</p>
+                      <p className="text-sm text-ink">{o.detail}</p>
                     </div>
                   </div>
                 </div>
@@ -71,20 +72,20 @@ export default function HomePage() {
       {/* Evidence bar */}
       <section className="py-6 bg-cream border-t border-border px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl text-center">
-          <p className="text-sm text-stone font-medium">{site.evidence.headline}</p>
-          <p className="text-xs text-stone/70 mt-1 max-w-xl mx-auto">{site.evidence.subtitle}</p>
+          <p className="text-base text-ink font-semibold">{site.evidence.headline}</p>
+          <p className="text-sm text-ink/80 mt-1 max-w-2xl mx-auto">{site.evidence.subtitle}</p>
         </div>
       </section>
 
-      {/* How Compass works */}
-      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8">
+      {/* How Compass works — indigo */}
+      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-indigo-50/40">
         <div className="mx-auto max-w-4xl">
           <h2 className="text-[22px] font-bold text-ink text-center">How Compass works.</h2>
           <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-3">
             {["Problem", "Investigate", "Compare", "Recommend", "Plan"].map((step, i) => (
-              <div key={step} className="border-2 border-border rounded-xl p-4 text-center bg-white shadow-sm">
-                <span className="w-8 h-8 rounded-full bg-forest text-white flex items-center justify-center mx-auto text-sm font-bold">{i + 1}</span>
-                <p className="mt-2 text-sm font-semibold text-ink">{step}</p>
+              <div key={step} className="border-2 border-indigo-200 rounded-xl p-5 text-center bg-white shadow-sm">
+                <span className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto text-base font-bold">{i + 1}</span>
+                <p className="mt-3 text-base font-semibold text-ink">{step}</p>
               </div>
             ))}
           </div>
@@ -92,11 +93,11 @@ export default function HomePage() {
       </section>
 
       {/* Example recommendation */}
-      <section id="example" className="py-[3.5rem] bg-cream px-4 sm:px-6 lg:px-8">
+      <section id="example" className="py-[3.5rem] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
-            <div className="bg-amber-50/60 border-b-2 border-border/40 px-6 py-5">
-              <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Customer problem</span>
+            <div className="bg-amber-50 border-b-2 border-border/40 px-6 py-5">
+              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Customer problem</span>
               <p className="text-lg text-ink font-semibold mt-1">{site.example.problem}</p>
             </div>
             <div className="px-6 py-5 border-b-2 border-border/40">
@@ -108,31 +109,31 @@ export default function HomePage() {
                 <span className="text-xs text-stone font-medium">Projected annual impact</span>
                 <p className="text-4xl font-bold text-forest mt-1 tracking-tight">{site.example.impact}</p>
               </div>
-              <div className="h-10 w-px bg-border/60 flex-shrink-0" />
-              <p className="text-sm text-stone leading-relaxed">{site.example.detail}</p>
+              <div className="h-10 w-px bg-border flex-shrink-0" />
+              <p className="text-sm text-ink leading-relaxed">{site.example.detail}</p>
             </div>
             <div className="bg-mist/50 border-t-2 border-border/40 px-6 py-4 flex items-center justify-between">
               <Link href="/assessment/results?example=true" className="text-sm text-forest font-semibold hover:text-leaf transition-colors">
                 {site.example.cta} &rarr;
               </Link>
-              <span className="text-xs text-stone/60">Example based on real operational data</span>
+              <span className="text-xs text-stone">Example based on real operational data</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Statistics */}
-      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-white">
+      {/* Statistics — amber/warm tones */}
+      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-amber-50/30">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-[22px] font-bold text-ink text-center">Why most AI implementations fail.</h2>
-          <p className="mt-2 text-sm text-stone text-center">Before organizations find Compass, they often learn the hard way.</p>
+          <p className="mt-2 text-sm text-ink/80 text-center">Before organizations find Compass, they often learn the hard way.</p>
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
             {researchStatistics.map((stat) => (
-              <div key={stat.label} className="border-2 border-border rounded-xl p-5 bg-white shadow-sm text-center">
-                <p className="text-xs font-semibold text-stone uppercase tracking-wider">{stat.label}</p>
-                <p className="text-3xl font-bold text-forest mt-2">{stat.value}</p>
-                <p className="text-sm text-stone mt-1 leading-snug">{stat.detail}</p>
-                <p className="text-[11px] text-stone/50 mt-2">{stat.source}</p>
+              <div key={stat.label} className="border-2 border-amber-200 rounded-xl p-5 bg-white shadow-sm text-center">
+                <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">{stat.label}</p>
+                <p className="text-3xl font-bold text-ink mt-2">{stat.value}</p>
+                <p className="text-sm text-ink mt-1 leading-snug">{stat.detail}</p>
+                <p className="text-xs text-stone mt-2">{stat.source}</p>
               </div>
             ))}
           </div>
@@ -143,7 +144,7 @@ export default function HomePage() {
       <section className="py-[3.5rem] bg-ink text-cream px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-[28px] font-bold">{site.finalCta.headline}</h2>
-          <p className="mt-4 text-[15px] text-cream/90">{site.finalCta.subtitle}</p>
+          <p className="mt-4 text-base text-cream/90">{site.finalCta.subtitle}</p>
           <div className="mt-8">
             <Link href="/assessment" className="inline-flex items-center px-8 py-3.5 bg-cream text-ink text-base font-semibold rounded-lg hover:bg-white transition-colors shadow-sm">
               {site.finalCta.cta}
