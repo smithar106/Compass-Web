@@ -66,8 +66,8 @@ export const researchPapers: ResearchPaper[] = [
 ];
 
 export const researchStatistics: ResearchStatistic[] = [
-  { value: "52%", label: "Never reach production", detail: "On average, fewer than half of AI projects progress into production.", source: "Gartner" },
-  { value: "8 mo.", label: "Prototype to production", detail: "The average AI project takes eight months to cross that gap.", source: "Gartner" },
-  { value: "25%", label: "Deliver expected ROI", detail: "Only one quarter of AI initiatives have generated the return CEOs expected.", source: "IBM" },
-  { value: "70%", label: "Organizational challenges", detail: "People and process, not algorithms, cause most AI implementation problems.", source: "BCG" },
+  { value: "52%", label: "Failed AI pilots", detail: "More than half of AI projects never reach production.", source: "Gartner" },
+  { value: "8 mo.", label: "Slow implementation", detail: "The average AI prototype takes eight months to reach production.", source: "Gartner" },
+  { value: "25%", label: "Missed ROI", detail: "Only one in four AI initiatives delivers the expected return.", source: "IBM" },
+  { value: "70%", label: "Organizational failures", detail: "People and process, not technology, cause most AI implementation problems.", source: "BCG" },
 ];

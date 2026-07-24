@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { site } from "@/content/site";
+import { researchStatistics } from "@/data/research";
 
 export default function HomePage() {
   return (
@@ -40,13 +41,25 @@ export default function HomePage() {
             <div className="space-y-3">
               {site.hero.outcomes.map((o) => (
                 <div key={o.label} className="border-2 border-border rounded-xl bg-white p-4 shadow-sm">
-                  <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-                    <span className="text-stone/60 font-medium">Problem</span>
-                    <span className="text-ink">{o.problem}</span>
-                    <span className="text-forest font-semibold">Compass</span>
-                    <span className="text-forest">{o.label.toLowerCase()}</span>
-                    <span className="text-stone/60 font-medium">Outcome</span>
-                    <span className="text-ink font-semibold">{o.value} &middot; {o.detail}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-stone/60 font-medium">Problem</p>
+                      <p className="text-sm text-ink font-medium truncate">{o.problem}</p>
+                    </div>
+                    <svg className="w-6 h-6 text-forest flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                    <div className="flex-shrink-0 w-16 text-center">
+                      <p className="text-xs font-bold text-forest uppercase">Compass</p>
+                    </div>
+                    <svg className="w-6 h-6 text-forest flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                    <div className="flex-1 min-w-0 text-right">
+                      <p className="text-xs text-stone/60 font-medium">Outcome</p>
+                      <p className="text-sm text-ink font-semibold">{o.value}</p>
+                      <p className="text-xs text-stone">{o.detail}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -104,6 +117,24 @@ export default function HomePage() {
               </Link>
               <span className="text-xs text-stone/60">Example based on real operational data</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Statistics */}
+      <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-[22px] font-bold text-ink text-center">Why most AI implementations fail.</h2>
+          <p className="mt-2 text-sm text-stone text-center">Before organizations find Compass, they often learn the hard way.</p>
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+            {researchStatistics.map((stat) => (
+              <div key={stat.label} className="border-2 border-border rounded-xl p-5 bg-white shadow-sm text-center">
+                <p className="text-xs font-semibold text-stone uppercase tracking-wider">{stat.label}</p>
+                <p className="text-3xl font-bold text-forest mt-2">{stat.value}</p>
+                <p className="text-sm text-stone mt-1 leading-snug">{stat.detail}</p>
+                <p className="text-[11px] text-stone/50 mt-2">{stat.source}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
