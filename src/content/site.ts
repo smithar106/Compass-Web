@@ -72,7 +72,7 @@ export const site = {
   },
 
   footer: {
-    description: "Compass is the decision layer before implementation. Organizations use it to decide what to build, buy, automate, or leave alone.",
+    description: "Built by operators who have led product and engineering at B2B SaaS companies from Series A to IPO.",
     copyright: `© ${new Date().getFullYear()} Compass. All rights reserved.`,
     columns: [
       {
@@ -80,17 +80,14 @@ export const site = {
         links: [
           { label: "Investigation", href: "/assessment" },
           { label: "Example", href: "/assessment/results?example=true" },
-          { label: "Research", href: "/research" },
         ],
       },
       {
         title: "Company",
         links: [
-          { label: "Perspectives", href: "/perspectives" },
           { label: "About", href: "/about" },
           { label: "Design Partners", href: "/design-partners" },
           { label: "Privacy", href: "/privacy" },
-          { label: "Terms", href: "/terms" },
         ],
       },
     ],
@@ -200,8 +197,7 @@ export const site = {
 
   nav: [
     { label: "Product", href: "/" },
-    { label: "Research", href: "/research" },
-    { label: "Perspectives", href: "/perspectives" },
+    { label: "Example", href: "/assessment/results?example=true" },
     { label: "About", href: "/about" },
     { label: "Design Partners", href: "/design-partners" },
   ],

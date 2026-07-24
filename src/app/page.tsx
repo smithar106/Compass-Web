@@ -79,13 +79,20 @@ export default function HomePage() {
 
       {/* How Compass works — indigo */}
       <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-indigo-50/40">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-5xl">
           <h2 className="text-[22px] font-bold text-ink text-center">How Compass works.</h2>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-3">
-            {["Problem", "Investigate", "Compare", "Recommend", "Plan"].map((step, i) => (
-              <div key={step} className="border-2 border-indigo-200 rounded-xl p-5 text-center bg-white shadow-sm">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-4">
+            {[
+              { step: "Problem", desc: "Identify the operational issue and its root causes." },
+              { step: "Investigate", desc: "Gather evidence and assess readiness." },
+              { step: "Compare", desc: "Evaluate AI, software, process, and human paths." },
+              { step: "Recommend", desc: "Select the highest-impact intervention." },
+              { step: "Plan", desc: "Produce an implementation roadmap." },
+            ].map((item, i) => (
+              <div key={item.step} className="border-2 border-indigo-200 rounded-xl p-5 text-center bg-white shadow-sm">
                 <span className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto text-base font-bold">{i + 1}</span>
-                <p className="mt-3 text-base font-semibold text-ink">{step}</p>
+                <p className="mt-3 text-base font-semibold text-ink">{item.step}</p>
+                <p className="mt-1.5 text-sm text-ink/70 leading-snug">{item.desc}</p>
               </div>
             ))}
           </div>
