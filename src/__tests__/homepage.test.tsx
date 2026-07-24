@@ -3,7 +3,7 @@ import { site } from "@/content/site";
 
 describe("Homepage content", () => {
   it("should have outcome-focused headline", () => {
-    expect(site.hero.headline).toBe("Stop solving the wrong problem.");
+    expect(site.hero.headline).toBe("Compass helps you solve the right problem, the right way.");
   });
 
   it("should have 3 bullets", () => {

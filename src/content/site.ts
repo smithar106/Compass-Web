@@ -5,8 +5,8 @@ export const site = {
     "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Plan for the chosen solution.",
 
   hero: {
-    headline: "Stop solving the wrong problem.",
-    subtitle: "Compass helps business leaders determine the highest-impact solution before committing budget, engineering resources, or implementation time. The wrong implementation is far more expensive than making the right decision first.",
+    headline: "Compass helps you solve the right problem, the right way.",
+    subtitle: "Compass investigates your operational problem, compares every viable intervention \u2014 from AI and software to process redesign and staffing \u2014 and recommends the solution with the greatest expected business impact before you commit time, budget, or engineering resources.",
     bullets: [
       "Compare AI, software, process redesign, staffing, and automation",
       "Estimate business impact before spending",
