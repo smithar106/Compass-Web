@@ -22,8 +22,8 @@ export const site = {
       { problem: "Uncertain investment return", label: "Best Path", value: "28\u00D7", detail: "Payback in 6 months" },
     ],
     recommendation: {
-      problem: "Sales misses 100 inbound calls every day.",
-      recommendation: "Hybrid AI-assisted qualification",
+      problem: "Sales team misses 100+ inbound calls every day during peak hours.",
+      recommendation: "AI-assisted lead qualification with human escalation",
       impact: "+$2.1M",
       confidence: "89%",
       timeline: "6 weeks",
@@ -32,8 +32,8 @@ export const site = {
   },
 
   exampleSales: {
-    problem: "Sales misses 100 inbound calls every day.",
-    recommendation: "Hybrid AI-assisted qualification",
+    problem: "Sales team misses 100+ inbound calls every day during peak hours.",
+    recommendation: "AI-assisted lead qualification with human escalation",
     impact: "+$2.1M",
     confidence: "89%",
     timeline: "6 weeks",
