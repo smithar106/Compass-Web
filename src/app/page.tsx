@@ -24,20 +24,22 @@ function RecommendationPanel({ data, accent }: { data: any; accent: string }) {
         <span className="text-[11px] font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
         <p className="text-base text-ink font-semibold mt-1">{data.recommendation}</p>
       </div>
-      <div className="px-5 py-4 grid grid-cols-2 gap-4">
-        <div>
-          <span className="text-[11px] text-stone font-medium">Projected impact</span>
-          <p className="text-2xl font-bold text-forest tracking-tight">{data.impact}</p>
+      <div className="px-5 py-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <span className="text-[11px] text-stone font-medium">Projected impact</span>
+            <p className="text-2xl font-bold text-forest tracking-tight">{data.impact}</p>
+          </div>
+          <div>
+            <span className="text-[11px] text-stone font-medium">Confidence</span>
+            <p className="text-2xl font-bold text-forest tracking-tight">{data.confidence}</p>
+          </div>
+          <div>
+            <span className="text-[11px] text-stone font-medium">Timeline</span>
+            <p className="text-lg font-semibold text-ink">{data.timeline}</p>
+          </div>
         </div>
-        <div>
-          <span className="text-[11px] text-stone font-medium">Confidence</span>
-          <p className="text-2xl font-bold text-forest tracking-tight">{data.confidence}</p>
-        </div>
-        <div>
-          <span className="text-[11px] text-stone font-medium">Timeline</span>
-          <p className="text-lg font-semibold text-ink">{data.timeline}</p>
-        </div>
-        <div>
+        <div className="mt-4 pt-4 border-t border-border">
           <span className="text-[11px] text-stone font-medium">Intervention</span>
           <span className={`inline-block mt-0.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ${c.pill}`}>{data.type}</span>
         </div>
