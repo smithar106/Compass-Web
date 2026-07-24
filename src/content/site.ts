@@ -35,6 +35,7 @@ export const site = {
     impact: "+$2.1M",
     detail: "18,300 recovered calls \u00B7 6 weeks \u00B7 89% confidence",
     cta: "See full recommendation",
+    confidenceNote: "Confidence based on comparable implementations, industry benchmarks, and your organization's inputs.",
   },
 
   exampleFinance: {
@@ -44,6 +45,7 @@ export const site = {
     impact: "+$420K",
     detail: "1,800 hours returned \u00B7 4 weeks \u00B7 91% confidence",
     cta: "See full recommendation",
+    confidenceNote: "Confidence based on comparable implementations, industry benchmarks, and your organization's inputs.",
   },
 
   designPartners: {
@@ -82,7 +84,7 @@ export const site = {
   },
 
   footer: {
-    description: "Built by operators who have led product and engineering at B2B SaaS companies from Series A to IPO.",
+    description: "Founded by operators and product leaders who have scaled enterprise software.",
     copyright: `© ${new Date().getFullYear()} Compass. All rights reserved.`,
     columns: [
       {

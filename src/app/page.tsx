@@ -1,6 +1,74 @@
 import Link from "next/link";
+import { useState } from "react";
 import { site } from "@/content/site";
 import { researchStatistics } from "@/data/research";
+
+function RecommendationCard({ data, color }: { data: any; color: string }) {
+  const [showEvidence, setShowEvidence] = useState(false);
+  const colorMap: Record<string, { bg: string; text: string }> = {
+    amber: { bg: "bg-amber-50", text: "text-amber-800" },
+    sky: { bg: "bg-sky-50", text: "text-sky-800" },
+  };
+  const c = colorMap[color] || colorMap.amber;
+
+  return (
+    <div className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
+      <div className={`${c.bg} border-b-2 border-border/40 px-6 py-5`}>
+        <span className={`text-xs font-bold ${c.text} uppercase tracking-wider`}>Customer problem</span>
+        <p className="text-lg text-ink font-semibold mt-1">{data.problem}</p>
+      </div>
+      <div className="px-6 py-5 border-b-2 border-border/40">
+        <span className="text-xs font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
+        <p className="text-lg text-ink font-semibold mt-1">{data.recommendation}</p>
+      </div>
+      <div className="px-6 py-5 flex items-center gap-6">
+        <div>
+          <span className="text-xs text-stone font-medium">Projected annual impact</span>
+          <p className="text-4xl font-bold text-forest mt-1 tracking-tight">{data.impact}</p>
+        </div>
+        <div className="h-10 w-px bg-border flex-shrink-0" />
+        <p className="text-sm text-ink leading-relaxed">{data.detail}</p>
+      </div>
+      <div className="bg-mist/30 px-6 py-3 border-t border-border/40">
+        <p className="text-xs text-ink">{data.confidenceNote}</p>
+        <button
+          onClick={() => setShowEvidence(!showEvidence)}
+          className="mt-1 text-xs text-forest font-semibold hover:text-leaf transition-colors"
+        >
+          {showEvidence ? "Hide evidence" : "Why this confidence? \u2192"}
+        </button>
+        {showEvidence && (
+          <div className="mt-3 space-y-2">
+            <div className="flex items-start gap-2 text-xs">
+              <span className="flex-shrink-0 w-4 h-4 rounded bg-forest/10 flex items-center justify-center mt-0.5">
+                <span className="text-[10px] font-bold text-forest">{"\u2713"}</span>
+              </span>
+              <span className="text-ink"><span className="font-semibold">Industry benchmarks:</span> Comparable implementations show similar call recovery rates.</span>
+            </div>
+            <div className="flex items-start gap-2 text-xs">
+              <span className="flex-shrink-0 w-4 h-4 rounded bg-forest/10 flex items-center justify-center mt-0.5">
+                <span className="text-[10px] font-bold text-forest">{"\u2713"}</span>
+              </span>
+              <span className="text-ink"><span className="font-semibold">Research sources:</span> Gartner, IBM, and BCG studies on AI implementation outcomes.</span>
+            </div>
+            <div className="flex items-start gap-2 text-xs">
+              <span className="flex-shrink-0 w-4 h-4 rounded bg-forest/10 flex items-center justify-center mt-0.5">
+                <span className="text-[10px] font-bold text-forest">{"\u2713"}</span>
+              </span>
+              <span className="text-ink"><span className="font-semibold">Customer inputs:</span> CRM data, call volume metrics, and staffing information provided during investigation.</span>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="bg-mist/50 border-t-2 border-border/40 px-6 py-4 flex items-center justify-between">
+        <Link href="/assessment/results?example=true" className="text-sm text-forest font-semibold hover:text-leaf transition-colors">
+          {data.cta} &rarr;
+        </Link>
+        <span className="text-xs text-stone">Example based on real operational data</span>
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -80,60 +148,14 @@ export default function HomePage() {
       {/* Example: Sales */}
       <section id="example" className="py-[3.5rem] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <div className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
-            <div className="bg-amber-50 border-b-2 border-border/40 px-6 py-5">
-              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Customer problem</span>
-              <p className="text-lg text-ink font-semibold mt-1">{site.example.problem}</p>
-            </div>
-            <div className="px-6 py-5 border-b-2 border-border/40">
-              <span className="text-xs font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
-              <p className="text-lg text-ink font-semibold mt-1">{site.example.recommendation}</p>
-            </div>
-            <div className="px-6 py-5 flex items-center gap-6">
-              <div>
-                <span className="text-xs text-stone font-medium">Projected annual impact</span>
-                <p className="text-4xl font-bold text-forest mt-1 tracking-tight">{site.example.impact}</p>
-              </div>
-              <div className="h-10 w-px bg-border flex-shrink-0" />
-              <p className="text-sm text-ink leading-relaxed">{site.example.detail}</p>
-            </div>
-            <div className="bg-mist/50 border-t-2 border-border/40 px-6 py-4 flex items-center justify-between">
-              <Link href="/assessment/results?example=true" className="text-sm text-forest font-semibold hover:text-leaf transition-colors">
-                {site.example.cta} &rarr;
-              </Link>
-              <span className="text-xs text-stone">Example based on real operational data</span>
-            </div>
-          </div>
+          <RecommendationCard data={site.example} color="amber" />
         </div>
       </section>
 
       {/* Example: Finance */}
       <section className="py-[3.5rem] px-4 sm:px-6 lg:px-8 bg-cream">
         <div className="mx-auto max-w-4xl">
-          <div className="border-2 border-border rounded-xl bg-white shadow-sm overflow-hidden">
-            <div className="bg-sky-50 border-b-2 border-border/40 px-6 py-5">
-              <span className="text-xs font-bold text-sky-800 uppercase tracking-wider">Customer problem</span>
-              <p className="text-lg text-ink font-semibold mt-1">{site.exampleFinance.problem}</p>
-            </div>
-            <div className="px-6 py-5 border-b-2 border-border/40">
-              <span className="text-xs font-bold text-forest uppercase tracking-wider">Compass recommendation</span>
-              <p className="text-lg text-ink font-semibold mt-1">{site.exampleFinance.recommendation}</p>
-            </div>
-            <div className="px-6 py-5 flex items-center gap-6">
-              <div>
-                <span className="text-xs text-stone font-medium">Projected annual impact</span>
-                <p className="text-4xl font-bold text-forest mt-1 tracking-tight">{site.exampleFinance.impact}</p>
-              </div>
-              <div className="h-10 w-px bg-border flex-shrink-0" />
-              <p className="text-sm text-ink leading-relaxed">{site.exampleFinance.detail}</p>
-            </div>
-            <div className="bg-mist/50 border-t-2 border-border/40 px-6 py-4 flex items-center justify-between">
-              <Link href="/assessment/results?example=true" className="text-sm text-forest font-semibold hover:text-leaf transition-colors">
-                {site.exampleFinance.cta} &rarr;
-              </Link>
-              <span className="text-xs text-stone">Example based on real operational data</span>
-            </div>
-          </div>
+          <RecommendationCard data={site.exampleFinance} color="sky" />
         </div>
       </section>
 
