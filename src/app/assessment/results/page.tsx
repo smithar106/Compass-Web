@@ -299,29 +299,33 @@ function ResultsContent() {
       <div className="w-full max-w-[1500px] mx-auto px-[min(36px,5vw)] py-7 sm:py-9">
 
         {/* HEADER */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5 mb-6">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-3 mb-1">
-              <h1 className="text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-none">Compass Recommendation</h1>
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-gold-light text-[#b65000] text-[11px] font-extrabold uppercase">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-8">
+          {/* Left column — title + metadata */}
+          <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: '1 1 420px' }}>
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+              <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight whitespace-nowrap">
+                Compass Recommendation
+              </h1>
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-gold-light text-[#b65000] text-[11px] font-extrabold uppercase shrink-0">
                 Pending Review
               </span>
             </div>
-            <p className="text-[#4f6280] font-semibold mt-2 mb-3">Evidence-driven analysis complete</p>
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] font-semibold text-[#5f718f]">
-              <span>Engine v{ENGINE_VERSION}</span>
-              <span>Dataset v{DATASET_VERSION}</span>
-              <span>Generated {ts}</span>
+            <p className="text-[#4f6280] font-semibold mt-2 mb-3 text-[15px]">Evidence-driven analysis complete</p>
+            <div className="flex flex-wrap gap-x-8 gap-y-1.5 text-[13px] font-semibold text-[#5f718f]">
+              <span className="whitespace-nowrap">Engine v{ENGINE_VERSION}</span>
+              <span className="whitespace-nowrap">Dataset v{DATASET_VERSION}</span>
+              <span className="whitespace-nowrap">Generated {ts}</span>
             </div>
           </div>
-          <div className="flex gap-3 flex-wrap shrink-0">
-            <button className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer">
+          {/* Right column — action buttons */}
+          <div className="flex gap-3 flex-wrap shrink-0 w-full lg:w-auto" style={{ flex: '0 0 auto' }}>
+            <button className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Download Report
             </button>
             <button
               onClick={() => setShowBP(true)}
-              className="min-h-[44px] px-[18px] rounded-lg border border-brand-green bg-brand-green text-white font-extrabold text-sm inline-flex items-center gap-2 hover:bg-brand-green-dark transition-colors cursor-pointer"
+              className="min-h-[44px] px-[18px] rounded-lg border border-brand-green bg-brand-green text-white font-extrabold text-sm inline-flex items-center gap-2 hover:bg-brand-green-dark transition-colors cursor-pointer whitespace-nowrap"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
               Generate Implementation Plan
@@ -370,9 +374,9 @@ function ResultsContent() {
                 {kpi.icon}
               </div>
               <div className="min-w-0 overflow-hidden">
-                <p className="text-[11px] font-extrabold tracking-[0.06em] uppercase text-[#53627a] m-0 mb-1 truncate">{kpi.label}</p>
-                <p className={`text-[32px] font-extrabold tracking-[-0.04em] leading-none m-0 ${kpi.valColor} truncate`}>{kpi.value}</p>
-                {kpi.note && <p className="text-[12px] font-semibold text-[#4f6280] mt-1.5 m-0 truncate">{kpi.note}</p>}
+                <p className="text-[11px] font-extrabold tracking-[0.06em] uppercase text-[#53627a] m-0 mb-1 whitespace-nowrap">{kpi.label}</p>
+                <p className={`text-[28px] sm:text-[32px] font-extrabold tracking-[-0.04em] leading-none m-0 ${kpi.valColor} whitespace-nowrap overflow-hidden`}>{kpi.value}</p>
+                {kpi.note && <p className="text-[12px] font-semibold text-[#4f6280] mt-1.5 m-0 whitespace-nowrap overflow-hidden text-ellipsis">{kpi.note}</p>}
               </div>
             </div>
           ))}
@@ -425,8 +429,8 @@ function ResultsContent() {
                     { value: visibleComparables.length > 0 ? `${Math.max(1, Math.round(visibleComparables.length / 5))}\u2013${Math.max(2, Math.round(visibleComparables.length / 3))}` : "Pending", color: "text-brand-orange", label: "Team Size" },
                   ].map((m, i) => (
                     <div key={i} className="min-w-0 overflow-hidden">
-                      <div className={`text-[13px] font-extrabold flex items-center gap-1 ${m.color} truncate`}>{m.value}</div>
-                      <div className="text-[10px] font-bold text-[#61718a] mt-1 truncate">{m.label}</div>
+                      <div className={`text-[12px] sm:text-[13px] font-extrabold flex items-center gap-1 ${m.color} whitespace-nowrap overflow-hidden text-ellipsis`}>{m.value}</div>
+                      <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">{m.label}</div>
                     </div>
                   ))}
                 </div>
@@ -461,10 +465,10 @@ function ResultsContent() {
                           <span className="w-5 h-5 rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[9px] font-bold uppercase">
                             {companyInitials(company)}
                           </span>
-                          <span className="truncate text-[#101826]">{company}</span>
+                          <span className="overflow-hidden text-ellipsis text-[#101826]">{company}</span>
                         </div>
                         {outcome && (
-                          <span className={`text-right font-bold shrink-0 ${outcomeClass} truncate max-w-[140px]`}>
+                          <span className={`text-right font-bold shrink-0 ${outcomeClass} overflow-hidden text-ellipsis max-w-[140px]`}>
                             {outcome}
                           </span>
                         )}
