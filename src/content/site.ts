@@ -1,20 +1,20 @@
 export const site = {
   name: "Compass",
-  tagline: "What should your company automate next?",
+  tagline: "What operational change will drive the greatest impact?",
   description:
     "Compass is an evidence-based decision platform for operations leaders — grounded in thousands of real-world implementations, not consultant experience.",
 
   hero: {
-    headline: "Stop guessing. Know what to automate next.",
-    subtitle: "Compass investigates your operations against thousands of real-world implementations and surfaces the path with the greatest evidence-backed impact.",
+    headline: "Evidence before implementation.",
+    subtitle: "Compass identifies the operational solution most likely to succeed by comparing your organization against thousands of real-world implementations.",
     bullets: [
       "Identify the real problem worth solving",
-      "Compare every viable intervention path",
+      "Compare every viable intervention path — AI, software, process, automation, or no change",
       "Estimate business impact before committing budget",
       "Leave with an implementation plan",
     ],
-    cta: "Get my recommendations",
-    ctaSecondary: "View example",
+    cta: "Get My Recommendations",
+    ctaSecondary: "See Example Assessment",
     outcomes: [
       { problem: "Missed sales calls", label: "Best Path", value: "+$2.4M", detail: "Revenue recovered" },
       { problem: "Wasted employee time", label: "Best Path", value: "18,200 hrs", detail: "Equivalent to 9 FTEs" },
@@ -238,7 +238,7 @@ cta: "Get my recommendations",
   ],
 
   metadata: {
-    title: "Compass — What should your company automate next?",
+    title: "Compass — Evidence-Based Operational Decision Intelligence",
     description:
       "Compass is an evidence-based decision platform for operations leaders — grounded in thousands of real-world implementations, not consultant experience.",
   },

@@ -161,6 +161,15 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Trust line */}
+      <div className="pb-12 px-4 sm:px-6 lg:px-8 -mt-4">
+        <div className="mx-auto max-w-7xl text-center">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-ink/40">
+            Powered by evidence from thousands of operational interventions across industries
+          </p>
+        </div>
+      </div>
+
       {/* How Compass works */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-indigo-50/40">
         <div className="mx-auto max-w-5xl">
@@ -183,7 +192,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why Compass Is Different — 3-column comparison */}
+      {/* Why Compass Is Different — 3 colored cards */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="text-center mb-16">
@@ -194,89 +203,201 @@ export default function HomePage() {
             </p>
           </div>
 
-          {(() => {
-            const approaches = [
-              {
-                name: "Traditional Consulting",
-                rows: [
-                  { label: "Decision Basis", value: "Consultant experience and interviews" },
-                  { label: "Primary Goal", value: "Strategic recommendations" },
-                  { label: "Possible Recommendations", value: "Typically strategy and organizational recommendations" },
-                  { label: "Knowledge Source", value: "Individual consultant experience" },
-                  { label: "Scalability", value: "Scales through people" },
-                  { label: "Comparable Implementations", value: "Limited" },
-                  { label: "Time to Recommendation", value: "Weeks" },
-                  { label: "Recommendation Transparency", value: "Expert opinion" },
-                  { label: "Commercial Incentives", value: "May recommend additional consulting" },
-                ],
-              },
-              {
-                name: "AI Consulting",
-                rows: [
-                  { label: "Decision Basis", value: "AI expertise and implementation experience" },
-                  { label: "Primary Goal", value: "Deploy AI successfully" },
-                  { label: "Possible Recommendations", value: "Usually AI implementation" },
-                  { label: "Knowledge Source", value: "Past client implementations" },
-                  { label: "Scalability", value: "Scales through consultants and engineers" },
-                  { label: "Comparable Implementations", value: "Limited to previous projects" },
-                  { label: "Time to Recommendation", value: "Days to weeks" },
-                  { label: "Recommendation Transparency", value: "Best practice recommendations" },
-                  { label: "Commercial Incentives", value: "May recommend implementation services" },
-                ],
-              },
-              {
-                name: "Compass",
-                badge: "Recommended",
-                rows: [
-                  { label: "Decision Basis", value: "Evidence from comparable operational implementations" },
-                  { label: "Primary Goal", value: "Identify the best operational solution before implementation" },
-                  { label: "Possible Recommendations", value: "AI, software, process redesign, automation, staffing, outsourcing\u2014or no intervention" },
-                  { label: "Knowledge Source", value: "Continuously growing evidence graph of operational interventions" },
-                  { label: "Scalability", value: "Scales through structured evidence" },
-                  { label: "Comparable Implementations", value: "Thousands of comparable operational interventions" },
-                  { label: "Time to Recommendation", value: "Minutes" },
-                  { label: "Recommendation Transparency", value: "Evidence-backed recommendations with comparable implementations" },
-                  { label: "Commercial Incentives", value: "No implementation bias. Focused on identifying the best solution." },
-                ],
-              },
-            ];
-
-            return (
-              <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-6 items-stretch">
-                {approaches.map((card, i) => {
-                  const isCompass = card.name === "Compass";
-                  return (
-                    <div
-                      key={card.name}
-                      className={`relative flex flex-col rounded-2xl border transition-all duration-300 ${isCompass ? "order-first md:order-none border-lime-500/60 shadow-[0_0_40px_-8px_rgba(132,204,22,0.15)] md:-translate-y-1 md:scale-[1.02]" : "order-none border-white/10 hover:-translate-y-0.5 shadow-none"} bg-[#0f1419]`}
-                    >
-                      <div className="px-6 pt-7 pb-5 border-b border-white/5">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className={`text-[17px] font-bold ${isCompass ? "text-white" : "text-white/90"}`}>{card.name}</h3>
-                          {card.badge && (
-                            <span className="px-3 py-1 rounded-full bg-lime-500/15 text-lime-400 text-[10px] font-extrabold uppercase tracking-[0.06em] border border-lime-500/25">
-                              {card.badge}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex-1 px-6 py-2">
-                        {card.rows.map((row, ri) => (
-                          <div key={ri} className="py-[13px] border-b border-white/[0.06] last:border-b-0">
-                            <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-white/40 mb-1.5">{row.label}</p>
-                            <p className={`text-[13px] leading-relaxed ${isCompass ? "text-white/90" : "text-white/70"}`}>{row.value}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+            {/* Traditional Consulting - slate */}
+            <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="px-6 pt-7 pb-4 bg-slate-50 border-b border-slate-100">
+                <h3 className="text-[17px] font-bold text-slate-700">Traditional Consulting</h3>
               </div>
-            );
-          })()}
+              <div className="flex-1 px-6 py-4 space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-slate-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Evidence</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Recommendations based on consultant experience and interviews, with limited access to comparable implementations.
+                  </p>
+                </div>
+                <div className="border-t border-slate-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-slate-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Approach</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Delivers strategic recommendations in weeks, typically focused on organizational and operational advice.
+                  </p>
+                </div>
+                <div className="border-t border-slate-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-slate-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Knowledge</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Expertise is limited to individual consultants and partner experience at the firm.
+                  </p>
+                </div>
+                <div className="border-t border-slate-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-slate-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Scale</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Scales through adding more people; each engagement starts from scratch.
+                  </p>
+                </div>
+                <div className="border-t border-slate-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-slate-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Trust</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Expert opinion with limited transparency; may recommend additional consulting engagements.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Consulting - indigo */}
+            <div className="relative flex flex-col rounded-2xl border border-indigo-200 bg-white shadow-sm overflow-hidden">
+              <div className="px-6 pt-7 pb-4 bg-indigo-50 border-b border-indigo-100">
+                <h3 className="text-[17px] font-bold text-indigo-700">AI Consulting</h3>
+              </div>
+              <div className="flex-1 px-6 py-4 space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Evidence</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Draws on AI expertise and past client implementations, limited to projects the team has previously delivered.
+                  </p>
+                </div>
+                <div className="border-t border-indigo-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Approach</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Primary goal is deploying AI successfully, usually recommending AI implementation within days to weeks.
+                  </p>
+                </div>
+                <div className="border-t border-indigo-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Knowledge</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Built on past client implementations and team expertise in AI deployment.
+                  </p>
+                </div>
+                <div className="border-t border-indigo-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Scale</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Scales through adding consultants and engineers; each engagement builds on prior project experience.
+                  </p>
+                </div>
+                <div className="border-t border-indigo-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Trust</p>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed">
+                    Best-practice recommendations driven by AI vendor expertise; may recommend implementation services.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Compass - lime/green, elevated */}
+            <div className="relative flex flex-col rounded-2xl border-2 border-lime-400 shadow-[0_0_40px_-8px_rgba(132,204,22,0.15)] bg-white order-first md:order-none md:-translate-y-1 overflow-hidden">
+              <div className="absolute top-0 right-0">
+                <div className="bg-lime-400 text-white text-[10px] font-extrabold uppercase tracking-[0.06em] px-4 py-1.5 rounded-bl-xl">
+                  Recommended
+                </div>
+              </div>
+              <div className="px-6 pt-7 pb-4 bg-lime-50 border-b border-lime-100">
+                <h3 className="text-[17px] font-bold text-lime-800">Compass</h3>
+              </div>
+              <div className="flex-1 px-6 py-4 space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-lime-400" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Evidence</p>
+                  </div>
+                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
+                    Grounded in evidence from thousands of comparable operational implementations, not individual experience.
+                  </p>
+                </div>
+                <div className="border-t border-lime-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-lime-400" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Approach</p>
+                  </div>
+                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
+                    Identifies the best solution\u2014AI, software, process redesign, automation, or no intervention\u2014before you build.
+                  </p>
+                </div>
+                <div className="border-t border-lime-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-lime-400" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Knowledge</p>
+                  </div>
+                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
+                    Powered by a continuously growing evidence graph of real operational interventions and their outcomes.
+                  </p>
+                </div>
+                <div className="border-t border-lime-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-lime-400" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Scale</p>
+                  </div>
+                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
+                    Scales through structured evidence, delivering results in minutes rather than weeks.
+                  </p>
+                </div>
+                <div className="border-t border-lime-100 pt-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-lime-400" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Trust</p>
+                  </div>
+                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
+                    Evidence-backed recommendations with no implementation bias. Focused solely on identifying the best solution.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Who Compass is for (8th section) */}
+          <div className="mt-16 pt-14 border-t border-slate-200">
+            <div className="text-center mb-8">
+              <h3 className="text-[22px] font-bold text-ink">Who Compass is for</h3>
+              <p className="mt-2 text-sm text-ink/80">Built for the teams responsible for how work gets done.</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
+              {[
+                { name: "Operations", icon: "\u2699\uFE0F" },
+                { name: "Finance", icon: "\uD83D\uDCB0" },
+                { name: "Customer Support", icon: "\uD83C\uDFA7" },
+                { name: "Sales", icon: "\uD83D\uDCC8" },
+                { name: "HR", icon: "\uD83D\uDC65" },
+                { name: "IT", icon: "\uD83D\uDCBB" },
+                { name: "Supply Chain", icon: "\uD83D\uDCE6" },
+              ].map((dept) => (
+                <div key={dept.name} className="border-2 border-slate-100 rounded-xl p-4 bg-white shadow-sm text-center hover:border-slate-200 transition-colors cursor-default">
+                  <div className="text-2xl mb-1.5">{dept.icon}</div>
+                  <p className="text-sm font-bold text-ink">{dept.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Bottom callout */}
-          <div className="mt-20 text-center max-w-3xl mx-auto">
+          <div className="mt-16 text-center max-w-3xl mx-auto">
             <p className="text-[22px] md:text-[26px] font-bold text-ink leading-tight">
               {"\u201C"}Consultants scale through people.<br />
               Compass scales through evidence.{"\u201D"}
@@ -285,32 +406,6 @@ export default function HomePage() {
               Compass doesn&apos;t replace executive judgment.{" "}
               It gives decision-makers access to operational evidence that no individual advisor could realistically assemble, retain, and analyze at scale.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Who Compass is for */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-xl font-bold text-ink text-center">Who Compass is for.</h2>
-          <p className="mt-2 text-sm text-ink/80 text-center mb-8">Built for the teams responsible for how work gets done.</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { name: "Operations", icon: "\u2699\uFE0F" },
-              { name: "Finance", icon: "\uD83D\uDCB0" },
-              { name: "Customer Support", icon: "\uD83C\uDFA7" },
-              { name: "Sales", icon: "\uD83D\uDCC8" },
-              { name: "HR", icon: "\uD83D\uDC65" },
-              { name: "IT", icon: "\uD83D\uDCBB" },
-              { name: "Supply Chain", icon: "\uD83D\uDCE6" },
-            ].map((dept) => (
-              <div key={dept.name} className="border-2 border-indigo-100 rounded-xl p-5 bg-white shadow-sm text-center hover:border-indigo-300 transition-colors cursor-default">
-                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mx-auto text-2xl">
-                  {dept.icon}
-                </div>
-                <p className="mt-3 text-sm font-bold text-ink">{dept.name}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
