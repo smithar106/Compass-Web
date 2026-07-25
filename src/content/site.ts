@@ -56,7 +56,7 @@ export const site = {
   },
 
   exampleHealthcare: {
-    problem: "Insurance claims processing takes 14 days on average.",
+    problem: "Insurance claims processing takes 14 days on average to complete.",
     recommendation: "AI-assisted claims triage with deterministic validation",
     impact: "+$3.8M",
     confidence: "86%",
