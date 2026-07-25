@@ -232,8 +232,7 @@ cta: "Get my recommendations",
   },
 
   nav: [
-    { label: "Product", href: "/" },
-    { label: "Example", href: "/assessment/results?example=true" },
+    { label: "Product", href: "/assessment" },
     { label: "About", href: "/about" },
     { label: "Design Partners", href: "/design-partners" },
   ],

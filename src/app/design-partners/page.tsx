@@ -30,27 +30,13 @@ export default function DesignPartnersPage() {
     reset,
   } = useForm<DesignPartnerFormValues>({
     resolver: zodResolver(designPartnerSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      companyName: "",
-      companySize: "",
-      role: "",
-      linkedinUrl: "",
-      currentAiInitiatives: "",
-      biggestChallenge: "",
-      honeypot: "",
-    },
+    defaultValues: { name: "", email: "", companyName: "", companySize: "", role: "", linkedinUrl: "", currentAiInitiatives: "", biggestChallenge: "", honeypot: "" },
   });
 
   const onSubmit = async (data: DesignPartnerFormValues) => {
     setSubmitState("loading");
     try {
-      const res = await fetch("/api/design-partners", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch("/api/design-partners", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       if (!res.ok) throw new Error("Submission failed");
       setSubmitState("success");
       reset();
@@ -59,87 +45,76 @@ export default function DesignPartnersPage() {
     }
   };
 
+  const inputClass = "w-full px-4 py-3 border border-[#dfe5ec] rounded-xl text-[14px] text-[#101826] bg-white focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green transition-colors";
+
   return (
-    <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="text-heading font-bold text-ink">{site.designPartners.headline}</h1>
-        <p className="mt-4 text-body text-stone leading-relaxed">{site.designPartners.subtitle}</p>
+    <div className="bg-[#fbfcfd] min-h-screen pt-28 pb-20">
+      <div className="mx-auto max-w-3xl px-6">
 
-        <ul className="mt-8 space-y-3">
+        {/* Hero */}
+        <div className="mb-10">
+          <h1 className="text-[36px] font-extrabold tracking-[-0.03em] text-[#101826] m-0 mb-4">{site.designPartners.headline}</h1>
+          <p className="text-[18px] text-[#4f6280] font-medium leading-relaxed">{site.designPartners.subtitle}</p>
+        </div>
+
+        {/* Benefits */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
           {site.designPartners.benefits.map((benefit) => (
-            <li key={benefit} className="flex items-start gap-3 text-sm text-stone">
-              <span className="text-forest flex-shrink-0">✓</span>
-              {benefit}
-            </li>
+            <div key={benefit} className="bg-white border border-[#dfe5ec] rounded-xl p-5 flex items-start gap-3 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+              <div className="w-8 h-8 rounded-lg bg-brand-green-light flex items-center justify-center shrink-0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-brand-green-dark"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <span className="text-[14px] font-semibold text-[#101826] pt-1">{benefit}</span>
+            </div>
           ))}
-        </ul>
+        </div>
 
-        <div className="mt-12 border border-border rounded-lg p-8 bg-white">
-          <h2 className="text-subhead font-semibold text-ink">{site.designPartners.form.headline}</h2>
+        {/* Form */}
+        <div className="bg-white border border-[#dfe5ec] rounded-2xl p-8 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+          <h2 className="text-[20px] font-extrabold text-[#101826] m-0 mb-6">{site.designPartners.form.headline}</h2>
 
           {submitState === "success" && (
-            <div className="mt-6 p-4 bg-mist rounded-lg text-ink text-sm">{site.designPartners.form.success}</div>
+            <div className="mb-6 p-4 bg-brand-green-light rounded-xl text-brand-green-dark text-[14px] font-semibold flex items-center gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+              {site.designPartners.form.success}
+            </div>
           )}
 
           {submitState === "error" && (
-            <div className="mt-6 p-4 bg-red-50 rounded-lg text-red-800 text-sm">{site.designPartners.form.error}</div>
+            <div className="mb-6 p-4 bg-risk-light rounded-xl text-risk text-[14px] font-semibold flex items-center gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {site.designPartners.form.error}
+            </div>
           )}
 
           {submitState !== "success" && (
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="hidden" aria-hidden="true">
                 <input {...register("honeypot")} tabIndex={-1} autoComplete="off" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-ink mb-1.5">
-                    {site.designPartners.form.fields.name}
-                  </label>
-                  <input
-                    id="name"
-                    {...register("name")}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest"
-                  />
-                  {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+                  <label htmlFor="name" className="block text-[13px] font-bold text-[#101826] mb-2">{site.designPartners.form.fields.name}</label>
+                  <input id="name" {...register("name")} className={inputClass} />
+                  {errors.name && <p className="mt-1.5 text-[12px] text-risk font-semibold">{errors.name.message}</p>}
                 </div>
-
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-ink mb-1.5">
-                    {site.designPartners.form.fields.email}
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    {...register("email")}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest"
-                  />
-                  {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+                  <label htmlFor="email" className="block text-[13px] font-bold text-[#101826] mb-2">{site.designPartners.form.fields.email}</label>
+                  <input id="email" type="email" {...register("email")} className={inputClass} />
+                  {errors.email && <p className="mt-1.5 text-[12px] text-risk font-semibold">{errors.email.message}</p>}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="companyName" className="block text-sm font-medium text-ink mb-1.5">
-                    {site.designPartners.form.fields.companyName}
-                  </label>
-                  <input
-                    id="companyName"
-                    {...register("companyName")}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest"
-                  />
-                  {errors.companyName && <p className="mt-1 text-xs text-red-500">{errors.companyName.message}</p>}
+                  <label htmlFor="companyName" className="block text-[13px] font-bold text-[#101826] mb-2">{site.designPartners.form.fields.companyName}</label>
+                  <input id="companyName" {...register("companyName")} className={inputClass} />
+                  {errors.companyName && <p className="mt-1.5 text-[12px] text-risk font-semibold">{errors.companyName.message}</p>}
                 </div>
-
                 <div>
-                  <label htmlFor="companySize" className="block text-sm font-medium text-ink mb-1.5">
-                    {site.designPartners.form.fields.companySize}
-                  </label>
-                  <select
-                    id="companySize"
-                    {...register("companySize")}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest"
-                  >
+                  <label htmlFor="companySize" className="block text-[13px] font-bold text-[#101826] mb-2">{site.designPartners.form.fields.companySize}</label>
+                  <select id="companySize" {...register("companySize")} className={inputClass}>
                     <option value="">Select size</option>
                     <option value="1-10">1-10 employees</option>
                     <option value="11-50">11-50 employees</option>
@@ -147,69 +122,46 @@ export default function DesignPartnersPage() {
                     <option value="201-1000">201-1000 employees</option>
                     <option value="1000+">1000+ employees</option>
                   </select>
-                  {errors.companySize && <p className="mt-1 text-xs text-red-500">{errors.companySize.message}</p>}
+                  {errors.companySize && <p className="mt-1.5 text-[12px] text-risk font-semibold">{errors.companySize.message}</p>}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="role" className="block text-sm font-medium text-ink mb-1.5">
-                    {site.designPartners.form.fields.role}
-                  </label>
-                  <input
-                    id="role"
-                    {...register("role")}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest"
-                  />
-                  {errors.role && <p className="mt-1 text-xs text-red-500">{errors.role.message}</p>}
+                  <label htmlFor="role" className="block text-[13px] font-bold text-[#101826] mb-2">{site.designPartners.form.fields.role}</label>
+                  <input id="role" {...register("role")} className={inputClass} />
+                  {errors.role && <p className="mt-1.5 text-[12px] text-risk font-semibold">{errors.role.message}</p>}
                 </div>
-
                 <div>
-                  <label htmlFor="linkedinUrl" className="block text-sm font-medium text-ink mb-1.5">
-                    {site.designPartners.form.fields.linkedinUrl}
-                  </label>
-                  <input
-                    id="linkedinUrl"
-                    {...register("linkedinUrl")}
-                    placeholder="https://linkedin.com/in/..."
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest"
-                  />
-                  {errors.linkedinUrl && <p className="mt-1 text-xs text-red-500">{errors.linkedinUrl.message}</p>}
+                  <label htmlFor="linkedinUrl" className="block text-[13px] font-bold text-[#101826] mb-2">{site.designPartners.form.fields.linkedinUrl}</label>
+                  <input id="linkedinUrl" {...register("linkedinUrl")} placeholder="https://linkedin.com/in/..." className={inputClass} />
+                  {errors.linkedinUrl && <p className="mt-1.5 text-[12px] text-risk font-semibold">{errors.linkedinUrl.message}</p>}
                 </div>
               </div>
 
               <div>
-                <label htmlFor="currentAiInitiatives" className="block text-sm font-medium text-ink mb-1.5">
-                  {site.designPartners.form.fields.currentAiInitiatives}
-                </label>
-                <textarea
-                  id="currentAiInitiatives"
-                  rows={3}
-                  {...register("currentAiInitiatives")}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest resize-y"
-                />
-                {errors.currentAiInitiatives && <p className="mt-1 text-xs text-red-500">{errors.currentAiInitiatives.message}</p>}
+                <label htmlFor="currentAiInitiatives" className="block text-[13px] font-bold text-[#101826] mb-2">{site.designPartners.form.fields.currentAiInitiatives}</label>
+                <textarea id="currentAiInitiatives" rows={3} {...register("currentAiInitiatives")} className={`${inputClass} resize-y`} />
+                {errors.currentAiInitiatives && <p className="mt-1.5 text-[12px] text-risk font-semibold">{errors.currentAiInitiatives.message}</p>}
               </div>
 
               <div>
-                <label htmlFor="biggestChallenge" className="block text-sm font-medium text-ink mb-1.5">
-                  {site.designPartners.form.fields.biggestChallenge}
-                </label>
-                <textarea
-                  id="biggestChallenge"
-                  rows={3}
-                  {...register("biggestChallenge")}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest resize-y"
-                />
-                {errors.biggestChallenge && <p className="mt-1 text-xs text-red-500">{errors.biggestChallenge.message}</p>}
+                <label htmlFor="biggestChallenge" className="block text-[13px] font-bold text-[#101826] mb-2">{site.designPartners.form.fields.biggestChallenge}</label>
+                <textarea id="biggestChallenge" rows={3} {...register("biggestChallenge")} className={`${inputClass} resize-y`} />
+                {errors.biggestChallenge && <p className="mt-1.5 text-[12px] text-risk font-semibold">{errors.biggestChallenge.message}</p>}
               </div>
 
               <button
                 type="submit"
                 disabled={submitState === "loading"}
-                className="w-full sm:w-auto px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-8 py-3 bg-brand-green text-white text-[14px] font-extrabold rounded-xl hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
-                {submitState === "loading" ? "Submitting..." : site.designPartners.form.submit}
+                {submitState === "loading" ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Submitting...
+                  </>
+                ) : site.designPartners.form.submit}
               </button>
             </form>
           )}

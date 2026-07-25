@@ -2,62 +2,92 @@ import { site } from "@/content/site";
 
 export default function AboutPage() {
   return (
-    <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="text-heading font-bold text-ink">About Compass</h1>
+    <div className="bg-[#fbfcfd] min-h-screen pt-28 pb-20">
+      <div className="mx-auto max-w-4xl px-6">
 
-        <section className="mt-10">
-          <h2 className="text-subhead font-semibold text-ink">Our Mission</h2>
-          <p className="mt-3 text-body text-stone leading-relaxed">{site.about.mission}</p>
-        </section>
+        {/* Hero */}
+        <div className="mb-16">
+          <h1 className="text-[36px] font-extrabold tracking-[-0.03em] text-[#101826] m-0 mb-4">About Compass</h1>
+          <p className="text-[18px] text-[#4f6280] font-medium leading-relaxed max-w-2xl">{site.about.mission}</p>
+        </div>
 
-        <section className="mt-10">
-          <h2 className="text-subhead font-semibold text-ink">Our Vision</h2>
-          <p className="mt-3 text-body text-stone leading-relaxed">{site.about.vision}</p>
-        </section>
+        {/* Vision + Problem — two-column */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+          <div className="bg-white border border-[#dfe5ec] rounded-2xl p-7 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-brand-green-light flex items-center justify-center text-brand-green-dark">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              </div>
+              <h2 className="text-[18px] font-extrabold text-[#101826] m-0">Our Vision</h2>
+            </div>
+            <p className="text-[14px] text-[#4f6280] leading-relaxed m-0">{site.about.vision}</p>
+          </div>
 
-        <section className="mt-10">
-          <h2 className="text-subhead font-semibold text-ink">The Problem We Solve</h2>
-          <p className="mt-3 text-body text-stone leading-relaxed">{site.about.problem}</p>
-        </section>
+          <div className="bg-white border border-[#dfe5ec] rounded-2xl p-7 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-brand-blue-light flex items-center justify-center text-brand-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              </div>
+              <h2 className="text-[18px] font-extrabold text-[#101826] m-0">The Problem We Solve</h2>
+            </div>
+            <p className="text-[14px] text-[#4f6280] leading-relaxed m-0">{site.about.problem}</p>
+          </div>
+        </div>
 
-        <section className="mt-10">
-          <h2 className="text-subhead font-semibold text-ink">Our Team</h2>
-          <p className="mt-3 text-body text-stone leading-relaxed">{site.about.team}</p>
-        </section>
+        {/* Team */}
+        <div className="bg-white border border-[#dfe5ec] rounded-2xl p-7 mb-10 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-purple-light flex items-center justify-center text-brand-purple">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h2 className="text-[18px] font-extrabold text-[#101826] m-0">Our Team</h2>
+          </div>
+          <p className="text-[14px] text-[#4f6280] leading-relaxed m-0">{site.about.team}</p>
+        </div>
 
+        {/* Future Vision */}
         {site.about.futureVision && (
-          <section className="mt-16 pt-10 border-t border-border">
-            <span className="text-xs font-medium text-forest uppercase tracking-wider">Future vision</span>
-            <h2 className="text-subhead font-semibold text-ink mt-2">{site.about.futureVision.headline}</h2>
-            <p className="mt-3 text-body text-stone leading-relaxed">{site.about.futureVision.body}</p>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="mb-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-brand-orange-light flex items-center justify-center text-brand-orange">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div>
+                <h2 className="text-[18px] font-extrabold text-[#101826] m-0">{site.about.futureVision.headline}</h2>
+              </div>
+            </div>
+            <p className="text-[14px] text-[#4f6280] leading-relaxed mb-6 max-w-2xl">{site.about.futureVision.body}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {site.about.futureVision.items.map((item) => (
-                <div key={item.title} className="border border-border rounded-lg p-4">
-                  <h3 className="text-sm font-semibold text-ink">{item.title}</h3>
-                  <p className="text-xs text-stone mt-1">{item.description}</p>
+                <div key={item.title} className="bg-white border border-[#dfe5ec] rounded-xl p-5 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+                  <h3 className="text-[14px] font-extrabold text-[#101826] m-0 mb-1">{item.title}</h3>
+                  <p className="text-[13px] text-[#5a6b84] leading-relaxed m-0">{item.description}</p>
                 </div>
               ))}
             </div>
-          </section>
+          </div>
         )}
 
+        {/* Internal Compass */}
         {site.about.compass && (
-          <section className="mt-16 pt-10 border-t border-border">
-            <h2 className="text-heading font-bold text-ink text-center">{site.about.compass.headline}</h2>
-            <p className="mt-2 text-sm text-stone text-center">{site.about.compass.subtitle}</p>
-            <div className="mt-8 grid grid-cols-2 gap-4">
-              {site.about.compass.directions.map((d) => (
-                <div key={d.name} className="text-center p-4 border border-border rounded-lg">
-                  <div className="w-10 h-10 rounded-full bg-mist flex items-center justify-center mx-auto mb-2">
-                    <span className="text-sm font-bold text-forest">{d.name[0]}</span>
+          <div className="bg-white border border-[#dfe5ec] rounded-2xl p-8 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+            <h2 className="text-[20px] font-extrabold text-[#101826] text-center m-0 mb-2">{site.about.compass.headline}</h2>
+            <p className="text-[14px] text-[#5a6b84] text-center mb-8">{site.about.compass.subtitle}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {site.about.compass.directions.map((d, i) => {
+                const colors = ["text-brand-green bg-brand-green-light", "text-brand-blue bg-brand-blue-light", "text-brand-purple bg-brand-purple-light", "text-brand-orange bg-brand-orange-light"];
+                return (
+                  <div key={d.name} className="text-center p-5 border border-[#dfe5ec] rounded-xl">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 ${colors[i]}`}>
+                      <span className="text-[16px] font-extrabold">{d.name[0]}</span>
+                    </div>
+                    <h3 className="text-[13px] font-extrabold text-[#101826] m-0 mb-1">{d.label}</h3>
+                    <p className="text-[12px] text-[#5a6b84] leading-relaxed m-0">{d.description}</p>
                   </div>
-                  <h3 className="text-sm font-semibold text-ink mb-1">{d.label}</h3>
-                  <p className="text-xs text-stone leading-relaxed">{d.description}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
-          </section>
+          </div>
         )}
       </div>
     </div>
