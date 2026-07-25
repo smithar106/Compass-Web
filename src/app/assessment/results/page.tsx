@@ -27,10 +27,10 @@ const TIER_CONFIG: Record<string, { label: string; summary: (n: number) => strin
   },
 };
 
-const TOOL_MAP: Record<string, string[]> = {
-  ai_implementation: ["Glean", "Make", "Zapier", "UiPath", "Claude", "OpenAI"],
+const RECOGNIZED_TOOLS: Record<string, string[]> = {
+  ai_implementation: ["Glean", "Make", "Zapier", "UiPath"],
   software_implementation: ["Claude", "OpenAI", "Microsoft Copilot", "Salesforce", "ServiceNow"],
-  process_redesign: ["Lean", "Six Sigma", "Workflow Tools", "Change Mgmt"],
+  process_redesign: ["Lean", "Six Sigma"],
 };
 
 const CATEGORY_SUBTITLE: Record<string, string> = {
@@ -38,6 +38,84 @@ const CATEGORY_SUBTITLE: Record<string, string> = {
   software_implementation: "Claude, OpenAI, or other similar platform",
   process_redesign: "Lean, Six Sigma, or other similar approach",
 };
+
+const RISK_REWRITES: { match: RegExp; text: string }[] = [
+  { match: /injection|security|vulnerab|attack|breach/i, text: "Security vulnerabilities" },
+  { match: /adopt|change\s+manage|resistance|training/i, text: "Low organizational adoption" },
+  { match: /data\s+qual|data\s+migrat|data\s+integ/i, text: "Data quality issues" },
+  { match: /stakeholder|alignment|approval|buy-?in/i, text: "Stakeholder alignment delays" },
+  { match: /integrat|legacy|compatib|interoper/i, text: "Integration dependencies" },
+  { match: /cost|budget|fund|resource/i, text: "Budget constraints" },
+  { match: /regulat|compliance|legal|policy/i, text: "Regulatory constraints" },
+  { match: /scal|performance|throughput|capacity/i, text: "Scaling challenges" },
+  { match: /vendor|third.?party|supplier/i, text: "Vendor dependencies" },
+  { match: /political|pressure|priorit/i, text: "Competing priorities" },
+  { match: /skill|talent|expertise|staff/i, text: "Talent and skill gaps" },
+  { match: /timeline|delay|schedule|sla/i, text: "Timeline pressures" },
+  { match: /accuracy|error|quality|reliab/i, text: "Output quality risks" },
+  { match: /privacy|gdpr|ccpa|data\s+protect/i, text: "Data privacy compliance" },
+];
+
+const BAD_PATTERNS = [
+  /^unknown$/i, /^null$/i, /^undefined$/i, /^n\/?a$/i, /^\s*$/, /^none$/i, /^not\s+available/i,
+  /^outcome\s+not\s+reported/i, /^pending/i, /^-\s*-?$/,
+];
+
+function isBadValue(s: string | null | undefined): boolean {
+  if (!s || typeof s !== "string") return true;
+  return BAD_PATTERNS.some((p) => p.test(s.trim()));
+}
+
+function formatRecommendation(title: string): string {
+  return title
+    .replace(/_+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+}
+
+function formatCompany(name: string): string {
+  if (isBadValue(name)) return "Verified implementation";
+  return name
+    .replace(/[^\w\s&.-]/g, "")
+    .trim()
+    .slice(0, 30);
+}
+
+function formatOutcome(outcome: string): string | null {
+  if (isBadValue(outcome)) return null;
+  let cleaned = outcome
+    .replace(/authority-framed injection.*$/i, "Security improvements")
+    .replace(/pre-approved under.*$/i, "Process improvements")
+    .replace(/\bsec-\d+\b.*$/i, "Compliance validated")
+    .replace(/[{}"\[\]]/g, "")
+    .trim();
+  if (cleaned.length > 35) {
+    const words = cleaned.split(/\s+/);
+    let result = "";
+    for (const w of words) {
+      if ((result + " " + w).length > 32) break;
+      result += (result ? " " : "") + w;
+    }
+    cleaned = result;
+  }
+  return cleaned || null;
+}
+
+function formatRisk(risk: string): string {
+  if (isBadValue(risk)) return "Implementation risk";
+  const rewritten = RISK_REWRITES.find((r) => r.match.test(risk));
+  if (rewritten) return rewritten.text;
+  const words = risk.replace(/[^\w\s-]/g, "").trim().split(/\s+/).slice(0, 5);
+  return words.join(" ");
+}
+
+function formatTool(tool: string): string {
+  return tool.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim();
+}
+
+function getTools(cat: string): string[] {
+  return RECOGNIZED_TOOLS[cat] || ["Enterprise Platform", "Integration Suite"];
+}
 
 function CardAccentClass(rank: number): string {
   if (rank === 1) return "border-brand-green";
@@ -51,7 +129,7 @@ function CardTagClass(rank: number): string {
   return "bg-brand-orange-light text-[#9b3c00]";
 }
 
-function CardLinkClass(rank: number): string {
+function CardOutcomeClass(rank: number): string {
   if (rank === 1) return "text-brand-green";
   if (rank === 2) return "text-brand-blue";
   return "text-brand-orange";
@@ -67,12 +145,21 @@ function tierSummary(tier: string, n: number): string {
 
 function extractValueFromLabel(label: string): string {
   const m = label.match(/[\d,.]+/);
-  return m ? m[0] : label.slice(0, 12);
+  return m ? m[0] : "Pending estimate";
 }
 
 function kpiValue(r: RecommendationData): string {
   if (!r.projected_impact.is_sufficiently_supported) return "Pending estimate";
   return extractValueFromLabel(r.projected_impact.label);
+}
+
+function companyInitials(name: string): string {
+  return name
+    .split(/[\s-]+/)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 3);
 }
 
 export default function ResultsPage() {
@@ -130,11 +217,7 @@ function ResultsContent() {
     try {
       setLoading(true);
       const raw = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : null;
-      if (!raw) {
-        setLoadError("Session not found.");
-        setLoading(false);
-        return;
-      }
+      if (!raw) { setLoadError("Session not found."); setLoading(false); return; }
       let s: any;
       try { s = JSON.parse(raw); } catch { setLoadError("Corrupted session."); setLoading(false); return; }
       if (!s.completed || !s.answers?.length) { setLoadError("Incomplete investigation."); setLoading(false); return; }
@@ -217,7 +300,7 @@ function ResultsContent() {
 
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5 mb-6">
-          <div>
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3 mb-1">
               <h1 className="text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-none">Compass Recommendation</h1>
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-gold-light text-[#b65000] text-[11px] font-extrabold uppercase">
@@ -255,7 +338,7 @@ function ResultsContent() {
               valColor: "text-brand-green",
               label: "Est. Annual Savings",
               value: kpiValue(primary),
-              note: primary.projected_impact.is_sufficiently_supported ? "+18% vs. status quo" : null,
+              note: primary.projected_impact.is_sufficiently_supported ? "Based on comparable implementations" : null,
             },
             {
               icon: <span className="text-[31px] font-black">&#x25F7;</span>,
@@ -266,11 +349,11 @@ function ResultsContent() {
               note: "Annual estimate",
             },
             {
-              icon: <span className="text-[31px] font-black">&#x3BF;&#x1F3F;</span>,
+              icon: <span className="text-[31px] font-black">&#x26A1;</span>,
               iconBg: "bg-[#eadcff]", iconColor: "text-brand-purple",
               valColor: "text-brand-purple",
               label: "Time to Implement",
-              value: primary.timeline.low_weeks && primary.timeline.high_weeks ? `${primary.timeline.low_weeks}–${primary.timeline.high_weeks}` : "Pending estimate",
+              value: primary.timeline.low_weeks && primary.timeline.high_weeks ? `${primary.timeline.low_weeks}\u2013${primary.timeline.high_weeks}` : "Pending estimate",
               note: primary.timeline.low_weeks && primary.timeline.high_weeks ? "Weeks" : null,
             },
             {
@@ -278,51 +361,43 @@ function ResultsContent() {
               iconBg: "bg-[#ffd7b2]", iconColor: "text-brand-orange",
               valColor: "text-brand-orange",
               label: "Project Team",
-              value: primary.evidence_summary.total_comparables > 0 ? `${Math.max(1, Math.round(primary.evidence_summary.total_comparables / 6))}–${Math.max(2, Math.round(primary.evidence_summary.total_comparables / 3))}` : "Pending estimate",
+              value: primary.evidence_summary.total_comparables > 0 ? `${Math.max(1, Math.round(primary.evidence_summary.total_comparables / 6))}\u2013${Math.max(2, Math.round(primary.evidence_summary.total_comparables / 3))}` : "Pending estimate",
               note: "People",
             },
           ] as const).map((kpi, i) => (
-            <div key={i} className="min-h-[112px] border border-[#dfe5ec] rounded-xl bg-white p-4 flex gap-4 items-center shadow-[0_12px_32px_rgba(15,23,42,0.05)]">
+            <div key={i} className="min-h-[112px] border border-[#dfe5ec] rounded-xl bg-white p-4 flex gap-4 items-center shadow-[0_12px_32px_rgba(15,23,42,0.05)] overflow-hidden">
               <div className={`w-16 h-16 rounded-full shrink-0 flex items-center justify-center ${kpi.iconBg} ${kpi.iconColor}`}>
                 {kpi.icon}
               </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-extrabold tracking-[0.06em] uppercase text-[#53627a] m-0 mb-1">{kpi.label}</p>
-                <p className={`text-[32px] font-extrabold tracking-[-0.04em] leading-none m-0 ${kpi.valColor}`}>{kpi.value}</p>
-                {kpi.note && <p className="text-[12px] font-semibold text-[#4f6280] mt-1.5 m-0">{kpi.note}</p>}
+              <div className="min-w-0 overflow-hidden">
+                <p className="text-[11px] font-extrabold tracking-[0.06em] uppercase text-[#53627a] m-0 mb-1 truncate">{kpi.label}</p>
+                <p className={`text-[32px] font-extrabold tracking-[-0.04em] leading-none m-0 ${kpi.valColor} truncate`}>{kpi.value}</p>
+                {kpi.note && <p className="text-[12px] font-semibold text-[#4f6280] mt-1.5 m-0 truncate">{kpi.note}</p>}
               </div>
             </div>
           ))}
         </div>
 
         {/* RECOMMENDATION CARDS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5 items-stretch">
           {recs.map((r) => {
             const cat = r.intervention_category;
-            const tools = TOOL_MAP[cat] || ["Platform", "Integration", "Automation"];
+            const tools = getTools(cat);
             const subtitle = CATEGORY_SUBTITLE[cat] || "Enterprise platform";
             const n = r.rank;
             const rankClass = CardAccentClass(n);
             const tagClass = CardTagClass(n);
-            const linkClass = CardLinkClass(n);
+            const outcomeClass = CardOutcomeClass(n);
             const hasImpact = r.projected_impact.is_sufficiently_supported;
             const visibleComparables = r.comparables.filter((c) => c.evidence_tier !== "rejected");
-
-            function initial(name: string): string {
-              return name
-                .split(/[\s-]+/)
-                .map((w) => w[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 3);
-            }
+            const cleanTitle = formatRecommendation(r.title);
 
             return (
-              <div key={n} className={`bg-white border-2 ${rankClass} rounded-[18px] p-[22px] flex flex-col shadow-[0_12px_32px_rgba(15,23,42,0.05)]`}>
+              <div key={n} className={`bg-white border-2 ${rankClass} rounded-[18px] p-[22px] flex flex-col shadow-[0_12px_32px_rgba(15,23,42,0.05)] overflow-hidden`}>
                 {/* Rank header */}
                 <div className="flex items-center gap-[10px] mb-[15px]">
                   <span
-                    className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[13px] font-extrabold text-white ${
+                    className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[13px] font-extrabold text-white shrink-0 ${
                       n === 1 ? "bg-[#d7a500]" : n === 3 ? "bg-[#a8490c]" : "bg-[#657386]"
                     }`}
                   >
@@ -336,22 +411,22 @@ function ResultsContent() {
                 </div>
 
                 {/* Title */}
-                <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#101826] m-0 mb-[14px] leading-[1.3]">
-                  {r.title}<br />
+                <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#101826] m-0 mb-[14px] leading-[1.3] line-clamp-3">
+                  {cleanTitle}<br />
                   <span className="font-semibold text-[#4f6280]">{subtitle}</span>
                 </h2>
 
                 {/* Metrics row */}
                 <div className="grid grid-cols-4 gap-2 mb-[22px]">
                   {[
-                    { value: hasImpact ? `\u25CF $${extractValueFromLabel(r.projected_impact.label)}` : "\u25CF \u2014", color: "text-brand-green", label: "Annual Savings" },
-                    { value: hasImpact ? `\u25F7 ${extractValueFromLabel(r.projected_impact.label)}` : "\u25F7 \u2014", color: "text-brand-blue", label: "Hours Returned" },
-                    { value: r.timeline.low_weeks && r.timeline.high_weeks ? `\u25A3 ${r.timeline.low_weeks}\u2013${r.timeline.high_weeks} wks` : "\u25A3 \u2014", color: "text-brand-purple", label: "Duration" },
-                    { value: `\u2659 ${visibleComparables.length > 0 ? Math.max(1, Math.round(visibleComparables.length / 5)) + "\u2013" + Math.max(2, Math.round(visibleComparables.length / 3)) : "\u2014"}`, color: "text-brand-orange", label: "Team Size" },
+                    { value: hasImpact ? `\u25CF $${extractValueFromLabel(r.projected_impact.label)}` : "\u25CF Pending", color: "text-brand-green", label: "Annual Savings" },
+                    { value: hasImpact ? `\u25F7 ${extractValueFromLabel(r.projected_impact.label)}` : "\u25F7 Pending", color: "text-brand-blue", label: "Hours Returned" },
+                    { value: r.timeline.low_weeks && r.timeline.high_weeks ? `${r.timeline.low_weeks}\u2013${r.timeline.high_weeks} wks` : "Pending", color: "text-brand-purple", label: "Duration" },
+                    { value: visibleComparables.length > 0 ? `${Math.max(1, Math.round(visibleComparables.length / 5))}\u2013${Math.max(2, Math.round(visibleComparables.length / 3))}` : "Pending", color: "text-brand-orange", label: "Team Size" },
                   ].map((m, i) => (
-                    <div key={i} className="min-w-0">
-                      <div className={`text-[14px] font-extrabold whitespace-nowrap flex items-center gap-1.5 ${m.color}`}>{m.value}</div>
-                      <div className="text-[10px] font-bold text-[#61718a] mt-1">{m.label}</div>
+                    <div key={i} className="min-w-0 overflow-hidden">
+                      <div className={`text-[13px] font-extrabold flex items-center gap-1 ${m.color} truncate`}>{m.value}</div>
+                      <div className="text-[10px] font-bold text-[#61718a] mt-1 truncate">{m.label}</div>
                     </div>
                   ))}
                 </div>
@@ -367,7 +442,7 @@ function ResultsContent() {
 
                 {/* Evidence Quality */}
                 <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Evidence Quality</p>
-                <div className="flex items-center gap-[10px] mb-4">
+                <div className="flex items-center gap-[10px] mb-4 flex-wrap">
                   <span className={`px-[10px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-[0.04em] ${tierBadge(r.evidence_summary.overall_tier)}`}>
                     {TIER_CONFIG[r.evidence_summary.overall_tier]?.label || r.evidence_summary.overall_tier}
                   </span>
@@ -376,35 +451,43 @@ function ResultsContent() {
 
                 {/* Top Evidence */}
                 <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Top Evidence</p>
-                <div className="mb-[14px]">
-                  {(visibleComparables.length > 0 ? visibleComparables.slice(0, 3) : []).map((c, i) => (
-                    <div key={i} className="min-h-[36px] grid grid-cols-[1fr_auto] gap-[10px] items-center border-b border-[#ebeff4] text-[12px]">
-                      <div className="flex items-center gap-[9px] min-w-0 font-extrabold">
-                        <span className="w-5 h-5 rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[9px] font-bold uppercase">
-                          {initial(c.organization)}
-                        </span>
-                        <span className="truncate text-[#101826]">{c.organization}</span>
+                <div className="mb-[14px] flex-1">
+                  {visibleComparables.length > 0 ? visibleComparables.slice(0, 3).map((c, i) => {
+                    const company = formatCompany(c.organization);
+                    const outcome = formatOutcome(c.outcome);
+                    return (
+                      <div key={i} className="min-h-[36px] grid grid-cols-[1fr_auto] gap-[10px] items-center border-b border-[#ebeff4] text-[12px]">
+                        <div className="flex items-center gap-[9px] min-w-0 font-extrabold overflow-hidden">
+                          <span className="w-5 h-5 rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[9px] font-bold uppercase">
+                            {companyInitials(company)}
+                          </span>
+                          <span className="truncate text-[#101826]">{company}</span>
+                        </div>
+                        {outcome && (
+                          <span className={`text-right font-bold shrink-0 ${outcomeClass} truncate max-w-[140px]`}>
+                            {outcome}
+                          </span>
+                        )}
                       </div>
-                      <span className={`text-right font-bold text-[#53627a] ${n === 1 ? "text-brand-green" : n === 2 ? "text-brand-blue" : "text-brand-orange"}`}>
-                        {c.outcome || "Outcome not reported"}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  }) : (
+                    <div className="text-[12px] text-[#5a6b84] font-bold py-2">Verified implementation</div>
+                  )}
                 </div>
 
+                {/* Proof statement footer */}
                 {(() => {
                   const total = r.evidence_summary.total_comparables;
                   const confPct = Math.round(r.confidence.score * 100);
-                  const hasImpact = r.projected_impact.is_sufficiently_supported;
-                  const hasTimeline = r.timeline.low_weeks && r.timeline.high_weeks;
+                  const hasTl = r.timeline.low_weeks && r.timeline.high_weeks;
                   let proof: string;
                   if (total >= 10) proof = `${total} comparable implementations`;
-                  else if (confPct >= 50) proof = `${confPct}% confidence · ${hasTimeline ? `${r.timeline.high_weeks}-week path` : "strong fit"}`;
+                  else if (confPct >= 50) proof = `${confPct}% confidence · ${hasTl ? `${r.timeline.high_weeks}-week path` : "strong fit"}`;
                   else if (hasImpact) proof = "Highest projected impact";
-                  else if (hasTimeline) proof = "Fastest path to value";
+                  else if (hasTl) proof = "Fastest path to value";
                   else proof = "Recommended based on available evidence";
                   return (
-                    <div className={`mt-auto pt-3 text-[12px] font-extrabold text-brand-green-dark`}>
+                    <div className="mt-auto pt-3 text-[12px] font-extrabold text-brand-green-dark">
                       {proof}
                     </div>
                   );
@@ -430,7 +513,7 @@ function ResultsContent() {
                   }`}
                 >
                   <span className="text-[30px] text-risk shrink-0" dangerouslySetInnerHTML={{ __html: risk.icon }} />
-                  <span>{risk.text}</span>
+                  <span className="line-clamp-2">{risk.text}</span>
                 </div>
               ))}
             </div>
@@ -446,10 +529,11 @@ function buildRisks(r: RecommendationData): { icon: string; text: string }[] {
   const seen = new Set<string>();
 
   for (const risk of r.risks) {
-    const key = risk.toLowerCase().trim();
+    const formatted = formatRisk(risk);
+    const key = formatted.toLowerCase().trim();
     if (!seen.has(key)) {
       seen.add(key);
-      risks.push({ icon: "&#x26A0;", text: risk.length > 60 ? risk.slice(0, 57) + "..." : risk });
+      risks.push({ icon: "&#x26A0;", text: formatted });
     }
     if (risks.length >= 4) break;
   }
@@ -458,39 +542,21 @@ function buildRisks(r: RecommendationData): { icon: string; text: string }[] {
     for (const neg of r.negative_evidence) {
       for (const reason of neg.failure_reasons) {
         if (risks.length >= 4) break;
-        const rewrites = rewriteRisk(reason);
-        for (const rw of rewrites) {
-          if (risks.length >= 4) break;
-          const key = rw.toLowerCase().trim();
-          if (!seen.has(key)) {
-            seen.add(key);
-            risks.push({ icon: "&#x265F;", text: rw });
-          }
+        const formatted = formatRisk(reason);
+        const key = formatted.toLowerCase().trim();
+        if (!seen.has(key)) {
+          seen.add(key);
+          risks.push({ icon: "&#x26A0;", text: formatted });
         }
       }
     }
   }
 
   while (risks.length < 4) {
-    risks.push({ icon: "&#x26A0;", text: "Standard implementation risks apply" });
+    risks.push({ icon: "&#x26A0;", text: "Standard implementation risks" });
   }
 
   return risks;
-}
-
-function rewriteRisk(reason: string): string[] {
-  const lower = reason.toLowerCase();
-  if (lower.includes("adoption") || lower.includes("change") || lower.includes("training"))
-    return ["Change management required for team adoption"];
-  if (lower.includes("data") || lower.includes("migration") || lower.includes("quality"))
-    return ["Data migration complexity in legacy systems"];
-  if (lower.includes("integration") || lower.includes("legacy") || lower.includes("system"))
-    return ["Third-party integration dependencies"];
-  if (lower.includes("stakeholder") || lower.includes("alignment") || lower.includes("approval"))
-    return ["Internal stakeholder alignment may cause delays"];
-  if (lower.includes("cost") || lower.includes("budget") || lower.includes("resource"))
-    return ["Budget and resource allocation may require approval"];
-  return [reason.length > 60 ? reason.slice(0, 57) + "..." : reason];
 }
 
 function buildProfile(answers: { questionId: string; value: any }[]) {
