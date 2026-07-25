@@ -11,9 +11,9 @@ export const questions: AssessmentQuestion[] = [
     "Something else",
   ]},
   { id: "dept", section: "Problem", category: "department", question: "Which department owns this workflow?", type: "multi-choice", chip: true, options: [
-    "Sales", "Marketing", "Customer Success", "Support", "Finance",
-    "Product", "Engineering", "People/HR", "Legal", "Operations",
-    "IT", "Supply Chain",
+    "Sales", "Marketing", "Operations", "Finance", "HR",
+    "Support", "Legal", "IT", "Engineering", "Supply Chain",
+    "Manufacturing",
   ]},
 
   { id: "workflow-type", section: "Workflow", category: "workflow", question: "How would you describe the current workflow?", type: "multi-choice", chip: true, options: [

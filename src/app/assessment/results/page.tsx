@@ -78,7 +78,7 @@ function ResultsContent() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [progressIdx, setProgressIdx] = useState(0);
   const [runId, setRunId] = useState("");
-  const printRef = useRef<HTMLDivElement>(null);
+  const [showBlueprint, setShowBlueprint] = useState(false);
 
   const progressMessages = [
     "Analyzing your workflow",
@@ -186,12 +186,8 @@ function ResultsContent() {
   const primary = recs[0];
   const alternatives = recs.slice(1);
 
-  function handlePrint() {
-    const el = document.getElementById("compass-blueprint-print");
-    if (el) {
-      el.style.display = "block";
-      setTimeout(() => { window.print(); setTimeout(() => { el.style.display = "none"; }, 100); }, 200);
-    }
+  function handleOpenBlueprint() {
+    setShowBlueprint(true);
   }
 
   function timelineStr(r: RecommendationData): string {
@@ -209,13 +205,13 @@ function ResultsContent() {
 
   return (
     <div className="bg-white min-h-screen">
-      <div ref={printRef} />
-      {primary && (
+      {showBlueprint && primary && (
         <BlueprintPrint
           recommendation={primary}
           allRecommendations={recs}
           generatedAt={generatedAt}
           runId={runId || `run_${Date.now()}`}
+          onClose={() => setShowBlueprint(false)}
         />
       )}
 
@@ -238,7 +234,7 @@ function ResultsContent() {
         {/* PRIMARY CTA */}
         <div className="text-center mb-12">
           <button
-            onClick={handlePrint}
+            onClick={handleOpenBlueprint}
             className="inline-flex items-center gap-2 px-8 py-3 bg-lime-500 text-white text-sm font-bold rounded-xl hover:bg-lime-600 transition-colors border border-lime-500 shadow-sm"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -277,17 +273,19 @@ function ResultsContent() {
                   <Stat label="Estimated Annual Time Savings" value={r.projected_impact.label} unsupported={!r.projected_impact.is_sufficiently_supported} />
                   <Stat label="Estimated Implementation Cost" value={r.projected_impact.label} unsupported={!r.projected_impact.is_sufficiently_supported} />
                   <Stat label="Implementation Duration" value={timelineStr(r)} />
-                  <Stat label="Employees Required" value={r.summary.includes("team") ? "Existing team" : "2–5 FTEs"} />
+                  <div>
+                    <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Employees Required</div>
+                    <div className="text-[11px] text-gray-400 italic">Insufficient evidence to estimate reliably.</div>
+                  </div>
                   <div>
                     <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Confidence</div>
                     <ConfBar score={r.confidence.score} />
                   </div>
                 </div>
 
-                {/* Recommended tools */}
                 <div className="mb-3">
-                  <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Recommended Software</div>
-                  <span className="text-xs font-medium text-gray-900">{r.title} platform / solution suite</span>
+                  <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Intervention Category</div>
+                  <span className="text-xs font-medium text-gray-900">{r.intervention_category.replace(/_/g, " ")}</span>
                 </div>
 
                 {/* Evidence panel */}
@@ -353,48 +351,35 @@ function ResultsContent() {
           </div>
         )}
 
-        {/* IMPLEMENTATION SUMMARY */}
+        {/* IMPLEMENTATION OVERVIEW */}
         <div className="mb-8">
           <h2 className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-4">Implementation Overview</h2>
           <div className="bg-white border border-gray-200 rounded-xl p-6">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
               <div>
                 <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Teams Involved</div>
-                <div className="text-sm text-gray-900">Operations, IT, Department stakeholders</div>
+                <div className="text-xs text-gray-400 italic">Insufficient evidence available.</div>
               </div>
               <div>
                 <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Business Owner</div>
-                <div className="text-sm text-gray-900">Department head + Executive sponsor</div>
+                <div className="text-xs text-gray-400 italic">Insufficient evidence available.</div>
               </div>
               <div>
                 <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Project Duration</div>
-                <div className="text-sm text-gray-900">{primary ? timelineStr(primary) : "Estimate unavailable"}</div>
+                <div className="text-sm text-gray-900">{primary ? timelineStr(primary) : "Insufficient evidence available."}</div>
               </div>
               <div>
                 <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Internal Effort</div>
-                <div className="text-sm text-gray-900">2–5 FTEs during implementation</div>
+                <div className="text-xs text-gray-400 italic">Insufficient evidence available.</div>
               </div>
               <div>
                 <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Dependencies</div>
-                <div className="text-sm text-gray-900">Existing tool integration, data readiness</div>
+                <div className="text-xs text-gray-400 italic">Insufficient evidence available.</div>
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100">
               <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">Implementation Phases</div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="text-xs font-semibold text-gray-900 mb-1">Phase 1: Planning &amp; Setup</div>
-                  <div className="text-[10px] text-gray-500">Stakeholder alignment, workflow audit, data assessment, team onboarding</div>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="text-xs font-semibold text-gray-900 mb-1">Phase 2: Implementation</div>
-                  <div className="text-[10px] text-gray-500">Core deployment, integration, testing, iteration based on feedback</div>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="text-xs font-semibold text-gray-900 mb-1">Phase 3: Scale &amp; Optimize</div>
-                  <div className="text-[10px] text-gray-500">Full rollout, monitoring setup, training, continuous improvement</div>
-                </div>
-              </div>
+              <div className="text-xs text-gray-400 italic">The full implementation plan is generated after accepting the recommendation.</div>
             </div>
           </div>
         </div>
@@ -412,12 +397,12 @@ function buildProfile(answers: { questionId: string; value: any }[]) {
   for (const a of answers || []) m.set(a.questionId, a.value);
 
   const dept = (m.get("dept") as string) || "Operations";
-  const dd = dept === "Customer Success" ? "customer_success" : dept === "People/HR" ? "human_resources" : dept.toLowerCase();
+  const dd = dept === "Customer Success" ? "customer_success" : dept === "HR" ? "human_resources" : dept.toLowerCase();
   const wf: Record<string, string> = {
     "Sales": "lead_qualification", "Marketing": "marketing_automation", "Customer Success": "customer_health_scoring",
     "Support": "ticketing", "Finance": "invoice_processing", "Product": "product_analytics",
-    "Engineering": "ci_cd", "People/HR": "onboarding", "IT": "it_automation", "Supply Chain": "supply_chain",
-    "Legal": "contract_review", "Operations": "process_automation",
+    "Engineering": "ci_cd", "HR": "onboarding", "IT": "it_automation", "Supply Chain": "supply_chain",
+    "Manufacturing": "manufacturing", "Legal": "contract_review", "Operations": "process_automation",
   };
 
   const raw = m.get("desired-outcome") || "";
