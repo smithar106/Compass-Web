@@ -34,9 +34,57 @@ const RECOGNIZED_TOOLS: Record<string, string[]> = {
 };
 
 const CATEGORY_SUBTITLE: Record<string, string> = {
-  ai_implementation: "Glean, Make, or other similar platform",
-  software_implementation: "Claude, OpenAI, or other similar platform",
-  process_redesign: "Lean, Six Sigma, or other similar approach",
+  ai_implementation: "Glean, Make, Zapier, or similar platform",
+  software_implementation: "Claude, OpenAI, Microsoft Copilot, or similar platform",
+  process_redesign: "Lean, Six Sigma, or similar methodology",
+};
+
+const DECISION_TITLES: Record<string, Record<string, string>> = {
+  ai_implementation: {
+    lead_qualification: "Deploy AI Lead Scoring with Glean",
+    marketing_automation: "Automate Campaign Workflows with Make",
+    customer_health_scoring: "Deploy AI Health Scoring with UiPath",
+    ticketing: "Automate Ticket Triage with Glean",
+    invoice_processing: "Automate Invoice Matching with UiPath",
+    product_analytics: "Deploy Product Insights with Glean",
+    ci_cd: "Automate Deploy Pipelines with Zapier",
+    onboarding: "Automate Onboarding Workflows with Make",
+    contract_review: "Deploy AI Contract Analysis with Glean",
+    process_automation: "Automate Process Workflows with UiPath",
+    it_automation: "Automate IT Operations with Glean",
+    supply_chain: "Optimize Supply Chain with UiPath",
+    manufacturing: "Automate Production Scheduling with UiPath",
+  },
+  software_implementation: {
+    lead_qualification: "Deploy Claude + Salesforce AI Assistants",
+    marketing_automation: "Deploy HubSpot + OpenAI Integration",
+    customer_health_scoring: "Deploy Gainsight + Copilot Integration",
+    ticketing: "Deploy ServiceNow + Claude Integration",
+    invoice_processing: "Deploy Automated Invoice Processing with ServiceNow",
+    product_analytics: "Deploy Product Analytics with Salesforce",
+    ci_cd: "Deploy CI/CD Automation with ServiceNow",
+    onboarding: "Deploy Onboarding Platform with Microsoft Copilot",
+    contract_review: "Deploy Contract Management with Claude",
+    process_automation: "Deploy Workflow Automation with Salesforce",
+    it_automation: "Deploy ITSM with ServiceNow",
+    supply_chain: "Deploy Supply Chain Platform with Salesforce",
+    manufacturing: "Deploy MES Integration with ServiceNow",
+  },
+  process_redesign: {
+    lead_qualification: "Redesign Lead Qualification Workflow Using Lean",
+    marketing_automation: "Redesign Campaign Approval Using Lean",
+    customer_health_scoring: "Redesign Health Scoring Using Six Sigma",
+    ticketing: "Redesign Ticket Routing Using Lean",
+    invoice_processing: "Redesign Invoice Approval Workflow Using Lean",
+    product_analytics: "Redesign Analytics Reporting Using Six Sigma",
+    ci_cd: "Redesign Deploy Process Using Lean",
+    onboarding: "Redesign Onboarding Process Using Lean",
+    contract_review: "Redesign Contract Review Using Six Sigma",
+    process_automation: "Redesign Core Workflow Using Lean",
+    it_automation: "Redesign IT Request Process Using Lean",
+    supply_chain: "Redesign Supply Chain Process Using Six Sigma",
+    manufacturing: "Redesign Production Process Using Lean",
+  },
 };
 
 const RISK_REWRITES: { match: RegExp; text: string }[] = [
@@ -66,11 +114,17 @@ function isBadValue(s: string | null | undefined): boolean {
   return BAD_PATTERNS.some((p) => p.test(s.trim()));
 }
 
-function formatRecommendation(title: string): string {
+function formatRecommendationTitle(title: string, cat: string, workflow: string): string {
+  const decision = DECISION_TITLES[cat]?.[workflow];
+  if (decision) return decision;
   return title
     .replace(/_+/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase())
     .trim();
+}
+
+function formatSubtitle(cat: string): string {
+  return CATEGORY_SUBTITLE[cat] || "Enterprise automation platform";
 }
 
 function formatCompany(name: string): string {
@@ -81,12 +135,14 @@ function formatCompany(name: string): string {
     .slice(0, 30);
 }
 
-function formatOutcome(outcome: string): string | null {
-  if (isBadValue(outcome)) return null;
+function formatOutcome(outcome: string): string {
+  if (isBadValue(outcome)) return "No published outcome";
   let cleaned = outcome
     .replace(/authority-framed injection.*$/i, "Security improvements")
     .replace(/pre-approved under.*$/i, "Process improvements")
     .replace(/\bsec-\d+\b.*$/i, "Compliance validated")
+    .replace(/project teams did not use.*$/i, "Low adoption")
+    .replace(/political pressure.*$/i, "Regulatory constraints")
     .replace(/[{}"\[\]]/g, "")
     .trim();
   if (cleaned.length > 35) {
@@ -98,7 +154,7 @@ function formatOutcome(outcome: string): string | null {
     }
     cleaned = result;
   }
-  return cleaned || null;
+  return cleaned || "No published outcome";
 }
 
 function formatRisk(risk: string): string {
@@ -114,7 +170,7 @@ function formatTool(tool: string): string {
 }
 
 function getTools(cat: string): string[] {
-  return RECOGNIZED_TOOLS[cat] || ["Enterprise Platform", "Integration Suite"];
+  return RECOGNIZED_TOOLS[cat] || ["Claude", "OpenAI", "Salesforce"];
 }
 
 function CardAccentClass(rank: number): string {
@@ -179,6 +235,7 @@ function ResultsContent() {
   const [progressIdx, setProgressIdx] = useState(0);
   const [runId, setRunId] = useState("");
   const [showBP, setShowBP] = useState(false);
+  const [profileWorkflow, setProfileWorkflow] = useState("");
   const progressMessages = [
     "Analyzing your workflow",
     "Comparing intervention paths",
@@ -223,6 +280,7 @@ function ResultsContent() {
       if (!s.completed || !s.answers?.length) { setLoadError("Incomplete investigation."); setLoading(false); return; }
 
       const p = buildProfile(s.answers);
+      setProfileWorkflow(p.workflow);
       const res = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -387,14 +445,14 @@ function ResultsContent() {
           {recs.map((r) => {
             const cat = r.intervention_category;
             const tools = getTools(cat);
-            const subtitle = CATEGORY_SUBTITLE[cat] || "Enterprise platform";
+            const subtitle = formatSubtitle(cat);
             const n = r.rank;
             const rankClass = CardAccentClass(n);
             const tagClass = CardTagClass(n);
             const outcomeClass = CardOutcomeClass(n);
             const hasImpact = r.projected_impact.is_sufficiently_supported;
             const visibleComparables = r.comparables.filter((c) => c.evidence_tier !== "rejected");
-            const cleanTitle = formatRecommendation(r.title);
+            const cleanTitle = formatRecommendationTitle(r.title, cat, profileWorkflow);
 
             return (
               <div key={n} className={`bg-white border-2 ${rankClass} rounded-[18px] p-[22px] flex flex-col shadow-[0_12px_32px_rgba(15,23,42,0.05)] overflow-hidden`}>
@@ -467,11 +525,9 @@ function ResultsContent() {
                           </span>
                           <span className="overflow-hidden text-ellipsis text-[#101826]">{company}</span>
                         </div>
-                        {outcome && (
-                          <span className={`text-right font-bold shrink-0 ${outcomeClass} overflow-hidden text-ellipsis max-w-[140px]`}>
-                            {outcome}
-                          </span>
-                        )}
+                        <span className={`text-right font-bold shrink-0 ${outcomeClass} overflow-hidden text-ellipsis max-w-[140px]`}>
+                          {outcome}
+                        </span>
                       </div>
                     );
                   }) : (
