@@ -2,11 +2,11 @@ export const site = {
   name: "Compass",
   tagline: "What should your company automate next?",
   description:
-    "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination—and generates an Implementation Plan for the chosen solution.",
+    "Compass is an evidence-based decision platform for operations leaders — grounded in thousands of real-world implementations, not consultant experience.",
 
   hero: {
-    headline: "Compass helps you determine the best solution before you build it.",
-    subtitle: "Compass investigates your operational challenges, compares every viable solution, and recommends the path with the greatest business impact.",
+    headline: "Stop guessing. Know what to automate next.",
+    subtitle: "Compass investigates your operations against thousands of real-world implementations and surfaces the path with the greatest evidence-backed impact.",
     bullets: [
       "Identify the real problem worth solving",
       "Compare every viable intervention path",
@@ -68,8 +68,8 @@ export const site = {
   },
 
   evidence: {
-    headline: "Every recommendation is backed by evidence.",
-    subtitle: "We compare AI, software, process redesign, staffing, automation, outsourcing, and governance using implementation outcomes, industry research, and organizational evidence.",
+    headline: "Decisions should be grounded in data, not decades.",
+    subtitle: "Compass compares AI, software, process redesign, staffing, automation, outsourcing, and governance using comparable implementation outcomes — not consultant experience.",
   },
 
   designPartners: {
@@ -103,7 +103,7 @@ export const site = {
 
   finalCta: {
     headline: "Investigate before you build.",
-    subtitle: "Before you evaluate another AI vendor, determine whether AI is actually the right intervention.",
+    subtitle: "Before you evaluate another vendor, compare what comparable implementations show — not what a sales deck claims.",
     cta: "Start investigation",
   },
 
@@ -130,9 +130,9 @@ export const site = {
   },
 
   about: {
-    mission: "Make automation adoption deliberate, measurable, and effective for every organization.",
-    vision: "A world where every company knows the right answer to 'what should we automate next?' before they invest a dollar.",
-    problem: "Companies are under immense pressure to adopt the latest technology. Boardrooms demand strategies. Competitors launch features. The result is rushed decisions, failed proofs of concept, and wasted budgets. Compass solves this by operating before implementation — determining whether the right answer is AI, software, process redesign, human work, or a combination.",
+    mission: "Replace opinion-based automation decisions with evidence-backed paths grounded in comparable real-world implementations.",
+    vision: "A world where every company knows the right answer to 'what should we automate next?' — because comparable implementations tell them, not a consultant.",
+    problem: "Companies are under immense pressure to adopt the latest technology. Boardrooms demand strategies. Competitors launch features. The result is rushed decisions, failed proofs of concept, and wasted budgets. Compass solves this by grounding every recommendation in what comparable implementations actually achieved — not what a vendor claims is possible.",
     team: "We're a small team of product builders, engineers, and operators who have scaled B2B SaaS companies from seed to IPO. We built Compass because we wished it existed.",
     futureVision: {
       headline: "Future vision",
@@ -159,7 +159,7 @@ export const site = {
   assessment: {
     intro: {
       headline: "Operational Investigation",
-      body: "We'll ask about your departments, how work happens, where it fails, and what outcome matters. We are not designing a solution — we are investigating where intervention creates leverage.",
+      body: "We'll ask about your departments, how work happens, where it fails, and what outcome matters. This isn't a consultation — it's an evidence-based investigation that compares your situation against thousands of real implementations.",
       estimatedTime: "3-5 minutes",
       sections: "10 departments",
       questions: "Targeted questions about your operations",
@@ -182,7 +182,7 @@ cta: "Get my recommendations",
 
   results: {
     headline: "Opportunity Map",
-    subtitle: "Ranked business problems with competing intervention paths. Every recommendation includes evidence, assumptions, and compared alternatives.",
+    subtitle: "Ranked by evidence weight, not opinion. Every recommendation is grounded in comparable implementations with displayed confidence, assumptions, and alternatives.",
     noResults: "No investigation results found. Please complete the operational investigation first.",
     buildBlueprint: "View Implementation Plan",
     comparePaths: "Compare intervention paths",
@@ -240,6 +240,6 @@ cta: "Get my recommendations",
   metadata: {
     title: "Compass — What should your company automate next?",
     description:
-      "Compass helps operations leaders decide whether the right answer is AI, software, process redesign, human work, or a combination — and generates an Implementation Plan for the chosen solution.",
+      "Compass is an evidence-based decision platform for operations leaders — grounded in thousands of real-world implementations, not consultant experience.",
   },
 };

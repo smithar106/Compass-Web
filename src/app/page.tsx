@@ -169,14 +169,146 @@ export default function HomePage() {
             {[
               { step: "Problem", desc: "Identify the operational issue." },
               { step: "Investigate", desc: "Gather data and assess readiness." },
-              { step: "Compare", desc: "Evaluate every intervention path." },
-              { step: "Recommend", desc: "Select the highest-impact solution." },
-              { step: "Implementation Plan", desc: "Produce the implementation plan." },
+              { step: "Compare", desc: "Match against real-world implementations." },
+              { step: "Identify", desc: "Surface the highest-evidence path." },
+              { step: "Implementation Plan", desc: "Blueprint the rollout." },
             ].map((item, i) => (
               <div key={item.step} className="border-2 border-indigo-200 rounded-xl p-5 text-center bg-white shadow-sm">
                 <span className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto text-sm font-bold">{i + 1}</span>
                 <p className="mt-2 text-sm font-bold text-ink">{item.step}</p>
                 <p className="mt-1 text-xs text-ink/70">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Compass Is Different — 3-column comparison */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center mb-16">
+            <h2 className="text-[28px] md:text-[34px] font-bold text-ink tracking-tight">Why Compass Is Different</h2>
+            <p className="mt-4 text-base text-ink/70 max-w-3xl mx-auto leading-relaxed">
+              Most organizations make operational decisions using either consulting engagements or AI implementation firms.
+              {" "}Compass introduces a third approach: evidence-based decision intelligence.
+            </p>
+          </div>
+
+          {(() => {
+            const approaches = [
+              {
+                name: "Traditional Consulting",
+                rows: [
+                  { label: "Decision Basis", value: "Consultant experience and interviews" },
+                  { label: "Primary Goal", value: "Strategic recommendations" },
+                  { label: "Possible Recommendations", value: "Typically strategy and organizational recommendations" },
+                  { label: "Knowledge Source", value: "Individual consultant experience" },
+                  { label: "Scalability", value: "Scales through people" },
+                  { label: "Comparable Implementations", value: "Limited" },
+                  { label: "Time to Recommendation", value: "Weeks" },
+                  { label: "Recommendation Transparency", value: "Expert opinion" },
+                  { label: "Commercial Incentives", value: "May recommend additional consulting" },
+                ],
+              },
+              {
+                name: "AI Consulting",
+                rows: [
+                  { label: "Decision Basis", value: "AI expertise and implementation experience" },
+                  { label: "Primary Goal", value: "Deploy AI successfully" },
+                  { label: "Possible Recommendations", value: "Usually AI implementation" },
+                  { label: "Knowledge Source", value: "Past client implementations" },
+                  { label: "Scalability", value: "Scales through consultants and engineers" },
+                  { label: "Comparable Implementations", value: "Limited to previous projects" },
+                  { label: "Time to Recommendation", value: "Days to weeks" },
+                  { label: "Recommendation Transparency", value: "Best practice recommendations" },
+                  { label: "Commercial Incentives", value: "May recommend implementation services" },
+                ],
+              },
+              {
+                name: "Compass",
+                badge: "Recommended",
+                rows: [
+                  { label: "Decision Basis", value: "Evidence from comparable operational implementations" },
+                  { label: "Primary Goal", value: "Identify the best operational solution before implementation" },
+                  { label: "Possible Recommendations", value: "AI, software, process redesign, automation, staffing, outsourcing\u2014or no intervention" },
+                  { label: "Knowledge Source", value: "Continuously growing evidence graph of operational interventions" },
+                  { label: "Scalability", value: "Scales through structured evidence" },
+                  { label: "Comparable Implementations", value: "Thousands of comparable operational interventions" },
+                  { label: "Time to Recommendation", value: "Minutes" },
+                  { label: "Recommendation Transparency", value: "Evidence-backed recommendations with comparable implementations" },
+                  { label: "Commercial Incentives", value: "No implementation bias. Focused on identifying the best solution." },
+                ],
+              },
+            ];
+
+            return (
+              <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-6 items-stretch">
+                {approaches.map((card, i) => {
+                  const isCompass = card.name === "Compass";
+                  return (
+                    <div
+                      key={card.name}
+                      className={`relative flex flex-col rounded-2xl border transition-all duration-300 ${isCompass ? "order-first md:order-none border-lime-500/60 shadow-[0_0_40px_-8px_rgba(132,204,22,0.15)] md:-translate-y-1 md:scale-[1.02]" : "order-none border-white/10 hover:-translate-y-0.5 shadow-none"} bg-[#0f1419]`}
+                    >
+                      <div className="px-6 pt-7 pb-5 border-b border-white/5">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className={`text-[17px] font-bold ${isCompass ? "text-white" : "text-white/90"}`}>{card.name}</h3>
+                          {card.badge && (
+                            <span className="px-3 py-1 rounded-full bg-lime-500/15 text-lime-400 text-[10px] font-extrabold uppercase tracking-[0.06em] border border-lime-500/25">
+                              {card.badge}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1 px-6 py-2">
+                        {card.rows.map((row, ri) => (
+                          <div key={ri} className="py-[13px] border-b border-white/[0.06] last:border-b-0">
+                            <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-white/40 mb-1.5">{row.label}</p>
+                            <p className={`text-[13px] leading-relaxed ${isCompass ? "text-white/90" : "text-white/70"}`}>{row.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
+          {/* Bottom callout */}
+          <div className="mt-20 text-center max-w-3xl mx-auto">
+            <p className="text-[22px] md:text-[26px] font-bold text-ink leading-tight">
+              {"\u201C"}Consultants scale through people.<br />
+              Compass scales through evidence.{"\u201D"}
+            </p>
+            <p className="mt-6 text-base text-ink/60 leading-relaxed">
+              Compass doesn&apos;t replace executive judgment.{" "}
+              It gives decision-makers access to operational evidence that no individual advisor could realistically assemble, retain, and analyze at scale.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Who Compass is for */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-xl font-bold text-ink text-center">Who Compass is for.</h2>
+          <p className="mt-2 text-sm text-ink/80 text-center mb-8">Built for the teams responsible for how work gets done.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { name: "Operations", icon: "\u2699\uFE0F" },
+              { name: "Finance", icon: "\uD83D\uDCB0" },
+              { name: "Customer Support", icon: "\uD83C\uDFA7" },
+              { name: "Sales", icon: "\uD83D\uDCC8" },
+              { name: "HR", icon: "\uD83D\uDC65" },
+              { name: "IT", icon: "\uD83D\uDCBB" },
+              { name: "Supply Chain", icon: "\uD83D\uDCE6" },
+            ].map((dept) => (
+              <div key={dept.name} className="border-2 border-indigo-100 rounded-xl p-5 bg-white shadow-sm text-center hover:border-indigo-300 transition-colors cursor-default">
+                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mx-auto text-2xl">
+                  {dept.icon}
+                </div>
+                <p className="mt-3 text-sm font-bold text-ink">{dept.name}</p>
               </div>
             ))}
           </div>
@@ -252,8 +384,8 @@ export default function HomePage() {
       {/* Evidence */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-xl font-bold text-ink text-center">Why implementation decisions go wrong.</h2>
-          <p className="mt-2 text-sm text-ink/80 text-center">Before organizations find Compass, they often learn the hard way.</p>
+          <h2 className="text-xl font-bold text-ink text-center">The cost of guessing.</h2>
+          <p className="mt-2 text-sm text-ink/80 text-center">Before organizations use evidence-based decisions, they rely on intuition. The results speak for themselves.</p>
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
             {researchStatistics.map((stat) => (
               <div key={stat.label} className="border-2 border-amber-200 rounded-xl p-5 bg-white shadow-sm text-center">

@@ -17,7 +17,7 @@ export function WhyNotPanel({ opportunities }: WhyNotPanelProps) {
           Considered But Not Recommended
         </h2>
         <p className="text-sm text-stone mb-6">
-          We evaluated these opportunities but did not recommend them. Here is why.
+          Compass evaluated these opportunities but evidence did not support selection. Here is why.
           This is the analysis most consultancies and AI tools never share.
         </p>
         <div className="space-y-4">
@@ -35,7 +35,7 @@ export function WhyNotPanel({ opportunities }: WhyNotPanelProps) {
                 </div>
 
                 <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-amber-900 mb-2">Why we did not recommend this</h4>
+                  <h4 className="text-sm font-semibold text-amber-900 mb-2">Why this was not selected</h4>
                   <ul className="space-y-1.5">
                     {opp.disqualifiers.map((d, i) => (
                       <li key={i} className="text-sm text-amber-800 flex items-start gap-2">
@@ -104,7 +104,7 @@ export function WhyNotPanel({ opportunities }: WhyNotPanelProps) {
                 )}
 
                 <p className="mt-3 text-xs text-stone italic">
-                  We will re-evaluate this opportunity as your organization's capabilities and data quality improve.
+                  Compass will re-evaluate this opportunity as your organization's capabilities and data quality improve.
                 </p>
               </div>
             </div>
