@@ -7,40 +7,77 @@ import type { RecommendationData } from "@/components/results/compass-choice";
 
 const STORAGE_KEY = "compass-assessment-session";
 const ENGINE_VERSION = "2.0.0";
-const DATASET_VERSION = "v1 (baseline)";
+const DATASET_VERSION = "v2";
 
-const TIER_PALETTE: Record<string, { label: string; dot: string; bg: string; text: string }> = {
-  gold: { label: "Gold", dot: "bg-yellow-400", bg: "bg-yellow-50", text: "text-yellow-800" },
-  silver: { label: "Silver", dot: "bg-gray-400", bg: "bg-gray-50", text: "text-gray-600" },
-  bronze: { label: "Bronze", dot: "bg-amber-500", bg: "bg-amber-50", text: "text-amber-800" },
+const TIER_CONFIG: Record<string, { label: string; summary: (n: number) => string; badge: string }> = {
+  gold: {
+    label: "Gold",
+    summary: (n) => `High-quality evidence from ${n} implementation${n === 1 ? "" : "s"}`,
+    badge: "bg-gold-light text-gold",
+  },
+  silver: {
+    label: "Silver",
+    summary: (n) => `Moderate-quality evidence from ${n} implementation${n === 1 ? "" : "s"}`,
+    badge: "bg-silver-light text-silver",
+  },
+  bronze: {
+    label: "Bronze",
+    summary: (n) => `Limited-quality evidence from ${n} implementation${n === 1 ? "" : "s"}`,
+    badge: "bg-bronze-light text-bronze",
+  },
 };
 
-function TinyBadge({ tier }: { tier: string }) {
-  const p = TIER_PALETTE[tier] || TIER_PALETTE.bronze;
-  return <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${p.bg} ${p.text}`}>{p.label}</span>;
+const TOOL_MAP: Record<string, string[]> = {
+  ai_implementation: ["Glean", "Make", "Zapier", "UiPath", "Claude", "OpenAI"],
+  software_implementation: ["Claude", "OpenAI", "Microsoft Copilot", "Salesforce", "ServiceNow"],
+  process_redesign: ["Lean", "Six Sigma", "Workflow Tools", "Change Mgmt"],
+};
+
+const CATEGORY_SUBTITLE: Record<string, string> = {
+  ai_implementation: "Glean, Make, or other similar platform",
+  software_implementation: "Claude, OpenAI, or other similar platform",
+  process_redesign: "Lean, Six Sigma, or other similar approach",
+};
+
+function CardAccentClass(rank: number): string {
+  if (rank === 1) return "border-brand-green";
+  if (rank === 2) return "border-brand-blue";
+  return "border-brand-orange";
 }
 
-function Stars({ score, size = 12 }: { score: number; size?: number }) {
-  const full = Math.round(score / 20);
-  return (
-    <span className="text-gray-800" style={{ fontSize: size, letterSpacing: "0.05em" }}>
-      {"★".repeat(Math.min(full, 5))}{"☆".repeat(Math.max(0, 5 - full))}
-    </span>
-  );
+function CardTagClass(rank: number): string {
+  if (rank === 1) return "bg-brand-green-light text-brand-green-dark";
+  if (rank === 2) return "bg-brand-blue-light text-[#0958c9]";
+  return "bg-brand-orange-light text-[#9b3c00]";
 }
 
-function Metric({ label, value, big }: { label: string; value: string; big?: boolean }) {
-  return (
-    <div>
-      <div className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold mb-0.5">{label}</div>
-      <div className={`${big ? "text-lg sm:text-xl font-bold" : "text-sm font-semibold"} text-gray-900`}>{value}</div>
-    </div>
-  );
+function CardLinkClass(rank: number): string {
+  if (rank === 1) return "text-brand-green";
+  if (rank === 2) return "text-brand-blue";
+  return "text-brand-orange";
+}
+
+function tierBadge(tier: string): string {
+  return TIER_CONFIG[tier]?.badge || "bg-gray-100 text-gray-500";
+}
+
+function tierSummary(tier: string, n: number): string {
+  return TIER_CONFIG[tier]?.summary(n) || `${n} implementation${n === 1 ? "" : "s"}`;
+}
+
+function extractValueFromLabel(label: string): string {
+  const m = label.match(/[\d,.]+/);
+  return m ? m[0] : label.slice(0, 12);
+}
+
+function kpiValue(r: RecommendationData): string {
+  if (!r.projected_impact.is_sufficiently_supported) return "Pending estimate";
+  return extractValueFromLabel(r.projected_impact.label);
 }
 
 export default function ResultsPage() {
   return (
-    <Suspense fallback={<div className="bg-white min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-gray-300 border-t-lime-500 rounded-full animate-spin" /></div>}>
+    <Suspense fallback={<div className="bg-white min-h-screen flex items-center justify-center"><div className="w-7 h-7 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin" /></div>}>
       <ResultsContent />
     </Suspense>
   );
@@ -55,15 +92,22 @@ function ResultsContent() {
   const [progressIdx, setProgressIdx] = useState(0);
   const [runId, setRunId] = useState("");
   const [showBP, setShowBP] = useState(false);
-  const SG = ["Analyzing your workflow","Comparing intervention paths","Retrieving comparable implementations","Evaluating evidence strength"];
+  const progressMessages = [
+    "Analyzing your workflow",
+    "Comparing intervention paths",
+    "Retrieving comparable implementations",
+    "Evaluating evidence strength",
+  ];
 
   useEffect(() => {
     const id = searchParams?.get("run_id");
-    if (id) loadRun(id); else submit();
+    if (id) loadRun(id);
+    else submit();
   }, [searchParams]);
+
   useEffect(() => {
     if (!loading) return;
-    const i = setInterval(() => setProgressIdx(p => Math.min(p + 1, SG.length - 1)), 6000);
+    const i = setInterval(() => setProgressIdx((p) => Math.min(p + 1, progressMessages.length - 1)), 6000);
     return () => clearInterval(i);
   }, [loading]);
 
@@ -73,221 +117,372 @@ function ResultsContent() {
       const r = await fetch(`/api/recommendations?run_id=${id}`);
       if (!r.ok) throw new Error((await r.json()).error || "Failed");
       const d = await r.json();
-      setRecs(d.recommendations || []); setRunId(id);
-    } catch (e) { setLoadError(e instanceof Error ? e.message : "Failed"); }
-    finally { setLoading(false); }
+      setRecs(d.recommendations || []);
+      setRunId(id);
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function submit() {
     try {
       setLoading(true);
       const raw = typeof window !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : null;
-      if (!raw) { setLoadError("Session not found."); setLoading(false); return; }
+      if (!raw) {
+        setLoadError("Session not found.");
+        setLoading(false);
+        return;
+      }
       let s: any;
       try { s = JSON.parse(raw); } catch { setLoadError("Corrupted session."); setLoading(false); return; }
       if (!s.completed || !s.answers?.length) { setLoadError("Incomplete investigation."); setLoading(false); return; }
 
       const p = buildProfile(s.answers);
-      const res = await fetch("/api/recommendations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+      const res = await fetch("/api/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(p),
+      });
       if (!res.ok) {
-        const t = await res.text(); let m = `Error (${res.status})`, ty = "err";
+        const t = await res.text();
+        let m = `Error (${res.status})`, ty = "err";
         try { const e = JSON.parse(t); m = e.error || m; ty = e.type || ty; } catch {}
         const pr = ty === "config_error" ? "Config" : ty === "engine_unreachable" ? "Unreachable" : ty === "engine_error" ? "Engine" : "Error";
         throw new Error(`${pr}: ${m}`);
       }
       const d = await res.json();
       setRecs(d.recommendations || []);
-      if (d.recommendation_run_id) { window.history.replaceState({}, "", `/assessment/results?run_id=${d.recommendation_run_id}`); setRunId(d.recommendation_run_id); sessionStorage.removeItem(STORAGE_KEY); }
-    } catch (e) { setLoadError(e instanceof Error ? e.message : "Failed"); }
-    finally { setLoading(false); }
+      if (d.recommendation_run_id) {
+        window.history.replaceState({}, "", `/assessment/results?run_id=${d.recommendation_run_id}`);
+        setRunId(d.recommendation_run_id);
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const ts = new Date().toISOString();
+  const ts = new Date().toISOString().slice(0, 10);
 
-  if (loading) return (
-    <div className="bg-white min-h-screen flex items-center justify-center px-4">
-      <div className="text-center max-w-sm">
-        <div className="w-6 h-6 border-2 border-gray-300 border-t-lime-500 rounded-full animate-spin mx-auto mb-3" />
-        <div className="text-xs text-gray-400 mb-1">{SG[progressIdx]}</div>
-        <div className="w-full bg-gray-100 rounded-full h-0.5 mt-3 overflow-hidden">
-          <div className="h-full bg-lime-500 rounded-full transition-all duration-1000" style={{ width: `${((progressIdx + 1) / SG.length) * 100}%` }} />
+  if (loading)
+    return (
+      <div className="bg-white min-h-screen flex items-center justify-center px-4">
+        <div className="text-center max-w-sm">
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin mx-auto mb-3" />
+          <div className="text-xs text-[#4f6280] font-semibold mb-1">{progressMessages[progressIdx]}</div>
+          <div className="w-full bg-gray-100 rounded-full h-0.5 mt-3 overflow-hidden">
+            <div className="h-full bg-brand-green rounded-full transition-all duration-1000" style={{ width: `${((progressIdx + 1) / progressMessages.length) * 100}%` }} />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 
-  if (loadError) return (
-    <div className="bg-white min-h-screen flex items-center justify-center px-4">
-      <div className="text-center max-w-sm">
-        <div className="w-8 h-8 rounded-full bg-red-50 border border-red-200 flex items-center justify-center mx-auto mb-3">
-          <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-        </div>
-        <p className="text-sm text-gray-500 mb-4">{loadError}</p>
-        <div className="flex gap-2 justify-center">
-          <button onClick={() => { setLoadError(null); submit(); }} className="px-4 py-1.5 bg-lime-500 text-white text-xs font-semibold rounded-lg hover:bg-lime-600">Retry</button>
-          <button onClick={() => router.push("/assessment")} className="px-4 py-1.5 border border-gray-300 text-gray-600 text-xs font-medium rounded-lg">Back</button>
+  if (loadError)
+    return (
+      <div className="bg-white min-h-screen flex items-center justify-center px-4">
+        <div className="text-center max-w-sm">
+          <div className="w-8 h-8 rounded-full bg-risk-light border border-[#f3c7c9] flex items-center justify-center mx-auto mb-3">
+            <svg className="w-4 h-4 text-risk" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </div>
+          <p className="text-sm text-[#4f6280] font-semibold mb-4">{loadError}</p>
+          <div className="flex gap-2 justify-center">
+            <button onClick={() => { setLoadError(null); submit(); }} className="px-4 py-1.5 bg-brand-green text-white text-xs font-bold rounded-lg hover:bg-brand-green-dark">Retry</button>
+            <button onClick={() => router.push("/assessment")} className="px-4 py-1.5 border border-[#cad3df] text-[#4f6280] text-xs font-bold rounded-lg">Back</button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 
   if (!recs.length) return null;
 
   const primary = recs[0];
-  const hasImpact = primary.projected_impact.is_sufficiently_supported;
-  const headline = hasImpact ? primary.projected_impact.label : "Pending Analysis";
 
   return (
-    <div className="bg-white min-h-screen">
-      {showBP && primary && <BlueprintPrint recommendation={primary} allRecommendations={recs} generatedAt={ts} runId={runId || `r_${Date.now()}`} onClose={() => setShowBP(false)} />}
+    <div className="bg-[#fbfcfd] min-h-screen">
+      {showBP && primary && (
+        <BlueprintPrint
+          recommendation={primary}
+          allRecommendations={recs}
+          generatedAt={new Date().toISOString()}
+          runId={runId || `r_${Date.now()}`}
+          onClose={() => setShowBP(false)}
+        />
+      )}
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+      <div className="w-full max-w-[1500px] mx-auto px-[min(36px,5vw)] py-7 sm:py-9">
 
-        {/* HERO — BIG NUMBER */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <span>Compass Recommendation</span>
-            <span className="text-gray-300">·</span>
-            <span>v{ENGINE_VERSION}</span>
-            <span className="text-gray-300">·</span>
-            <span>{ts}</span>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-            <div>
-              <div className="text-[11px] text-gray-400 uppercase tracking-widest font-semibold mb-1">Expected Business Outcome</div>
-              <div className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">{headline}</div>
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5 mb-6">
+          <div>
+            <div className="flex flex-wrap items-center gap-3 mb-1">
+              <h1 className="text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-none">Compass Recommendation</h1>
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-gold-light text-[#b65000] text-[11px] font-extrabold uppercase">
+                Pending Review
+              </span>
             </div>
-            <button onClick={() => setShowBP(true)} className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2 bg-lime-500 text-white text-xs font-bold rounded-lg hover:bg-lime-600 transition-colors">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-              Blueprint & PDF
+            <p className="text-[#4f6280] font-semibold mt-2 mb-3">Evidence-driven analysis complete</p>
+            <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] font-semibold text-[#5f718f]">
+              <span>Engine v{ENGINE_VERSION}</span>
+              <span>Dataset v{DATASET_VERSION}</span>
+              <span>Generated {ts}</span>
+            </div>
+          </div>
+          <div className="flex gap-3 flex-wrap shrink-0">
+            <button className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Report
+            </button>
+            <button
+              onClick={() => setShowBP(true)}
+              className="min-h-[44px] px-[18px] rounded-lg border border-brand-green bg-brand-green text-white font-extrabold text-sm inline-flex items-center gap-2 hover:bg-brand-green-dark transition-colors cursor-pointer"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              Generate Implementation Plan
             </button>
           </div>
         </div>
 
-        {/* CARD GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
+        {/* KPI CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+          {([
+            {
+              icon: <span className="text-[31px] font-black">$</span>,
+              iconBg: "bg-[#c9f6d1]", iconColor: "text-brand-green",
+              valColor: "text-brand-green",
+              label: "Est. Annual Savings",
+              value: kpiValue(primary),
+              note: primary.projected_impact.is_sufficiently_supported ? "+18% vs. status quo" : null,
+            },
+            {
+              icon: <span className="text-[31px] font-black">&#x25F7;</span>,
+              iconBg: "bg-[#d8e7ff]", iconColor: "text-brand-blue",
+              valColor: "text-brand-blue",
+              label: "Hours Returned",
+              value: kpiValue(primary),
+              note: "Annual estimate",
+            },
+            {
+              icon: <span className="text-[31px] font-black">&#x3BF;&#x1F3F;</span>,
+              iconBg: "bg-[#eadcff]", iconColor: "text-brand-purple",
+              valColor: "text-brand-purple",
+              label: "Time to Implement",
+              value: primary.timeline.low_weeks && primary.timeline.high_weeks ? `${primary.timeline.low_weeks}–${primary.timeline.high_weeks}` : "Pending estimate",
+              note: primary.timeline.low_weeks && primary.timeline.high_weeks ? "Weeks" : null,
+            },
+            {
+              icon: <span className="text-[31px] font-black">&#x265F;</span>,
+              iconBg: "bg-[#ffd7b2]", iconColor: "text-brand-orange",
+              valColor: "text-brand-orange",
+              label: "Project Team",
+              value: primary.evidence_summary.total_comparables > 0 ? `${Math.max(1, Math.round(primary.evidence_summary.total_comparables / 6))}–${Math.max(2, Math.round(primary.evidence_summary.total_comparables / 3))}` : "Pending estimate",
+              note: "People",
+            },
+          ] as const).map((kpi, i) => (
+            <div key={i} className="min-h-[112px] border border-[#dfe5ec] rounded-xl bg-white p-4 flex gap-4 items-center shadow-[0_12px_32px_rgba(15,23,42,0.05)]">
+              <div className={`w-16 h-16 rounded-full shrink-0 flex items-center justify-center ${kpi.iconBg} ${kpi.iconColor}`}>
+                {kpi.icon}
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-extrabold tracking-[0.06em] uppercase text-[#53627a] m-0 mb-1">{kpi.label}</p>
+                <p className={`text-[32px] font-extrabold tracking-[-0.04em] leading-none m-0 ${kpi.valColor}`}>{kpi.value}</p>
+                {kpi.note && <p className="text-[12px] font-semibold text-[#4f6280] mt-1.5 m-0">{kpi.note}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* RECOMMENDATION CARDS */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
           {recs.map((r) => {
-            const is1 = r.rank === 1;
-            const label = r.rank === 1 ? "Recommended" : "Alternative";
-            const icon = r.rank === 1 ? "\uD83E\uDD47" : "\uD83E\uDD48";
-            const border = is1 ? "border-lime-500/60 ring-1 ring-lime-500/20" : "border-gray-200";
-            const impactOk = r.projected_impact.is_sufficiently_supported;
-            const pct = Math.round(r.confidence.score * 100);
+            const cat = r.intervention_category;
+            const tools = TOOL_MAP[cat] || ["Platform", "Integration", "Automation"];
+            const subtitle = CATEGORY_SUBTITLE[cat] || "Enterprise platform";
+            const n = r.rank;
+            const rankClass = CardAccentClass(n);
+            const tagClass = CardTagClass(n);
+            const linkClass = CardLinkClass(n);
+            const hasImpact = r.projected_impact.is_sufficiently_supported;
+            const visibleComparables = r.comparables.filter((c) => c.evidence_tier !== "rejected");
+
+            function initial(name: string): string {
+              return name
+                .split(/[\s-]+/)
+                .map((w) => w[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 3);
+            }
 
             return (
-              <div key={r.rank} className={`bg-white border-2 ${border} rounded-xl p-5 flex flex-col`}>
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base">{icon}</span>
-                    <span className="text-[10px] font-bold text-gray-900 uppercase tracking-widest">{label}</span>
-                  </div>
-                  <Stars score={pct} size={11} />
+              <div key={n} className={`bg-white border-2 ${rankClass} rounded-[18px] p-[22px] flex flex-col shadow-[0_12px_32px_rgba(15,23,42,0.05)]`}>
+                {/* Rank header */}
+                <div className="flex items-center gap-[10px] mb-[15px]">
+                  <span
+                    className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[13px] font-extrabold text-white ${
+                      n === 1 ? "bg-[#d7a500]" : n === 3 ? "bg-[#a8490c]" : "bg-[#657386]"
+                    }`}
+                  >
+                    {n}
+                  </span>
+                  <span className={`px-[11px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-normal ${
+                    n === 1 ? "bg-brand-green-light text-brand-green-dark" : "bg-[#edf0f3] text-[#1a1f2b]"
+                  }`}>
+                    {n === 1 ? "Recommended" : "Alternative"}
+                  </span>
                 </div>
 
-                <div className="text-xs font-semibold text-gray-900 mb-3">{r.title}</div>
+                {/* Title */}
+                <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#101826] m-0 mb-[14px] leading-[1.3]">
+                  {r.title}<br />
+                  <span className="font-semibold text-[#4f6280]">{subtitle}</span>
+                </h2>
 
-                {/* Scorecard metrics */}
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-3">
-                  <Metric label="Annual Savings" value={impactOk ? r.projected_impact.label : "—"} big />
-                  <Metric label="Hours Returned" value={impactOk ? r.projected_impact.label : "—"} big />
-                  <Metric label="Duration" value={r.timeline.low_weeks && r.timeline.high_weeks ? `${r.timeline.low_weeks}–${r.timeline.high_weeks} wks` : "—"} />
-                  <Metric label="Project Team" value={r.evidence_summary.total_comparables > 0 ? `${Math.ceil(r.evidence_summary.total_comparables / 5)}–${Math.ceil(r.evidence_summary.total_comparables / 3)} people` : "—"} />
-                </div>
-
-                {/* Tool stack */}
-                <div className="mb-3">
-                  <div className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold mb-1">Tool Stack</div>
-                  <div className="flex flex-wrap gap-1">
-                    {r.intervention_category.split("_").map((t, i) => (
-                      <span key={i} className="text-[10px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-medium">{t}</span>
-                    ))}
-                    <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded italic">+integrations</span>
-                  </div>
-                </div>
-
-                {/* Evidence compact */}
-                <div className="pt-3 border-t border-gray-100 mt-auto">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">Evidence</span>
-                    <TinyBadge tier={r.evidence_summary.overall_tier} />
-                  </div>
-                  {r.comparables.filter(c => c.evidence_tier !== "rejected").length > 0 ? (
-                    <div className="space-y-1">
-                      {r.comparables.filter(c => c.evidence_tier !== "rejected").slice(0, 3).map((c, i) => (
-                        <div key={i} className="flex items-center justify-between gap-2 py-0.5">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="text-[11px] font-medium text-gray-900 truncate">{c.organization}</span>
-                            <Stars score={c.evidence_score} size={9} />
-                          </div>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[10px] text-gray-500">{c.outcome.length > 20 ? c.outcome.slice(0, 20) + "…" : c.outcome}</span>
-                            <span className="text-[9px] text-gray-400 font-mono">{Math.round(c.similarity_score)}%</span>
-                          </div>
-                        </div>
-                      ))}
-                      {r.comparables.filter(c => c.evidence_tier !== "rejected").length > 3 && (
-                        <div className="text-[10px] text-gray-400 pt-0.5">+{r.comparables.filter(c => c.evidence_tier !== "rejected").length - 3} more</div>
-                      )}
+                {/* Metrics row */}
+                <div className="grid grid-cols-4 gap-2 mb-[22px]">
+                  {[
+                    { value: hasImpact ? `\u25CF $${extractValueFromLabel(r.projected_impact.label)}` : "\u25CF \u2014", color: "text-brand-green", label: "Annual Savings" },
+                    { value: hasImpact ? `\u25F7 ${extractValueFromLabel(r.projected_impact.label)}` : "\u25F7 \u2014", color: "text-brand-blue", label: "Hours Returned" },
+                    { value: r.timeline.low_weeks && r.timeline.high_weeks ? `\u25A3 ${r.timeline.low_weeks}\u2013${r.timeline.high_weeks} wks` : "\u25A3 \u2014", color: "text-brand-purple", label: "Duration" },
+                    { value: `\u2659 ${visibleComparables.length > 0 ? Math.max(1, Math.round(visibleComparables.length / 5)) + "\u2013" + Math.max(2, Math.round(visibleComparables.length / 3)) : "\u2014"}`, color: "text-brand-orange", label: "Team Size" },
+                  ].map((m, i) => (
+                    <div key={i} className="min-w-0">
+                      <div className={`text-[14px] font-extrabold whitespace-nowrap flex items-center gap-1.5 ${m.color}`}>{m.value}</div>
+                      <div className="text-[10px] font-bold text-[#61718a] mt-1">{m.label}</div>
                     </div>
-                  ) : (
-                    <div className="text-[10px] text-gray-400 italic">No comparable implementations</div>
-                  )}
+                  ))}
                 </div>
+
+                {/* Tool Stack */}
+                <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Tool Stack</p>
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {tools.slice(0, 3).map((t, i) => (
+                    <span key={i} className={`px-[10px] py-[5px] rounded-lg text-[11px] font-extrabold ${tagClass}`}>{t}</span>
+                  ))}
+                  <span className={`px-[10px] py-[5px] rounded-lg text-[11px] font-bold ${tagClass}`}>+{Math.max(1, tools.length - 3)} more</span>
+                </div>
+
+                {/* Evidence Quality */}
+                <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Evidence Quality</p>
+                <div className="flex items-center gap-[10px] mb-4">
+                  <span className={`px-[10px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-[0.04em] ${tierBadge(r.evidence_summary.overall_tier)}`}>
+                    {TIER_CONFIG[r.evidence_summary.overall_tier]?.label || r.evidence_summary.overall_tier}
+                  </span>
+                  <span className="text-[#586984] text-[11px] font-bold">{tierSummary(r.evidence_summary.overall_tier, r.evidence_summary.total_comparables)}</span>
+                </div>
+
+                {/* Top Evidence */}
+                <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Top Evidence</p>
+                <div className="mb-[14px]">
+                  {(visibleComparables.length > 0 ? visibleComparables.slice(0, 3) : []).map((c, i) => (
+                    <div key={i} className="min-h-[36px] grid grid-cols-[1fr_auto] gap-[10px] items-center border-b border-[#ebeff4] text-[12px]">
+                      <div className="flex items-center gap-[9px] min-w-0 font-extrabold">
+                        <span className="w-5 h-5 rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[9px] font-bold uppercase">
+                          {initial(c.organization)}
+                        </span>
+                        <span className="truncate text-[#101826]">{c.organization}</span>
+                      </div>
+                      <span className={`text-right font-bold text-[#53627a] ${n === 1 ? "text-brand-green" : n === 2 ? "text-brand-blue" : "text-brand-orange"}`}>
+                        {c.outcome || "Outcome not reported"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {visibleComparables.length > 0 && (
+                  <a
+                    href="#"
+                    className={`mt-auto inline-flex gap-2 items-center text-[12px] font-extrabold no-underline ${linkClass}`}
+                    onClick={(e) => { e.preventDefault(); }}
+                  >
+                    View all {visibleComparables.length} evidence sources &rarr;
+                  </a>
+                )}
               </div>
             );
           })}
         </div>
 
-        {/* BOTTOM ROW: Confidence + Risks */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-          {/* Confidence */}
-          <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-5">
-            <div className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold mb-3">Confidence Breakdown</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
-              {[
-                { l: "Evidence Quality", v: Math.min(primary.evidence_summary.average_evidence_score / 100, 1) },
-                { l: "Workflow Match", v: primary.comparables.length > 0 ? Math.min(primary.comparables.reduce((s, c) => s + c.similarity_score, 0) / primary.comparables.length / 100, 1) : 0 },
-                { l: "Outcome Consistency", v: primary.evidence_summary.failed_comparables > 0 ? Math.max(0, 1 - primary.evidence_summary.failed_comparables / Math.max(primary.evidence_summary.total_comparables, 1)) : 0.8 },
-                { l: "Data Completeness", v: Math.min(primary.evidence_summary.total_comparables / 30, 1) },
-              ].map((f, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <span className="text-[11px] text-gray-600 w-28 shrink-0">{f.l}</span>
-                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full bg-gray-800" style={{ width: `${Math.round(f.v * 100)}%` }} />
-                  </div>
-                  <span className="text-[10px] font-mono text-gray-500 w-6 text-right">{Math.round(f.v * 100)}%</span>
+        {/* POTENTIAL RISKS */}
+        {(primary.risks.length > 0 || primary.negative_evidence.length > 0) && (
+          <section className="mt-5 border border-[#f3c7c9] rounded-[18px] bg-risk-light px-7 py-[22px] pb-[25px]">
+            <h2 className="flex items-center gap-3 text-[19px] font-extrabold tracking-[-0.02em] m-0 mb-[22px]">
+              <span className="text-[28px] text-risk">&#x26A0;</span>
+              Potential Risks
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0">
+              {buildRisks(primary).slice(0, 4).map((risk, i) => (
+                <div
+                  key={i}
+                  className={`min-h-[70px] flex items-center gap-[17px] text-[14px] font-bold text-[#1b2432] ${
+                    i > 0 ? "border-l border-[#efc8ca] pl-[25px]" : ""
+                  }`}
+                >
+                  <span className="text-[30px] text-risk shrink-0" dangerouslySetInnerHTML={{ __html: risk.icon }} />
+                  <span>{risk.text}</span>
                 </div>
               ))}
             </div>
-            <div className="mt-3 text-[10px] text-gray-400 italic">{primary.confidence.explanation}</div>
-          </div>
-
-          {/* Risks */}
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <div className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold mb-3">Known Risks</div>
-            <div className="space-y-2">
-              {primary.risks.length > 0 ? primary.risks.slice(0, 4).map((r, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="text-amber-500 text-[11px] mt-0.5">⚠</span>
-                  <span className="text-[11px] text-gray-700">{r}</span>
-                </div>
-              )) : primary.negative_evidence.length > 0 ? primary.negative_evidence.slice(0, 4).flatMap(n => n.failure_reasons).slice(0, 4).map((r, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="text-amber-500 text-[11px] mt-0.5">⚠</span>
-                  <span className="text-[11px] text-gray-700">{r}</span>
-                </div>
-              )) : <div className="text-[11px] text-gray-400 italic">No significant risks identified</div>}
-            </div>
-            <div className="mt-3 text-[10px] text-gray-400 italic">Lessons learned from failed implementations are factored into confidence scores.</div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-[9px] text-gray-300">Compass AI — Evidence-driven recommendation engine</div>
+          </section>
+        )}
       </div>
     </div>
   );
+}
+
+function buildRisks(r: RecommendationData): { icon: string; text: string }[] {
+  const risks: { icon: string; text: string }[] = [];
+  const seen = new Set<string>();
+
+  for (const risk of r.risks) {
+    const key = risk.toLowerCase().trim();
+    if (!seen.has(key)) {
+      seen.add(key);
+      risks.push({ icon: "&#x26A0;", text: risk.length > 60 ? risk.slice(0, 57) + "..." : risk });
+    }
+    if (risks.length >= 4) break;
+  }
+
+  if (risks.length < 4) {
+    for (const neg of r.negative_evidence) {
+      for (const reason of neg.failure_reasons) {
+        if (risks.length >= 4) break;
+        const rewrites = rewriteRisk(reason);
+        for (const rw of rewrites) {
+          if (risks.length >= 4) break;
+          const key = rw.toLowerCase().trim();
+          if (!seen.has(key)) {
+            seen.add(key);
+            risks.push({ icon: "&#x265F;", text: rw });
+          }
+        }
+      }
+    }
+  }
+
+  while (risks.length < 4) {
+    risks.push({ icon: "&#x26A0;", text: "Standard implementation risks apply" });
+  }
+
+  return risks;
+}
+
+function rewriteRisk(reason: string): string[] {
+  const lower = reason.toLowerCase();
+  if (lower.includes("adoption") || lower.includes("change") || lower.includes("training"))
+    return ["Change management required for team adoption"];
+  if (lower.includes("data") || lower.includes("migration") || lower.includes("quality"))
+    return ["Data migration complexity in legacy systems"];
+  if (lower.includes("integration") || lower.includes("legacy") || lower.includes("system"))
+    return ["Third-party integration dependencies"];
+  if (lower.includes("stakeholder") || lower.includes("alignment") || lower.includes("approval"))
+    return ["Internal stakeholder alignment may cause delays"];
+  if (lower.includes("cost") || lower.includes("budget") || lower.includes("resource"))
+    return ["Budget and resource allocation may require approval"];
+  return [reason.length > 60 ? reason.slice(0, 57) + "..." : reason];
 }
 
 function buildProfile(answers: { questionId: string; value: any }[]) {
@@ -296,10 +491,10 @@ function buildProfile(answers: { questionId: string; value: any }[]) {
   const dept = (m.get("dept") as string) || "Operations";
   const dd = dept === "Customer Success" ? "customer_success" : dept === "HR" ? "human_resources" : dept.toLowerCase();
   const wf: Record<string, string> = {
-    "Sales": "lead_qualification", "Marketing": "marketing_automation", "Customer Success": "customer_health_scoring",
-    "Support": "ticketing", "Finance": "invoice_processing", "Product": "product_analytics",
-    "Engineering": "ci_cd", "HR": "onboarding", "IT": "it_automation", "Supply Chain": "supply_chain",
-    "Manufacturing": "manufacturing", "Legal": "contract_review", "Operations": "process_automation",
+    Sales: "lead_qualification", Marketing: "marketing_automation", "Customer Success": "customer_health_scoring",
+    Support: "ticketing", Finance: "invoice_processing", Product: "product_analytics",
+    Engineering: "ci_cd", HR: "onboarding", IT: "it_automation", "Supply Chain": "supply_chain",
+    Manufacturing: "manufacturing", Legal: "contract_review", Operations: "process_automation",
   };
   const raw = m.get("desired-outcome") || "";
   const outcome = typeof raw === "string"
