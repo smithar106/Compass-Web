@@ -392,15 +392,23 @@ function ResultsContent() {
                   ))}
                 </div>
 
-                {visibleComparables.length > 0 && (
-                  <a
-                    href="#"
-                    className={`mt-auto inline-flex gap-2 items-center text-[12px] font-extrabold no-underline ${linkClass}`}
-                    onClick={(e) => { e.preventDefault(); }}
-                  >
-                    View all {visibleComparables.length} evidence sources &rarr;
-                  </a>
-                )}
+                {(() => {
+                  const total = r.evidence_summary.total_comparables;
+                  const confPct = Math.round(r.confidence.score * 100);
+                  const hasImpact = r.projected_impact.is_sufficiently_supported;
+                  const hasTimeline = r.timeline.low_weeks && r.timeline.high_weeks;
+                  let proof: string;
+                  if (total >= 10) proof = `${total} comparable implementations`;
+                  else if (confPct >= 50) proof = `${confPct}% confidence · ${hasTimeline ? `${r.timeline.high_weeks}-week path` : "strong fit"}`;
+                  else if (hasImpact) proof = "Highest projected impact";
+                  else if (hasTimeline) proof = "Fastest path to value";
+                  else proof = "Recommended based on available evidence";
+                  return (
+                    <div className={`mt-auto pt-3 text-[12px] font-extrabold text-brand-green-dark`}>
+                      {proof}
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
