@@ -7,7 +7,7 @@ export default function TermsPage() {
 
         <section className="mt-10 space-y-6 text-body text-stone leading-relaxed">
           <p>
-            By accessing or using the Compass AI website and services, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.
+            By accessing or using the Compass website and services, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">1. Description of Service</h2>
