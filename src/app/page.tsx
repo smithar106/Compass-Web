@@ -37,7 +37,7 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
           {rank}
         </span>
         <span className={`px-[11px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-normal ${isRec ? "bg-brand-green-light text-brand-green-dark" : "bg-[#edf0f3] text-[#1a1f2b]"}`}>
-          {isRec ? "Recommended" : "Alternative"}
+          {isRec ? "Evidence supports this path" : "Other path"}
         </span>
       </div>
 
@@ -57,7 +57,7 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.confidence}</div>
-          <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">Confidence</div>
+          <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">Evidence strength</div>
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.timeline}</div>

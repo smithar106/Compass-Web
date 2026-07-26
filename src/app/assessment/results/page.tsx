@@ -395,7 +395,7 @@ function ResultsContent() {
               <div><span className="font-bold text-[#4f6280]">Problem:</span> <span className="text-[#101826]">{top.specific_action || top.title}</span></div>
               <div><span className="font-bold text-[#4f6280]">Workflow:</span> <span className="text-[#101826]">{top.intervention_id?.replace(/_/g, " ") || "Process"}</span></div>
               <div><span className="font-bold text-[#4f6280]">Evidence:</span> <span className="text-[#101826]">{evidenceMixSummary(top.evidence_summary)}</span></div>
-              <div><span className="font-bold text-[#4f6280]">Confidence:</span> <span className="text-[#101826]">{Math.round(top.confidence.score * 100)}% ({top.confidence.label})</span></div>
+               <div><span className="font-bold text-[#4f6280]">Evidence strength:</span> <span className="text-[#101826]">{Math.round(top.confidence.score * 100)}% ({top.confidence.label})</span></div>
             </div>
           </section>
 
@@ -403,8 +403,8 @@ function ResultsContent() {
           <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/30">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-6 h-6 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[11px] font-extrabold">1</span>
-              <span className="px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark text-[10px] font-extrabold uppercase">Recommended Path</span>
-              <span className="text-[11px] font-bold text-[#4f6280] ml-auto">{Math.round(top.confidence.score * 100)}% confidence</span>
+              <span className="px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark text-[10px] font-extrabold uppercase">Evidence supports this path</span>
+              <span className="text-[11px] font-bold text-[#4f6280] ml-auto">{Math.round(top.confidence.score * 100)}% evidence strength</span>
             </div>
 
             <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#101826] mb-1">
@@ -460,11 +460,11 @@ function ResultsContent() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                 <div className="bg-[#f0faf0] rounded-xl px-4 py-3 border border-[#d4ebd4]">
                   <div className="text-[16px] font-extrabold text-brand-green-dark">{formatCurrency(top.impact.annual_savings.expected)}</div>
-                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Est. annual savings</div>
+                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Annual savings</div>
                 </div>
                 <div className="bg-[#eef4fb] rounded-xl px-4 py-3 border border-[#d4e0f0]">
                   <div className="text-[16px] font-extrabold text-brand-blue">{formatHours(top.impact.annual_hours_returned.expected)}h</div>
-                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Est. hours returned</div>
+                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Hours returned</div>
                 </div>
                 <div className="bg-[#f4eefb] rounded-xl px-4 py-3 border border-[#e0d4f0]">
                   <div className="text-[16px] font-extrabold text-brand-purple">{timelineDisplay(top.impact.implementation_timeline)}</div>
@@ -610,7 +610,7 @@ function ResultsContent() {
           {/* ===== 4. ALTERNATIVE OPTIONS ===== */}
           {alternatives.length > 0 && (
             <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
-              <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Alternative approaches evaluated</h2>
+              <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Other paths evaluated</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {alternatives.map((r) => (
                   <div key={r.rank} className="bg-white rounded-xl p-5 border-2 border-[#dfe5ec] shadow-sm">
@@ -645,7 +645,7 @@ function ResultsContent() {
           {/* ===== 5. RISKS ===== */}
           {top.risks?.length > 0 && (
             <section className="border border-[#f3c7c9] rounded-[18px] bg-risk-light px-7 py-[22px] pb-[25px] shadow-sm">
-              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] m-0 mb-[18px]">Potential risks and mitigations</h2>
+              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] m-0 mb-[18px]">Risk assessment</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {top.risks.slice(0, 4).map((risk, i) => (
                   <div key={i} className="bg-white rounded-xl p-4 border border-[#efc8ca]">
@@ -701,7 +701,7 @@ function ResultsContent() {
           {/* ===== 7. NEXT VALIDATION STEP ===== */}
           {top.next_validation_step && (
             <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/20">
-              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] text-[#101826] mb-4">Recommended next step</h2>
+              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] text-[#101826] mb-4">Next step</h2>
               <div className="flex items-start gap-4">
                 <div className="w-9 h-9 rounded-full bg-brand-green-light flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-brand-green-dark text-[16px] font-extrabold">&#8594;</span>
@@ -735,12 +735,12 @@ function ResultsContent() {
               Compass surfaces comparable real-world implementations that match your workflow, constraints, and objectives.
               Each finding is ranked by evidence quality, workflow fit, outcome consistency,
               and organizational similarity. The database contains {top.evidence_summary.total_comparables} implementations
-              relevant to this assessment. Confidence reflects how many of those implementations measured and
+              relevant to this assessment. Evidence strength reflects how many of those implementations measured and
               quantified their outcomes, not just tool adoption.
             </p>
             <p className="mt-2">
               This analysis is based on the information you provided. Outcomes observed in comparable organizations
-              do not guarantee identical results. Validate the recommended approach through a
+              do not guarantee identical results. Validate the evidence-supported path through a
               bounded pilot before committing to full-scale implementation.
             </p>
           </section>
