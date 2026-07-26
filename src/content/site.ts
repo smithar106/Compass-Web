@@ -2,24 +2,24 @@ export const site = {
   name: "Compass",
   tagline: "What operational change will drive the greatest impact?",
   description:
-    "Compass is an evidence-based decision platform for operations leaders — grounded in thousands of real-world implementations, not consultant experience.",
+    "Compass is an evidence-based decision platform for operations leaders \u2014 grounded in thousands of real-world implementations, not consultant experience.",
 
   hero: {
     headline: "Evidence before implementation.",
     subtitle: "Compass identifies the operational solution most likely to succeed by comparing your organization against thousands of real-world implementations.",
     bullets: [
       "Identify the real problem worth solving",
-      "Compare every viable intervention path — AI, software, process, automation, or no change",
+      "Compare every viable intervention path \u2014 AI, software, process, automation, or no change",
       "Estimate business impact before committing budget",
       "Leave with an implementation plan",
     ],
-    cta: "Get My Recommendations",
-    ctaSecondary: "See Example Assessment",
+    cta: "Start Your Assessment",
+    ctaSecondary: "See Example Results",
     outcomes: [
-      { problem: "Missed sales calls", label: "Best Path", value: "+$2.4M", detail: "Revenue recovered" },
-      { problem: "Wasted employee time", label: "Best Path", value: "18,200 hrs", detail: "Equivalent to 9 FTEs" },
-      { problem: "Lost customer opportunities", label: "Best Path", value: "16,700", detail: "Customer interactions" },
-      { problem: "Uncertain investment return", label: "Best Path", value: "28\u00D7", detail: "Payback in 6 months" },
+      { problem: "Missed sales calls", label: "Recommended", value: "+$2.4M", detail: "Revenue recovered" },
+      { problem: "Wasted employee time", label: "Recommended", value: "18,200 hrs", detail: "Equivalent to 9 FTEs" },
+      { problem: "Lost customer opportunities", label: "Recommended", value: "16,700", detail: "Customer interactions" },
+      { problem: "Uncertain investment return", label: "Recommended", value: "28\u00D7", detail: "Payback in 6 months" },
     ],
     recommendation: {
       problem: "Sales team misses 100+ inbound calls every day during peak hours.",
@@ -69,7 +69,7 @@ export const site = {
 
   evidence: {
     headline: "Decisions should be grounded in data, not decades.",
-    subtitle: "Compass compares AI, software, process redesign, staffing, automation, outsourcing, and governance using comparable implementation outcomes — not consultant experience.",
+    subtitle: "Compass compares AI, software, process redesign, staffing, automation, outsourcing, and governance using comparable implementation outcomes \u2014 not consultant experience.",
   },
 
   designPartners: {
@@ -103,19 +103,19 @@ export const site = {
 
   finalCta: {
     headline: "Investigate before you build.",
-    subtitle: "Before you evaluate another vendor, compare what comparable implementations show — not what a sales deck claims.",
-    cta: "Start investigation",
+    subtitle: "Before you evaluate another vendor, compare what comparable implementations show \u2014 not what a sales deck claims.",
+    cta: "Start Assessment",
   },
 
   footer: {
-    description: "Built for organizations making high-stakes operational decisions.",
-    copyright: `© ${new Date().getFullYear()} Compass. All rights reserved.`,
+    description: "Evidence-based operational decision intelligence.",
+    copyright: `\u00A9 ${new Date().getFullYear()} Compass. All rights reserved.`,
     columns: [
       {
         title: "Product",
         links: [
-          { label: "Investigation", href: "/assessment" },
-          { label: "Example", href: "/assessment/results?example=true" },
+          { label: "Assessment", href: "/assessment" },
+          { label: "Example Results", href: "/assessment/results?example=true" },
         ],
       },
       {
@@ -158,32 +158,32 @@ export const site = {
 
   assessment: {
     intro: {
-      headline: "Operational Investigation",
-      body: "We'll ask about your departments, how work happens, where it fails, and what outcome matters. This isn't a consultation — it's an evidence-based investigation that compares your situation against thousands of real implementations.",
-      estimatedTime: "3-5 minutes",
+      headline: "Operational Assessment",
+      body: "Answer a few questions about your workflow, constraints, and objectives. Compass compares your situation against thousands of real implementations to identify the most evidence-backed path forward.",
+      estimatedTime: "3\u20135 minutes",
       sections: "10 departments",
       questions: "Targeted questions about your operations",
-      cta: "Get my recommendations",
+      cta: "Begin Assessment",
     },
     sections: {
-      "General": "We'll start by understanding the department, workflow, and desired outcome — focused on the business problem, not the technology.",
+      "General": "We'll start by understanding the department, workflow, and desired outcome \u2014 focused on the business problem, not the technology.",
       "Workload": "Understanding the frequency, scale, and complexity of the work helps us determine whether intervention is worthwhile.",
       "Systems": "Your existing tools and data determine what's possible. We'll map the current technical landscape.",
-      "Impact": "We'll assess the cost of the current workflow — in time, money, and missed opportunity.",
+      "Impact": "We'll assess the cost of the current workflow \u2014 in time, money, and missed opportunity.",
       "Risk": "Understanding risk, stability, and prior attempts helps us recommend the right level of intervention.",
       "Constraints": "Technical constraints, budget, and timeline define what's feasible. We'll factor these into every recommendation.",
     },
     complete: {
-      headline: "Your investigation is complete.",
-      body: "We've analyzed your responses across all departments. View your Opportunity Map to see ranked recommendations with evidence, business cases, and implementation options.",
-      cta: "View recommendations",
+      headline: "Assessment complete.",
+      body: "Your responses have been analyzed against thousands of comparable implementations. Your recommendations are ready below.",
+      cta: "View Recommendations",
     },
   },
 
   results: {
-    headline: "Opportunity Map",
-    subtitle: "Ranked by evidence weight, not opinion. Every recommendation is grounded in comparable implementations with displayed confidence, assumptions, and alternatives.",
-    noResults: "No investigation results found. Please complete the operational investigation first.",
+    headline: "Recommendations",
+    subtitle: "Ranked by evidence quality, not opinion. Every recommendation is grounded in comparable implementations with displayed confidence, assumptions, and alternatives.",
+    noResults: "No results found. Please complete the operational assessment first.",
     buildBlueprint: "View Implementation Plan",
     comparePaths: "Compare intervention paths",
   },
@@ -242,8 +242,8 @@ export const site = {
   },
 
   metadata: {
-    title: "Compass — Evidence-Based Operational Decision Intelligence",
+    title: "Compass \u2014 Evidence-Based Operational Decision Intelligence",
     description:
-      "Compass is an evidence-based decision platform for operations leaders — grounded in thousands of real-world implementations, not consultant experience.",
+      "Compass is an evidence-based decision platform for operations leaders \u2014 grounded in thousands of real-world implementations, not consultant experience.",
   },
 };

@@ -172,21 +172,21 @@ export default function HomePage() {
       </div>
 
       {/* How Compass works */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-indigo-50/40">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-mist/30">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-xl font-bold text-ink text-center">How Compass works.</h2>
+          <h2 className="text-xl font-bold text-ink text-center">How Compass works</h2>
           <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-3">
             {[
-              { step: "Problem", desc: "Identify the operational issue." },
-              { step: "Investigate", desc: "Gather data and assess readiness." },
-              { step: "Compare", desc: "Match against real-world implementations." },
-              { step: "Identify", desc: "Surface the highest-evidence path." },
-              { step: "Implementation Plan", desc: "Blueprint the rollout." },
+              { step: "Define", desc: "Describe the operational problem." },
+              { step: "Assess", desc: "Map constraints, readiness, and risk." },
+              { step: "Match", desc: "Compare against real-world implementations." },
+              { step: "Recommend", desc: "Surface the highest-evidence path." },
+              { step: "Plan", desc: "Outline what to do next." },
             ].map((item, i) => (
-              <div key={item.step} className="border-2 border-indigo-200 rounded-xl p-5 text-center bg-white shadow-sm">
-                <span className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center mx-auto text-sm font-bold">{i + 1}</span>
+              <div key={item.step} className="border border-[#dfe5ec] rounded-xl p-5 text-center bg-white shadow-sm">
+                <span className="w-9 h-9 rounded-full bg-forest text-white flex items-center justify-center mx-auto text-sm font-bold">{i + 1}</span>
                 <p className="mt-2 text-sm font-bold text-ink">{item.step}</p>
-                <p className="mt-1 text-xs text-ink/70">{item.desc}</p>
+                <p className="mt-1 text-xs text-ink/60">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -205,10 +205,10 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-            {/* Traditional Consulting - slate */}
-            <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-6 pt-7 pb-4 bg-slate-50 border-b border-slate-100">
-                <h3 className="text-[17px] font-bold text-slate-700">Traditional Consulting</h3>
+            {/* Traditional Consulting */}
+            <div className="relative flex flex-col rounded-2xl border border-[#dfe5ec] bg-white shadow-sm overflow-hidden">
+              <div className="px-6 pt-7 pb-4 bg-[#f6f8fa] border-b border-[#dfe5ec]">
+                <h3 className="text-[17px] font-bold text-[#4f6280]">Traditional Consulting</h3>
               </div>
               <div className="flex-1 px-6 py-4 space-y-4">
                 <div>
@@ -259,10 +259,10 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* AI Consulting - indigo */}
-            <div className="relative flex flex-col rounded-2xl border border-indigo-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-6 pt-7 pb-4 bg-indigo-50 border-b border-indigo-100">
-                <h3 className="text-[17px] font-bold text-indigo-700">AI Consulting</h3>
+            {/* AI Consulting */}
+            <div className="relative flex flex-col rounded-2xl border border-[#dfe5ec] bg-white shadow-sm overflow-hidden">
+              <div className="px-6 pt-7 pb-4 bg-[#f6f8fa] border-b border-[#dfe5ec]">
+                <h3 className="text-[17px] font-bold text-[#4f6280]">AI Consulting</h3>
               </div>
               <div className="flex-1 px-6 py-4 space-y-4">
                 <div>
@@ -313,60 +313,55 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Compass - lime/green, elevated */}
-            <div className="relative flex flex-col rounded-2xl border-2 border-lime-400 shadow-[0_0_40px_-8px_rgba(132,204,22,0.15)] bg-white order-first md:order-none md:-translate-y-1 overflow-hidden">
-              <div className="absolute top-0 right-0">
-                <div className="bg-lime-400 text-white text-[10px] font-extrabold uppercase tracking-[0.06em] px-4 py-1.5 rounded-bl-xl">
-                  Recommended
-                </div>
-              </div>
-              <div className="px-6 pt-7 pb-4 bg-lime-50 border-b border-lime-100">
-                <h3 className="text-[17px] font-bold text-lime-800">Compass</h3>
+            {/* Compass */}
+            <div className="relative flex flex-col rounded-2xl border-2 border-forest/40 shadow-[0_8px_32px_-8px_rgba(45,106,79,0.12)] bg-white order-first md:order-none md:-translate-y-1 overflow-hidden">
+              <div className="px-6 pt-7 pb-4 bg-mist border-b border-forest/10">
+                <h3 className="text-[17px] font-bold text-forest">Compass</h3>
               </div>
               <div className="flex-1 px-6 py-4 space-y-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-lime-400" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Evidence</p>
+                    <div className="w-1 h-4 rounded-full bg-forest" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Evidence</p>
                   </div>
-                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
+                  <p className="text-[13px] text-ink/80 leading-relaxed">
                     Grounded in comparable real-world implementations and their measured outcomes, not individual experience or opinion.
                   </p>
                 </div>
-                <div className="border-t border-lime-100 pt-4">
+                <div className="border-t border-forest/10 pt-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-lime-400" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Approach</p>
+                    <div className="w-1 h-4 rounded-full bg-forest" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Approach</p>
                   </div>
-                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Identifies the best solution—AI, software, process redesign, automation, or no intervention—before you build.
+                  <p className="text-[13px] text-ink/80 leading-relaxed">
+                    Identifies the best solution\u2014AI, software, process redesign, automation, or no intervention\u2014before you build.
                   </p>
                 </div>
-                <div className="border-t border-lime-100 pt-4">
+                <div className="border-t border-forest/10 pt-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-lime-400" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Knowledge</p>
+                    <div className="w-1 h-4 rounded-full bg-forest" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Knowledge</p>
                   </div>
-                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
+                  <p className="text-[13px] text-ink/80 leading-relaxed">
                     Powered by a growing evidence graph of real-world operational interventions and their measured outcomes.
                   </p>
                 </div>
-                <div className="border-t border-lime-100 pt-4">
+                <div className="border-t border-forest/10 pt-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-lime-400" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Scale</p>
+                    <div className="w-1 h-4 rounded-full bg-forest" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Scale</p>
                   </div>
-                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
+                  <p className="text-[13px] text-ink/80 leading-relaxed">
                     Scales through structured evidence rather than headcount, delivering results in minutes instead of weeks.
                   </p>
                 </div>
-                <div className="border-t border-lime-100 pt-4">
+                <div className="border-t border-forest/10 pt-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-lime-400" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Trust</p>
+                    <div className="w-1 h-4 rounded-full bg-forest" />
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Trust</p>
                   </div>
-                  <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Evidence-backed with no implementation bias. Solely focused on identifying the best solution for your needs.
+                  <p className="text-[13px] text-ink/80 leading-relaxed">
+                    Evidence-backed with no implementation bias. Focused solely on identifying the best solution for your context.
                   </p>
                 </div>
               </div>
@@ -482,17 +477,17 @@ export default function HomePage() {
       </section>
 
       {/* Evidence */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#fbfcfd]">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-xl font-bold text-ink text-center">The cost of guessing.</h2>
-          <p className="mt-2 text-sm text-ink/80 text-center">Before organizations use evidence-based decisions, they rely on intuition. The results speak for themselves.</p>
+          <h2 className="text-xl font-bold text-ink text-center">The cost of guessing</h2>
+          <p className="mt-2 text-sm text-ink/60 text-center">Before evidence-based decisions, organizations rely on intuition. The results speak for themselves.</p>
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
             {researchStatistics.map((stat) => (
-              <div key={stat.label} className="border-2 border-amber-200 rounded-xl p-5 bg-white shadow-sm text-center">
-                <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">{stat.label}</p>
+              <div key={stat.label} className="border border-[#dfe5ec] rounded-xl p-5 bg-white shadow-sm text-center">
+                <p className="text-[10px] font-extrabold text-ink/50 uppercase tracking-[0.08em]">{stat.label}</p>
                 <p className="text-3xl font-bold text-ink mt-2">{stat.value}</p>
-                <p className="text-sm text-ink mt-1 leading-snug">{stat.detail}</p>
-                <p className="text-xs text-stone mt-2">{stat.source}</p>
+                <p className="text-sm text-ink/70 mt-1 leading-snug">{stat.detail}</p>
+                <p className="text-[10px] text-ink/40 mt-2">{stat.source}</p>
               </div>
             ))}
           </div>

@@ -362,10 +362,10 @@ function ResultsContent() {
             <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Compass Recommendation</h1>
+                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Recommendations</h1>
                   <span className="px-3 py-1 rounded-full bg-brand-green-light text-brand-green-dark text-[11px] font-extrabold uppercase whitespace-nowrap">{statusLabel}</span>
                 </div>
-                <p className="text-[#4f6280] font-semibold mt-1 mb-2 text-[15px]">Evidence-driven decision brief for your team</p>
+                <p className="text-[#4f6280] font-semibold mt-1 mb-2 text-[15px]">Evidence-based findings for your operational assessment</p>
                 <div className="flex flex-wrap gap-x-6 gap-y-1 text-[13px] font-semibold text-[#5f718f]">
                   <span>Engine v3.0.0</span>
                   <span>Dataset v3</span>
@@ -732,17 +732,16 @@ function ResultsContent() {
           <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec] text-[11px] text-[#5f718f] leading-[1.5]">
             <h2 className="text-[13px] font-extrabold text-[#4f6280] mb-2">About this analysis</h2>
             <p>
-              Compass is an evidence-driven recommendation engine. It does not generate outcomes \u2014 it surfaces
-              real implementations from organizations with similar workflows, constraints, and objectives.
-              Each recommendation is ranked by a combination of evidence quality, workflow fit, outcome consistency,
+              Compass surfaces comparable real-world implementations that match your workflow, constraints, and objectives.
+              Each finding is ranked by evidence quality, workflow fit, outcome consistency,
               and organizational similarity. The database contains {top.evidence_summary.total_comparables} implementations
               relevant to this assessment. Confidence reflects how many of those implementations measured and
               quantified their outcomes, not just tool adoption.
             </p>
             <p className="mt-2">
               This analysis is based on the information you provided. Outcomes observed in comparable organizations
-              do not guarantee identical results. We recommend validating the recommended approach through a
-              bounded pilot before making a full commitment.
+              do not guarantee identical results. Validate the recommended approach through a
+              bounded pilot before committing to full-scale implementation.
             </p>
           </section>
         </div>
