@@ -289,7 +289,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Knowledge</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Built on past client implementations and the team\u2019s hands-on experience deploying AI solutions and platforms.
+                    Built on past client implementations and the team's hands-on experience deploying AI solutions and platforms.
                   </p>
                 </div>
                 <div className="border-t border-indigo-100 pt-4">
@@ -339,7 +339,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Approach</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Identifies the best solution\u2014AI, software, process redesign, automation, or no intervention\u2014before you build.
+                    Identifies the best solution—AI, software, process redesign, automation, or no intervention—before you build.
                   </p>
                 </div>
                 <div className="border-t border-lime-100 pt-4">
