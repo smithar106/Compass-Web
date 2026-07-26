@@ -6,9 +6,9 @@ describe("Homepage content", () => {
     expect(site.hero.headline).toContain("Evidence before implementation");
   });
 
-  it("should have 4 outcomes with Best Path label", () => {
+  it("should have 4 outcomes with Evidence-based label", () => {
     expect(site.hero.outcomes).toHaveLength(4);
-    expect(site.hero.outcomes[0].label).toBe("Best Path");
+    expect(site.hero.outcomes[0].label).toBe("Evidence-based");
   });
 
   it("should have hero recommendation panel", () => {
@@ -36,6 +36,6 @@ describe("Homepage content", () => {
   });
 
   it("should have final CTA", () => {
-    expect(site.finalCta.cta).toBe("Start investigation");
+    expect(site.finalCta.cta).toBe("Start Assessment");
   });
 });

@@ -77,7 +77,7 @@ export const site = {
     subtitle: "We are working with operations leaders and founders to evaluate real decisions before implementation begins.",
     benefits: [
       "A structured organizational investigation",
-      "An Opportunity Map with compared interventions",
+      "A comparison of evidence-supported interventions",
       "A prioritized finding and action plan",
       "Direct influence on the product roadmap",
     ],

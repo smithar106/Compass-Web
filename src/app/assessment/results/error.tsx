@@ -16,7 +16,7 @@ export default function ResultsError({
       </div>
       <h2 className="text-subhead font-semibold text-ink mb-2">Failed to load results</h2>
       <p className="text-sm text-stone mb-6 max-w-md text-center">
-        {error.message || "Your Opportunity Map could not be loaded. Please try again."}
+        {error.message || "Your findings could not be loaded. Please try again."}
       </p>
       <button
         onClick={reset}
