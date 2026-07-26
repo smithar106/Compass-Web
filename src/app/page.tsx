@@ -216,7 +216,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Evidence</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Recommendations based on consultant experience and interviews, with limited access to comparable implementations.
+                    Draws on consultant experience and interviews with limited access to comparable real-world implementations.
                   </p>
                 </div>
                 <div className="border-t border-slate-100 pt-4">
@@ -225,7 +225,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Approach</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Delivers strategic recommendations in weeks, typically focused on organizational and operational advice.
+                    Delivers strategic recommendations over weeks, typically focused on organizational and operational change.
                   </p>
                 </div>
                 <div className="border-t border-slate-100 pt-4">
@@ -234,7 +234,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Knowledge</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Expertise is limited to individual consultants and partner experience at the firm.
+                    Expertise is limited to what individual consultants and partners at the firm already know.
                   </p>
                 </div>
                 <div className="border-t border-slate-100 pt-4">
@@ -243,7 +243,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Scale</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Scales through adding more people; each engagement starts from scratch.
+                    Scales by adding more people to each project, with every engagement starting from scratch.
                   </p>
                 </div>
                 <div className="border-t border-slate-100 pt-4">
@@ -252,7 +252,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Trust</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Expert opinion with limited transparency; may recommend additional consulting engagements.
+                    Relies on expert opinion with limited transparency and may recommend additional consulting engagements.
                   </p>
                 </div>
               </div>
@@ -288,7 +288,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Knowledge</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Built on past client implementations and team expertise in AI deployment.
+                    Built on past client implementations and the team\u2019s hands-on experience deploying AI solutions.
                   </p>
                 </div>
                 <div className="border-t border-indigo-100 pt-4">
@@ -338,7 +338,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Approach</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Identifies the best solution\u2014AI, software, process redesign, automation, or no intervention\u2014before you build.
+                    Identifies the best solution through evidence before you build\u2014AI, process redesign, automation, or none.
                   </p>
                 </div>
                 <div className="border-t border-lime-100 pt-4">
@@ -347,7 +347,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Knowledge</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Powered by a continuously growing evidence graph of real operational interventions and their outcomes.
+                    Powered by a growing evidence graph of real-world operational interventions and their measured outcomes.
                   </p>
                 </div>
                 <div className="border-t border-lime-100 pt-4">
@@ -356,7 +356,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Scale</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Scales through structured evidence, delivering results in minutes rather than weeks.
+                    Scales through structured evidence, not headcount, delivering results in minutes instead of weeks.
                   </p>
                 </div>
                 <div className="border-t border-lime-100 pt-4">
@@ -365,7 +365,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Trust</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Evidence-backed recommendations with no implementation bias. Focused solely on identifying the best solution.
+                    Evidence-backed with no implementation bias. Solely focused on identifying the best solution for your needs.
                   </p>
                 </div>
               </div>
@@ -387,6 +387,7 @@ export default function HomePage() {
                 { name: "HR", icon: "\uD83D\uDC65" },
                 { name: "IT", icon: "\uD83D\uDCBB" },
                 { name: "Supply Chain", icon: "\uD83D\uDCE6" },
+                { name: "Legal & Compliance", icon: "\u2696\uFE0F" },
               ].map((dept) => (
                 <div key={dept.name} className="border-2 border-slate-100 rounded-xl p-4 bg-white shadow-sm text-center hover:border-slate-200 transition-colors cursor-default">
                   <div className="text-2xl mb-1.5">{dept.icon}</div>
