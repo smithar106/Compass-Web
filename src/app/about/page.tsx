@@ -73,16 +73,16 @@ export default function AboutPage() {
           <div className="bg-white border border-[#dfe5ec] rounded-2xl p-8 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
             <h2 className="text-[20px] font-extrabold text-[#101826] text-center m-0 mb-2">{site.about.compass.headline}</h2>
             <p className="text-[14px] text-[#5a6b84] text-center mb-8">{site.about.compass.subtitle}</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {site.about.compass.directions.map((d, i) => {
+            <div className="grid grid-cols-2 gap-4">
+              {site.about.compass.principles.map((p, i) => {
                 const colors = ["text-brand-green bg-brand-green-light", "text-brand-blue bg-brand-blue-light", "text-brand-purple bg-brand-purple-light", "text-brand-orange bg-brand-orange-light"];
                 return (
-                  <div key={d.name} className="text-center p-5 border border-[#dfe5ec] rounded-xl">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 ${colors[i]}`}>
-                      <span className="text-[16px] font-extrabold">{d.name[0]}</span>
+                  <div key={p.title} className="text-left p-5 border border-[#dfe5ec] rounded-xl">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${colors[i]}`}>
+                      <span className="text-[14px] font-extrabold">{p.title[0]}</span>
                     </div>
-                    <h3 className="text-[13px] font-extrabold text-[#101826] m-0 mb-1">{d.label}</h3>
-                    <p className="text-[12px] text-[#5a6b84] leading-relaxed m-0">{d.description}</p>
+                    <h3 className="text-[14px] font-extrabold text-[#101826] m-0 mb-1">{p.title}</h3>
+                    <p className="text-[13px] text-[#5a6b84] leading-relaxed m-0">{p.description}</p>
                   </div>
                 );
               })}

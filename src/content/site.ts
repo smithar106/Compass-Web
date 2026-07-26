@@ -108,7 +108,7 @@ export const site = {
   },
 
   footer: {
-    description: "Founded by operators and product leaders who have scaled enterprise software.",
+    description: "Built for organizations making high-stakes operational decisions.",
     copyright: `© ${new Date().getFullYear()} Compass. All rights reserved.`,
     columns: [
       {
@@ -130,12 +130,12 @@ export const site = {
   },
 
   about: {
-    mission: "Replace opinion-based automation decisions with evidence-backed paths grounded in comparable real-world implementations.",
-    vision: "A world where every company knows the right answer to 'what should we automate next?' — because comparable implementations tell them, not a consultant.",
-    problem: "Companies are under immense pressure to adopt the latest technology. Boardrooms demand strategies. Competitors launch features. The result is rushed decisions, failed proofs of concept, and wasted budgets. Compass solves this by grounding every recommendation in what comparable implementations actually achieved — not what a vendor claims is possible.",
-    team: "We're a small team of product builders, engineers, and operators who have scaled B2B SaaS companies from seed to IPO. We built Compass because we wished it existed.",
+    mission: "Compass is the evidence-based decision intelligence platform organizations use before committing to operational change. We compare your operational challenges against comparable real-world implementations to identify the solution with the strongest evidence of success.",
+    vision: "A world where every operational decision is informed by comparable real-world evidence instead of opinion.",
+    problem: "Organizations face constant pressure to adopt new technologies. Boards demand AI strategies. Vendors promise transformational results. Competitors announce new capabilities. The result is often expensive decisions made with incomplete evidence. Compass helps organizations identify the best operational solution before implementation by grounding every recommendation in comparable real-world implementations\u2014not vendor claims or generic best practices.",
+    team: "We're building the platform we wished existed whenever organizations faced complex operational decisions.",
     futureVision: {
-      headline: "Future vision",
+      headline: "Where Compass Is Going",
       body: "Compass will eventually analyze existing tooling environments (Slack, Jira, ticketing systems), support deployment execution, and measure realized outcomes against predictions.",
       items: [
         { title: "Slack / Jira analysis", description: "Analyze existing workflow signals from communication and project management tools" },
@@ -147,11 +147,11 @@ export const site = {
     compass: {
       headline: "Our internal compass",
       subtitle: "Four principles guide how we build.",
-      directions: [
-        { name: "North", label: "Direction", description: "We start with the business problem, not the technology. Every recommendation traces back to operational reality." },
-        { name: "East", label: "Capability", description: "We reveal what's possible across AI, software, process, and human work — then recommend the best path." },
-        { name: "South", label: "Visibility", description: "We show our reasoning. Evidence, assumptions, alternatives, and confidence are always visible." },
-        { name: "West", label: "Learning", description: "Every investigation improves the next. Over time, Compass learns what works across organizations." },
+      principles: [
+        { title: "Evidence", description: "Recommendations begin with comparable operational implementations\u2014not assumptions." },
+        { title: "Problems First", description: "Compass starts with the business problem, not the technology." },
+        { title: "Transparency", description: "Every recommendation includes supporting evidence, assumptions, and alternatives." },
+        { title: "Continuous Learning", description: "As the evidence graph grows, Compass becomes increasingly capable of identifying comparable implementations." },
       ],
     },
   },
