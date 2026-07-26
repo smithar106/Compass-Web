@@ -265,37 +265,55 @@ function ResultsContent() {
     setPdfLoading(true);
     setPdfError(null);
     try {
-      const el = document.getElementById("compass-report-content");
-      if (!el) throw new Error("Content not found");
-      const { default: jsPDF } = await import("jspdf");
-      const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ unit: "in", format: "letter" });
-      const pw = pdf.internal.pageSize.getWidth();
-      const ph = pdf.internal.pageSize.getHeight();
-      const margin = 0.5;
-      const iw = pw - margin * 2;
-      const ih = (canvas.height * iw) / canvas.width;
-      const usable = ph - margin * 2;
-      let remaining = ih;
-      pdf.addImage(imgData, "PNG", margin, margin, iw, ih);
-      remaining -= usable;
-      while (remaining > 0) {
-        const offsetPx = (ih - remaining) / (ih / canvas.height);
-        pdf.addPage();
-        const clipped = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", y: offsetPx, height: canvas.height - offsetPx });
-        const clipData = clipped.toDataURL("image/png");
-        const ch = (clipped.height * iw) / clipped.width;
-        pdf.addImage(clipData, "PNG", margin, margin, iw, ch);
+      if (runId) {
+        const res = await fetch(`/api/recommendations/pdf?rec_id=${encodeURIComponent(runId)}`);
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.error || `Server error (${res.status})`);
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const today = new Date().toISOString().slice(0, 10);
+        a.download = `compass-recommendation-${today}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        const { default: jsPDF } = await import("jspdf");
+        const { default: html2canvas } = await import("html2canvas");
+        const el = document.getElementById("compass-report-content");
+        if (!el) throw new Error("Content not found");
+        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF({ unit: "in", format: "letter" });
+        const pw = pdf.internal.pageSize.getWidth();
+        const ph = pdf.internal.pageSize.getHeight();
+        const margin = 0.5;
+        const iw = pw - margin * 2;
+        const ih = (canvas.height * iw) / canvas.width;
+        const usable = ph - margin * 2;
+        let remaining = ih;
+        pdf.addImage(imgData, "PNG", margin, margin, iw, ih);
         remaining -= usable;
+        while (remaining > 0) {
+          const offsetPx = (ih - remaining) / (ih / canvas.height);
+          pdf.addPage();
+          const clipped = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", y: offsetPx, height: canvas.height - offsetPx });
+          const clipData = clipped.toDataURL("image/png");
+          const ch = (clipped.height * iw) / clipped.width;
+          pdf.addImage(clipData, "PNG", margin, margin, iw, ch);
+          remaining -= usable;
+        }
+        const today = new Date().toISOString().slice(0, 10);
+        pdf.save(`compass-report-${today}.pdf`);
       }
-      const today = new Date().toISOString().slice(0, 10);
-      pdf.save(`compass-report-${today}.pdf`);
     } catch (e) {
-      setPdfError("Could not generate PDF. Please try again.");
+      setPdfError(e instanceof Error ? e.message : "Could not generate PDF.");
     } finally { setPdfLoading(false); }
-  }, [recs, pdfLoading]);
+  }, [recs, pdfLoading, runId]);
 
   const ts = new Date().toISOString().slice(0, 10);
 
