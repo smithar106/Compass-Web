@@ -22,13 +22,12 @@ interface RecommendationData {
 
 interface BlueprintPrintProps {
   recommendation: RecommendationData;
-  allRecommendations: RecommendationData[];
   generatedAt: string;
   runId: string;
   onClose: () => void;
 }
 
-export function BlueprintPrint({ recommendation: r, allRecommendations, generatedAt, runId, onClose }: BlueprintPrintProps) {
+export function BlueprintPrint({ recommendation: r, generatedAt, runId, onClose }: BlueprintPrintProps) {
   const phases = [
     {
       name: "Planning & Setup",
@@ -93,15 +92,19 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
     const margin = 0.5;
     const imgWidth = pageWidth - margin * 2;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = margin;
-    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight - margin * 2;
-    while (heightLeft > 0) {
-      position = -(pageHeight - margin * 2) * (imgHeight / canvas.height - 1) + margin;
+    const usableHeight = pageHeight - margin * 2;
+    let remaining = imgHeight;
+    const scaleY = imgHeight / canvas.height;
+    pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+    remaining -= usableHeight;
+    while (remaining > 0) {
+      const offsetPx = (imgHeight - remaining) / scaleY;
       pdf.addPage();
-      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - margin * 2;
+      const clippedImage = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", y: offsetPx, height: canvas.height - offsetPx });
+      const clipData = clippedImage.toDataURL("image/png");
+      const clipHeight = (clippedImage.height * imgWidth) / clippedImage.width;
+      pdf.addImage(clipData, "PNG", margin, margin, imgWidth, clipHeight);
+      remaining -= usableHeight;
     }
     const filename = `Compass-Implementation-Blueprint-${r.title.slice(0, 30).replace(/\s+/g, "-")}.pdf`;
     pdf.save(filename);

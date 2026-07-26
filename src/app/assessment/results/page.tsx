@@ -107,10 +107,6 @@ function formatCompany(name: string): string {
   return name.replace(/[^\w\s&.-]/g, "").trim().slice(0, 30);
 }
 
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
 function formatMetricName(raw: string): string {
   return raw
     .replace(/_/g, " ")
@@ -179,16 +175,13 @@ function formatRisk(risk: string): string {
   return words.join(" ");
 }
 
-function formatTool(tool: string): string {
-  return tool.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim();
-}
-
 function companyInitials(name: string): string {
   return name.split(/[\s-]+/).map((w) => w[0]).join("").toUpperCase().slice(0, 3);
 }
 
 function tierBadge(tier: string): string {
-  return TIER_CONFIG[tier]?.badge || "bg-gray-100 text-gray-500";
+  const key = tier?.toLowerCase();
+  return TIER_CONFIG[key]?.badge || "bg-gray-100 text-gray-500";
 }
 
 function CardAccentClass(rank: number): string {
@@ -326,15 +319,19 @@ function ResultsContent() {
       const margin = 0.5;
       const imgWidth = pageWidth - margin * 2;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = margin;
-      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - margin * 2;
-      while (heightLeft > 0) {
-        position = -(pageHeight - margin * 2) * (imgHeight / canvas.height - 1) + margin;
+      const usableHeight = pageHeight - margin * 2;
+      let remaining = imgHeight;
+      const scaleY = imgHeight / canvas.height;
+      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+      remaining -= usableHeight;
+      while (remaining > 0) {
+        const offsetPx = (imgHeight - remaining) / scaleY;
         pdf.addPage();
-        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight - margin * 2;
+        const clippedImage = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#fbfcfd", y: offsetPx, height: canvas.height - offsetPx });
+        const clipData = clippedImage.toDataURL("image/png");
+        const clipHeight = (clippedImage.height * imgWidth) / clippedImage.width;
+        pdf.addImage(clipData, "PNG", margin, margin, imgWidth, clipHeight);
+        remaining -= usableHeight;
       }
       const today = new Date().toISOString().slice(0, 10);
       pdf.save(`compass-recommendation-${today}.pdf`);
@@ -377,7 +374,18 @@ function ResultsContent() {
       </div>
     );
 
-  if (!recs.length) return null;
+  if (!recs.length) return (
+    <div className="bg-white min-h-screen flex items-center justify-center px-4">
+      <div className="text-center max-w-sm">
+        <div className="w-8 h-8 rounded-full bg-gray-100 border border-[#dfe5ec] flex items-center justify-center mx-auto mb-3">
+          <svg className="w-4 h-4 text-[#4f6280]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+        </div>
+        <p className="text-sm text-[#4f6280] font-semibold mb-1">No recommendations generated</p>
+        <p className="text-xs text-[#5f718f] mb-4">The assessment did not produce any results. Please try again.</p>
+        <button onClick={() => router.push("/assessment")} className="px-4 py-1.5 border border-[#cad3df] text-[#4f6280] text-xs font-bold rounded-lg">Back to Assessment</button>
+      </div>
+    </div>
+  );
 
   const primary = recs[0];
 
@@ -544,7 +552,7 @@ function ResultsContent() {
                     <span key={i} className={`px-[6px] py-[2px] rounded-md text-[9px] font-extrabold ${tagClass}`}>{t}</span>
                   ))}
                   <span className={`px-[6px] py-[2px] rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ${tierBadge(r.evidence_summary.overall_tier)}`}>
-                    {TIER_CONFIG[r.evidence_summary.overall_tier]?.label || r.evidence_summary.overall_tier}
+                    {TIER_CONFIG[r.evidence_summary.overall_tier?.toLowerCase()]?.label || r.evidence_summary.overall_tier}
                   </span>
                   <span className="text-[#586984] text-[9px] font-bold">{getEvidenceMix(r)}</span>
                 </div>
@@ -661,7 +669,7 @@ function buildProfile(answers: { questionId: string; value: any }[]) {
   return {
     business_function: dd, workflow: wf[dept] || "process_automation",
     problem_statement: m.get("situation") || `${dept} ops optimization`,
-    industry: "technology", company_size: "",
+    industry: dd === "engineering" || dd === "it" || dd === "product" ? "technology" : dd === "manufacturing" ? "manufacturing" : dd === "supply_chain" ? "logistics" : dd === "legal" ? "legal" : dd === "finance" ? "financial_services" : dd === "hr" ? "human_resources" : "professional_services", company_size: "",
     workflow_frequency: m.get("frequency") || "", people_involved: m.get("people") || "",
     handoffs: m.get("handoffs") || "", current_tools: [],
     exception_rate: m.get("exceptions") || "", budget_range: m.get("budget") || "",
