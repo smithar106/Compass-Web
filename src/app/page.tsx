@@ -235,7 +235,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Knowledge</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Expertise is limited to what individual consultants and partners at the firm already know.
+                    Expertise comes from what individual consultants and partners have learned from past client engagements.
                   </p>
                 </div>
                 <div className="border-t border-slate-100 pt-4">
@@ -244,7 +244,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Scale</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Scales by adding more people to each project, with every engagement starting from scratch.
+                    Scales by adding more people to each new project, with every engagement starting completely from scratch.
                   </p>
                 </div>
                 <div className="border-t border-slate-100 pt-4">
@@ -289,7 +289,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Knowledge</p>
                   </div>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Built on past client implementations and the team\u2019s hands-on experience deploying AI solutions.
+                    Built on past client implementations and the team\u2019s hands-on experience deploying AI solutions and platforms.
                   </p>
                 </div>
                 <div className="border-t border-indigo-100 pt-4">
@@ -330,7 +330,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Evidence</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Grounded in evidence from thousands of comparable operational implementations, not individual experience.
+                    Grounded in comparable real-world implementations and their measured outcomes, not individual experience or opinion.
                   </p>
                 </div>
                 <div className="border-t border-lime-100 pt-4">
@@ -339,7 +339,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Approach</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Uses evidence to identify the best solution\u2014AI, redesign, automation, or no intervention\u2014before you build.
+                    Uses evidence to find the best path\u2014AI, redesign, automation, or no intervention\u2014before you build.
                   </p>
                 </div>
                 <div className="border-t border-lime-100 pt-4">
@@ -357,7 +357,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Scale</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Scales through structured evidence, not headcount, delivering results in minutes instead of weeks.
+                    Scales through structured evidence rather than headcount, delivering results in minutes instead of weeks.
                   </p>
                 </div>
                 <div className="border-t border-lime-100 pt-4">
