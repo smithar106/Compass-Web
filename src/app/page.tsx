@@ -140,7 +140,7 @@ export default function HomePage() {
             </div>
             <ExampleCard
               data={{
-                evidenceCount: 143,
+                evidenceCount: 121,
                 problem: site.hero.recommendation.problem,
                 recommendation: site.hero.recommendation.recommendation,
                 impact: site.hero.recommendation.impact,
