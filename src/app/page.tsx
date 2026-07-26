@@ -334,7 +334,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Approach</p>
                   </div>
                   <p className="text-[13px] text-ink/80 leading-relaxed">
-                    Identifies the best solution\u2014AI, software, process redesign, automation, or no intervention\u2014before you build.
+                    Identifies the most evidence-supported path\u2014AI, software, process redesign, automation, or no intervention\u2014before you build.
                   </p>
                 </div>
                 <div className="border-t border-forest/10 pt-4">
@@ -361,7 +361,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Trust</p>
                   </div>
                   <p className="text-[13px] text-ink/80 leading-relaxed">
-                    Evidence-backed with no implementation bias. Focused solely on identifying the best solution for your context.
+                    Evidence-backed with no implementation bias. Focused solely on identifying the most evidence-supported path for your context.
                   </p>
                 </div>
               </div>
