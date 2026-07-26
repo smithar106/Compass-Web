@@ -7,15 +7,19 @@ const STORAGE_KEY = "compass-assessment-session";
 
 interface ComparableEvidence {
   record_id: string; organization: string; intervention: string;
-  workflow: string; workflow_context: string; intervention_description: string;
-  outcome_summary: string; evidence_tier: string; similarity_score: number;
-  source_title: string; source_url: string; relevance_explanation: string;
+  workflow: string; problem: string; workflow_context: string;
+  intervention_category: string; intervention_description: string;
+  implementation_status: string; observed_outcome: string;
+  outcome_summary: string; evidence_tier: string; evidence_score: number;
+  similarity_score: number; relevance_explanation: string;
+  limitations: string; source_url: string; publication_date: string;
   normalized_metrics: { metric: string; value: string; raw: string }[];
 }
 
 interface ImpactEstimate {
   status: string; low: number | null; expected: number | null; high: number | null;
   currency: string; basis: string; confidence: string;
+  missing_inputs: string[]; what_can_be_reported: string; prompt_for_user: string;
 }
 
 interface TimelineEstimate {
@@ -27,33 +31,44 @@ interface ProjectTeam {
 }
 
 interface ImpactSummary {
-  annual_savings: ImpactEstimate;
-  annual_hours_returned: ImpactEstimate;
-  implementation_timeline: TimelineEstimate;
-  project_team: ProjectTeam;
+  annual_savings: ImpactEstimate; annual_hours_returned: ImpactEstimate;
+  implementation_timeline: TimelineEstimate; project_team: ProjectTeam;
 }
 
 interface OutcomeRange {
-  metric: string; unit: string;
-  median: number | null; low: number | null; high: number | null;
-  count: number; source: string;
+  metric_key: string; metric_label: string; metric_category: string;
+  unit: string; direction: string;
+  low: number | null; median: number | null; high: number | null;
+  sample_size: number; gold_count: number; silver_count: number; bronze_count: number;
+  directly_comparable: boolean; compatibility_notes: string;
+  calculation_method: string; source_record_ids: string[];
 }
 
 interface Assumption {
-  assumption: string; impact_on_outcome: string; confidence: string;
+  title: string; explanation: string; effect_on_recommendation: string;
+  effect_on_confidence: string; resolution_action: string;
 }
 
 interface InformationGap {
-  gap: string; why_needed: string; priority: string;
+  title: string; explanation: string; effect_on_recommendation: string;
+  effect_on_confidence: string; resolution_action: string;
 }
 
 interface NextValidationStep {
-  action: string; why: string; estimated_effort: string;
+  action: string; purpose: string; owner: string; duration: string;
+  required_inputs: string[]; success_criteria: string; decision_enabled: string;
+}
+
+interface SpecificIntervention {
+  title: string; description: string;
+  required_changes: string[]; scope_boundaries: string[];
+  prerequisites: string[]; excluded_scope: string[];
 }
 
 interface RecommendationData {
   rank: number; is_compass_choice: boolean; intervention_id: string;
   category: string; title: string; specific_action: string;
+  specific_intervention: SpecificIntervention;
   subtitle: string; description: string;
   selection_status: string; rationale: string; why_it_ranked_here: string[];
   assumptions: string[];
@@ -65,9 +80,15 @@ interface RecommendationData {
   };
   outcome_ranges: OutcomeRange[];
   why_ranked_first: {
-    summary: string; key_strengths: string[];
-    scoring_dimensions: { dimension: string; score: number; detail: string }[];
-    vs_alternatives: { alternative: string; rank: number; confidence_gap: number; why_lower: string; when_to_consider: string }[];
+    summary: string; supporting_reasons: string[]; tradeoffs: string[];
+    alternative_differences: { alternative: string; rank: number; reasons: string[]; when_to_consider: string }[];
+  } | null;
+  alternative_comparison: {
+    category: string; specific_intervention: string; rank: number;
+    evidence_strength: string; outcome_support: string; data_requirements: string;
+    implementation_complexity: string; expected_timeline: string;
+    team_requirements: string; time_to_value: string;
+    primary_advantages: string[]; primary_limitations: string[]; reason_for_rank: string;
   } | null;
   comparable_implementations: ComparableEvidence[];
   risks: any[];
@@ -144,12 +165,28 @@ function evidenceMixSummary(es: { total_comparables: number; gold_count: number;
 }
 
 function formatRange(r: OutcomeRange): string {
-  if (r.low != null && r.high != null) {
-    const unit = r.unit === "%" ? "%" : "";
-    return `${r.low}${unit} \u2013 ${r.high}${unit}`;
+  if (!r.directly_comparable) return r.compatibility_notes || "Incompatible metrics";
+  if (r.calculation_method === "single_value" && r.median != null) {
+    const suffix = r.unit === "%" ? "%" : r.unit === "currency" ? "" : "";
+    return `${r.median}${suffix}`;
   }
-  if (r.median != null) return `${r.median}${r.unit === "%" ? "%" : ""}`;
+  if (r.low != null && r.high != null) {
+    const suffix = r.unit === "%" ? "%" : "";
+    return `${r.low}${suffix}\u2013${r.high}${suffix}`;
+  }
   return "";
+}
+
+function formatDirection(d: string): string {
+  if (d === "reduction") return "reduction";
+  if (d === "improvement") return "improvement";
+  return d;
+}
+
+function formatDirectionPast(d: string): string {
+  if (d === "reduction") return "reduced";
+  if (d === "improvement") return "improved";
+  return d;
 }
 
 export default function ResultsPage() {
@@ -228,10 +265,10 @@ function ResultsContent() {
     setPdfLoading(true);
     setPdfError(null);
     try {
-      const { default: jsPDF } = await import("jspdf");
-      const { default: html2canvas } = await import("html2canvas");
       const el = document.getElementById("compass-report-content");
       if (!el) throw new Error("Content not found");
+      const { default: jsPDF } = await import("jspdf");
+      const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({ unit: "in", format: "letter" });
@@ -302,7 +339,7 @@ function ResultsContent() {
       <div ref={contentRef} className="w-full max-w-[1200px] mx-auto px-[min(36px,5vw)] pt-24 pb-8">
         <div id="compass-report-content" className="space-y-4">
 
-          {/* ===== HEADER ===== */}
+          {/* ===== 1. HEADER ===== */}
           <header className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
             <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
               <div>
@@ -315,7 +352,7 @@ function ResultsContent() {
                   <span>Engine v3.0.0</span>
                   <span>Dataset v3</span>
                   <span>Generated {ts}</span>
-                  <span>{top.evidence_summary.total_comparables} comparable implementations analyzed</span>
+                  <span>{top.evidence_summary.total_comparables} comparable implementations</span>
                 </div>
               </div>
               <button
@@ -333,7 +370,18 @@ function ResultsContent() {
             {pdfError && <p className="text-xs text-red-600 mt-4">{pdfError}</p>}
           </header>
 
-          {/* ===== RECOMMENDED PATH (top recommendation) ===== */}
+          {/* ===== 2. INVESTIGATION SUMMARY ===== */}
+          <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec]">
+            <h2 className="text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-3">Investigation summary</h2>
+            <div className="flex flex-wrap gap-x-8 gap-y-2 text-[12px]">
+              <div><span className="font-bold text-[#4f6280]">Problem:</span> <span className="text-[#101826]">{top.specific_action || top.title}</span></div>
+              <div><span className="font-bold text-[#4f6280]">Workflow:</span> <span className="text-[#101826]">{top.intervention_id?.replace(/_/g, " ") || "Process"}</span></div>
+              <div><span className="font-bold text-[#4f6280]">Evidence:</span> <span className="text-[#101826]">{evidenceMixSummary(top.evidence_summary)}</span></div>
+              <div><span className="font-bold text-[#4f6280]">Confidence:</span> <span className="text-[#101826]">{Math.round(top.confidence.score * 100)}% ({top.confidence.label})</span></div>
+            </div>
+          </section>
+
+          {/* ===== 3. RECOMMENDED PATH ===== */}
           <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/30">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-6 h-6 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[11px] font-extrabold">1</span>
@@ -341,7 +389,6 @@ function ResultsContent() {
               <span className="text-[11px] font-bold text-[#4f6280] ml-auto">{Math.round(top.confidence.score * 100)}% confidence</span>
             </div>
 
-            {/* Action statement */}
             <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#101826] mb-1">
               {top.specific_action || top.title}
             </h2>
@@ -352,25 +399,47 @@ function ResultsContent() {
               <p className="text-[12px] text-[#4f6280] leading-[1.5] mb-5 border-l-2 border-brand-green pl-3">{top.description}</p>
             )}
 
-            {/* Evidence-derived outcome ranges */}
+            {/* Outcome ranges — PRIMARY impact display */}
             {top.outcome_ranges && top.outcome_ranges.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">Observed outcomes from comparable implementations</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                  {top.outcome_ranges.slice(0, 5).map((r, i) => (
-                    <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
-                      <div className="text-[16px] font-extrabold text-[#101826]">{formatRange(r)}</div>
-                      <div className="text-[9px] font-bold text-[#586984] uppercase tracking-[0.04em] mt-0.5">{r.metric}</div>
-                      <div className="text-[8px] text-[#75859b] mt-0.5">{r.count} implementation{r.count !== 1 ? "s" : ""}</div>
+              <div className="mb-5">
+                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">
+                  Potential impact observed across comparable implementations
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 6).map((r, i) => {
+                    const isSingle = r.calculation_method === "single_value";
+                    return (
+                      <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
+                        <div className="text-[15px] font-extrabold text-[#101826]">{formatRange(r)}</div>
+                        <div className="text-[9px] font-bold text-[#586984] uppercase tracking-[0.04em] mt-0.5">
+                          {r.direction} in {r.metric_label}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[8px] text-[#75859b]">{r.sample_size} implementation{r.sample_size !== 1 ? "s" : ""}</span>
+                          {r.gold_count > 0 && <span className="px-1 py-0.5 rounded bg-yellow-50 text-yellow-800 text-[7px] font-extrabold">{r.gold_count} gold</span>}
+                        </div>
+                        {!isSingle && r.low != null && r.high != null && (
+                          <div className="mt-1.5 w-full bg-[#e6eaef] rounded-full h-1.5">
+                            <div className="bg-brand-green h-1.5 rounded-full" style={{ width: "60%" }} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {top.outcome_ranges.filter(r => !r.directly_comparable).length > 0 && (
+                    <div className="bg-[#fcf8f0] rounded-xl px-4 py-3 border border-[#f0e8d4] col-span-full">
+                      <p className="text-[10px] text-[#5f718f]">
+                        {top.outcome_ranges.filter(r => !r.directly_comparable).length} metric type{top.outcome_ranges.filter(r => !r.directly_comparable).length > 1 ? "s" : ""} excluded due to incompatible units or scopes.
+                      </p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Financial estimates (if available) */}
+            {/* Financial estimates — only shown when available */}
             {top.impact.annual_savings.status === "calculated" && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                 <div className="bg-[#f0faf0] rounded-xl px-4 py-3 border border-[#d4ebd4]">
                   <div className="text-[16px] font-extrabold text-brand-green-dark">{formatCurrency(top.impact.annual_savings.expected)}</div>
                   <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Est. annual savings</div>
@@ -390,51 +459,70 @@ function ResultsContent() {
               </div>
             )}
 
-            {/* If savings insufficient, show outcome ranges more prominently + data note */}
+            {/* Insufficient-input notice */}
             {top.impact.annual_savings.status !== "calculated" && (
-              <div className="text-[10px] text-[#5f718f] italic mb-5 border-t border-[#ebeff4] pt-4">
-                Organization-specific savings estimates require current workflow volume, headcount, and labor cost information.
-                {top.impact.annual_savings.basis && ` ${top.impact.annual_savings.basis}`}
-                <br />The ranges above show what comparable organizations achieved.
+              <div className="bg-[#fcf8f0] rounded-xl px-4 py-3 border border-[#f0e8d4] mb-5">
+                <p className="text-[10px] font-bold text-[#5f718f]">Organization-specific savings not available</p>
+                <p className="text-[10px] text-[#5f718f] mt-0.5">
+                  {top.impact.annual_savings.what_can_be_reported || "Evidence-derived outcome ranges from comparable implementations are shown above."}
+                  {top.impact.annual_savings.missing_inputs?.length > 0 && (
+                    <span className="block mt-1 text-[#75859b] italic">
+                      Missing: {top.impact.annual_savings.missing_inputs.join(", ")}.
+                    </span>
+                  )}
+                </p>
               </div>
             )}
 
             {/* Why ranked first */}
             {top.why_ranked_first && (
-              <div className="mb-6 border-t border-[#ebeff4] pt-5">
-                <h3 className="flex items-center gap-2 text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-3">
-                  Why this ranked first
-                </h3>
+              <div className="mb-5 border-t border-[#ebeff4] pt-5">
+                <h3 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-3">Why this ranked first</h3>
                 <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-4">{top.why_ranked_first.summary}</p>
 
-                {top.why_ranked_first.key_strengths.length > 0 && (
-                  <ul className="space-y-1.5 mb-4">
-                    {top.why_ranked_first.key_strengths.map((s, i) => (
-                      <li key={i} className="flex items-start gap-2 text-[11px] text-[#4f6280]">
-                        <span className="text-brand-green mt-0.5 shrink-0">&#10003;</span>
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
+                {top.why_ranked_first.supporting_reasons.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-1.5">Supporting reasons</p>
+                    <ul className="space-y-1.5">
+                      {top.why_ranked_first.supporting_reasons.map((s, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[11px] text-[#4f6280]">
+                          <span className="text-brand-green mt-0.5 shrink-0">&#10003;</span>
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
 
-                {/* vs Alternatives comparison */}
-                {top.why_ranked_first.vs_alternatives.length > 0 && (
+                {top.why_ranked_first.tradeoffs.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-1.5">Tradeoffs to consider</p>
+                    <ul className="space-y-1.5">
+                      {top.why_ranked_first.tradeoffs.map((t, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[11px] text-[#4f6280]">
+                          <span className="text-[#a8490c] mt-0.5 shrink-0">&#9888;</span>
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {top.why_ranked_first.alternative_differences.length > 0 && (
                   <div>
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2">How it compares to alternatives</p>
                     <div className="space-y-2">
-                      {top.why_ranked_first.vs_alternatives.map((alt, i) => (
+                      {top.why_ranked_first.alternative_differences.map((alt, i) => (
                         <div key={i} className="bg-[#f6f8fa] rounded-lg px-4 py-3 border border-[#e6eaef]">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-[11px] font-extrabold text-[#101826]">vs {alt.alternative}</span>
-                            {alt.confidence_gap > 0 && (
-                              <span className="px-1.5 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark text-[8px] font-extrabold">
-                                +{alt.confidence_gap}% confidence
-                              </span>
-                            )}
                           </div>
-                          {alt.why_lower && <p className="text-[10px] text-[#5f718f]">{alt.why_lower}</p>}
-                          {alt.when_to_consider && <p className="text-[10px] text-[#75859b] italic mt-0.5">{alt.when_to_consider}</p>}
+                          {alt.reasons.length > 0 && (
+                            <ul className="list-disc list-inside text-[10px] text-[#5f718f] space-y-0.5">
+                              {alt.reasons.map((r, j) => <li key={j}>{r}</li>)}
+                            </ul>
+                          )}
+                          {alt.when_to_consider && <p className="text-[10px] text-[#75859b] italic mt-1">{alt.when_to_consider}</p>}
                         </div>
                       ))}
                     </div>
@@ -444,11 +532,11 @@ function ResultsContent() {
             )}
 
             {/* Comparable implementations */}
-            {top.comparable_implementations && top.comparable_implementations.length > 0 && (
+            {top.comparable_implementations && top.comparable_implementations.filter(c => !isBadValue(c.organization)).length > 0 && (
               <div className="border-t border-[#ebeff4] pt-5">
                 <h3 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-3">Comparable implementations</h3>
                 <div className="space-y-3">
-                  {top.comparable_implementations.filter(c => c.evidence_tier !== "rejected" && !isBadValue(c.organization)).slice(0, 4).map((c, i) => {
+                  {top.comparable_implementations.filter(c => !isBadValue(c.organization)).slice(0, 4).map((c, i) => {
                     const company = formatCompany(c.organization);
                     return (
                       <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3.5 border border-[#e6eaef]">
@@ -457,21 +545,20 @@ function ResultsContent() {
                           <span className="text-[12px] font-extrabold text-[#101826]">{company}</span>
                           <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ml-auto ${tierBadge(c.evidence_tier)}`}>{tierLabel(c.evidence_tier)}</span>
                         </div>
-                        {c.workflow_context && <p className="text-[10px] text-[#586984] font-semibold mb-1 ml-[26px]">{c.workflow_context}</p>}
-                        {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]">Applied: {c.intervention}</p>}
-                        <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]">{c.outcome_summary}</p>
-                        {c.relevance_explanation && (
-                          <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-1">{c.relevance_explanation}</p>
-                        )}
+                        {c.workflow_context && <p className="text-[10px] text-[#586984] font-semibold mb-1 ml-[26px]"><span className="font-bold">Workflow:</span> {c.workflow_context}</p>}
+                        {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]"><span className="font-bold">Intervention:</span> {c.intervention}</p>}
+                        <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]"><span className="font-bold">Result:</span> {c.outcome_summary}</p>
+                        <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]"><span className="font-bold">Relevance:</span> {c.relevance_explanation}</p>
+                        {c.limitations && <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-1">Note: {c.limitations}</p>}
                       </div>
                     );
                   })}
                 </div>
-                {top.comparable_implementations.filter(c => c.evidence_tier !== "rejected" && !isBadValue(c.organization)).length > 4 && (
+                {top.comparable_implementations.filter(c => !isBadValue(c.organization)).length > 4 && (
                   <details className="mt-2">
                     <summary className="text-[10px] font-bold text-brand-green cursor-pointer py-1">Show all {top.comparable_implementations.length} comparable implementations</summary>
                     <div className="space-y-3 mt-2">
-                      {top.comparable_implementations.filter(c => c.evidence_tier !== "rejected" && !isBadValue(c.organization)).slice(4).map((c, i) => {
+                      {top.comparable_implementations.filter(c => !isBadValue(c.organization)).slice(4).map((c, i) => {
                         const company = formatCompany(c.organization);
                         return (
                           <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3.5 border border-[#e6eaef]">
@@ -480,12 +567,11 @@ function ResultsContent() {
                               <span className="text-[12px] font-extrabold text-[#101826]">{company}</span>
                               <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ml-auto ${tierBadge(c.evidence_tier)}`}>{tierLabel(c.evidence_tier)}</span>
                             </div>
-                            {c.workflow_context && <p className="text-[10px] text-[#586984] font-semibold mb-1 ml-[26px]">{c.workflow_context}</p>}
-                            {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]">Applied: {c.intervention}</p>}
-                            <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]">{c.outcome_summary}</p>
-                            {c.relevance_explanation && (
-                              <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-1">{c.relevance_explanation}</p>
-                            )}
+                            {c.workflow_context && <p className="text-[10px] text-[#586984] font-semibold mb-1 ml-[26px]"><span className="font-bold">Workflow:</span> {c.workflow_context}</p>}
+                            {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]"><span className="font-bold">Intervention:</span> {c.intervention}</p>}
+                            <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]"><span className="font-bold">Result:</span> {c.outcome_summary}</p>
+                            <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]"><span className="font-bold">Relevance:</span> {c.relevance_explanation}</p>
+                            {c.limitations && <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-1">Note: {c.limitations}</p>}
                           </div>
                         );
                       })}
@@ -495,7 +581,7 @@ function ResultsContent() {
               </div>
             )}
 
-            {/* Evidence + confidence footer */}
+            {/* Confidence + Evidence */}
             <div className="flex items-center gap-3 mt-5 pt-4 border-t border-[#ebeff4]">
               <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-[0.04em] border ${tierBadge(top.evidence_summary.overall_tier)}`}>{tierLabel(top.evidence_summary.overall_tier)}</span>
               <span className="text-[10px] font-bold text-[#586984]">{evidenceMixSummary(top.evidence_summary)}</span>
@@ -503,43 +589,53 @@ function ResultsContent() {
             </div>
           </section>
 
-          {/* ===== ALTERNATIVE OPTIONS ===== */}
+          {/* ===== 4. ALTERNATIVE OPTIONS ===== */}
           {alternatives.length > 0 && (
             <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
-              <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Alternative approaches considered</h2>
+              <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Alternative approaches evaluated</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {alternatives.map((r) => {
-                  const isSecond = r.rank === 2;
-                  return (
-                    <div key={r.rank} className={`bg-white rounded-xl p-5 border-2 ${isSecond ? "border-brand-blue/30" : "border-brand-orange/30"} shadow-sm`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white shrink-0 ${isSecond ? "bg-[#657386]" : "bg-[#a8490c]"}`}>{r.rank}</span>
-                        <span className="text-[12px] font-extrabold text-[#101826]">{r.title}</span>
-                      </div>
-                      {r.subtitle && <p className="text-[10px] font-semibold text-[#4f6280] mb-2">{r.subtitle}</p>}
-                      <div className="flex items-center gap-3 mb-2 text-[10px] text-[#5f718f]">
-                        <span className="font-bold">{Math.round(r.confidence.score * 100)}% confidence</span>
-                        <span>{r.evidence_summary.total_comparables} comparable{r.evidence_summary.total_comparables !== 1 ? "s" : ""}</span>
-                      </div>
-                      {r.rationale && <p className="text-[10px] text-[#4f6280] leading-[1.4]">{r.rationale}</p>}
+                {alternatives.map((r) => (
+                  <div key={r.rank} className="bg-white rounded-xl p-5 border-2 border-[#dfe5ec] shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white shrink-0 ${r.rank === 2 ? "bg-[#657386]" : "bg-[#a8490c]"}`}>{r.rank}</span>
+                      <span className="text-[12px] font-extrabold text-[#101826]">{r.title}</span>
                     </div>
-                  );
-                })}
+                    {r.subtitle && <p className="text-[10px] font-semibold text-[#4f6280] mb-2">{r.subtitle}</p>}
+
+                    {/* Alternative comparison matrix */}
+                    {r.alternative_comparison && (
+                      <div className="text-[9px] text-[#5f718f] space-y-1 mb-2">
+                        <div className="flex justify-between"><span>Evidence:</span><span className="font-bold">{r.alternative_comparison.evidence_strength}</span></div>
+                        <div className="flex justify-between"><span>Outcome support:</span><span className="font-bold">{r.alternative_comparison.outcome_support}</span></div>
+                        <div className="flex justify-between"><span>Complexity:</span><span className="font-bold">{r.alternative_comparison.implementation_complexity}</span></div>
+                        <div className="flex justify-between"><span>Timeline:</span><span className="font-bold">{r.alternative_comparison.expected_timeline}</span></div>
+                      </div>
+                    )}
+
+                    {r.alternative_comparison && r.alternative_comparison.primary_limitations.length > 0 && (
+                      <p className="text-[10px] text-[#5f718f] leading-[1.4]">
+                        <span className="font-bold">Limitations:</span> {r.alternative_comparison.primary_limitations.slice(0, 2).join("; ")}
+                      </p>
+                    )}
+                    {r.rationale && <p className="text-[10px] text-[#4f6280] leading-[1.4] mt-1">{r.rationale}</p>}
+                  </div>
+                ))}
               </div>
             </section>
           )}
 
-          {/* ===== RISKS ===== */}
+          {/* ===== 5. RISKS ===== */}
           {top.risks?.length > 0 && (
             <section className="border border-[#f3c7c9] rounded-[18px] bg-risk-light px-7 py-[22px] pb-[25px] shadow-sm">
-              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] m-0 mb-[18px]">Potential risks</h2>
+              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] m-0 mb-[18px]">Potential risks and mitigations</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {top.risks.slice(0, 4).map((risk, i) => (
                   <div key={i} className="bg-white rounded-xl p-4 border border-[#efc8ca]">
                     <p className="text-[12px] font-extrabold text-[#1b2432] mb-1">{risk.title || risk.category || "Risk"}</p>
                     <p className="text-[11px] text-[#4f6280] leading-[1.4] mb-2">{risk.explanation || risk.risk || ""}</p>
+                    {risk.severity && <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase mr-1 ${risk.severity === "high" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-800"}`}>{risk.severity}</span>}
                     {risk.mitigation && (
-                      <p className="text-[10px] text-brand-green-dark font-semibold">Mitigation: {risk.mitigation}</p>
+                      <p className="text-[10px] text-brand-green-dark font-semibold mt-1">Mitigation: {risk.mitigation}</p>
                     )}
                   </div>
                 ))}
@@ -547,7 +643,7 @@ function ResultsContent() {
             </section>
           )}
 
-          {/* ===== ASSUMPTIONS & INFORMATION GAPS ===== */}
+          {/* ===== 6. ASSUMPTIONS & INFORMATION GAPS ===== */}
           {(top.assumptions_detail?.length > 0 || top.information_gaps?.length > 0) && (
             <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
               <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Assumptions and information gaps</h2>
@@ -558,8 +654,9 @@ function ResultsContent() {
                     <div className="space-y-2.5">
                       {top.assumptions_detail.map((a, i) => (
                         <div key={i} className="bg-[#fcf8f0] rounded-lg px-3.5 py-2.5 border border-[#f0e8d4]">
-                          <p className="text-[11px] text-[#4f6280] leading-[1.4]">{a.assumption}</p>
-                          {a.impact_on_outcome && <p className="text-[9px] text-[#75859b] italic mt-1">{a.impact_on_outcome}</p>}
+                          <p className="text-[11px] font-bold text-[#4f6280]">{a.title}</p>
+                          <p className="text-[10px] text-[#4f6280] leading-[1.4] mt-0.5">{a.explanation}</p>
+                          {a.effect_on_recommendation && <p className="text-[9px] text-[#75859b] italic mt-1">Effect: {a.effect_on_recommendation}</p>}
                         </div>
                       ))}
                     </div>
@@ -570,12 +667,10 @@ function ResultsContent() {
                     <h3 className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">What would improve this analysis</h3>
                     <div className="space-y-2.5">
                       {top.information_gaps.map((g, i) => (
-                        <div key={i} className={`rounded-lg px-3.5 py-2.5 border ${g.priority === "high" ? "bg-[#fcf0f0] border-[#f0d4d4]" : "bg-[#f6f8fa] border-[#e6eaef]"}`}>
-                          <div className="flex items-center gap-1.5 mb-0.5">
-                            <p className="text-[11px] font-bold text-[#4f6280]">{g.gap}</p>
-                            {g.priority === "high" && <span className="px-1 py-0.5 rounded bg-red-100 text-red-700 text-[7px] font-extrabold uppercase">Critical</span>}
-                          </div>
-                          {g.why_needed && <p className="text-[9px] text-[#75859b]">{g.why_needed}</p>}
+                        <div key={i} className="bg-[#f6f8fa] rounded-lg px-3.5 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[11px] font-bold text-[#4f6280]">{g.title}</p>
+                          <p className="text-[10px] text-[#4f6280] leading-[1.4] mt-0.5">{g.explanation}</p>
+                          <p className="text-[9px] text-[#75859b] mt-1">Resolution: {g.resolution_action}</p>
                         </div>
                       ))}
                     </div>
@@ -585,32 +680,43 @@ function ResultsContent() {
             </section>
           )}
 
-          {/* ===== NEXT VALIDATION STEP ===== */}
+          {/* ===== 7. NEXT VALIDATION STEP ===== */}
           {top.next_validation_step && (
             <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/20">
-              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] text-[#101826] mb-3">Recommended next step</h2>
+              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] text-[#101826] mb-4">Recommended next step</h2>
               <div className="flex items-start gap-4">
                 <div className="w-9 h-9 rounded-full bg-brand-green-light flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-brand-green-dark text-[16px] font-extrabold">&#8594;</span>
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-[14px] font-extrabold text-[#101826] mb-1.5">{top.next_validation_step.action}</p>
-                  <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-1.5">{top.next_validation_step.why}</p>
-                  {top.next_validation_step.estimated_effort && (
-                    <span className="inline-block px-2 py-0.5 rounded-full bg-[#edf0f3] text-[#1a1f2b] text-[9px] font-extrabold">{top.next_validation_step.estimated_effort}</span>
+                  <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-2"><span className="font-bold">Purpose:</span> {top.next_validation_step.purpose}</p>
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-[10px] text-[#5f718f]">
+                    <span><span className="font-bold">Owner:</span> {top.next_validation_step.owner}</span>
+                    <span><span className="font-bold">Duration:</span> {top.next_validation_step.duration}</span>
+                  </div>
+                  {top.next_validation_step.required_inputs.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-[10px] font-bold text-[#4f6280]">Required inputs:</p>
+                      <ul className="list-disc list-inside text-[10px] text-[#5f718f]">
+                        {top.next_validation_step.required_inputs.map((inp, j) => <li key={j}>{inp}</li>)}
+                      </ul>
+                    </div>
                   )}
+                  <p className="text-[10px] text-[#586984] mt-2"><span className="font-bold">Success criteria:</span> {top.next_validation_step.success_criteria}</p>
+                  <p className="text-[10px] text-brand-green-dark font-semibold mt-1">Decision this enables: {top.next_validation_step.decision_enabled}</p>
                 </div>
               </div>
             </section>
           )}
 
-          {/* ===== ABOUT THIS ANALYSIS ===== */}
+          {/* ===== 8. METHODOLOGY ===== */}
           <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec] text-[11px] text-[#5f718f] leading-[1.5]">
             <h2 className="text-[13px] font-extrabold text-[#4f6280] mb-2">About this analysis</h2>
             <p>
-              Compass is an evidence-driven recommendation engine. It does not generate outcomes — it surfaces
+              Compass is an evidence-driven recommendation engine. It does not generate outcomes \u2014 it surfaces
               real implementations from organizations with similar workflows, constraints, and objectives.
-              Each recommendation is ranked by a combination of evidence volume, outcome quality, workflow fit,
+              Each recommendation is ranked by a combination of evidence quality, workflow fit, outcome consistency,
               and organizational similarity. The database contains {top.evidence_summary.total_comparables} implementations
               relevant to this assessment. Confidence reflects how many of those implementations measured and
               quantified their outcomes, not just tool adoption.
@@ -621,7 +727,6 @@ function ResultsContent() {
               bounded pilot before making a full commitment.
             </p>
           </section>
-
         </div>
       </div>
     </div>
