@@ -1,7 +1,24 @@
 "use client";
 
 import { useCallback } from "react";
-import { RecommendationData } from "./compass-choice";
+
+interface ComparableEvidence {
+  organization: string; outcome: string; evidence_tier: string; status: string;
+}
+
+interface RecommendationData {
+  rank: number; title: string; summary: string; intervention_category: string;
+  subtitle?: string; tools?: string[];
+  confidence: { score: number; label: string; explanation: string };
+  evidence_summary: { overall_tier: string; total_comparables: number; gold_count: number; silver_count: number; bronze_count: number };
+  projected_impact: { label: string; is_sufficiently_supported: boolean };
+  timeline: { low_weeks: number | null; high_weeks: number | null };
+  comparables: ComparableEvidence[];
+  risks: any[];
+  assumptions: string[];
+  annual_savings?: { low: number; expected: number; high: number; currency: string; status: string; basis: string } | null;
+  hours_returned?: { low: number; expected: number; high: number; period: string; status: string } | null;
+}
 
 interface BlueprintPrintProps {
   recommendation: RecommendationData;
@@ -48,8 +65,16 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
     },
   ];
 
-  const impactText = r.projected_impact.is_sufficiently_supported ? r.projected_impact.label : null;
   const timelineText = r.timeline.low_weeks && r.timeline.high_weeks ? `${r.timeline.low_weeks}–${r.timeline.high_weeks} weeks` : null;
+  const savingsText = r.annual_savings ? `$${r.annual_savings.expected.toLocaleString()} ($${r.annual_savings.low.toLocaleString()} – $${r.annual_savings.high.toLocaleString()})` : null;
+  const hoursText = r.hours_returned ? `${r.hours_returned.expected.toLocaleString()} hrs/yr (${r.hours_returned.low.toLocaleString()} – ${r.hours_returned.high.toLocaleString()})` : null;
+  const toolsText = r.tools?.length ? r.tools.join(", ") : "";
+
+  const evidenceMix = [
+    r.evidence_summary.gold_count > 0 ? `${r.evidence_summary.gold_count} Gold` : "",
+    r.evidence_summary.silver_count > 0 ? `${r.evidence_summary.silver_count} Silver` : "",
+    r.evidence_summary.bronze_count > 0 ? `${r.evidence_summary.bronze_count} Bronze` : "",
+  ].filter(Boolean).join(", ");
 
   const handleDownload = useCallback(async () => {
     const jsPDF = (await import("jspdf")).default;
@@ -58,9 +83,7 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
     if (!el) return;
 
     const canvas = await html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
+      scale: 2, useCORS: true, backgroundColor: "#ffffff",
     });
 
     const imgData = canvas.toDataURL("image/png");
@@ -70,21 +93,18 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
     const margin = 0.5;
     const imgWidth = pageWidth - margin * 2;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
     let heightLeft = imgHeight;
     let position = margin;
-
     pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
     heightLeft -= pageHeight - margin * 2;
-
     while (heightLeft > 0) {
       position = -(pageHeight - margin * 2) * (imgHeight / canvas.height - 1) + margin;
       pdf.addPage();
       pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
       heightLeft -= pageHeight - margin * 2;
     }
-
-    pdf.save(`Compass-Implementation-Blueprint-${r.title.slice(0, 30).replace(/\s+/g, "-")}.pdf`);
+    const filename = `Compass-Implementation-Blueprint-${r.title.slice(0, 30).replace(/\s+/g, "-")}.pdf`;
+    pdf.save(filename);
     onClose();
   }, [r.title, onClose]);
 
@@ -97,24 +117,8 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", borderBottom: "1px solid #E5E7EB" }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: "#1A1A1A" }}>Implementation Blueprint</span>
           <div style={{ display: "flex", gap: 8 }}>
-            <button
-              onClick={handleDownload}
-              style={{
-                padding: "8px 20px", backgroundColor: "#84CC16", color: "white", border: "none",
-                borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-              }}
-            >
-              Download PDF
-            </button>
-            <button
-              onClick={onClose}
-              style={{
-                padding: "8px 16px", backgroundColor: "white", color: "#6B7280", border: "1px solid #E5E7EB",
-                borderRadius: 8, fontSize: 13, cursor: "pointer",
-              }}
-            >
-              Close
-            </button>
+            <button onClick={handleDownload} style={{ padding: "8px 20px", backgroundColor: "#84CC16", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Download PDF</button>
+            <button onClick={onClose} style={{ padding: "8px 16px", backgroundColor: "white", color: "#6B7280", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>Close</button>
           </div>
         </div>
 
@@ -123,25 +127,23 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
             <div style={{ fontSize: 10, color: "#84CC16", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>Compass</div>
             <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 4px", color: "#1A1A1A" }}>Implementation Blueprint</h1>
             <p style={{ fontSize: 13, color: "#6B7280", margin: 0 }}>{r.title}</p>
+            {toolsText && <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 4, marginBottom: 0 }}>{toolsText}</p>}
           </div>
 
           <Section title="Executive Summary" content={r.summary} />
 
-          <Section title="Business Objective" content={r.summary.slice(0, 150)} />
-
           <div style={{ marginBottom: 20 }}>
             <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#1A1A1A", borderBottom: "2px solid #84CC16", paddingBottom: 6, marginBottom: 12 }}>Expected Outcomes</h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <MetricBox label="Estimated Annual Cost Savings" value={impactText} />
-              <MetricBox label="Estimated Annual Time Savings" value={impactText} />
+              <MetricBox label="Est. Annual Cost Savings" value={savingsText} />
+              <MetricBox label="Est. Annual Time Savings" value={hoursText} />
             </div>
           </div>
 
           <div style={{ marginBottom: 20 }}>
             <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#1A1A1A", borderBottom: "2px solid #84CC16", paddingBottom: 6, marginBottom: 12 }}>Implementation Overview</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
               <Field label="Timeline" value={timelineText} />
-              <Field label="Implementation Cost" value={impactText} />
               <Field label="Evidence Tier" value={r.evidence_summary.overall_tier.toUpperCase()} />
               <Field label="Confidence" value={`${Math.round(r.confidence.score * 100)}% (${r.confidence.label})`} />
             </div>
@@ -166,25 +168,25 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
             <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#1A1A1A", borderBottom: "2px solid #84CC16", paddingBottom: 6, marginBottom: 12 }}>Risks &amp; Mitigations</h2>
             {r.risks.length > 0 ? (
               <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: "#4B5563", lineHeight: 1.6 }}>
-                {r.risks.map((risk, i) => <li key={i}>{risk}</li>)}
+                {r.risks.map((risk: any, i: number) => {
+                  const text = risk.taxonomy || risk.category || (typeof risk === "string" ? risk : risk.risk || "");
+                  return <li key={i}>{text}</li>;
+                })}
               </ul>
             ) : (
-              <p style={{ fontSize: 11, color: "#9CA3AF", fontStyle: "italic" }}>Insufficient evidence available.</p>
+              <p style={{ fontSize: 11, color: "#9CA3AF", fontStyle: "italic" }}>Insufficient risk data available.</p>
             )}
           </div>
 
           <div style={{ marginBottom: 20 }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#1A1A1A", borderBottom: "2px solid #84CC16", paddingBottom: 6, marginBottom: 12 }}>Success Metrics &amp; KPIs</h2>
-            {r.projected_impact.is_sufficiently_supported ? (
-              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: "#4B5563", lineHeight: 1.6 }}>
-                <li>{r.projected_impact.label}</li>
-                <li>Employee time saved per week</li>
-                <li>Error rate reduction</li>
-                <li>Process cycle time improvement</li>
-              </ul>
-            ) : (
-              <p style={{ fontSize: 11, color: "#9CA3AF", fontStyle: "italic" }}>Insufficient evidence available.</p>
-            )}
+            <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#1A1A1A", borderBottom: "2px solid #84CC16", paddingBottom: 6, marginBottom: 12 }}>Success Metrics</h2>
+            <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: "#4B5563", lineHeight: 1.6 }}>
+              {r.annual_savings && <li>Annual cost savings: {savingsText}</li>}
+              {r.hours_returned && <li>Annual time savings: {hoursText}</li>}
+              <li>Employee time saved per week</li>
+              <li>Error rate reduction</li>
+              <li>Process cycle time improvement</li>
+            </ul>
           </div>
 
           <div style={{ marginBottom: 20 }}>
@@ -204,7 +206,7 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
                 {r.assumptions.map((a, i) => <li key={i}>{a}</li>)}
               </ul>
             ) : (
-              <p style={{ fontSize: 11, color: "#9CA3AF", fontStyle: "italic" }}>Insufficient evidence available.</p>
+              <p style={{ fontSize: 11, color: "#9CA3AF", fontStyle: "italic" }}>No specific assumptions recorded.</p>
             )}
           </div>
 
@@ -212,9 +214,7 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
             <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#1A1A1A", borderBottom: "2px solid #84CC16", paddingBottom: 6, marginBottom: 12 }}>Evidence Summary</h2>
             <p style={{ fontSize: 11, color: "#4B5563", marginBottom: 8 }}>
               {r.evidence_summary.total_comparables} comparable implementations analyzed.
-              {r.evidence_summary.gold_count > 0 ? ` ${r.evidence_summary.gold_count} with Gold evidence,` : ""}
-              {r.evidence_summary.silver_count > 0 ? ` ${r.evidence_summary.silver_count} with Silver evidence,` : ""}
-              {r.evidence_summary.bronze_count > 0 ? ` ${r.evidence_summary.bronze_count} with Bronze evidence.` : ""}
+              {evidenceMix ? ` Evidence mix: ${evidenceMix}.` : ""}
               Overall tier: {r.evidence_summary.overall_tier}.
             </p>
             {r.comparables.filter(c => c.evidence_tier !== "rejected").length > 0 && (
@@ -223,7 +223,6 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
                   <tr style={{ background: "#F9FAFB" }}>
                     <th style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid #E5E7EB", fontWeight: 600, fontSize: 9, color: "#6B7280", textTransform: "uppercase" }}>Organization</th>
                     <th style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid #E5E7EB", fontWeight: 600, fontSize: 9, color: "#6B7280", textTransform: "uppercase" }}>Outcome</th>
-                    <th style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid #E5E7EB", fontWeight: 600, fontSize: 9, color: "#6B7280", textTransform: "uppercase" }}>Status</th>
                     <th style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid #E5E7EB", fontWeight: 600, fontSize: 9, color: "#6B7280", textTransform: "uppercase" }}>Tier</th>
                   </tr>
                 </thead>
@@ -232,7 +231,6 @@ export function BlueprintPrint({ recommendation: r, allRecommendations, generate
                     <tr key={i}>
                       <td style={{ padding: "6px 8px", borderBottom: "1px solid #F3F4F6", fontWeight: 500 }}>{c.organization}</td>
                       <td style={{ padding: "6px 8px", borderBottom: "1px solid #F3F4F6" }}>{c.outcome}</td>
-                      <td style={{ padding: "6px 8px", borderBottom: "1px solid #F3F4F6" }}>{c.status}</td>
                       <td style={{ padding: "6px 8px", borderBottom: "1px solid #F3F4F6" }}>
                         <TierPill tier={c.evidence_tier} />
                       </td>
@@ -267,9 +265,9 @@ function MetricBox({ label, value }: { label: string; value: string | null }) {
     <div style={{ border: "1px solid #E5E7EB", borderRadius: 8, padding: 14 }}>
       <div style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "#6B7280", marginBottom: 4 }}>{label}</div>
       {value ? (
-        <div style={{ fontSize: 16, fontWeight: 700, color: "#84CC16" }}>{value}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#84CC16" }}>{value}</div>
       ) : (
-        <div style={{ fontSize: 10, color: "#9CA3AF", fontStyle: "italic" }}>Insufficient evidence available.</div>
+        <div style={{ fontSize: 10, color: "#9CA3AF", fontStyle: "italic" }}>Additional operating data required.</div>
       )}
     </div>
   );
@@ -282,7 +280,7 @@ function Field({ label, value }: { label: string; value: string | null }) {
       {value ? (
         <div style={{ fontSize: 12, color: "#1A1A1A" }}>{value}</div>
       ) : (
-        <div style={{ fontSize: 10, color: "#9CA3AF", fontStyle: "italic" }}>Unknown</div>
+        <div style={{ fontSize: 10, color: "#9CA3AF", fontStyle: "italic" }}>Not available</div>
       )}
     </div>
   );

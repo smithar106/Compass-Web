@@ -107,6 +107,40 @@ function formatCompany(name: string): string {
   return name.replace(/[^\w\s&.-]/g, "").trim().slice(0, 30);
 }
 
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function formatMetricName(raw: string): string {
+  return raw
+    .replace(/_/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .replace(/^Freed up/, "Freed-up")
+    .replace(/\b(Usd|Pct)\b/gi, (m) => m.toUpperCase());
+}
+
+function formatMetricValue(raw: string): string {
+  const pctMatch = raw.match(/^[^:]+:\s*([+-]?\d+(?:\.\d+)?%?)\s*(improvement|decline|reduction|increase)/i);
+  if (pctMatch) {
+    const val = pctMatch[1].replace("+", "");
+    const direction = pctMatch[2].toLowerCase();
+    const metricName = raw.split(":")[0].trim();
+    const cleaned = formatMetricName(metricName);
+    const adverb = direction === "decline" || direction === "reduction" ? "reduced by" : direction === "increase" ? "increased by" : "improved by";
+    return `${cleaned} ${adverb} ${val}`;
+  }
+  const dollarMatch = raw.match(/[+-]?\$\d+(?:[\d,.]*(?:M|K|B)?)?/i);
+  if (dollarMatch) {
+    const metricName = raw.split(":")[0].trim();
+    const cleaned = formatMetricName(metricName);
+    return `${cleaned}: ${dollarMatch[0]}`;
+  }
+  return capitalize(raw.trim().slice(0, 50));
+}
+
 function formatOutcome(outcome: string): string {
   if (isBadValue(outcome)) return "Outcome not quantified";
   let cleaned = outcome
@@ -117,16 +151,24 @@ function formatOutcome(outcome: string): string {
     .replace(/political pressure.*$/i, "Regulatory constraints")
     .replace(/[{}"\[\]]/g, "")
     .trim();
-  if (cleaned.length > 35) {
-    const words = cleaned.split(/\s+/);
+  const formatted = formatMetricValue(cleaned);
+  if (formatted.length > 40) {
+    const words = formatted.split(/\s+/);
     let result = "";
     for (const w of words) {
-      if ((result + " " + w).length > 32) break;
+      if ((result + " " + w).length > 38) break;
       result += (result ? " " : "") + w;
     }
-    cleaned = result;
+    return result || "Outcome not quantified";
   }
-  return cleaned || "Outcome not quantified";
+  return formatted || "Outcome not quantified";
+}
+
+function prioritizedComparables(comparables: ComparableEvidence[]): ComparableEvidence[] {
+  const quantified = comparables.filter(c => /%|\$|improvement|reduction|increase|decline/.test(c.outcome));
+  const unquantified = comparables.filter(c => !/%|\$|improvement|reduction|increase|decline/.test(c.outcome) && !isBadValue(c.outcome));
+  const bad = comparables.filter(c => isBadValue(c.outcome));
+  return [...quantified, ...unquantified, ...bad];
 }
 
 function formatRisk(risk: string): string {
@@ -446,8 +488,8 @@ function ResultsContent() {
           ))}
         </div>
 
-        {/* RECOMMENDATION CARDS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5 items-stretch">
+        {/* RECOMMENDATION CARDS - compact 3-column */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5 items-stretch">
           {recs.map((r) => {
             const cat = r.intervention_category;
             const tools = r.tools || [];
@@ -459,110 +501,82 @@ function ResultsContent() {
             const hasImpact = r.projected_impact.is_sufficiently_supported;
             const hasSavings = !!r.annual_savings;
             const hasHours = !!r.hours_returned;
-            const visibleComparables = r.comparables.filter((c) => c.evidence_tier !== "rejected");
+            const visibleComparables = prioritizedComparables(r.comparables.filter((c) => c.evidence_tier !== "rejected"));
+            const topEvidence = visibleComparables.slice(0, 2);
 
             return (
-              <div key={n} className={`bg-white border-2 ${rankClass} rounded-[16px] p-5 flex flex-col shadow-[0_12px_32px_rgba(15,23,42,0.05)] overflow-hidden`}>
-                {/* Rank header */}
-                <div className="flex items-center gap-[10px] mb-3">
-                  <span className={`w-[24px] h-[24px] rounded-full flex items-center justify-center text-[12px] font-extrabold text-white shrink-0 ${n === 1 ? "bg-[#d7a500]" : n === 3 ? "bg-[#a8490c]" : "bg-[#657386]"}`}>
+              <div key={n} className={`bg-white border-2 ${rankClass} rounded-[14px] p-[18px] flex flex-col shadow-[0_8px_24px_rgba(15,23,42,0.05)]`}>
+                {/* Rank + Title row */}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0 ${n === 1 ? "bg-[#d7a500]" : n === 3 ? "bg-[#a8490c]" : "bg-[#657386]"}`}>
                     {n}
                   </span>
-                  <span className={`px-[10px] py-[4px] rounded-full text-[10px] font-extrabold uppercase tracking-normal ${n === 1 ? "bg-brand-green-light text-brand-green-dark" : "bg-[#edf0f3] text-[#1a1f2b]"}`}>
+                  <span className={`px-[8px] py-[3px] rounded-full text-[9px] font-extrabold uppercase ${n === 1 ? "bg-brand-green-light text-brand-green-dark" : "bg-[#edf0f3] text-[#1a1f2b]"}`}>
                     {n === 1 ? "Recommended" : "Alternative"}
                   </span>
                 </div>
+                <h2 className="text-[16px] font-extrabold tracking-[-0.02em] text-[#101826] m-0 leading-[1.2]">{r.title}</h2>
+                {subtitle && <p className="text-[11px] font-semibold text-[#4f6280] m-0 mt-0.5 mb-2">{subtitle}</p>}
 
-                {/* Title + Subtitle */}
-                <h2 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#101826] m-0 mb-2 leading-[1.3]">
-                  {r.title}
-                </h2>
-                {subtitle && (
-                  <p className="text-[13px] font-semibold text-[#4f6280] m-0 mb-3 leading-snug">{subtitle}</p>
-                )}
-
-                {/* Metrics row - 4 compact items */}
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  <div className="min-w-0">
-                    <div className={`text-[11px] sm:text-[12px] font-extrabold flex items-center gap-1 text-brand-green whitespace-nowrap overflow-hidden text-ellipsis`}>
-                      {hasSavings ? `\u25CF ${formatCurrency(r.annual_savings!.expected)}` : hasImpact ? "\u25CF Estimated" : "\u25CF N/A"}
-                    </div>
-                    <div className="text-[9px] font-bold text-[#61718a] mt-0.5 whitespace-nowrap">Annual Savings</div>
+                {/* 4-up compact metrics */}
+                <div className="grid grid-cols-4 gap-1 mb-[14px] mt-1">
+                  <div>
+                    <div className="text-[10px] font-extrabold text-brand-green truncate">{hasSavings ? formatCurrency(r.annual_savings!.expected) : hasImpact ? "Est." : "N/A"}</div>
+                    <div className="text-[8px] font-bold text-[#61718a] uppercase tracking-[0.04em]">Savings</div>
                   </div>
-                  <div className="min-w-0">
-                    <div className={`text-[11px] sm:text-[12px] font-extrabold flex items-center gap-1 text-brand-blue whitespace-nowrap overflow-hidden text-ellipsis`}>
-                      {hasHours ? `\u25F7 ${formatHours(r.hours_returned!.expected)}h` : hasImpact ? "\u25F7 Estimated" : "\u25F7 N/A"}
-                    </div>
-                    <div className="text-[9px] font-bold text-[#61718a] mt-0.5 whitespace-nowrap">Hours Returned</div>
+                  <div>
+                    <div className="text-[10px] font-extrabold text-brand-blue truncate">{hasHours ? `${formatHours(r.hours_returned!.expected)}h` : hasImpact ? "Est." : "N/A"}</div>
+                    <div className="text-[8px] font-bold text-[#61718a] uppercase tracking-[0.04em]">Hours</div>
                   </div>
-                  <div className="min-w-0">
-                    <div className={`text-[11px] sm:text-[12px] font-extrabold flex items-center gap-1 text-brand-purple whitespace-nowrap overflow-hidden text-ellipsis`}>
-                      {r.timeline.low_weeks && r.timeline.high_weeks ? `${r.timeline.low_weeks}\u2013${r.timeline.high_weeks}w` : "N/A"}
-                    </div>
-                    <div className="text-[9px] font-bold text-[#61718a] mt-0.5 whitespace-nowrap">Duration</div>
+                  <div>
+                    <div className="text-[10px] font-extrabold text-brand-purple truncate">{r.timeline.low_weeks && r.timeline.high_weeks ? `${r.timeline.low_weeks}\u2013${r.timeline.high_weeks}w` : "N/A"}</div>
+                    <div className="text-[8px] font-bold text-[#61718a] uppercase tracking-[0.04em]">Timeline</div>
                   </div>
-                  <div className="min-w-0">
-                    <div className={`text-[11px] sm:text-[12px] font-extrabold flex items-center gap-1 text-brand-orange whitespace-nowrap overflow-hidden text-ellipsis`}>
-                      {visibleComparables.length > 0 ? `${Math.max(1, Math.round(visibleComparables.length / 5))}\u2013${Math.max(2, Math.round(visibleComparables.length / 3))}` : "N/A"}
-                    </div>
-                    <div className="text-[9px] font-bold text-[#61718a] mt-0.5 whitespace-nowrap">Team Size</div>
+                  <div>
+                    <div className="text-[10px] font-extrabold text-brand-orange truncate">{topEvidence.length > 0 ? `${Math.max(1, Math.round(topEvidence.length / 5))}\u2013${Math.max(2, Math.round(topEvidence.length / 3))}` : "N/A"}</div>
+                    <div className="text-[8px] font-bold text-[#61718a] uppercase tracking-[0.04em]">Team</div>
                   </div>
                 </div>
 
-                {/* Tool Stack */}
-                {tools.length > 0 && (
-                  <>
-                    <p className="text-[9px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-1.5">Tool Stack</p>
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {tools.slice(0, 3).map((t, i) => (
-                        <span key={i} className={`px-[8px] py-[3px] rounded-lg text-[10px] font-extrabold ${tagClass}`}>{t}</span>
-                      ))}
-                    </div>
-                  </>
-                )}
-
-                {/* Evidence Quality */}
-                <p className="text-[9px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-1.5">Evidence Quality</p>
-                <div className="flex items-center gap-[8px] mb-3 flex-wrap">
-                  <span className={`px-[8px] py-[3px] rounded-full text-[10px] font-extrabold uppercase tracking-[0.04em] border ${tierBadge(r.evidence_summary.overall_tier)}`}>
+                {/* Tools + Evidence row */}
+                <div className="flex items-center gap-2 mb-[10px] flex-wrap">
+                  {tools.slice(0, 2).map((t, i) => (
+                    <span key={i} className={`px-[6px] py-[2px] rounded-md text-[9px] font-extrabold ${tagClass}`}>{t}</span>
+                  ))}
+                  <span className={`px-[6px] py-[2px] rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ${tierBadge(r.evidence_summary.overall_tier)}`}>
                     {TIER_CONFIG[r.evidence_summary.overall_tier]?.label || r.evidence_summary.overall_tier}
                   </span>
-                  <span className="text-[#586984] text-[10px] font-bold">{getEvidenceMix(r)}</span>
+                  <span className="text-[#586984] text-[9px] font-bold">{getEvidenceMix(r)}</span>
                 </div>
 
-                {/* Top Evidence */}
-                <p className="text-[9px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-1.5">Top Evidence</p>
-                <div className="mb-3 flex-1">
-                  {visibleComparables.length > 0 ? visibleComparables.slice(0, 2).map((c, i) => {
+                {/* Top Evidence - 2 rows max */}
+                <div className="flex-1 min-h-0">
+                  {topEvidence.length > 0 ? topEvidence.map((c, i) => {
                     const company = formatCompany(c.organization);
                     const outcome = formatOutcome(c.outcome);
                     return (
-                      <div key={i} className="min-h-[30px] grid grid-cols-[1fr_auto] gap-[8px] items-center border-b border-[#ebeff4] text-[11px] py-1.5">
-                        <div className="flex items-center gap-[7px] min-w-0 font-extrabold overflow-hidden">
-                          <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[8px] font-bold uppercase">
+                      <div key={i} className="grid grid-cols-[1fr_auto] gap-[6px] items-center text-[10px] py-[6px] border-b border-[#ebeff4] last:border-0">
+                        <div className="flex items-center gap-[6px] min-w-0 font-extrabold overflow-hidden">
+                          <span className="w-[16px] h-[16px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[7px] font-bold uppercase">
                             {companyInitials(company)}
                           </span>
                           <span className="overflow-hidden text-ellipsis text-[#101826]">{company}</span>
                         </div>
-                        <span className={`text-right font-bold shrink-0 ${outcomeClass} overflow-hidden text-ellipsis max-w-[120px] text-[11px]`}>
+                        <span className={`text-right font-bold shrink-0 ${outcomeClass} overflow-hidden text-ellipsis max-w-[110px] text-[10px]`}>
                           {outcome}
                         </span>
                       </div>
                     );
                   }) : (
-                    <div className="text-[11px] text-[#5a6b84] font-bold py-1">Evidence unavailable</div>
+                    <div className="text-[10px] text-[#5a6b84] font-bold py-[6px]">Evidence unavailable</div>
                   )}
                 </div>
 
                 {/* Footer */}
-                <div className="mt-auto pt-2 border-t border-[#ebeff4] flex items-center justify-between">
-                  <span className="text-[11px] font-extrabold text-brand-green-dark">
-                    {Math.round(r.confidence.score * 100)}% confidence
-                  </span>
+                <div className="mt-auto pt-[10px] border-t border-[#ebeff4] flex items-center justify-between">
+                  <span className="text-[10px] font-extrabold text-brand-green-dark">{Math.round(r.confidence.score * 100)}% confidence</span>
                   {r.timeline.low_weeks && r.timeline.high_weeks && (
-                    <span className="text-[11px] font-bold text-[#5a6b84]">
-                      {r.timeline.low_weeks}\u2013{r.timeline.high_weeks} week{r.timeline.high_weeks > 1 ? "s" : ""}
-                    </span>
+                    <span className="text-[10px] font-bold text-[#5a6b84]">{r.timeline.low_weeks}\u2013{r.timeline.high_weeks}wk</span>
                   )}
                 </div>
               </div>
