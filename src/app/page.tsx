@@ -84,7 +84,7 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
         <span className={`px-[10px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-[0.04em] ${TIER_BADGE[tier] || TIER_BADGE.gold}`}>
           {tier === "gold" ? "Gold" : tier === "silver" ? "Silver" : "Bronze"}
         </span>
-        <span className="text-[#586984] text-[11px] font-bold">High-quality evidence from 143 implementations</span>
+        <span className="text-[#586984] text-[11px] font-bold">High-quality evidence from {data.evidenceCount || 143} implementations</span>
       </div>
 
       {/* Top Evidence */}
@@ -109,7 +109,7 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
 
       {/* Proof statement */}
       <div className="mt-auto pt-3 text-[12px] font-extrabold text-brand-green-dark">
-        143 comparable implementations
+        {data.evidenceCount || 143} comparable implementations
       </div>
     </div>
   );
@@ -140,6 +140,7 @@ export default function HomePage() {
             </div>
             <ExampleCard
               data={{
+                evidenceCount: 143,
                 problem: site.hero.recommendation.problem,
                 recommendation: site.hero.recommendation.recommendation,
                 impact: site.hero.recommendation.impact,
@@ -418,6 +419,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
             <ExampleCard
               data={{
+                evidenceCount: 143,
                 problem: site.exampleSales.problem,
                 recommendation: site.exampleSales.recommendation,
                 impact: site.exampleSales.impact,
@@ -437,6 +439,7 @@ export default function HomePage() {
             />
             <ExampleCard
               data={{
+                evidenceCount: 87,
                 problem: site.exampleFinance.problem,
                 recommendation: site.exampleFinance.recommendation,
                 impact: site.exampleFinance.impact,
@@ -456,6 +459,7 @@ export default function HomePage() {
             />
             <ExampleCard
               data={{
+                evidenceCount: 62,
                 problem: site.exampleHealthcare.problem,
                 recommendation: site.exampleHealthcare.recommendation,
                 impact: site.exampleHealthcare.impact,
