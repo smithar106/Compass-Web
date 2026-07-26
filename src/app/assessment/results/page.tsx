@@ -7,6 +7,7 @@ const STORAGE_KEY = "compass-assessment-session";
 
 interface ComparableEvidence {
   record_id: string; organization: string; intervention: string;
+  workflow: string; workflow_context: string; intervention_description: string;
   outcome_summary: string; evidence_tier: string; similarity_score: number;
   source_title: string; source_url: string; relevance_explanation: string;
   normalized_metrics: { metric: string; value: string; raw: string }[];
@@ -32,9 +33,28 @@ interface ImpactSummary {
   project_team: ProjectTeam;
 }
 
+interface OutcomeRange {
+  metric: string; unit: string;
+  median: number | null; low: number | null; high: number | null;
+  count: number; source: string;
+}
+
+interface Assumption {
+  assumption: string; impact_on_outcome: string; confidence: string;
+}
+
+interface InformationGap {
+  gap: string; why_needed: string; priority: string;
+}
+
+interface NextValidationStep {
+  action: string; why: string; estimated_effort: string;
+}
+
 interface RecommendationData {
   rank: number; is_compass_choice: boolean; intervention_id: string;
-  category: string; title: string; subtitle: string; description: string;
+  category: string; title: string; specific_action: string;
+  subtitle: string; description: string;
   selection_status: string; rationale: string; why_it_ranked_here: string[];
   assumptions: string[];
   confidence: { score: number; label: string; explanation: string };
@@ -43,9 +63,18 @@ interface RecommendationData {
     overall_tier: string; total_comparables: number; gold_count: number;
     silver_count: number; bronze_count: number; average_evidence_score: number;
   };
+  outcome_ranges: OutcomeRange[];
+  why_ranked_first: {
+    summary: string; key_strengths: string[];
+    scoring_dimensions: { dimension: string; score: number; detail: string }[];
+    vs_alternatives: { alternative: string; rank: number; confidence_gap: number; why_lower: string; when_to_consider: string }[];
+  } | null;
   comparable_implementations: ComparableEvidence[];
   risks: any[];
   alternatives_considered: { family: string; reason: string; confidence_score: number }[];
+  assumptions_detail: Assumption[];
+  information_gaps: InformationGap[];
+  next_validation_step: NextValidationStep | null;
 }
 
 const TIER_CONFIG: Record<string, { label: string; badge: string }> = {
@@ -56,10 +85,6 @@ const TIER_CONFIG: Record<string, { label: string; badge: string }> = {
 };
 
 const BAD_PATTERNS = [/^unknown$/i, /^null$/i, /^undefined$/i, /^n\/?a$/i, /^\s*$/, /^none$/i, /^not\s+available/i];
-
-const STATUS_LABELS: Record<string, string> = {
-  calculated: "", insufficient_input: "Additional operating data required", not_applicable: "Not applicable",
-};
 
 function tierBadge(tier: string): string {
   return (TIER_CONFIG[tier?.toLowerCase()] || TIER_CONFIG.insufficient).badge;
@@ -72,7 +97,7 @@ function tierLabel(tier: string): string {
 function formatCurrency(n: number | null | undefined): string {
   if (n == null) return "";
   if (n >= 1000000) return `$${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `$${(n / 1000).toFixed(0)}K`;
+  if (n >= 1000) return `${Math.round(n / 1000)}K`;
   return `$${n.toLocaleString()}`;
 }
 
@@ -96,42 +121,14 @@ function companyInitials(name: string): string {
   return name.split(/[\s-]+/).map((w) => w[0]).join("").toUpperCase().slice(0, 3);
 }
 
-function impactValue(est: ImpactEstimate): string {
-  if (est.status === "calculated" && est.expected != null) {
-    return formatCurrency(est.expected);
-  }
-  return STATUS_LABELS[est.status] || "Additional operating data required";
-}
-
-function impactRange(est: ImpactEstimate): string | null {
-  if (est.status === "calculated" && est.low != null && est.high != null) {
-    return `${formatCurrency(est.low)} – ${formatCurrency(est.high)} range`;
-  }
-  return null;
-}
-
-function hoursValue(est: ImpactEstimate): string {
-  if (est.status === "calculated" && est.expected != null) {
-    return `${formatHours(est.expected)} hrs/yr`;
-  }
-  return STATUS_LABELS[est.status] || "Additional operating data required";
-}
-
-function hoursRange(est: ImpactEstimate): string | null {
-  if (est.status === "calculated" && est.low != null && est.high != null) {
-    return `${formatHours(est.low)} – ${formatHours(est.high)} hours range`;
-  }
-  return null;
-}
-
-function timelineDisplay(tl: { min_weeks: number | null; expected_weeks: number | null; max_weeks: number | null }): string {
-  if (tl.min_weeks && tl.max_weeks) return `${tl.min_weeks}–${tl.max_weeks} weeks`;
+function timelineDisplay(tl: TimelineEstimate): string {
+  if (tl.min_weeks && tl.max_weeks) return `${tl.min_weeks}\u2013${tl.max_weeks} weeks`;
   if (tl.expected_weeks) return `${tl.expected_weeks} weeks`;
   return "Not available";
 }
 
-function teamDisplay(team: { min_people: number; expected_people: number; max_people: number }): string {
-  if (team.min_people && team.max_people) return `${team.min_people}–${team.max_people} people`;
+function teamDisplay(team: ProjectTeam): string {
+  if (team.min_people && team.max_people) return `${team.min_people}\u2013${team.max_people} people`;
   if (team.expected_people) return `${team.expected_people} people`;
   return "Not available";
 }
@@ -144,6 +141,15 @@ function evidenceMixSummary(es: { total_comparables: number; gold_count: number;
   const label = es.total_comparables === 1 ? "1 implementation" : `${es.total_comparables} implementations`;
   if (!parts.length) return label;
   return `${label}: ${parts.join(", ")}`;
+}
+
+function formatRange(r: OutcomeRange): string {
+  if (r.low != null && r.high != null) {
+    const unit = r.unit === "%" ? "%" : "";
+    return `${r.low}${unit} \u2013 ${r.high}${unit}`;
+  }
+  if (r.median != null) return `${r.median}${r.unit === "%" ? "%" : ""}`;
+  return "";
 }
 
 export default function ResultsPage() {
@@ -164,7 +170,6 @@ function ResultsContent() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const statusLabel = recs.length > 0 && recs.every(r => r.selection_status === "recommended") ? "Recommendation Complete" : "";
 
   useEffect(() => {
     const id = searchParams?.get("run_id");
@@ -288,158 +293,335 @@ function ResultsContent() {
     </div>
   );
 
+  const top = recs[0];
+  const alternatives = recs.slice(1);
+  const statusLabel = "Recommendation Complete";
+
   return (
     <div className="bg-[#fbfcfd] min-h-screen">
-      <div ref={contentRef} className="w-full max-w-[1500px] mx-auto px-[min(36px,5vw)] pt-24 pb-8">
-        <div id="compass-report-content" className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
-          {/* HEADER */}
-          <div className="flex flex-col lg:flex-row justify-between items-start gap-6 mb-8 pb-6 border-b border-[#dfe5ec]">
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Compass Recommendation</h1>
-                {statusLabel && <span className="px-3 py-1 rounded-full bg-brand-green-light text-brand-green-dark text-[11px] font-extrabold uppercase">{statusLabel}</span>}
-              </div>
-              <p className="text-[#4f6280] font-semibold mt-1 mb-2 text-[15px]">Evidence-driven analysis complete</p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 text-[13px] font-semibold text-[#5f718f]">
-                <span>Engine v3.0.0</span>
-                <span>Dataset v3</span>
-                <span>Generated {ts}</span>
-              </div>
-            </div>
-            <button
-              onClick={handleDownloadPdf}
-              disabled={pdfLoading}
-              className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50"
-            >
-              {pdfLoading ? (
-                <><div className="w-4 h-4 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin" /> Preparing report...</>
-              ) : (
-                <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</>
-              )}
-            </button>
-          </div>
-          {pdfError && <p className="text-xs text-red-600 mb-4">{pdfError}</p>}
+      <div ref={contentRef} className="w-full max-w-[1200px] mx-auto px-[min(36px,5vw)] pt-24 pb-8">
+        <div id="compass-report-content" className="space-y-4">
 
-          {/* RECOMMENDATION CARDS */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8 items-stretch">
-            {recs.map((r) => {
-              const savings = r.impact.annual_savings;
-              const hours = r.impact.annual_hours_returned;
-              const tl = r.impact.implementation_timeline;
-              const team = r.impact.project_team;
-              const es = r.evidence_summary;
-              const hasSavings = savings.status === "calculated";
-              const hasHours = hours.status === "calculated";
-              const topEv = (r.comparable_implementations || []).filter(c => c.evidence_tier !== "rejected" && !isBadValue(c.organization)).slice(0, 2);
-
-              return (
-                <div key={r.rank} className={`bg-white border-2 ${r.rank === 1 ? "border-brand-green" : r.rank === 2 ? "border-brand-blue" : "border-brand-orange"} rounded-[14px] p-[18px] flex flex-col shadow-[0_8px_24px_rgba(15,23,42,0.05)]`}>
-                  {/* Rank + Status */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0 ${r.rank === 1 ? "bg-[#d7a500]" : r.rank === 3 ? "bg-[#a8490c]" : "bg-[#657386]"}`}>{r.rank}</span>
-                    <span className={`px-[8px] py-[3px] rounded-full text-[9px] font-extrabold uppercase ${r.rank === 1 ? "bg-brand-green-light text-brand-green-dark" : "bg-[#edf0f3] text-[#1a1f2b]"}`}>
-                      {r.rank === 1 ? "Recommended" : "Alternative"}
-                    </span>
-                  </div>
-
-                  {/* Title + Subtitle */}
-                  <h2 className="text-[16px] font-extrabold tracking-[-0.02em] text-[#101826] m-0 leading-[1.2]">{r.title}</h2>
-                  {r.subtitle && <p className="text-[11px] font-semibold text-[#4f6280] m-0 mt-0.5 mb-2">{r.subtitle}</p>}
-
-                  {/* Why it ranked */}
-                  {r.rationale && (
-                    <p className="text-[10px] text-[#5a6b84] leading-[1.4] mb-3 border-l-2 border-brand-green pl-2">{r.rationale}</p>
-                  )}
-
-                  {/* Impact grid */}
-                  <div className="grid grid-cols-4 gap-1 mb-3 mt-1">
-                    <div>
-                      <div className="text-[10px] font-extrabold text-brand-green truncate">{hasSavings ? formatCurrency(savings.expected) : "N/A"}</div>
-                      <div className="text-[8px] font-bold text-[#61718a] uppercase tracking-[0.04em]">Annual savings</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-extrabold text-brand-blue truncate">{hasHours ? `${formatHours(hours.expected)}h` : "N/A"}</div>
-                      <div className="text-[8px] font-bold text-[#61718a] uppercase tracking-[0.04em]">Hours returned</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-extrabold text-brand-purple truncate">{timelineDisplay(tl)}</div>
-                      <div className="text-[8px] font-bold text-[#61718a] uppercase tracking-[0.04em]">Timeline</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-extrabold text-brand-orange truncate">{teamDisplay(team)}</div>
-                      <div className="text-[8px] font-bold text-[#61718a] uppercase tracking-[0.04em]">Project team</div>
-                    </div>
-                  </div>
-
-                  {/* Evidence badge + mix */}
-                  <div className="flex items-center gap-2 mb-3 flex-wrap">
-                    <span className={`px-[6px] py-[2px] rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ${tierBadge(es.overall_tier)}`}>{tierLabel(es.overall_tier)}</span>
-                    <span className="text-[#586984] text-[9px] font-bold">{evidenceMixSummary(es)}</span>
-                    <span className="text-[10px] font-extrabold text-brand-green-dark ml-auto">{Math.round(r.confidence.score * 100)}% confidence</span>
-                  </div>
-
-                  {/* Top comparative evidence */}
-                  <div className="flex-1 min-h-0">
-                    {topEv.length > 0 ? topEv.map((c, i) => {
-                      const company = formatCompany(c.organization);
-                      return (
-                        <div key={i} className="py-[6px] border-b border-[#ebeff4] last:border-0">
-                          <div className="flex items-center gap-[6px] mb-1">
-                            <span className="w-[16px] h-[16px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[7px] font-bold uppercase">{companyInitials(company)}</span>
-                            <span className="text-[10px] font-extrabold text-[#101826]">{company}</span>
-                          </div>
-                          <p className="text-[9px] text-[#4f6280] leading-[1.3] ml-[22px]">{c.outcome_summary}</p>
-                          {c.relevance_explanation && (
-                            <p className="text-[8px] text-[#75859b] italic ml-[22px]">{c.relevance_explanation}</p>
-                          )}
-                        </div>
-                      );
-                    }) : (
-                      <div className="text-[10px] text-[#5a6b84] font-bold py-[6px]">Evidence unavailable</div>
-                    )}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="mt-auto pt-[10px] border-t border-[#ebeff4] flex items-center justify-between">
-                    <span className="text-[9px] font-semibold text-[#5a6b84]">{r.confidence.explanation.slice(0, 60)}</span>
-                  </div>
+          {/* ===== HEADER ===== */}
+          <header className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
+            <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Compass Recommendation</h1>
+                  <span className="px-3 py-1 rounded-full bg-brand-green-light text-brand-green-dark text-[11px] font-extrabold uppercase whitespace-nowrap">{statusLabel}</span>
                 </div>
-              );
-            })}
-          </div>
+                <p className="text-[#4f6280] font-semibold mt-1 mb-2 text-[15px]">Evidence-driven decision brief for your team</p>
+                <div className="flex flex-wrap gap-x-6 gap-y-1 text-[13px] font-semibold text-[#5f718f]">
+                  <span>Engine v3.0.0</span>
+                  <span>Dataset v3</span>
+                  <span>Generated {ts}</span>
+                  <span>{top.evidence_summary.total_comparables} comparable implementations analyzed</span>
+                </div>
+              </div>
+              <button
+                onClick={handleDownloadPdf}
+                disabled={pdfLoading}
+                className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50"
+              >
+                {pdfLoading ? (
+                  <><div className="w-4 h-4 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin" /> Preparing report...</>
+                ) : (
+                  <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</>
+                )}
+              </button>
+            </div>
+            {pdfError && <p className="text-xs text-red-600 mt-4">{pdfError}</p>}
+          </header>
 
-          {/* RISKS */}
-          {recs[0]?.risks?.length > 0 && (
-            <section className="mt-5 border border-[#f3c7c9] rounded-[18px] bg-risk-light px-7 py-[22px] pb-[25px]">
-              <h2 className="flex items-center gap-3 text-[19px] font-extrabold tracking-[-0.02em] m-0 mb-[22px]">Potential Risks</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {recs[0].risks.slice(0, 4).map((risk, i) => (
-                  <div key={i} className="bg-white rounded-xl p-4 border border-[#efc8ca]">
-                    <div className="flex items-start gap-2">
-                      <div className="flex-1">
-                        <p className="text-[12px] font-extrabold text-[#1b2432] mb-1">{risk.title || risk.category || "Risk"}</p>
-                        <p className="text-[11px] text-[#4f6280] leading-[1.4] mb-2">{risk.explanation || risk.risk || ""}</p>
-                        {risk.mitigation && (
-                          <p className="text-[10px] text-brand-green-dark font-semibold">Mitigation: {risk.mitigation}</p>
+          {/* ===== RECOMMENDED PATH (top recommendation) ===== */}
+          <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/30">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="w-6 h-6 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[11px] font-extrabold">1</span>
+              <span className="px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark text-[10px] font-extrabold uppercase">Recommended Path</span>
+              <span className="text-[11px] font-bold text-[#4f6280] ml-auto">{Math.round(top.confidence.score * 100)}% confidence</span>
+            </div>
+
+            {/* Action statement */}
+            <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#101826] mb-1">
+              {top.specific_action || top.title}
+            </h2>
+            {top.subtitle && (
+              <p className="text-[12px] font-semibold text-[#4f6280] mb-4">{top.subtitle}</p>
+            )}
+            {top.description && (
+              <p className="text-[12px] text-[#4f6280] leading-[1.5] mb-5 border-l-2 border-brand-green pl-3">{top.description}</p>
+            )}
+
+            {/* Evidence-derived outcome ranges */}
+            {top.outcome_ranges && top.outcome_ranges.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">Observed outcomes from comparable implementations</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {top.outcome_ranges.slice(0, 5).map((r, i) => (
+                    <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
+                      <div className="text-[16px] font-extrabold text-[#101826]">{formatRange(r)}</div>
+                      <div className="text-[9px] font-bold text-[#586984] uppercase tracking-[0.04em] mt-0.5">{r.metric}</div>
+                      <div className="text-[8px] text-[#75859b] mt-0.5">{r.count} implementation{r.count !== 1 ? "s" : ""}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Financial estimates (if available) */}
+            {top.impact.annual_savings.status === "calculated" && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div className="bg-[#f0faf0] rounded-xl px-4 py-3 border border-[#d4ebd4]">
+                  <div className="text-[16px] font-extrabold text-brand-green-dark">{formatCurrency(top.impact.annual_savings.expected)}</div>
+                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Est. annual savings</div>
+                </div>
+                <div className="bg-[#eef4fb] rounded-xl px-4 py-3 border border-[#d4e0f0]">
+                  <div className="text-[16px] font-extrabold text-brand-blue">{formatHours(top.impact.annual_hours_returned.expected)}h</div>
+                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Est. hours returned</div>
+                </div>
+                <div className="bg-[#f4eefb] rounded-xl px-4 py-3 border border-[#e0d4f0]">
+                  <div className="text-[16px] font-extrabold text-brand-purple">{timelineDisplay(top.impact.implementation_timeline)}</div>
+                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Timeline</div>
+                </div>
+                <div className="bg-[#fbf4ee] rounded-xl px-4 py-3 border border-[#f0e0d4]">
+                  <div className="text-[16px] font-extrabold text-brand-orange">{teamDisplay(top.impact.project_team)}</div>
+                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Project team</div>
+                </div>
+              </div>
+            )}
+
+            {/* If savings insufficient, show outcome ranges more prominently + data note */}
+            {top.impact.annual_savings.status !== "calculated" && (
+              <div className="text-[10px] text-[#5f718f] italic mb-5 border-t border-[#ebeff4] pt-4">
+                Organization-specific savings estimates require current workflow volume, headcount, and labor cost information.
+                {top.impact.annual_savings.basis && ` ${top.impact.annual_savings.basis}`}
+                <br />The ranges above show what comparable organizations achieved.
+              </div>
+            )}
+
+            {/* Why ranked first */}
+            {top.why_ranked_first && (
+              <div className="mb-6 border-t border-[#ebeff4] pt-5">
+                <h3 className="flex items-center gap-2 text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-3">
+                  Why this ranked first
+                </h3>
+                <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-4">{top.why_ranked_first.summary}</p>
+
+                {top.why_ranked_first.key_strengths.length > 0 && (
+                  <ul className="space-y-1.5 mb-4">
+                    {top.why_ranked_first.key_strengths.map((s, i) => (
+                      <li key={i} className="flex items-start gap-2 text-[11px] text-[#4f6280]">
+                        <span className="text-brand-green mt-0.5 shrink-0">&#10003;</span>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* vs Alternatives comparison */}
+                {top.why_ranked_first.vs_alternatives.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2">How it compares to alternatives</p>
+                    <div className="space-y-2">
+                      {top.why_ranked_first.vs_alternatives.map((alt, i) => (
+                        <div key={i} className="bg-[#f6f8fa] rounded-lg px-4 py-3 border border-[#e6eaef]">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[11px] font-extrabold text-[#101826]">vs {alt.alternative}</span>
+                            {alt.confidence_gap > 0 && (
+                              <span className="px-1.5 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark text-[8px] font-extrabold">
+                                +{alt.confidence_gap}% confidence
+                              </span>
+                            )}
+                          </div>
+                          {alt.why_lower && <p className="text-[10px] text-[#5f718f]">{alt.why_lower}</p>}
+                          {alt.when_to_consider && <p className="text-[10px] text-[#75859b] italic mt-0.5">{alt.when_to_consider}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Comparable implementations */}
+            {top.comparable_implementations && top.comparable_implementations.length > 0 && (
+              <div className="border-t border-[#ebeff4] pt-5">
+                <h3 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-3">Comparable implementations</h3>
+                <div className="space-y-3">
+                  {top.comparable_implementations.filter(c => c.evidence_tier !== "rejected" && !isBadValue(c.organization)).slice(0, 4).map((c, i) => {
+                    const company = formatCompany(c.organization);
+                    return (
+                      <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3.5 border border-[#e6eaef]">
+                        <div className="flex items-center gap-2.5 mb-1.5">
+                          <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[7px] font-bold uppercase">{companyInitials(company)}</span>
+                          <span className="text-[12px] font-extrabold text-[#101826]">{company}</span>
+                          <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ml-auto ${tierBadge(c.evidence_tier)}`}>{tierLabel(c.evidence_tier)}</span>
+                        </div>
+                        {c.workflow_context && <p className="text-[10px] text-[#586984] font-semibold mb-1 ml-[26px]">{c.workflow_context}</p>}
+                        {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]">Applied: {c.intervention}</p>}
+                        <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]">{c.outcome_summary}</p>
+                        {c.relevance_explanation && (
+                          <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-1">{c.relevance_explanation}</p>
                         )}
                       </div>
+                    );
+                  })}
+                </div>
+                {top.comparable_implementations.filter(c => c.evidence_tier !== "rejected" && !isBadValue(c.organization)).length > 4 && (
+                  <details className="mt-2">
+                    <summary className="text-[10px] font-bold text-brand-green cursor-pointer py-1">Show all {top.comparable_implementations.length} comparable implementations</summary>
+                    <div className="space-y-3 mt-2">
+                      {top.comparable_implementations.filter(c => c.evidence_tier !== "rejected" && !isBadValue(c.organization)).slice(4).map((c, i) => {
+                        const company = formatCompany(c.organization);
+                        return (
+                          <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3.5 border border-[#e6eaef]">
+                            <div className="flex items-center gap-2.5 mb-1.5">
+                              <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[7px] font-bold uppercase">{companyInitials(company)}</span>
+                              <span className="text-[12px] font-extrabold text-[#101826]">{company}</span>
+                              <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ml-auto ${tierBadge(c.evidence_tier)}`}>{tierLabel(c.evidence_tier)}</span>
+                            </div>
+                            {c.workflow_context && <p className="text-[10px] text-[#586984] font-semibold mb-1 ml-[26px]">{c.workflow_context}</p>}
+                            {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]">Applied: {c.intervention}</p>}
+                            <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]">{c.outcome_summary}</p>
+                            {c.relevance_explanation && (
+                              <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-1">{c.relevance_explanation}</p>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
+                  </details>
+                )}
+              </div>
+            )}
+
+            {/* Evidence + confidence footer */}
+            <div className="flex items-center gap-3 mt-5 pt-4 border-t border-[#ebeff4]">
+              <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-[0.04em] border ${tierBadge(top.evidence_summary.overall_tier)}`}>{tierLabel(top.evidence_summary.overall_tier)}</span>
+              <span className="text-[10px] font-bold text-[#586984]">{evidenceMixSummary(top.evidence_summary)}</span>
+              <span className="text-[10px] text-[#5f718f] ml-auto">{top.confidence.explanation.slice(0, 80)}{top.confidence.explanation.length > 80 ? "..." : ""}</span>
+            </div>
+          </section>
+
+          {/* ===== ALTERNATIVE OPTIONS ===== */}
+          {alternatives.length > 0 && (
+            <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
+              <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Alternative approaches considered</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {alternatives.map((r) => {
+                  const isSecond = r.rank === 2;
+                  return (
+                    <div key={r.rank} className={`bg-white rounded-xl p-5 border-2 ${isSecond ? "border-brand-blue/30" : "border-brand-orange/30"} shadow-sm`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white shrink-0 ${isSecond ? "bg-[#657386]" : "bg-[#a8490c]"}`}>{r.rank}</span>
+                        <span className="text-[12px] font-extrabold text-[#101826]">{r.title}</span>
+                      </div>
+                      {r.subtitle && <p className="text-[10px] font-semibold text-[#4f6280] mb-2">{r.subtitle}</p>}
+                      <div className="flex items-center gap-3 mb-2 text-[10px] text-[#5f718f]">
+                        <span className="font-bold">{Math.round(r.confidence.score * 100)}% confidence</span>
+                        <span>{r.evidence_summary.total_comparables} comparable{r.evidence_summary.total_comparables !== 1 ? "s" : ""}</span>
+                      </div>
+                      {r.rationale && <p className="text-[10px] text-[#4f6280] leading-[1.4]">{r.rationale}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* ===== RISKS ===== */}
+          {top.risks?.length > 0 && (
+            <section className="border border-[#f3c7c9] rounded-[18px] bg-risk-light px-7 py-[22px] pb-[25px] shadow-sm">
+              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] m-0 mb-[18px]">Potential risks</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {top.risks.slice(0, 4).map((risk, i) => (
+                  <div key={i} className="bg-white rounded-xl p-4 border border-[#efc8ca]">
+                    <p className="text-[12px] font-extrabold text-[#1b2432] mb-1">{risk.title || risk.category || "Risk"}</p>
+                    <p className="text-[11px] text-[#4f6280] leading-[1.4] mb-2">{risk.explanation || risk.risk || ""}</p>
+                    {risk.mitigation && (
+                      <p className="text-[10px] text-brand-green-dark font-semibold">Mitigation: {risk.mitigation}</p>
+                    )}
                   </div>
                 ))}
               </div>
             </section>
           )}
 
-          {/* DATA QUALITY NOTE */}
-          {recs[0]?.impact.annual_savings.status === "insufficient_input" && recs[0]?.impact.annual_hours_returned.status === "insufficient_input" && (
-            <section className="mt-5 border border-[#dfe5ec] rounded-[18px] bg-white px-7 py-[22px]">
-              <h2 className="text-[13px] font-extrabold text-[#4f6280] mb-2">Additional data would improve estimates</h2>
-              <p className="text-[11px] text-[#5a6b84] leading-[1.5]">
-                Financial and time-savings estimates require current workflow volume, headcount, and labor cost information.
-                {recs[0].impact.annual_savings.basis && ` ${recs[0].impact.annual_savings.basis}`}
-              </p>
+          {/* ===== ASSUMPTIONS & INFORMATION GAPS ===== */}
+          {(top.assumptions_detail?.length > 0 || top.information_gaps?.length > 0) && (
+            <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
+              <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Assumptions and information gaps</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {top.assumptions_detail?.length > 0 && (
+                  <div>
+                    <h3 className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">Assumptions made</h3>
+                    <div className="space-y-2.5">
+                      {top.assumptions_detail.map((a, i) => (
+                        <div key={i} className="bg-[#fcf8f0] rounded-lg px-3.5 py-2.5 border border-[#f0e8d4]">
+                          <p className="text-[11px] text-[#4f6280] leading-[1.4]">{a.assumption}</p>
+                          {a.impact_on_outcome && <p className="text-[9px] text-[#75859b] italic mt-1">{a.impact_on_outcome}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {top.information_gaps?.length > 0 && (
+                  <div>
+                    <h3 className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">What would improve this analysis</h3>
+                    <div className="space-y-2.5">
+                      {top.information_gaps.map((g, i) => (
+                        <div key={i} className={`rounded-lg px-3.5 py-2.5 border ${g.priority === "high" ? "bg-[#fcf0f0] border-[#f0d4d4]" : "bg-[#f6f8fa] border-[#e6eaef]"}`}>
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <p className="text-[11px] font-bold text-[#4f6280]">{g.gap}</p>
+                            {g.priority === "high" && <span className="px-1 py-0.5 rounded bg-red-100 text-red-700 text-[7px] font-extrabold uppercase">Critical</span>}
+                          </div>
+                          {g.why_needed && <p className="text-[9px] text-[#75859b]">{g.why_needed}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </section>
           )}
+
+          {/* ===== NEXT VALIDATION STEP ===== */}
+          {top.next_validation_step && (
+            <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/20">
+              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] text-[#101826] mb-3">Recommended next step</h2>
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-full bg-brand-green-light flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-brand-green-dark text-[16px] font-extrabold">&#8594;</span>
+                </div>
+                <div>
+                  <p className="text-[14px] font-extrabold text-[#101826] mb-1.5">{top.next_validation_step.action}</p>
+                  <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-1.5">{top.next_validation_step.why}</p>
+                  {top.next_validation_step.estimated_effort && (
+                    <span className="inline-block px-2 py-0.5 rounded-full bg-[#edf0f3] text-[#1a1f2b] text-[9px] font-extrabold">{top.next_validation_step.estimated_effort}</span>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ===== ABOUT THIS ANALYSIS ===== */}
+          <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec] text-[11px] text-[#5f718f] leading-[1.5]">
+            <h2 className="text-[13px] font-extrabold text-[#4f6280] mb-2">About this analysis</h2>
+            <p>
+              Compass is an evidence-driven recommendation engine. It does not generate outcomes — it surfaces
+              real implementations from organizations with similar workflows, constraints, and objectives.
+              Each recommendation is ranked by a combination of evidence volume, outcome quality, workflow fit,
+              and organizational similarity. The database contains {top.evidence_summary.total_comparables} implementations
+              relevant to this assessment. Confidence reflects how many of those implementations measured and
+              quantified their outcomes, not just tool adoption.
+            </p>
+            <p className="mt-2">
+              This analysis is based on the information you provided. Outcomes observed in comparable organizations
+              do not guarantee identical results. We recommend validating the recommended approach through a
+              bounded pilot before making a full commitment.
+            </p>
+          </section>
+
         </div>
       </div>
     </div>
