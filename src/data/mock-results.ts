@@ -80,7 +80,7 @@ export const sampleOpportunityMap: OpportunityMap = {
       ],
       whyAlternativesRejected: "Pure AI risks false positives on complex enterprise leads. Pure software cannot adapt to varying qualification criteria. Human-only work does not scale.",
       tradeoff: "Requires CRM integration and initial scoring model training.",
-      businessImpact: { description: "Estimated 30% increase in AE productivity and 25% improvement in lead conversion.", impactType: "Revenue", estimatedImpact: "$500K\u2013$1.2M ARR uplift" },
+      businessImpact: { description: "Estimated 30% increase in AE productivity and 25% improvement in lead conversion.", impactType: "Revenue", estimatedImpact: "$500K–$1.2M ARR uplift" },
       risks: [{ risk: "Model accuracy may be low initially", category: "Technical", likelihood: "Medium", impact: "Medium", mitigation: "Start with hybrid approach: model + human review" }],
       dependencies: [{ dependency: "CRM API access", type: "System", required: true, status: "Available" }],
     },
@@ -147,7 +147,7 @@ export const sampleOpportunityMap: OpportunityMap = {
       ],
       whyAlternativesRejected: "AI scoring is unnecessary for this use case. Process redesign alone adds no automation. Hybrid adds complexity without benefit.",
       tradeoff: "Requires product usage data integration.",
-      businessImpact: { description: "Expected 15-20% reduction in churn rate through earlier intervention.", impactType: "Revenue", estimatedImpact: "$300K\u2013$600K ARR preserved" },
+      businessImpact: { description: "Expected 15-20% reduction in churn rate through earlier intervention.", impactType: "Revenue", estimatedImpact: "$300K–$600K ARR preserved" },
     },
     {
       rank: 3,
@@ -302,17 +302,17 @@ export const sampleOpportunityMap: OpportunityMap = {
         timeToValue: "8-12 weeks",
         implementationEffort: "Medium (organizational)",
         confidence: "Low",
-        humanOversight: "Full human ownership \u2014 Operations team leads documentation",
+        humanOversight: "Full human ownership — Operations team leads documentation",
         evidence: [
           { type: "user-provided", source: "Assessment response", detail: "No centralized process documentation", confidence: "Confirmed", timestamp: "2026-06-15" },
-          { type: "deterministic-analysis", source: "Org audit", detail: "Knowledge is tribal \u2014 no single source of truth exists", confidence: "High" },
+          { type: "deterministic-analysis", source: "Org audit", detail: "Knowledge is tribal — no single source of truth exists", confidence: "High" },
         ],
         assumptions: [
           { assumption: "Department heads will allocate time for documentation", impact: "High", confidence: "Medium" },
           { assumption: "Documentation will be maintained after creation", impact: "Medium", confidence: "Low" },
         ],
         comparedPaths: [
-          { intervention: "AI", title: "AI process extraction", eligibility: "Low", suitability: "Low", expectedOutcome: "Unreliable \u2014 AI cannot observe tribal knowledge", effort: "High", risk: "High", timeToValue: "N/A", humanOversight: "Full review needed", confidence: "Low", rejectionReason: "AI cannot document knowledge it cannot observe", estimatedCost: "$50K-$100K", dataReadiness: "Low", processReadiness: "Low", disqualifiers: "AI cannot observe undocumented tribal knowledge", summary: "AI attempts to extract process knowledge from available data sources.", reasonsRejected: ["AI cannot document knowledge it cannot observe", "High risk of inaccuracies", "Requires heavy human review"] },
+          { intervention: "AI", title: "AI process extraction", eligibility: "Low", suitability: "Low", expectedOutcome: "Unreliable — AI cannot observe tribal knowledge", effort: "High", risk: "High", timeToValue: "N/A", humanOversight: "Full review needed", confidence: "Low", rejectionReason: "AI cannot document knowledge it cannot observe", estimatedCost: "$50K-$100K", dataReadiness: "Low", processReadiness: "Low", disqualifiers: "AI cannot observe undocumented tribal knowledge", summary: "AI attempts to extract process knowledge from available data sources.", reasonsRejected: ["AI cannot document knowledge it cannot observe", "High risk of inaccuracies", "Requires heavy human review"] },
           { intervention: "Deterministic Software", title: "Documentation tooling", eligibility: "High", suitability: "Medium", expectedOutcome: "Better organization, same content", effort: "Low", risk: "Low", timeToValue: "1-2 weeks", humanOversight: "Team populates content", confidence: "Medium", rejectionReason: "Tool alone cannot create content", estimatedCost: "$5K-$15K", dataReadiness: "N/A", processReadiness: "Medium", disqualifiers: "Tool without content is useless", summary: "Deploy documentation platform (Confluence, Notion, etc.) for process documentation.", reasonsRejected: ["Tool alone cannot create content", "Content仍需 human effort"] },
           { intervention: "Process Redesign", title: "Re-engineer processes first", eligibility: "Medium", suitability: "Low", expectedOutcome: "Better processes, still undocumented", effort: "High", risk: "Medium", timeToValue: "12-20 weeks", humanOversight: "Full human control", confidence: "Low", rejectionReason: "Cannot redesign undocumented processes", estimatedCost: "$20K-$50K", dataReadiness: "N/A", processReadiness: "Medium", disqualifiers: "Cannot redesign what isn't documented", summary: "Redesign processes without first documenting current state.", reasonsRejected: ["Cannot redesign undocumented processes", "Puts the cart before the horse"] },
           { intervention: "Human Work", title: "Structured documentation initiative", eligibility: "High", suitability: "High", expectedOutcome: "Complete process map, clear ownership", effort: "Medium", risk: "Low", timeToValue: "8-12 weeks", humanOversight: "Full human ownership", confidence: "Low", estimatedCost: "$20K-$40K", dataReadiness: "N/A", processReadiness: "High", disqualifiers: "", summary: "Human-led initiative to document processes and establish ownership." },
@@ -323,7 +323,7 @@ export const sampleOpportunityMap: OpportunityMap = {
       },
       evidence: [
         { type: "user-provided", source: "Assessment response", detail: "No centralized process documentation", confidence: "Confirmed", timestamp: "2026-06-15" },
-        { type: "deterministic-analysis", source: "Org audit", detail: "Knowledge is tribal \u2014 no single source of truth", confidence: "High" },
+        { type: "deterministic-analysis", source: "Org audit", detail: "Knowledge is tribal — no single source of truth", confidence: "High" },
       ],
       assumptions: [
         { assumption: "Department heads will allocate time for documentation", impact: "High", confidence: "Medium" },

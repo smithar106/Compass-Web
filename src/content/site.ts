@@ -2,14 +2,14 @@ export const site = {
   name: "Compass",
   tagline: "What operational change will drive the greatest impact?",
   description:
-    "Compass is an evidence-based decision platform for operations leaders \u2014 grounded in thousands of real-world implementations, not consultant experience.",
+    "Compass is an evidence-based decision platform for operations leaders — grounded in thousands of real-world implementations, not consultant experience.",
 
   hero: {
     headline: "Evidence before implementation.",
     subtitle: "Compass identifies the operational solution most likely to succeed by comparing your organization against thousands of real-world implementations.",
     bullets: [
       "Identify the real problem worth solving",
-      "Compare every viable intervention path \u2014 AI, software, process, automation, or no change",
+      "Compare every viable intervention path — AI, software, process, automation, or no change",
       "Estimate business impact before committing budget",
       "Leave with an implementation plan",
     ],
@@ -69,7 +69,7 @@ export const site = {
 
   evidence: {
     headline: "Decisions should be grounded in data, not decades.",
-    subtitle: "Compass compares AI, software, process redesign, staffing, automation, outsourcing, and governance using comparable implementation outcomes \u2014 not consultant experience.",
+    subtitle: "Compass compares AI, software, process redesign, staffing, automation, outsourcing, and governance using comparable implementation outcomes — not consultant experience.",
   },
 
   designPartners: {
@@ -103,7 +103,7 @@ export const site = {
 
   finalCta: {
     headline: "Investigate before you build.",
-    subtitle: "Before you evaluate another vendor, compare what comparable implementations show \u2014 not what a sales deck claims.",
+    subtitle: "Before you evaluate another vendor, compare what comparable implementations show — not what a sales deck claims.",
     cta: "Start Assessment",
   },
 
@@ -131,7 +131,7 @@ export const site = {
   about: {
     mission: "Compass is the evidence-based decision intelligence platform organizations use before committing to operational change. We compare your operational challenges against comparable real-world implementations to identify the solution with the strongest evidence of success.",
     vision: "A world where every operational decision is informed by comparable real-world evidence instead of opinion.",
-    problem: "Organizations face constant pressure to adopt new technologies. Boards demand AI strategies. Vendors promise transformational results. Competitors announce new capabilities. The result is often expensive decisions made with incomplete evidence. Compass helps organizations identify the best operational solution before implementation by grounding every finding in comparable real-world implementations\u2014not vendor claims or generic best practices.",
+    problem: "Organizations face constant pressure to adopt new technologies. Boards demand AI strategies. Vendors promise transformational results. Competitors announce new capabilities. The result is often expensive decisions made with incomplete evidence. Compass helps organizations identify the best operational solution before implementation by grounding every finding in comparable real-world implementations—not vendor claims or generic best practices.",
     team: "We're building the platform we wished existed whenever organizations faced complex operational decisions.",
     futureVision: {
       headline: "Where Compass Is Going",
@@ -147,7 +147,7 @@ export const site = {
       headline: "Our internal compass",
       subtitle: "Four principles guide how we build.",
       principles: [
-        { title: "Evidence", description: "Recommendations begin with comparable operational implementations\u2014not assumptions." },
+        { title: "Evidence", description: "Recommendations begin with comparable operational implementations—not assumptions." },
         { title: "Problems First", description: "Compass starts with the business problem, not the technology." },
         { title: "Transparency", description: "Every finding includes supporting evidence, assumptions, and alternatives." },
         { title: "Continuous Learning", description: "As the evidence graph grows, Compass becomes increasingly capable of identifying comparable implementations." },
@@ -159,16 +159,16 @@ export const site = {
     intro: {
       headline: "Operational Assessment",
       body: "Answer a few questions about your workflow, constraints, and objectives. Compass compares your situation against thousands of real implementations to identify the most evidence-backed path forward.",
-      estimatedTime: "3\u20135 minutes",
+      estimatedTime: "3–5 minutes",
       sections: "10 departments",
       questions: "Targeted questions about your operations",
       cta: "Begin Assessment",
     },
     sections: {
-      "General": "We'll start by understanding the department, workflow, and desired outcome \u2014 focused on the business problem, not the technology.",
+      "General": "We'll start by understanding the department, workflow, and desired outcome — focused on the business problem, not the technology.",
       "Workload": "Understanding the frequency, scale, and complexity of the work helps us determine whether intervention is worthwhile.",
       "Systems": "Your existing tools and data determine what's possible. We'll map the current technical landscape.",
-      "Impact": "We'll assess the cost of the current workflow \u2014 in time, money, and missed opportunity.",
+      "Impact": "We'll assess the cost of the current workflow — in time, money, and missed opportunity.",
       "Risk": "Understanding risk, stability, and prior attempts helps us recommend the right level of intervention.",
       "Constraints": "Technical constraints, budget, and timeline define what's feasible. We'll factor these into every finding.",
     },
@@ -240,8 +240,8 @@ export const site = {
   },
 
   metadata: {
-    title: "Compass \u2014 Evidence-Based Operational Decision Intelligence",
+    title: "Compass — Evidence-Based Operational Decision Intelligence",
     description:
-      "Compass is an evidence-based decision platform for operations leaders \u2014 grounded in thousands of real-world implementations, not consultant experience.",
+      "Compass is an evidence-based decision platform for operations leaders — grounded in thousands of real-world implementations, not consultant experience.",
   },
 };

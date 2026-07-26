@@ -17,20 +17,20 @@ export const questions: AssessmentQuestion[] = [
   ]},
 
   { id: "workflow-type", section: "Workflow", category: "workflow", question: "How would you describe the current workflow?", type: "multi-choice", chip: true, options: [
-    "Entirely manual \u2014 people pass information between tools",
+    "Entirely manual — people pass information between tools",
     "Mostly manual with some spreadsheets or email",
     "Partially automated with existing software",
     "Mostly automated but results are unreliable",
-    "We don\u2019t have a clear process at all",
+    "We don’t have a clear process at all",
   ]},
   { id: "frequency", section: "Workflow", category: "frequency", question: "How often does this workflow run?", type: "multi-choice", chip: true, options: [
     "Multiple times per hour", "Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Annually",
   ]},
   { id: "people", section: "Workflow", category: "people", question: "How many people are involved?", type: "multi-choice", chip: true, options: [
-    "1", "2\u20133", "4\u201310", "11\u201325", "26\u201350", "51\u2013100", "100+",
+    "1", "2–3", "4–10", "11–25", "26–50", "51–100", "100+",
   ]},
   { id: "handoffs", section: "Workflow", category: "handoffs", question: "How many handoffs occur in this process?", type: "multi-choice", chip: true, options: [
-    "None \u2014 one person owns it", "1\u20132 handoffs", "3\u20135 handoffs", "6+ handoffs", "Unclear / varies",
+    "None — one person owns it", "1–2 handoffs", "3–5 handoffs", "6+ handoffs", "Unclear / varies",
   ]},
 
   { id: "tools", section: "Constraints", category: "tools", question: "What tools or software do you currently use here?", type: "multi-choice", chip: true, options: [
@@ -42,29 +42,29 @@ export const questions: AssessmentQuestion[] = [
     "We use AI tools already",
   ]},
   { id: "exceptions", section: "Constraints", category: "exceptions", question: "How many exceptions or edge cases arise in this process?", type: "multi-choice", chip: true, options: [
-    "Almost no exceptions", "Some exceptions (<10%)", "Many exceptions (10\u201330%)",
+    "Almost no exceptions", "Some exceptions (<10%)", "Many exceptions (10–30%)",
     "Highly variable (30%+)", "The entire process is exceptions",
   ]},
   { id: "budget", section: "Constraints", category: "budget", question: "Do you have a budget for addressing this?", type: "multi-choice", chip: true, options: [
-    "Under $10k", "$10k\u201325k", "$25k\u201350k", "$50k\u2013100k", "$100k\u2013250k", "$250k+",
+    "Under $10k", "$10k–25k", "$25k–50k", "$50k–100k", "$100k–250k", "$250k+",
   ]},
   { id: "timeline", section: "Constraints", category: "timeline", question: "What is your expected timeline for improvement?", type: "multi-choice", chip: true, options: [
-    "Immediately", "30 days", "1\u20133 months", "3\u20136 months", "6\u201312 months", "Flexible",
+    "Immediately", "30 days", "1–3 months", "3–6 months", "6–12 months", "Flexible",
   ]},
 
   { id: "risk", section: "Outcome", category: "risk", question: "What is the risk of getting this wrong?", type: "multi-choice", chip: true, options: [
-    "Very Low \u2014 minor inconvenience",
-    "Low \u2014 small impact",
-    "Medium \u2014 noticeable business impact",
-    "High \u2014 significant revenue or compliance risk",
-    "Critical \u2014 legal or safety implications",
+    "Very Low — minor inconvenience",
+    "Low — small impact",
+    "Medium — noticeable business impact",
+    "High — significant revenue or compliance risk",
+    "Critical — legal or safety implications",
   ]},
   { id: "stability", section: "Outcome", category: "stability", question: "How stable is this process?", type: "multi-choice", chip: true, options: [
-    "Very stable \u2014 unchanged in years",
-    "Mostly stable \u2014 minor tweaks",
-    "Somewhat volatile \u2014 changes every few months",
-    "Highly volatile \u2014 changes frequently",
-    "Brand new \u2014 still being defined",
+    "Very stable — unchanged in years",
+    "Mostly stable — minor tweaks",
+    "Somewhat volatile — changes every few months",
+    "Highly volatile — changes frequently",
+    "Brand new — still being defined",
   ]},
   { id: "prior-attempts", section: "Outcome", category: "prior-attempts", question: "Have you tried to improve this before?", type: "multi-choice", chip: true, options: [
     "Never attempted",

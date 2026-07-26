@@ -33,7 +33,7 @@ const evidenceConfig: Record<string, { label: string; icon: string; note: string
   "ai-inference": {
     label: "AI inference",
     icon: "\uD83E\uDD16",
-    note: "Pattern matched across similar organizations \u2014 not certainty",
+    note: "Pattern matched across similar organizations — not certainty",
   },
   "hypothesis": {
     label: "Hypothesis",

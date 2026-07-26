@@ -64,7 +64,7 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
           <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">Duration</div>
         </div>
         <div className="min-w-0 overflow-hidden">
-          <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.teamSize || "1\u20132"}</div>
+          <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.teamSize || "1–2"}</div>
           <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">Team Size</div>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function HomePage() {
                 impact: site.hero.recommendation.impact,
                 confidence: site.hero.recommendation.confidence,
                 timeline: site.hero.recommendation.timeline,
-                teamSize: "1\u20132",
+                teamSize: "1–2",
                 evidenceTier: "gold",
                 tools: ["Claude", "OpenAI", "Salesforce"],
                 evidence: [
@@ -334,7 +334,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Approach</p>
                   </div>
                   <p className="text-[13px] text-ink/80 leading-relaxed">
-                    Identifies the most evidence-supported path\u2014AI, software, process redesign, automation, or no intervention\u2014before you build.
+                    Identifies the most evidence-supported path—AI, software, process redesign, automation, or no intervention—before you build.
                   </p>
                 </div>
                 <div className="border-t border-forest/10 pt-4">
@@ -420,7 +420,7 @@ export default function HomePage() {
                 impact: site.exampleSales.impact,
                 confidence: site.exampleSales.confidence,
                 timeline: site.exampleSales.timeline,
-                teamSize: "1\u20132",
+                teamSize: "1–2",
                 evidenceTier: "gold",
                 tools: ["Claude", "OpenAI", "Salesforce"],
                 evidence: [
@@ -440,7 +440,7 @@ export default function HomePage() {
                 impact: site.exampleFinance.impact,
                 confidence: site.exampleFinance.confidence,
                 timeline: site.exampleFinance.timeline,
-                teamSize: "1\u20132",
+                teamSize: "1–2",
                 evidenceTier: "gold",
                 tools: ["Microsoft Copilot", "ServiceNow", "Salesforce"],
                 evidence: [
@@ -460,7 +460,7 @@ export default function HomePage() {
                 impact: site.exampleHealthcare.impact,
                 confidence: site.exampleHealthcare.confidence,
                 timeline: site.exampleHealthcare.timeline,
-                teamSize: "2\u20134",
+                teamSize: "2–4",
                 evidenceTier: "gold",
                 tools: ["Lean", "Six Sigma", "Change Mgmt"],
                 evidence: [

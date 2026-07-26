@@ -13,7 +13,7 @@ const STORAGE_KEY = "compass-assessment-session";
 const CURRENT_VERSION = "2.0.0";
 
 const insights: Record<string, string> = {
-  situation: "I\u2019m learning about the operational problem.",
+  situation: "I’m learning about the operational problem.",
   dept: "Understanding which department owns this.",
   "workflow-type": "Mapping how work currently happens.",
   frequency: "Assessing the scale and frequency.",

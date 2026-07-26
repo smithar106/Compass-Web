@@ -143,13 +143,13 @@ function companyInitials(name: string): string {
 }
 
 function timelineDisplay(tl: TimelineEstimate): string {
-  if (tl.min_weeks && tl.max_weeks) return `${tl.min_weeks}\u2013${tl.max_weeks} weeks`;
+  if (tl.min_weeks && tl.max_weeks) return `${tl.min_weeks}–${tl.max_weeks} weeks`;
   if (tl.expected_weeks) return `${tl.expected_weeks} weeks`;
   return "Not available";
 }
 
 function teamDisplay(team: ProjectTeam): string {
-  if (team.min_people && team.max_people) return `${team.min_people}\u2013${team.max_people} people`;
+  if (team.min_people && team.max_people) return `${team.min_people}–${team.max_people} people`;
   if (team.expected_people) return `${team.expected_people} people`;
   return "Not available";
 }
@@ -172,7 +172,7 @@ function formatRange(r: OutcomeRange): string {
   }
   if (r.low != null && r.high != null) {
     const suffix = r.unit === "%" ? "%" : "";
-    return `${r.low}${suffix}\u2013${r.high}${suffix}`;
+    return `${r.low}${suffix}–${r.high}${suffix}`;
   }
   return "";
 }
