@@ -338,7 +338,7 @@ export default function HomePage() {
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-lime-600">Approach</p>
                   </div>
                   <p className="text-[13px] text-slate-700 leading-relaxed font-[500]">
-                    Identifies the best solution\u2014AI, process redesign, automation, or no intervention\u2014through evidence, before you build.
+                    Uses evidence to identify the best solution\u2014AI, redesign, automation, or no intervention\u2014before you build.
                   </p>
                 </div>
                 <div className="border-t border-lime-100 pt-4">
