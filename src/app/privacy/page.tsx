@@ -9,7 +9,7 @@ export default function PrivacyPage() {
 
         <section className="mt-10 space-y-6 text-body text-stone leading-relaxed">
           <p>
-            Compass AI ("Compass", "we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
+            Compass ("we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">1. Information We Collect</h2>
@@ -23,7 +23,7 @@ export default function PrivacyPage() {
           <h2 className="text-subhead font-semibold text-ink mt-8">2. How We Use Your Information</h2>
           <p>We use the information we collect to:</p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Generate your AI Opportunity Map based on your investigation responses</li>
+            <li>Generate your recommendations based on your assessment responses</li>
             <li>Communicate with you about our services and design partner program</li>
             <li>Improve and develop our products and services</li>
             <li>Analyze usage patterns to enhance user experience</li>

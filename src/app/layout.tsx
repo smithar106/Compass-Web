@@ -14,10 +14,16 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: site.metadata.title,
   description: site.metadata.description,
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+  },
   openGraph: {
     title: site.metadata.title,
     description: site.metadata.description,
     type: "website",
+    siteName: site.name,
   },
   robots: { index: true, follow: true },
 };

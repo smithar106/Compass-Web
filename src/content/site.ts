@@ -115,15 +115,14 @@ export const site = {
         title: "Product",
         links: [
           { label: "Assessment", href: "/assessment" },
-          { label: "Example Results", href: "/assessment/results?example=true" },
+          { label: "About", href: "/about" },
         ],
       },
       {
-        title: "Company",
+        title: "Legal",
         links: [
-          { label: "About", href: "/about" },
-          { label: "Design Partners", href: "/design-partners" },
-          { label: "Privacy", href: "/privacy" },
+          { label: "Privacy Policy", href: "/privacy" },
+          { label: "Terms of Service", href: "/terms" },
         ],
       },
     ],
@@ -232,9 +231,8 @@ export const site = {
   },
 
   nav: [
-    { label: "Product", href: "/assessment" },
+    { label: "Assessment", href: "/assessment" },
     { label: "About", href: "/about" },
-    { label: "Design Partners", href: "/design-partners" },
   ],
 
   contact: {

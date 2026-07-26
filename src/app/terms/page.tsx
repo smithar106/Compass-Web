@@ -12,7 +12,7 @@ export default function TermsPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">1. Description of Service</h2>
           <p>
-            Compass AI provides an AI-powered opportunity-discovery platform for B2B SaaS companies. Our investigation tool generates AI Opportunity Maps based on user-provided information. The results are recommendations and should be evaluated alongside professional judgment.
+            Compass provides an evidence-based recommendation platform for operations leaders. Our assessment generates recommendations based on user-provided information and comparable real-world implementations. Results are informational and should be evaluated alongside professional judgment.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">2. User Responsibilities</h2>
@@ -26,7 +26,7 @@ export default function TermsPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">3. Intellectual Property</h2>
           <p>
-            The Compass AI platform, including its design, code, algorithms, and generated content (excluding your input data), is our intellectual property. You may not copy, modify, distribute, or create derivative works without our express permission.
+            The Compass platform, including its design, code, algorithms, and generated content (excluding your input data), is our intellectual property. You may not copy, modify, distribute, or create derivative works without our express permission.
           </p>
           <p>
             Your investigation responses and their generated results remain your property. We claim no ownership over the information you provide.
@@ -34,10 +34,10 @@ export default function TermsPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">4. Limitation of Liability</h2>
           <p>
-            Compass AI provides recommendations and insights based on the information you provide. We do not guarantee specific outcomes or results. Our services are provided "as is" without warranties of any kind, either express or implied.
-          </p>
-          <p>
-            We are not liable for any indirect, incidental, or consequential damages arising from your use of our services, including business decisions made based on AI Opportunity Map results.
+            Compass provides recommendations based on the information you provide and comparable real-world implementations. We do not guarantee specific outcomes or results. Our services are provided "as is" without warranties of any kind, either express or implied.
+            </p>
+            <p>
+              We are not liable for any indirect, incidental, or consequential damages arising from your use of our services, including business decisions made based on recommendation results.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">5. Design Partner Program</h2>
