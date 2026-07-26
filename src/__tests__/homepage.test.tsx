@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { site } from "@/content/site";
 
 describe("Homepage content", () => {
-  it("should have accurate headline about determining the best solution", () => {
-    expect(site.hero.headline).toContain("determine the best solution");
+  it("should have accurate headline", () => {
+    expect(site.hero.headline).toContain("Evidence before implementation");
   });
 
   it("should have 4 outcomes with Best Path label", () => {
@@ -12,14 +12,14 @@ describe("Homepage content", () => {
   });
 
   it("should have hero recommendation panel", () => {
-    expect(site.hero.recommendation.problem).toContain("misses 100 inbound calls");
+    expect(site.hero.recommendation.problem).toContain("misses 100+ inbound calls");
     expect(site.hero.recommendation.impact).toBe("+$2.1M");
     expect(site.hero.recommendation.confidence).toBe("89%");
   });
 
   it("should have sales example with impact and confidence note", () => {
     expect(site.exampleSales.impact).toBe("+$2.1M");
-    expect(site.exampleSales.recommendation).toContain("Hybrid AI-assisted");
+    expect(site.exampleSales.recommendation).toContain("AI-assisted lead qualification");
     expect(site.exampleSales.confidenceNote).toContain("comparable implementations");
   });
 

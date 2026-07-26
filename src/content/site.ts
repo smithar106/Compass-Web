@@ -163,7 +163,7 @@ export const site = {
       estimatedTime: "3-5 minutes",
       sections: "10 departments",
       questions: "Targeted questions about your operations",
-cta: "Get my recommendations",
+      cta: "Get my recommendations",
     },
     sections: {
       "General": "We'll start by understanding the department, workflow, and desired outcome — focused on the business problem, not the technology.",
@@ -236,6 +236,10 @@ cta: "Get my recommendations",
     { label: "About", href: "/about" },
     { label: "Design Partners", href: "/design-partners" },
   ],
+
+  contact: {
+    email: "smithar106@gmail.com",
+  },
 
   metadata: {
     title: "Compass — Evidence-Based Operational Decision Intelligence",

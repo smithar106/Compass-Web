@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { PortfolioBoard } from "@/components/assessment/portfolio-board";
-import { site } from "@/content/site";
 import type { EnrichedOpportunity, EnrichedOpportunityMap } from "@/types/pipeline";
 
 const STORAGE_KEY = "compass-assessment-session";

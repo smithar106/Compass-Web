@@ -1,3 +1,5 @@
+import { site } from "@/content/site";
+
 export default function PrivacyPage() {
   return (
     <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
@@ -40,7 +42,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">5. Your Rights</h2>
           <p>
-            You have the right to access, correct, or delete your personal information. You may also withdraw consent for data processing at any time. To exercise these rights, contact us at smithar106@gmail.com.
+            You have the right to access, correct, or delete your personal information. You may also withdraw consent for data processing at any time. To exercise these rights, contact us at {site.contact.email}.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">6. Changes to This Policy</h2>
@@ -50,7 +52,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">7. Contact</h2>
           <p>
-            If you have questions about this Privacy Policy, please contact us at smithar106@gmail.com.
+            If you have questions about this Privacy Policy, please contact us at {site.contact.email}.
           </p>
         </section>
       </div>
