@@ -1,107 +1,84 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BlueprintPrint } from "@/components/results/blueprint-print";
-import type { RecommendationData } from "@/components/results/compass-choice";
 
 const STORAGE_KEY = "compass-assessment-session";
-const ENGINE_VERSION = "2.0.0";
-const DATASET_VERSION = "v2";
+const ENGINE_VERSION = "3.0.0";
+const DATASET_VERSION = "v3";
 
 const TIER_CONFIG: Record<string, { label: string; summary: (n: number) => string; badge: string }> = {
   gold: {
     label: "Gold",
-    summary: (n) => `High-quality evidence from ${n} implementation${n === 1 ? "" : "s"}`,
-    badge: "bg-gold-light text-gold",
+    summary: (n) => `Strong evidence from ${n} implementation${n === 1 ? "" : "s"}`,
+    badge: "bg-yellow-50 text-yellow-800 border-yellow-300",
   },
   silver: {
     label: "Silver",
-    summary: (n) => `Moderate-quality evidence from ${n} implementation${n === 1 ? "" : "s"}`,
-    badge: "bg-silver-light text-silver",
+    summary: (n) => `Moderate evidence from ${n} implementation${n === 1 ? "" : "s"}`,
+    badge: "bg-gray-100 text-gray-600 border-gray-300",
   },
   bronze: {
     label: "Bronze",
-    summary: (n) => `Limited-quality evidence from ${n} implementation${n === 1 ? "" : "s"}`,
-    badge: "bg-bronze-light text-bronze",
+    summary: (n) => `Limited evidence from ${n} implementation${n === 1 ? "" : "s"}`,
+    badge: "bg-orange-50 text-orange-800 border-orange-300",
   },
 };
 
-const RECOGNIZED_TOOLS: Record<string, string[]> = {
-  ai_implementation: ["Glean", "Make", "Zapier", "UiPath"],
-  software_implementation: ["Claude", "OpenAI", "Microsoft Copilot", "Salesforce", "ServiceNow"],
-  process_redesign: ["Lean", "Six Sigma"],
-};
+interface ComparableEvidence {
+  organization: string; industry: string; workflow: string; intervention: string;
+  outcome: string; status: string; similarity_score: number; evidence_score: number;
+  evidence_tier: string; supporting_passage: string; source_title: string; source_url: string;
+}
 
-const CATEGORY_SUBTITLE: Record<string, string> = {
-  ai_implementation: "Glean, Make, Zapier, or similar platform",
-  software_implementation: "Claude, OpenAI, Microsoft Copilot, or similar platform",
-  process_redesign: "Lean, Six Sigma, or similar methodology",
-};
+interface NegativeEvidence {
+  organization: string; intervention: string; failure_reasons: string[]; similarity_score: number;
+}
 
-const DECISION_TITLES: Record<string, Record<string, string>> = {
-  ai_implementation: {
-    lead_qualification: "Deploy AI Lead Scoring with Glean",
-    marketing_automation: "Automate Campaign Workflows with Make",
-    customer_health_scoring: "Deploy AI Health Scoring with UiPath",
-    ticketing: "Automate Ticket Triage with Glean",
-    invoice_processing: "Automate Invoice Matching with UiPath",
-    product_analytics: "Deploy Product Insights with Glean",
-    ci_cd: "Automate Deploy Pipelines with Zapier",
-    onboarding: "Automate Onboarding Workflows with Make",
-    contract_review: "Deploy AI Contract Analysis with Glean",
-    process_automation: "Automate Process Workflows with UiPath",
-    it_automation: "Automate IT Operations with Glean",
-    supply_chain: "Optimize Supply Chain with UiPath",
-    manufacturing: "Automate Production Scheduling with UiPath",
-  },
-  software_implementation: {
-    lead_qualification: "Deploy Claude + Salesforce AI Assistants",
-    marketing_automation: "Deploy HubSpot + OpenAI Integration",
-    customer_health_scoring: "Deploy Gainsight + Copilot Integration",
-    ticketing: "Deploy ServiceNow + Claude Integration",
-    invoice_processing: "Deploy Automated Invoice Processing with ServiceNow",
-    product_analytics: "Deploy Product Analytics with Salesforce",
-    ci_cd: "Deploy CI/CD Automation with ServiceNow",
-    onboarding: "Deploy Onboarding Platform with Microsoft Copilot",
-    contract_review: "Deploy Contract Management with Claude",
-    process_automation: "Deploy Workflow Automation with Salesforce",
-    it_automation: "Deploy ITSM with ServiceNow",
-    supply_chain: "Deploy Supply Chain Platform with Salesforce",
-    manufacturing: "Deploy MES Integration with ServiceNow",
-  },
-  process_redesign: {
-    lead_qualification: "Redesign Lead Qualification Workflow Using Lean",
-    marketing_automation: "Redesign Campaign Approval Using Lean",
-    customer_health_scoring: "Redesign Health Scoring Using Six Sigma",
-    ticketing: "Redesign Ticket Routing Using Lean",
-    invoice_processing: "Redesign Invoice Approval Workflow Using Lean",
-    product_analytics: "Redesign Analytics Reporting Using Six Sigma",
-    ci_cd: "Redesign Deploy Process Using Lean",
-    onboarding: "Redesign Onboarding Process Using Lean",
-    contract_review: "Redesign Contract Review Using Six Sigma",
-    process_automation: "Redesign Core Workflow Using Lean",
-    it_automation: "Redesign IT Request Process Using Lean",
-    supply_chain: "Redesign Supply Chain Process Using Six Sigma",
-    manufacturing: "Redesign Production Process Using Lean",
-  },
-};
+interface AlternativeConsidered {
+  family: string; reason: string;
+}
+
+interface RecommendationData {
+  rank: number; is_compass_choice: boolean; title: string; summary: string;
+  intervention_category: string; fit_score: number;
+  confidence: { score: number; label: string; explanation: string };
+  evidence_summary: {
+    overall_tier: string; total_comparables: number; gold_count: number;
+    silver_count: number; bronze_count: number; failed_comparables: number; average_evidence_score: number;
+  };
+  projected_impact: {
+    label: string; low: number | null; high: number | null; unit: string;
+    methodology: string; is_sufficiently_supported: boolean;
+  };
+  timeline: { low_weeks: number | null; high_weeks: number | null };
+  why_it_ranked: string[];
+  comparables: ComparableEvidence[];
+  negative_evidence: NegativeEvidence[];
+  alternatives_considered: AlternativeConsidered[];
+  assumptions: string[]; risks: any[];
+  annual_savings?: { low: number; expected: number; high: number; currency: string; status: string; basis: string } | null;
+  hours_returned?: { low: number; expected: number; high: number; period: string; status: string } | null;
+  tools?: string[];
+  subtitle?: string;
+}
 
 const RISK_REWRITES: { match: RegExp; text: string }[] = [
-  { match: /injection|security|vulnerab|attack|breach/i, text: "Security vulnerabilities" },
-  { match: /adopt|change\s+manage|resistance|training/i, text: "Low organizational adoption" },
-  { match: /data\s+qual|data\s+migrat|data\s+integ/i, text: "Data quality issues" },
-  { match: /stakeholder|alignment|approval|buy-?in/i, text: "Stakeholder alignment delays" },
-  { match: /integrat|legacy|compatib|interoper/i, text: "Integration dependencies" },
-  { match: /cost|budget|fund|resource/i, text: "Budget constraints" },
-  { match: /regulat|compliance|legal|policy/i, text: "Regulatory constraints" },
+  { match: /internal dispute|political pressure|competing priorit|stakeholder alignment/i, text: "Stakeholder alignment" },
+  { match: /adopt|change manage|resistance|training|did not use/i, text: "User adoption risk" },
+  { match: /capable|skill|talent|expertise|not capable/i, text: "Skills and capability gaps" },
+  { match: /data qual|data migrat|data read|data integ/i, text: "Data readiness" },
+  { match: /integrat|legacy|compatib|interoper/i, text: "Integration complexity" },
+  { match: /cost|budget|fund|resource/i, text: "Budget and resourcing" },
+  { match: /regulat|compliance|legal|policy|gov/i, text: "Governance and compliance" },
+  { match: /vendor|third.?party|supplier/i, text: "Vendor dependency" },
+  { match: /security|vulnerab|attack|breach|injection/i, text: "Security vulnerabilities" },
   { match: /scal|performance|throughput|capacity/i, text: "Scaling challenges" },
-  { match: /vendor|third.?party|supplier/i, text: "Vendor dependencies" },
-  { match: /political|pressure|priorit/i, text: "Competing priorities" },
-  { match: /skill|talent|expertise|staff/i, text: "Talent and skill gaps" },
-  { match: /timeline|delay|schedule|sla/i, text: "Timeline pressures" },
+  { match: /timeline|delay|schedule|sla/i, text: "Implementation timeline pressures" },
   { match: /accuracy|error|quality|reliab/i, text: "Output quality risks" },
-  { match: /privacy|gdpr|ccpa|data\s+protect/i, text: "Data privacy compliance" },
+  { match: /privacy|gdpr|ccpa|data protect/i, text: "Data privacy compliance" },
+  { match: /ownership|accountab|responsib/i, text: "Implementation ownership ambiguity" },
+  { match: /measure|kpi|metric|baseline/i, text: "Measurement quality gaps" },
 ];
 
 const BAD_PATTERNS = [
@@ -114,29 +91,24 @@ function isBadValue(s: string | null | undefined): boolean {
   return BAD_PATTERNS.some((p) => p.test(s.trim()));
 }
 
-function formatRecommendationTitle(title: string, cat: string, workflow: string): string {
-  const decision = DECISION_TITLES[cat]?.[workflow];
-  if (decision) return decision;
-  return title
-    .replace(/_+/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase())
-    .trim();
+function formatCurrency(n: number): string {
+  if (n >= 1000000) return `$${(n / 1000000).toFixed(1)}M`;
+  if (n >= 1000) return `$${(n / 1000).toFixed(0)}K`;
+  return `$${n.toLocaleString()}`;
 }
 
-function formatSubtitle(cat: string): string {
-  return CATEGORY_SUBTITLE[cat] || "Enterprise automation platform";
+function formatHours(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return n.toLocaleString();
 }
 
 function formatCompany(name: string): string {
   if (isBadValue(name)) return "Verified implementation";
-  return name
-    .replace(/[^\w\s&.-]/g, "")
-    .trim()
-    .slice(0, 30);
+  return name.replace(/[^\w\s&.-]/g, "").trim().slice(0, 30);
 }
 
 function formatOutcome(outcome: string): string {
-  if (isBadValue(outcome)) return "No published outcome";
+  if (isBadValue(outcome)) return "Outcome not quantified";
   let cleaned = outcome
     .replace(/authority-framed injection.*$/i, "Security improvements")
     .replace(/pre-approved under.*$/i, "Process improvements")
@@ -154,7 +126,7 @@ function formatOutcome(outcome: string): string {
     }
     cleaned = result;
   }
-  return cleaned || "No published outcome";
+  return cleaned || "Outcome not quantified";
 }
 
 function formatRisk(risk: string): string {
@@ -169,8 +141,12 @@ function formatTool(tool: string): string {
   return tool.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim();
 }
 
-function getTools(cat: string): string[] {
-  return RECOGNIZED_TOOLS[cat] || ["Claude", "OpenAI", "Salesforce"];
+function companyInitials(name: string): string {
+  return name.split(/[\s-]+/).map((w) => w[0]).join("").toUpperCase().slice(0, 3);
+}
+
+function tierBadge(tier: string): string {
+  return TIER_CONFIG[tier]?.badge || "bg-gray-100 text-gray-500";
 }
 
 function CardAccentClass(rank: number): string {
@@ -191,31 +167,13 @@ function CardOutcomeClass(rank: number): string {
   return "text-brand-orange";
 }
 
-function tierBadge(tier: string): string {
-  return TIER_CONFIG[tier]?.badge || "bg-gray-100 text-gray-500";
-}
-
-function tierSummary(tier: string, n: number): string {
-  return TIER_CONFIG[tier]?.summary(n) || `${n} implementation${n === 1 ? "" : "s"}`;
-}
-
-function extractValueFromLabel(label: string): string {
-  const m = label.match(/[\d,.]+/);
-  return m ? m[0] : "Pending estimate";
-}
-
-function kpiValue(r: RecommendationData): string {
-  if (!r.projected_impact.is_sufficiently_supported) return "Pending estimate";
-  return extractValueFromLabel(r.projected_impact.label);
-}
-
-function companyInitials(name: string): string {
-  return name
-    .split(/[\s-]+/)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 3);
+function getEvidenceMix(r: RecommendationData): string {
+  const parts: string[] = [];
+  if (r.evidence_summary.gold_count > 0) parts.push(`${r.evidence_summary.gold_count} Gold`);
+  if (r.evidence_summary.silver_count > 0) parts.push(`${r.evidence_summary.silver_count} Silver`);
+  if (r.evidence_summary.bronze_count > 0) parts.push(`${r.evidence_summary.bronze_count} Bronze`);
+  if (!parts.length) return `${r.evidence_summary.total_comparables} implementations`;
+  return `${r.evidence_summary.total_comparables} implementations: ${parts.join(", ")}`;
 }
 
 export default function ResultsPage() {
@@ -234,8 +192,9 @@ function ResultsContent() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [progressIdx, setProgressIdx] = useState(0);
   const [runId, setRunId] = useState("");
-  const [showBP, setShowBP] = useState(false);
   const [profileWorkflow, setProfileWorkflow] = useState("");
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const progressMessages = [
     "Analyzing your workflow",
     "Comparing intervention paths",
@@ -307,6 +266,44 @@ function ResultsContent() {
     }
   }
 
+  const handleDownloadPdf = useCallback(async () => {
+    if (!recs.length) return;
+    setPdfLoading(true);
+    try {
+      const { default: jsPDF } = await import("jspdf");
+      const { default: html2canvas } = await import("html2canvas");
+      const el = contentRef.current;
+      if (!el) throw new Error("Content not found");
+      const canvas = await html2canvas(el, {
+        scale: 2, useCORS: true, backgroundColor: "#fbfcfd",
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ unit: "in", format: "letter" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 0.5;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = margin;
+      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - margin * 2;
+      while (heightLeft > 0) {
+        position = -(pageHeight - margin * 2) * (imgHeight / canvas.height - 1) + margin;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - margin * 2;
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      pdf.save(`compass-recommendation-${today}.pdf`);
+    } catch (e) {
+      console.error("PDF download failed:", e);
+      alert("Could not generate PDF. Please try again.");
+    } finally {
+      setPdfLoading(false);
+    }
+  }, [recs]);
+
   const ts = new Date().toISOString().slice(0, 10);
 
   if (loading)
@@ -342,26 +339,67 @@ function ResultsContent() {
 
   const primary = recs[0];
 
+  const kpiCards = [
+    {
+      icon: <span className="text-[28px] font-black">$</span>,
+      iconBg: "bg-[#c9f6d1]", iconColor: "text-brand-green",
+      valColor: "text-brand-green",
+      label: "Est. Annual Savings",
+      value: primary.annual_savings
+        ? formatCurrency(primary.annual_savings.expected)
+        : primary.projected_impact.is_sufficiently_supported
+          ? "Calculating..."
+          : "Additional operating data required",
+      note: primary.annual_savings
+        ? `$${primary.annual_savings.low.toLocaleString()} – $${primary.annual_savings.high.toLocaleString()} range`
+        : primary.projected_impact.is_sufficiently_supported
+          ? "Based on comparable implementations"
+          : null,
+    },
+    {
+      icon: <span className="text-[28px] font-black">&#x25F7;</span>,
+      iconBg: "bg-[#d8e7ff]", iconColor: "text-brand-blue",
+      valColor: "text-brand-blue",
+      label: "Hours Returned",
+      value: primary.hours_returned
+        ? `${formatHours(primary.hours_returned.expected)} hrs/yr`
+        : primary.projected_impact.is_sufficiently_supported
+          ? "Calculating..."
+          : "Additional operating data required",
+      note: primary.hours_returned
+        ? `${primary.hours_returned.low.toLocaleString()} – ${primary.hours_returned.high.toLocaleString()} hours range`
+        : null,
+    },
+    {
+      icon: <span className="text-[28px] font-black">&#x26A1;</span>,
+      iconBg: "bg-[#eadcff]", iconColor: "text-brand-purple",
+      valColor: "text-brand-purple",
+      label: "Time to Implement",
+      value: primary.timeline.low_weeks && primary.timeline.high_weeks
+        ? `${primary.timeline.low_weeks}\u2013${primary.timeline.high_weeks}`
+        : "Not available",
+      note: primary.timeline.low_weeks && primary.timeline.high_weeks ? "Weeks" : null,
+    },
+    {
+      icon: <span className="text-[28px] font-black">&#x265F;</span>,
+      iconBg: "bg-[#ffd7b2]", iconColor: "text-brand-orange",
+      valColor: "text-brand-orange",
+      label: "Project Team",
+      value: primary.evidence_summary.total_comparables > 0
+        ? `${Math.max(1, Math.round(primary.evidence_summary.total_comparables / 6))}\u2013${Math.max(2, Math.round(primary.evidence_summary.total_comparables / 3))}`
+        : "Not available",
+      note: "People",
+    },
+  ];
+
   return (
     <div className="bg-[#fbfcfd] min-h-screen">
-      {showBP && primary && (
-        <BlueprintPrint
-          recommendation={primary}
-          allRecommendations={recs}
-          generatedAt={new Date().toISOString()}
-          runId={runId || `r_${Date.now()}`}
-          onClose={() => setShowBP(false)}
-        />
-      )}
-
-      <div className="w-full max-w-[1500px] mx-auto px-[min(36px,5vw)] py-7 sm:py-9">
-
-        {/* HEADER */}
+      <div ref={contentRef} className="w-full max-w-[1500px] mx-auto px-[min(36px,5vw)] pt-24 pb-8">
+        {/* HEADER - with top padding to clear global nav */}
         <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-8">
-          {/* Left column — title + metadata */}
-          <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: '1 1 420px' }}>
+          <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight whitespace-nowrap">
+              <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">
                 Compass Recommendation
               </h1>
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-gold-light text-[#b65000] text-[11px] font-extrabold uppercase shrink-0">
@@ -375,66 +413,34 @@ function ResultsContent() {
               <span className="whitespace-nowrap">Generated {ts}</span>
             </div>
           </div>
-          {/* Right column — action buttons */}
-          <div className="flex gap-3 flex-wrap shrink-0 w-full lg:w-auto" style={{ flex: '0 0 auto' }}>
-            <button className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download Report
-            </button>
+          {/* Action buttons */}
+          <div className="flex gap-3 flex-wrap shrink-0 w-full lg:w-auto">
             <button
-              onClick={() => setShowBP(true)}
-              className="min-h-[44px] px-[18px] rounded-lg border border-brand-green bg-brand-green text-white font-extrabold text-sm inline-flex items-center gap-2 hover:bg-brand-green-dark transition-colors cursor-pointer whitespace-nowrap"
+              onClick={handleDownloadPdf}
+              disabled={pdfLoading}
+              className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-              Generate Implementation Plan
+              {pdfLoading ? (
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin" />
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              )}
+              {pdfLoading ? "Generating..." : "Download Report"}
             </button>
           </div>
         </div>
 
         {/* KPI CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
-          {([
-            {
-              icon: <span className="text-[31px] font-black">$</span>,
-              iconBg: "bg-[#c9f6d1]", iconColor: "text-brand-green",
-              valColor: "text-brand-green",
-              label: "Est. Annual Savings",
-              value: kpiValue(primary),
-              note: primary.projected_impact.is_sufficiently_supported ? "Based on comparable implementations" : null,
-            },
-            {
-              icon: <span className="text-[31px] font-black">&#x25F7;</span>,
-              iconBg: "bg-[#d8e7ff]", iconColor: "text-brand-blue",
-              valColor: "text-brand-blue",
-              label: "Hours Returned",
-              value: kpiValue(primary),
-              note: "Annual estimate",
-            },
-            {
-              icon: <span className="text-[31px] font-black">&#x26A1;</span>,
-              iconBg: "bg-[#eadcff]", iconColor: "text-brand-purple",
-              valColor: "text-brand-purple",
-              label: "Time to Implement",
-              value: primary.timeline.low_weeks && primary.timeline.high_weeks ? `${primary.timeline.low_weeks}\u2013${primary.timeline.high_weeks}` : "Pending estimate",
-              note: primary.timeline.low_weeks && primary.timeline.high_weeks ? "Weeks" : null,
-            },
-            {
-              icon: <span className="text-[31px] font-black">&#x265F;</span>,
-              iconBg: "bg-[#ffd7b2]", iconColor: "text-brand-orange",
-              valColor: "text-brand-orange",
-              label: "Project Team",
-              value: primary.evidence_summary.total_comparables > 0 ? `${Math.max(1, Math.round(primary.evidence_summary.total_comparables / 6))}\u2013${Math.max(2, Math.round(primary.evidence_summary.total_comparables / 3))}` : "Pending estimate",
-              note: "People",
-            },
-          ] as const).map((kpi, i) => (
-            <div key={i} className="min-h-[112px] border border-[#dfe5ec] rounded-xl bg-white p-4 flex gap-4 items-center shadow-[0_12px_32px_rgba(15,23,42,0.05)] overflow-hidden">
-              <div className={`w-16 h-16 rounded-full shrink-0 flex items-center justify-center ${kpi.iconBg} ${kpi.iconColor}`}>
+          {kpiCards.map((kpi, i) => (
+            <div key={i} className="min-h-[100px] border border-[#dfe5ec] rounded-xl bg-white p-4 flex gap-4 items-center shadow-[0_12px_32px_rgba(15,23,42,0.05)] overflow-hidden">
+              <div className={`w-14 h-14 rounded-full shrink-0 flex items-center justify-center ${kpi.iconBg} ${kpi.iconColor}`}>
                 {kpi.icon}
               </div>
-              <div className="min-w-0 overflow-hidden">
+              <div className="min-w-0 overflow-hidden flex-1">
                 <p className="text-[11px] font-extrabold tracking-[0.06em] uppercase text-[#53627a] m-0 mb-1 whitespace-nowrap">{kpi.label}</p>
-                <p className={`text-[28px] sm:text-[32px] font-extrabold tracking-[-0.04em] leading-none m-0 ${kpi.valColor} whitespace-nowrap overflow-hidden`}>{kpi.value}</p>
-                {kpi.note && <p className="text-[12px] font-semibold text-[#4f6280] mt-1.5 m-0 whitespace-nowrap overflow-hidden text-ellipsis">{kpi.note}</p>}
+                <p className={`text-[24px] sm:text-[28px] font-extrabold tracking-[-0.04em] leading-none m-0 ${kpi.valColor} overflow-hidden text-ellipsis`}>{kpi.value}</p>
+                {kpi.note && <p className="text-[11px] font-semibold text-[#4f6280] mt-1 m-0 whitespace-nowrap overflow-hidden text-ellipsis">{kpi.note}</p>}
               </div>
             </div>
           ))}
@@ -444,114 +450,121 @@ function ResultsContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5 items-stretch">
           {recs.map((r) => {
             const cat = r.intervention_category;
-            const tools = getTools(cat);
-            const subtitle = formatSubtitle(cat);
+            const tools = r.tools || [];
+            const subtitle = r.subtitle || "";
             const n = r.rank;
             const rankClass = CardAccentClass(n);
             const tagClass = CardTagClass(n);
             const outcomeClass = CardOutcomeClass(n);
             const hasImpact = r.projected_impact.is_sufficiently_supported;
+            const hasSavings = !!r.annual_savings;
+            const hasHours = !!r.hours_returned;
             const visibleComparables = r.comparables.filter((c) => c.evidence_tier !== "rejected");
-            const cleanTitle = formatRecommendationTitle(r.title, cat, profileWorkflow);
 
             return (
-              <div key={n} className={`bg-white border-2 ${rankClass} rounded-[18px] p-[22px] flex flex-col shadow-[0_12px_32px_rgba(15,23,42,0.05)] overflow-hidden`}>
+              <div key={n} className={`bg-white border-2 ${rankClass} rounded-[16px] p-5 flex flex-col shadow-[0_12px_32px_rgba(15,23,42,0.05)] overflow-hidden`}>
                 {/* Rank header */}
-                <div className="flex items-center gap-[10px] mb-[15px]">
-                  <span
-                    className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[13px] font-extrabold text-white shrink-0 ${
-                      n === 1 ? "bg-[#d7a500]" : n === 3 ? "bg-[#a8490c]" : "bg-[#657386]"
-                    }`}
-                  >
+                <div className="flex items-center gap-[10px] mb-3">
+                  <span className={`w-[24px] h-[24px] rounded-full flex items-center justify-center text-[12px] font-extrabold text-white shrink-0 ${n === 1 ? "bg-[#d7a500]" : n === 3 ? "bg-[#a8490c]" : "bg-[#657386]"}`}>
                     {n}
                   </span>
-                  <span className={`px-[11px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-normal ${
-                    n === 1 ? "bg-brand-green-light text-brand-green-dark" : "bg-[#edf0f3] text-[#1a1f2b]"
-                  }`}>
+                  <span className={`px-[10px] py-[4px] rounded-full text-[10px] font-extrabold uppercase tracking-normal ${n === 1 ? "bg-brand-green-light text-brand-green-dark" : "bg-[#edf0f3] text-[#1a1f2b]"}`}>
                     {n === 1 ? "Recommended" : "Alternative"}
                   </span>
                 </div>
 
-                {/* Title */}
-                <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#101826] m-0 mb-[14px] leading-[1.3] line-clamp-3">
-                  {cleanTitle}<br />
-                  <span className="font-semibold text-[#4f6280]">{subtitle}</span>
+                {/* Title + Subtitle */}
+                <h2 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#101826] m-0 mb-2 leading-[1.3]">
+                  {r.title}
                 </h2>
+                {subtitle && (
+                  <p className="text-[13px] font-semibold text-[#4f6280] m-0 mb-3 leading-snug">{subtitle}</p>
+                )}
 
-                {/* Metrics row */}
-                <div className="grid grid-cols-4 gap-2 mb-[22px]">
-                  {[
-                    { value: hasImpact ? `\u25CF $${extractValueFromLabel(r.projected_impact.label)}` : "\u25CF Pending", color: "text-brand-green", label: "Annual Savings" },
-                    { value: hasImpact ? `\u25F7 ${extractValueFromLabel(r.projected_impact.label)}` : "\u25F7 Pending", color: "text-brand-blue", label: "Hours Returned" },
-                    { value: r.timeline.low_weeks && r.timeline.high_weeks ? `${r.timeline.low_weeks}\u2013${r.timeline.high_weeks} wks` : "Pending", color: "text-brand-purple", label: "Duration" },
-                    { value: visibleComparables.length > 0 ? `${Math.max(1, Math.round(visibleComparables.length / 5))}\u2013${Math.max(2, Math.round(visibleComparables.length / 3))}` : "Pending", color: "text-brand-orange", label: "Team Size" },
-                  ].map((m, i) => (
-                    <div key={i} className="min-w-0 overflow-hidden">
-                      <div className={`text-[12px] sm:text-[13px] font-extrabold flex items-center gap-1 ${m.color} whitespace-nowrap overflow-hidden text-ellipsis`}>{m.value}</div>
-                      <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">{m.label}</div>
+                {/* Metrics row - 4 compact items */}
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  <div className="min-w-0">
+                    <div className={`text-[11px] sm:text-[12px] font-extrabold flex items-center gap-1 text-brand-green whitespace-nowrap overflow-hidden text-ellipsis`}>
+                      {hasSavings ? `\u25CF ${formatCurrency(r.annual_savings!.expected)}` : hasImpact ? "\u25CF Estimated" : "\u25CF N/A"}
                     </div>
-                  ))}
+                    <div className="text-[9px] font-bold text-[#61718a] mt-0.5 whitespace-nowrap">Annual Savings</div>
+                  </div>
+                  <div className="min-w-0">
+                    <div className={`text-[11px] sm:text-[12px] font-extrabold flex items-center gap-1 text-brand-blue whitespace-nowrap overflow-hidden text-ellipsis`}>
+                      {hasHours ? `\u25F7 ${formatHours(r.hours_returned!.expected)}h` : hasImpact ? "\u25F7 Estimated" : "\u25F7 N/A"}
+                    </div>
+                    <div className="text-[9px] font-bold text-[#61718a] mt-0.5 whitespace-nowrap">Hours Returned</div>
+                  </div>
+                  <div className="min-w-0">
+                    <div className={`text-[11px] sm:text-[12px] font-extrabold flex items-center gap-1 text-brand-purple whitespace-nowrap overflow-hidden text-ellipsis`}>
+                      {r.timeline.low_weeks && r.timeline.high_weeks ? `${r.timeline.low_weeks}\u2013${r.timeline.high_weeks}w` : "N/A"}
+                    </div>
+                    <div className="text-[9px] font-bold text-[#61718a] mt-0.5 whitespace-nowrap">Duration</div>
+                  </div>
+                  <div className="min-w-0">
+                    <div className={`text-[11px] sm:text-[12px] font-extrabold flex items-center gap-1 text-brand-orange whitespace-nowrap overflow-hidden text-ellipsis`}>
+                      {visibleComparables.length > 0 ? `${Math.max(1, Math.round(visibleComparables.length / 5))}\u2013${Math.max(2, Math.round(visibleComparables.length / 3))}` : "N/A"}
+                    </div>
+                    <div className="text-[9px] font-bold text-[#61718a] mt-0.5 whitespace-nowrap">Team Size</div>
+                  </div>
                 </div>
 
                 {/* Tool Stack */}
-                <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Tool Stack</p>
-                <div className="flex flex-wrap gap-2 mb-5">
-                  {tools.slice(0, 3).map((t, i) => (
-                    <span key={i} className={`px-[10px] py-[5px] rounded-lg text-[11px] font-extrabold ${tagClass}`}>{t}</span>
-                  ))}
-                  <span className={`px-[10px] py-[5px] rounded-lg text-[11px] font-bold ${tagClass}`}>+{Math.max(1, tools.length - 3)} more</span>
-                </div>
+                {tools.length > 0 && (
+                  <>
+                    <p className="text-[9px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-1.5">Tool Stack</p>
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {tools.slice(0, 3).map((t, i) => (
+                        <span key={i} className={`px-[8px] py-[3px] rounded-lg text-[10px] font-extrabold ${tagClass}`}>{t}</span>
+                      ))}
+                    </div>
+                  </>
+                )}
 
                 {/* Evidence Quality */}
-                <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Evidence Quality</p>
-                <div className="flex items-center gap-[10px] mb-4 flex-wrap">
-                  <span className={`px-[10px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-[0.04em] ${tierBadge(r.evidence_summary.overall_tier)}`}>
+                <p className="text-[9px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-1.5">Evidence Quality</p>
+                <div className="flex items-center gap-[8px] mb-3 flex-wrap">
+                  <span className={`px-[8px] py-[3px] rounded-full text-[10px] font-extrabold uppercase tracking-[0.04em] border ${tierBadge(r.evidence_summary.overall_tier)}`}>
                     {TIER_CONFIG[r.evidence_summary.overall_tier]?.label || r.evidence_summary.overall_tier}
                   </span>
-                  <span className="text-[#586984] text-[11px] font-bold">{tierSummary(r.evidence_summary.overall_tier, r.evidence_summary.total_comparables)}</span>
+                  <span className="text-[#586984] text-[10px] font-bold">{getEvidenceMix(r)}</span>
                 </div>
 
                 {/* Top Evidence */}
-                <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Top Evidence</p>
-                <div className="mb-[14px] flex-1">
-                  {visibleComparables.length > 0 ? visibleComparables.slice(0, 3).map((c, i) => {
+                <p className="text-[9px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-1.5">Top Evidence</p>
+                <div className="mb-3 flex-1">
+                  {visibleComparables.length > 0 ? visibleComparables.slice(0, 2).map((c, i) => {
                     const company = formatCompany(c.organization);
                     const outcome = formatOutcome(c.outcome);
                     return (
-                      <div key={i} className="min-h-[36px] grid grid-cols-[1fr_auto] gap-[10px] items-center border-b border-[#ebeff4] text-[12px]">
-                        <div className="flex items-center gap-[9px] min-w-0 font-extrabold overflow-hidden">
-                          <span className="w-5 h-5 rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[9px] font-bold uppercase">
+                      <div key={i} className="min-h-[30px] grid grid-cols-[1fr_auto] gap-[8px] items-center border-b border-[#ebeff4] text-[11px] py-1.5">
+                        <div className="flex items-center gap-[7px] min-w-0 font-extrabold overflow-hidden">
+                          <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[8px] font-bold uppercase">
                             {companyInitials(company)}
                           </span>
                           <span className="overflow-hidden text-ellipsis text-[#101826]">{company}</span>
                         </div>
-                        <span className={`text-right font-bold shrink-0 ${outcomeClass} overflow-hidden text-ellipsis max-w-[140px]`}>
+                        <span className={`text-right font-bold shrink-0 ${outcomeClass} overflow-hidden text-ellipsis max-w-[120px] text-[11px]`}>
                           {outcome}
                         </span>
                       </div>
                     );
                   }) : (
-                    <div className="text-[12px] text-[#5a6b84] font-bold py-2">Verified implementation</div>
+                    <div className="text-[11px] text-[#5a6b84] font-bold py-1">Evidence unavailable</div>
                   )}
                 </div>
 
-                {/* Proof statement footer */}
-                {(() => {
-                  const total = r.evidence_summary.total_comparables;
-                  const confPct = Math.round(r.confidence.score * 100);
-                  const hasTl = r.timeline.low_weeks && r.timeline.high_weeks;
-                  let proof: string;
-                  if (total >= 10) proof = `${total} comparable implementations`;
-                  else if (confPct >= 50) proof = `${confPct}% confidence · ${hasTl ? `${r.timeline.high_weeks}-week path` : "strong fit"}`;
-                  else if (hasImpact) proof = "Highest projected impact";
-                  else if (hasTl) proof = "Fastest path to value";
-                  else proof = "Recommended based on available evidence";
-                  return (
-                    <div className="mt-auto pt-3 text-[12px] font-extrabold text-brand-green-dark">
-                      {proof}
-                    </div>
-                  );
-                })()}
+                {/* Footer */}
+                <div className="mt-auto pt-2 border-t border-[#ebeff4] flex items-center justify-between">
+                  <span className="text-[11px] font-extrabold text-brand-green-dark">
+                    {Math.round(r.confidence.score * 100)}% confidence
+                  </span>
+                  {r.timeline.low_weeks && r.timeline.high_weeks && (
+                    <span className="text-[11px] font-bold text-[#5a6b84]">
+                      {r.timeline.low_weeks}\u2013{r.timeline.high_weeks} week{r.timeline.high_weeks > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -566,13 +579,8 @@ function ResultsContent() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0">
               {buildRisks(primary).slice(0, 4).map((risk, i) => (
-                <div
-                  key={i}
-                  className={`min-h-[70px] flex items-center gap-[17px] text-[14px] font-bold text-[#1b2432] ${
-                    i > 0 ? "border-l border-[#efc8ca] pl-[25px]" : ""
-                  }`}
-                >
-                  <span className="text-[30px] text-risk shrink-0" dangerouslySetInnerHTML={{ __html: risk.icon }} />
+                <div key={i} className={`min-h-[60px] flex items-center gap-[15px] text-[13px] font-bold text-[#1b2432] ${i > 0 ? "border-l border-[#efc8ca] pl-[22px]" : ""}`}>
+                  <span className="text-[28px] text-risk shrink-0">&#x26A0;</span>
                   <span className="line-clamp-2">{risk.text}</span>
                 </div>
               ))}
@@ -589,7 +597,8 @@ function buildRisks(r: RecommendationData): { icon: string; text: string }[] {
   const seen = new Set<string>();
 
   for (const risk of r.risks) {
-    const formatted = formatRisk(risk);
+    const text = risk.taxonomy || risk.category || (typeof risk === "string" ? risk : risk.risk || "");
+    const formatted = formatRisk(text);
     const key = formatted.toLowerCase().trim();
     if (!seen.has(key)) {
       seen.add(key);
@@ -610,10 +619,6 @@ function buildRisks(r: RecommendationData): { icon: string; text: string }[] {
         }
       }
     }
-  }
-
-  while (risks.length < 4) {
-    risks.push({ icon: "&#x26A0;", text: "Standard implementation risks" });
   }
 
   return risks;
