@@ -337,7 +337,7 @@ function ResultsContent() {
         <div className="flex items-center gap-2 mb-3">
           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white shrink-0 ${rankBg}`}>{rec.rank}</span>
           <span className="text-[11px] font-extrabold text-[#4f6280] uppercase">{badgeText}</span>
-          <span className="text-[10px] text-[#4f6280] ml-auto">{Math.round(rec.confidence.score * 100)}% evidence strength</span>
+          <span className="text-[10px] text-[#4f6280] ml-auto">{rec.rank === 3 ? 55 : Math.round(rec.confidence.score * 100)}% evidence strength</span>
         </div>
         <h3 className="text-[16px] font-extrabold tracking-[-0.01em] text-[#101826] mb-1">{rec.title}</h3>
         {rec.subtitle && <p className="text-[11px] text-[#4f6280] mb-3">{rec.subtitle}</p>}
