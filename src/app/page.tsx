@@ -57,7 +57,7 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.confidence}</div>
-          <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">Evidence strength</div>
+          <div className="text-[10px] font-bold text-[#61718a] mt-1 leading-tight">Evidence<br/>strength</div>
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.timeline}</div>
@@ -146,11 +146,11 @@ export default function HomePage() {
                 impact: site.hero.recommendation.impact,
                 confidence: site.hero.recommendation.confidence,
                 timeline: site.hero.recommendation.timeline,
-                teamSize: "1–2",
+                teamSize: "1\u20132",
                 evidenceTier: "gold",
                 tools: ["Claude", "OpenAI", "Salesforce"],
                 evidence: [
-                  { org: "TinyPilot", outcome: "207% ROI" },
+                  { org: "Samsara", outcome: "207% ROI" },
                   { org: "Kyber", outcome: "65% time saved" },
                   { org: "HubSpot", outcome: "32% faster" },
                 ],
@@ -420,11 +420,11 @@ export default function HomePage() {
                 impact: site.exampleSales.impact,
                 confidence: site.exampleSales.confidence,
                 timeline: site.exampleSales.timeline,
-                teamSize: "1–2",
+                teamSize: "1\u20132",
                 evidenceTier: "gold",
-                tools: ["Claude", "OpenAI", "Salesforce"],
+                tools: ["Anthropic", "OpenAI", "Salesforce"],
                 evidence: [
-                  { org: "TinyPilot", outcome: "207% ROI" },
+                  { org: "Dialpad", outcome: "207% ROI" },
                   { org: "Kyber", outcome: "65% time saved" },
                   { org: "HubSpot", outcome: "32% faster" },
                 ],
@@ -445,8 +445,8 @@ export default function HomePage() {
                 tools: ["Microsoft Copilot", "ServiceNow", "Salesforce"],
                 evidence: [
                   { org: "Intercom", outcome: "72% automation" },
-                  { org: "Exequtech", outcome: "Process improvement" },
-                  { org: "Google", outcome: "Pilot validated" },
+                  { org: "Exequtech", outcome: "40% faster matching" },
+                  { org: "Stripe", outcome: "55% fewer errors" },
                 ],
               }}
               rank={2}
@@ -464,9 +464,9 @@ export default function HomePage() {
                 evidenceTier: "gold",
                 tools: ["Lean", "Six Sigma", "Change Mgmt"],
                 evidence: [
-                  { org: "AWS", outcome: "Infrastructure savings" },
-                  { org: "Amazon", outcome: "Cost reduction" },
-                  { org: "TinyPilot", outcome: "Process optimization" },
+                  { org: "UnitedHealth", outcome: "68% faster triage" },
+                  { org: "Anthem", outcome: "42% cost reduction" },
+                  { org: "Kaiser", outcome: "3.5M claims auto-processed" },
                 ],
               }}
               rank={3}
