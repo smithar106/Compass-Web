@@ -511,30 +511,7 @@ function ResultsContent() {
             <AlternativeCard rec={alternatives.filter(r => r.rank === 3)[0]} accent="orange" />
           )}
 
-          {/* ===== 5. RISK ASSESSMENT ===== */}
-          {top.risks?.length > 0 && (
-            <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#efc8ca]">
-              <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-5">Risk Assessment</h2>
-              <div className="space-y-3">
-                {top.risks.slice(0, 4).map((risk, i) => (
-                  <div key={i} className="bg-[#fff8f8] rounded-xl p-4 border border-[#efc8ca]">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-[13px] font-extrabold text-[#1b2432]">{risk.title || risk.category || "Risk"}</p>
-                      {risk.severity && (
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase ${risk.severity === "high" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-800"}`}>{risk.severity}</span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-2">{risk.explanation || risk.risk || ""}</p>
-                    {risk.mitigation && (
-                      <p className="text-[11px] text-brand-green-dark font-semibold">Mitigation: {risk.mitigation}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* ===== 6. NEXT STEPS ===== */}
+          {/* ===== 5. NEXT STEPS ===== */}
           <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green/30">
             <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-2">Next Steps</h2>
             <p className="text-[13px] text-[#4f6280] leading-[1.6] mb-6">
