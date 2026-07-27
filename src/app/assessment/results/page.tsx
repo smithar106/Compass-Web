@@ -503,7 +503,7 @@ function ResultsContent() {
                 <p className="text-[12px] text-[#4f6280] mb-3">Organizations implementing similar interventions achieved:</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
                   {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => {
-                    const fmtVal = formatRange(r) + (r.unit === "number" ? " hours" : "");
+                    const fmtVal = formatRange(r) + (r.unit === "number" && !isCurrency(r.metric_label, r.unit) ? " hours" : "");
                     const directionLabel = r.direction === "improvement" ? "Increase" : r.direction === "reduction" ? "Reduction" : r.direction;
                     const label = isCurrency(r.metric_label, r.unit) ? "Estimated Annual $ Savings" : r.unit === "number" ? "Estimated Annual Time Savings" : `${directionLabel} in ${r.metric_label}`;
                     return (
