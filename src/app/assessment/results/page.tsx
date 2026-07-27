@@ -416,7 +416,8 @@ function ResultsContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
                   {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => {
                     const fmtVal = formatRange(r);
-                    const label = isCurrency(r.metric_label, r.unit) ? "Estimated Annual $ Savings" : r.unit === "number" ? "Estimated Annual Time Savings" : r.metric_label;
+                    const directionLabel = r.direction === "improvement" ? "Increase" : r.direction === "reduction" ? "Reduction" : r.direction;
+                    const label = isCurrency(r.metric_label, r.unit) ? "Estimated Annual $ Savings" : r.unit === "number" ? "Estimated Annual Time Savings" : `${directionLabel} in ${r.metric_label}`;
                     return (
                       <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
                         <div className="text-[17px] font-extrabold text-[#101826]">{fmtVal}</div>
