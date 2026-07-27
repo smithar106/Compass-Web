@@ -427,11 +427,6 @@ function ResultsContent() {
                     );
                   })}
                 </div>
-                {top.impact.annual_savings.status !== "calculated" && (
-                  <p className="text-[10px] text-[#4f6280] italic">
-                    Share your operating data to generate organization-specific financial projections.
-                  </p>
-                )}
               </div>
             )}
 
