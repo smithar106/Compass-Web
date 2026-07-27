@@ -19,7 +19,7 @@ function extractNum(s: string): string {
   return m ? m[0] : s;
 }
 
-function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: "green" | "blue" | "orange" }) {
+function ExampleCard({ data, rank, accent, showEvidence = true }: { data: any; rank: number; accent: "green" | "blue" | "orange"; showEvidence?: boolean }) {
   const isRec = rank === 1;
   const borderClass = accent === "green" ? "border-brand-green" : accent === "blue" ? "border-brand-blue" : "border-brand-orange";
   const tagClass = accent === "green" ? "bg-brand-green-light text-brand-green-dark" : accent === "blue" ? "bg-brand-blue-light text-brand-blue" : "bg-brand-orange-light text-brand-orange";
@@ -87,7 +87,8 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
         <span className="text-[#4f6280] text-[11px] font-bold">{tier === "gold" ? "High-quality" : tier === "silver" ? "Medium-quality" : "Limited"} evidence from {data.evidenceCount || 143} implementations</span>
       </div>
 
-      {/* Top Evidence */}
+      {showEvidence && (
+        <>
       <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#4f6280] m-0 mb-2">Top Evidence</p>
       <div className="mb-[14px] flex-1">
         {evidenceItems.length > 0 ? evidenceItems.slice(0, 3).map((c, i) => (
@@ -106,6 +107,8 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
           <div className="text-[12px] text-[#4f6280] font-bold py-2">Verified implementation</div>
         )}
       </div>
+        </>
+      )}
 
       {/* Proof statement */}
       <div className="mt-auto pt-3 text-[12px] font-extrabold text-brand-green-dark">
@@ -334,6 +337,7 @@ export default function HomePage() {
               }}
               rank={2}
               accent="blue"
+              showEvidence={false}
             />
             <ExampleCard
               data={{
@@ -354,6 +358,7 @@ export default function HomePage() {
               }}
               rank={3}
               accent="orange"
+              showEvidence={false}
             />
           </div>
         </div>
