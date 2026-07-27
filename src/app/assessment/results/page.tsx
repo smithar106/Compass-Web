@@ -392,7 +392,7 @@ function ResultsContent() {
               {(() => {
                 const cat = (top.category || "").toLowerCase();
                 const action = top.specific_action || top.title || "";
-                const vendorNames = ["uiPath", "adobe", "wex", "salesforce", "amazon", "microsoft", "google", "anthropic", "openai", "servicenow"];
+                const vendorNames = ["uipath", "adobe", "wex", "salesforce", "amazon", "microsoft", "google", "anthropic", "openai", "servicenow"];
                 const hasVendor = vendorNames.some(v => action.toLowerCase().includes(v));
                 if (hasVendor) {
                   if (cat.includes("automation")) return "Streamline repetitive work through structured workflow automation";
