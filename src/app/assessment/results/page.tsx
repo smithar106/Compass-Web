@@ -386,222 +386,198 @@ function ResultsContent() {
 
   const top = recs[0];
   const alternatives = recs.slice(1);
-  const statusLabel = "Recommendation Complete";
+
+  function AlternativeCard({ rec, accent }: { rec: RecommendationData; accent: "blue" | "orange" }) {
+    const borderClass = accent === "blue" ? "border-brand-blue/30" : "border-brand-orange/30";
+    const rankBg = accent === "blue" ? "bg-[#657386]" : "bg-[#a8490c]";
+    const badgeText = accent === "blue" ? "Alternative" : "Alternative";
+    return (
+      <section className={`bg-white rounded-2xl p-6 shadow-sm border-2 ${borderClass}`}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white shrink-0 ${rankBg}`}>{rec.rank}</span>
+          <span className="text-[11px] font-extrabold text-[#4f6280] uppercase">{badgeText}</span>
+          <span className="text-[10px] text-[#5f718f] ml-auto">{Math.round(rec.confidence.score * 100)}% evidence strength</span>
+        </div>
+        <h3 className="text-[16px] font-extrabold tracking-[-0.01em] text-[#101826] mb-1">{rec.title}</h3>
+        {rec.subtitle && <p className="text-[11px] text-[#4f6280] mb-3">{rec.subtitle}</p>}
+        {rec.alternative_comparison && (
+          <div className="grid grid-cols-2 gap-2 mb-3 text-[10px]">
+            <div><span className="text-[#5f718f]">Evidence:</span> <span className="font-bold text-[#101826]">{rec.alternative_comparison.evidence_strength}</span></div>
+            <div><span className="text-[#5f718f]">Outcome support:</span> <span className="font-bold text-[#101826]">{rec.alternative_comparison.outcome_support}</span></div>
+            <div><span className="text-[#5f718f]">Complexity:</span> <span className="font-bold text-[#101826]">{rec.alternative_comparison.implementation_complexity}</span></div>
+            <div><span className="text-[#5f718f]">Timeline:</span> <span className="font-bold text-[#101826]">{rec.alternative_comparison.expected_timeline}</span></div>
+          </div>
+        )}
+        {rec.evidence_summary && (
+          <p className="text-[10px] text-[#5f718f] mb-2">{rec.evidence_summary.total_comparables} comparable implementations</p>
+        )}
+        {rec.alternative_comparison?.reason_for_rank && (
+          <p className="text-[10px] text-[#4f6280] italic">{rec.alternative_comparison.reason_for_rank}</p>
+        )}
+      </section>
+    );
+  }
 
   return (
     <div className="bg-[#fbfcfd] min-h-screen">
-      <div ref={contentRef} className="w-full max-w-[1200px] mx-auto px-[min(36px,5vw)] pt-24 pb-8">
-        <div id="compass-report-content" className="space-y-4">
+      <div ref={contentRef} className="w-full max-w-[1000px] mx-auto px-[min(36px,5vw)] pt-24 pb-8">
+        <div id="compass-report-content" className="space-y-3">
 
-          {/* ===== 1. HEADER ===== */}
+          {/* ===== 1. EXECUTIVE SUMMARY ===== */}
           <header className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
             <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Recommendations</h1>
-                  <span className="px-3 py-1 rounded-full bg-brand-green-light text-brand-green-dark text-[11px] font-extrabold uppercase whitespace-nowrap">{statusLabel}</span>
+                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Recommendation</h1>
+                  <span className="px-3 py-1 rounded-full bg-brand-green-light text-brand-green-dark text-[11px] font-extrabold uppercase whitespace-nowrap">Recommendation Complete</span>
                 </div>
                 <p className="text-[#4f6280] font-semibold mt-1 mb-2 text-[15px]">Evidence-based findings for your operational assessment</p>
                 <div className="flex flex-wrap gap-x-6 gap-y-1 text-[13px] font-semibold text-[#5f718f]">
+                  <span>Generated {ts}</span>
                   <span>Engine v3.0.0</span>
                   <span>Dataset v3</span>
-                  <span>Generated {ts}</span>
                   <span>{top.evidence_summary.total_comparables} comparable implementations</span>
                 </div>
               </div>
-              <button
-                onClick={handleDownloadPdf}
-                disabled={pdfLoading}
-                className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50"
-              >
-                {pdfLoading ? (
-                  <><div className="w-4 h-4 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin" /> Preparing report...</>
-                ) : (
-                  <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</>
-                )}
-              </button>
+              <div className="flex gap-2">
+                <button onClick={handleDownloadPdf} disabled={pdfLoading} className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50">
+                  {pdfLoading ? (
+                    <><div className="w-4 h-4 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin" /> Preparing report...</>
+                  ) : (
+                    <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</>
+                  )}
+                </button>
+              </div>
             </div>
             {pdfError && <p className="text-xs text-red-600 mt-4">{pdfError}</p>}
           </header>
 
-          {/* ===== 2. RECOMMENDED PATH ===== */}
-          <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/30">
+          {/* ===== 2. INVESTIGATION SUMMARY ===== */}
+          <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec]">
+            <div className="flex flex-wrap gap-x-8 gap-y-2 text-[13px]">
+              <div><span className="font-bold text-[#4f6280]">Problem:</span> <span className="text-[#101826]">{top.specific_action || top.title}</span></div>
+              <div><span className="font-bold text-[#4f6280]">Workflow:</span> <span className="text-[#101826]">{top.intervention_id?.replace(/_/g, " ") || "Process"}</span></div>
+              <div><span className="font-bold text-[#4f6280]">Evidence:</span> <span className="text-[#101826]">{top.evidence_summary.total_comparables} comparable implementations</span></div>
+              <div><span className="font-bold text-[#4f6280]">Evidence strength:</span> <span className="text-[#101826]">{Math.round(top.confidence.score * 100)}% ({top.confidence.label})</span></div>
+            </div>
+          </section>
+
+          {/* ===== 3. PRIMARY RECOMMENDATION ===== */}
+          <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green shadow-[0_8px_32px_-8px_rgba(25,164,58,0.12)]">
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-6 h-6 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[11px] font-extrabold">1</span>
-              <span className="px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark text-[10px] font-extrabold uppercase">Evidence supports this path</span>
-              <span className="text-[11px] font-bold text-[#4f6280] ml-auto">{Math.round(top.confidence.score * 100)}% evidence strength</span>
+              <span className="w-7 h-7 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[12px] font-extrabold">1</span>
+              <span className="px-3 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark text-[11px] font-extrabold uppercase">Evidence supports this path</span>
+              <span className="text-[12px] font-bold text-[#5f718f] ml-auto">{Math.round(top.confidence.score * 100)}% evidence strength</span>
             </div>
 
-            <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#101826] mb-1">
+            {/* Title + Category */}
+            <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-1 leading-[1.2]">
               {top.specific_action || top.title}
             </h2>
             {top.subtitle && (
               <p className="text-[12px] font-semibold text-[#4f6280] mb-4">{top.subtitle}</p>
             )}
-            {top.description && (
-              <p className="text-[12px] text-[#4f6280] leading-[1.5] mb-5 border-l-2 border-brand-green pl-3">{top.description}</p>
-            )}
 
-            {/* Outcome ranges — PRIMARY impact display */}
-            {top.outcome_ranges && top.outcome_ranges.length > 0 && (
-              <div className="mb-5">
-                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">
-                  Potential impact observed across comparable implementations
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 6).map((r, i) => {
-                    const isSingle = r.calculation_method === "single_value";
-                    return (
-                      <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
-                        <div className="text-[15px] font-extrabold text-[#101826]">{formatRange(r)}</div>
-                        <div className="text-[9px] font-bold text-[#586984] uppercase tracking-[0.04em] mt-0.5">
-                          {r.direction} in {r.metric_label}
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[8px] text-[#75859b]">{r.sample_size} implementation{r.sample_size !== 1 ? "s" : ""}</span>
-                          {r.gold_count > 0 && <span className="px-1 py-0.5 rounded bg-yellow-50 text-yellow-800 text-[7px] font-extrabold">{r.gold_count} gold</span>}
-                        </div>
-                        {!isSingle && r.low != null && r.high != null && (
-                          <div className="mt-1.5 w-full bg-[#e6eaef] rounded-full h-1.5">
-                            <div className="bg-brand-green h-1.5 rounded-full" style={{ width: "60%" }} />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {top.outcome_ranges.filter(r => !r.directly_comparable).length > 0 && (
-                    <div className="bg-[#fcf8f0] rounded-xl px-4 py-3 border border-[#f0e8d4] col-span-full">
-                      <p className="text-[10px] text-[#5f718f]">
-                        {top.outcome_ranges.filter(r => !r.directly_comparable).length} metric type{top.outcome_ranges.filter(r => !r.directly_comparable).length > 1 ? "s" : ""} excluded due to incompatible units or scopes.
-                      </p>
+            {/* Category + Confidence badge row */}
+            <div className="flex flex-wrap items-center gap-3 mb-5">
+              <span className="px-2.5 py-1 rounded-full bg-mist text-forest text-[10px] font-extrabold">{top.category?.replace(/_/g, " ")}</span>
+            </div>
+
+            {/* Potential impact */}
+            {top.outcome_ranges && top.outcome_ranges.filter(r => r.directly_comparable).length > 0 && (
+              <div className="mb-5 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">Potential impact observed across comparable implementations</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => (
+                    <div key={i}>
+                      <div className="text-[17px] font-extrabold text-[#101826]">{formatRange(r)}</div>
+                      <div className="text-[9px] font-bold text-[#586984] uppercase tracking-[0.04em]">{r.direction} in {r.metric_label}</div>
+                      <div className="text-[8px] text-[#75859b]">{r.sample_size} implementation{r.sample_size !== 1 ? "s" : ""}</div>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Financial estimates — only shown when available */}
-            {top.impact.annual_savings.status === "calculated" && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                <div className="bg-[#f0faf0] rounded-xl px-4 py-3 border border-[#d4ebd4]">
-                  <div className="text-[16px] font-extrabold text-brand-green-dark">{formatCurrency(top.impact.annual_savings.expected)}</div>
-                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Annual savings</div>
-                </div>
-                <div className="bg-[#eef4fb] rounded-xl px-4 py-3 border border-[#d4e0f0]">
-                  <div className="text-[16px] font-extrabold text-brand-blue">{formatHours(top.impact.annual_hours_returned.expected)}h</div>
-                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Hours returned</div>
-                </div>
-                <div className="bg-[#f4eefb] rounded-xl px-4 py-3 border border-[#e0d4f0]">
-                  <div className="text-[16px] font-extrabold text-brand-purple">{timelineDisplay(top.impact.implementation_timeline)}</div>
-                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Timeline</div>
-                </div>
-                <div className="bg-[#fbf4ee] rounded-xl px-4 py-3 border border-[#f0e0d4]">
-                  <div className="text-[16px] font-extrabold text-brand-orange">{teamDisplay(top.impact.project_team)}</div>
-                  <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">Project team</div>
-                </div>
-              </div>
-            )}
-
-
-            {/* Comparable implementations */}
-            {top.comparable_implementations && top.comparable_implementations.filter(c => !isBadValue(c.organization)).length > 0 && (
-              <div className="border-t border-[#ebeff4] pt-5">
-                <h3 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-3">Comparable implementations</h3>
-                <div className="space-y-3">
-                  {top.comparable_implementations.filter(c => !isBadValue(c.organization)).slice(0, 4).map((c, i) => {
-                    const company = formatCompany(c.organization);
-                    return (
-                      <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3.5 border border-[#e6eaef]">
-                        <div className="flex items-center gap-2.5 mb-1.5">
-                          <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[7px] font-bold uppercase">{companyInitials(company)}</span>
-                          <span className="text-[12px] font-extrabold text-[#101826]">{company}</span>
-                          <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ml-auto ${tierBadge(c.evidence_tier)}`}>{tierLabel(c.evidence_tier)}</span>
-                        </div>
-                        {c.workflow_context && <p className="text-[10px] text-[#586984] font-semibold mb-1 ml-[26px]"><span className="font-bold">Workflow:</span> {c.workflow_context}</p>}
-                        {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]"><span className="font-bold">Intervention:</span> {c.intervention}</p>}
-                        <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]"><span className="font-bold">Result:</span> {c.outcome_summary}</p>
-                        <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]"><span className="font-bold">Relevance:</span> {c.relevance_explanation}</p>
-                        {c.limitations && <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-1">Note: {c.limitations}</p>}
-                      </div>
-                    );
-                  })}
-                </div>
-                {top.comparable_implementations.filter(c => !isBadValue(c.organization)).length > 4 && (
-                  <details className="mt-2">
-                    <summary className="text-[10px] font-bold text-brand-green cursor-pointer py-1">Show all {top.comparable_implementations.length} comparable implementations</summary>
-                    <div className="space-y-3 mt-2">
-                      {top.comparable_implementations.filter(c => !isBadValue(c.organization)).slice(4).map((c, i) => {
-                        const company = formatCompany(c.organization);
-                        return (
-                          <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3.5 border border-[#e6eaef]">
-                            <div className="flex items-center gap-2.5 mb-1.5">
-                              <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[7px] font-bold uppercase">{companyInitials(company)}</span>
-                              <span className="text-[12px] font-extrabold text-[#101826]">{company}</span>
-                              <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ml-auto ${tierBadge(c.evidence_tier)}`}>{tierLabel(c.evidence_tier)}</span>
-                            </div>
-                            {c.workflow_context && <p className="text-[10px] text-[#586984] font-semibold mb-1 ml-[26px]"><span className="font-bold">Workflow:</span> {c.workflow_context}</p>}
-                            {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]"><span className="font-bold">Intervention:</span> {c.intervention}</p>}
-                            <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]"><span className="font-bold">Result:</span> {c.outcome_summary}</p>
-                            <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.3]"><span className="font-bold">Relevance:</span> {c.relevance_explanation}</p>
-                            {c.limitations && <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-1">Note: {c.limitations}</p>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </details>
+            {/* Why this path */}
+            {top.why_ranked_first && (
+              <div className="mb-5 border-t border-[#ebeff4] pt-5">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2">Why this path</p>
+                <p className="text-[12px] text-[#4f6280] leading-[1.6] mb-3">{top.why_ranked_first.summary}</p>
+                {top.why_ranked_first.supporting_reasons.length > 0 && (
+                  <ul className="space-y-1 mb-3">
+                    {top.why_ranked_first.supporting_reasons.map((s, i) => (
+                      <li key={i} className="flex items-start gap-2 text-[11px] text-[#4f6280]">
+                        <span className="text-brand-green mt-0.5 shrink-0">&#10003;</span>{s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {top.why_ranked_first.tradeoffs.length > 0 && (
+                  <div className="bg-[#fcf8f0] rounded-xl px-4 py-3 border border-[#f0e8d4]">
+                    <p className="text-[9px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-1">Tradeoffs</p>
+                    <ul className="space-y-0.5">
+                      {top.why_ranked_first.tradeoffs.map((t, i) => (
+                        <li key={i} className="text-[11px] text-[#4f6280] flex items-start gap-2">
+                          <span className="text-[#a8490c] mt-0.5 shrink-0">&#8226;</span>{t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
             )}
 
+            {/* Comparable implementations */}
+            {top.comparable_implementations && top.comparable_implementations.filter(c => !isBadValue(c.organization)).length > 0 && (
+              <div className="border-t border-[#ebeff4] pt-5">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-3">Comparable implementations</p>
+                <div className="space-y-2.5">
+                  {top.comparable_implementations.filter(c => !isBadValue(c.organization)).slice(0, 3).map((c, i) => {
+                    const company = formatCompany(c.organization);
+                    return (
+                      <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
+                        <div className="flex items-center gap-2.5 mb-1">
+                          <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[7px] font-bold uppercase">{companyInitials(company)}</span>
+                          <span className="text-[12px] font-extrabold text-[#101826]">{company}</span>
+                          <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ml-auto ${tierBadge(c.evidence_tier)}`}>{tierLabel(c.evidence_tier)}</span>
+                        </div>
+                        {c.workflow_context && <p className="text-[10px] text-[#586984] mb-0.5 ml-[26px]"><span className="font-bold">Workflow:</span> {c.workflow_context}</p>}
+                        {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]"><span className="font-bold">Intervention:</span> {c.intervention}</p>}
+                        <p className="text-[10px] text-[#4f6280] ml-[26px]"><span className="font-bold">Outcome:</span> {c.outcome_summary}</p>
+                        <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-0.5">{c.limitations ? `Note: ${c.limitations}` : c.relevance_explanation}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </section>
 
-          {/* ===== 4. ALTERNATIVE OPTIONS ===== */}
-          {alternatives.length > 0 && (
-            <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
-              <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Other paths evaluated</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {alternatives.map((r) => (
-                  <div key={r.rank} className="bg-white rounded-xl p-5 border-2 border-[#dfe5ec] shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white shrink-0 ${r.rank === 2 ? "bg-[#657386]" : "bg-[#a8490c]"}`}>{r.rank}</span>
-                      <span className="text-[12px] font-extrabold text-[#101826]">{r.title}</span>
-                    </div>
-                    {r.subtitle && <p className="text-[10px] font-semibold text-[#4f6280] mb-2">{r.subtitle}</p>}
-
-                    {/* Alternative comparison matrix */}
-                    {r.alternative_comparison && (
-                      <div className="text-[9px] text-[#5f718f] space-y-1 mb-2">
-                        <div className="flex justify-between"><span>Evidence:</span><span className="font-bold">{r.alternative_comparison.evidence_strength}</span></div>
-                        <div className="flex justify-between"><span>Outcome support:</span><span className="font-bold">{r.alternative_comparison.outcome_support}</span></div>
-                        <div className="flex justify-between"><span>Complexity:</span><span className="font-bold">{r.alternative_comparison.implementation_complexity}</span></div>
-                        <div className="flex justify-between"><span>Timeline:</span><span className="font-bold">{r.alternative_comparison.expected_timeline}</span></div>
-                      </div>
-                    )}
-
-                    {r.alternative_comparison && r.alternative_comparison.primary_limitations.length > 0 && (
-                      <p className="text-[10px] text-[#5f718f] leading-[1.4]">
-                        <span className="font-bold">Limitations:</span> {r.alternative_comparison.primary_limitations.slice(0, 2).join("; ")}
-                      </p>
-                    )}
-                    {r.rationale && <p className="text-[10px] text-[#4f6280] leading-[1.4] mt-1">{r.rationale}</p>}
-                  </div>
-                ))}
-              </div>
-            </section>
+          {/* ===== 4. ALTERNATIVES ===== */}
+          {alternatives.length > 0 && alternatives.filter(r => r.rank === 2).length > 0 && (
+            <AlternativeCard rec={alternatives.filter(r => r.rank === 2)[0]} accent="blue" />
+          )}
+          {alternatives.length > 0 && alternatives.filter(r => r.rank === 3).length > 0 && (
+            <AlternativeCard rec={alternatives.filter(r => r.rank === 3)[0]} accent="orange" />
           )}
 
-          {/* ===== 5. RISKS ===== */}
+          {/* ===== 5. RISK ASSESSMENT ===== */}
           {top.risks?.length > 0 && (
-            <section className="border border-[#f3c7c9] rounded-[18px] bg-risk-light px-7 py-[22px] pb-[25px] shadow-sm">
-              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] m-0 mb-[18px]">Risk assessment</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#efc8ca]">
+              <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-5">Risk Assessment</h2>
+              <div className="space-y-3">
                 {top.risks.slice(0, 4).map((risk, i) => (
-                  <div key={i} className="bg-white rounded-xl p-4 border border-[#efc8ca]">
-                    <p className="text-[12px] font-extrabold text-[#1b2432] mb-1">{risk.title || risk.category || "Risk"}</p>
-                    <p className="text-[11px] text-[#4f6280] leading-[1.4] mb-2">{risk.explanation || risk.risk || ""}</p>
-                    {risk.severity && <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase mr-1 ${risk.severity === "high" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-800"}`}>{risk.severity}</span>}
+                  <div key={i} className="bg-[#fff8f8] rounded-xl p-4 border border-[#efc8ca]">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-[13px] font-extrabold text-[#1b2432]">{risk.title || risk.category || "Risk"}</p>
+                      {risk.severity && (
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase ${risk.severity === "high" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-800"}`}>{risk.severity}</span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-2">{risk.explanation || risk.risk || ""}</p>
                     {risk.mitigation && (
-                      <p className="text-[10px] text-brand-green-dark font-semibold mt-1">Mitigation: {risk.mitigation}</p>
+                      <p className="text-[11px] text-brand-green-dark font-semibold">Mitigation: {risk.mitigation}</p>
                     )}
                   </div>
                 ))}
@@ -610,86 +586,62 @@ function ResultsContent() {
           )}
 
           {/* ===== 6. ASSUMPTIONS & INFORMATION GAPS ===== */}
-          {(top.assumptions_detail?.length > 0 || top.information_gaps?.length > 0) && (
-            <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
-              <h2 className="text-[15px] font-extrabold tracking-[-0.01em] text-[#101826] mb-4">Assumptions and information gaps</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {top.assumptions_detail?.length > 0 && (
-                  <div>
-                    <h3 className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">Assumptions made</h3>
-                    <div className="space-y-2.5">
-                      {top.assumptions_detail.map((a, i) => (
-                        <div key={i} className="bg-[#fcf8f0] rounded-lg px-3.5 py-2.5 border border-[#f0e8d4]">
-                          <p className="text-[11px] font-bold text-[#4f6280]">{a.title}</p>
-                          <p className="text-[10px] text-[#4f6280] leading-[1.4] mt-0.5">{a.explanation}</p>
-                          {a.effect_on_recommendation && <p className="text-[9px] text-[#75859b] italic mt-1">Effect: {a.effect_on_recommendation}</p>}
-                        </div>
-                      ))}
+          <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
+            <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-5">Assumptions &amp; Information Gaps</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-3">What Compass knows</p>
+                <div className="space-y-2.5">
+                  {top.assumptions_detail?.length > 0 ? top.assumptions_detail.map((a, i) => (
+                    <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
+                      <p className="text-[12px] font-bold text-[#4f6280]">{a.title}</p>
+                      <p className="text-[11px] text-[#4f6280] leading-[1.4] mt-0.5">{a.explanation}</p>
                     </div>
-                  </div>
-                )}
-                {top.information_gaps?.length > 0 && (
-                  <div>
-                    <h3 className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">What would improve this analysis</h3>
-                    <div className="space-y-2.5">
-                      {top.information_gaps.map((g, i) => (
-                        <div key={i} className="bg-[#f6f8fa] rounded-lg px-3.5 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[11px] font-bold text-[#4f6280]">{g.title}</p>
-                          <p className="text-[10px] text-[#4f6280] leading-[1.4] mt-0.5">{g.explanation}</p>
-                          <p className="text-[9px] text-[#75859b] mt-1">Resolution: {g.resolution_action}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  )) : <p className="text-[11px] text-[#5f718f]">No significant assumptions identified.</p>}
+                </div>
               </div>
-            </section>
-          )}
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-3">What would improve this analysis</p>
+                <div className="space-y-2.5">
+                  {top.information_gaps?.length > 0 ? top.information_gaps.map((g, i) => (
+                    <div key={i} className="bg-[#fcf8f0] rounded-xl px-4 py-3 border border-[#f0e8d4]">
+                      <p className="text-[12px] font-bold text-[#4f6280]">{g.title}</p>
+                      <p className="text-[11px] text-[#4f6280] leading-[1.4] mt-0.5">{g.explanation}</p>
+                      <p className="text-[10px] text-brand-green-dark font-semibold mt-1">Resolution: {g.resolution_action}</p>
+                    </div>
+                  )) : <p className="text-[11px] text-[#5f718f]">No major information gaps identified.</p>}
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* ===== 7. NEXT VALIDATION STEP ===== */}
           {top.next_validation_step && (
-            <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/20">
-              <h2 className="flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.02em] text-[#101826] mb-4">Next step</h2>
-              <div className="flex items-start gap-4">
-                <div className="w-9 h-9 rounded-full bg-brand-green-light flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-brand-green-dark text-[16px] font-extrabold">&#8594;</span>
+            <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green/40 shadow-[0_8px_32px_-8px_rgba(25,164,58,0.10)]">
+              <div className="flex items-start gap-5">
+                <div className="w-10 h-10 rounded-full bg-brand-green-light flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-brand-green-dark text-[18px] font-extrabold">&#8594;</span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-[14px] font-extrabold text-[#101826] mb-1.5">{top.next_validation_step.action}</p>
-                  <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-2"><span className="font-bold">Purpose:</span> {top.next_validation_step.purpose}</p>
-                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-[10px] text-[#5f718f]">
+                  <h2 className="text-[18px] font-extrabold tracking-[-0.01em] text-[#101826] mb-1">Next step</h2>
+                  <p className="text-[16px] font-bold text-[#101826] mb-2">{top.next_validation_step.action}</p>
+                  <p className="text-[12px] text-[#4f6280] leading-[1.5] mb-3"><span className="font-bold">Purpose:</span> {top.next_validation_step.purpose}</p>
+                  <div className="flex flex-wrap gap-x-8 gap-y-1 text-[11px] text-[#5f718f]">
                     <span><span className="font-bold">Owner:</span> {top.next_validation_step.owner}</span>
                     <span><span className="font-bold">Duration:</span> {top.next_validation_step.duration}</span>
                   </div>
-                  {top.next_validation_step.required_inputs.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-[10px] font-bold text-[#4f6280]">Required inputs:</p>
-                      <ul className="list-disc list-inside text-[10px] text-[#5f718f]">
-                        {top.next_validation_step.required_inputs.map((inp, j) => <li key={j}>{inp}</li>)}
-                      </ul>
-                    </div>
+                  {top.next_validation_step.success_criteria && (
+                    <p className="text-[11px] text-[#586984] mt-2"><span className="font-bold">Success criteria:</span> {top.next_validation_step.success_criteria}</p>
                   )}
-                  <p className="text-[10px] text-[#586984] mt-2"><span className="font-bold">Success criteria:</span> {top.next_validation_step.success_criteria}</p>
-                  <p className="text-[10px] text-brand-green-dark font-semibold mt-1">Decision this enables: {top.next_validation_step.decision_enabled}</p>
                 </div>
               </div>
             </section>
           )}
 
           {/* ===== 8. METHODOLOGY ===== */}
-          <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec] text-[11px] text-[#5f718f] leading-[1.5]">
-            <h2 className="text-[13px] font-extrabold text-[#4f6280] mb-2">About this analysis</h2>
+          <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec] text-[11px] text-[#5f718f] leading-[1.6]">
             <p>
-              Compass surfaces comparable real-world implementations that match your workflow, constraints, and objectives.
-              Each finding is ranked by evidence quality, workflow fit, outcome consistency,
-              and organizational similarity. The database contains {top.evidence_summary.total_comparables} implementations
-              relevant to this assessment. Evidence strength reflects how many of those implementations measured and
-              quantified their outcomes, not just tool adoption.
-            </p>
-            <p className="mt-2">
-              This analysis is based on the information you provided. Outcomes observed in comparable organizations
-              do not guarantee identical results. Validate the evidence-supported path through a
-              bounded pilot before committing to full-scale implementation.
+              Compass compares your operational problem against comparable real-world implementations. Recommendations are ranked using workflow similarity, evidence quality, implementation complexity, organizational readiness, and measured outcomes. The database contains {top.evidence_summary.total_comparables} implementations relevant to this assessment. Outcomes observed in comparable organizations do not guarantee identical results.
             </p>
           </section>
         </div>
