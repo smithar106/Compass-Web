@@ -156,12 +156,8 @@ function teamDisplay(team: ProjectTeam): string {
 
 function formatNum(n: number, unit: string): string {
   if (unit === "%") return `${n}%`;
-  if (unit === "currency") {
-    const abs = Math.abs(n);
-    const formatted = abs >= 1_000_000 ? `${(abs / 1_000_000).toFixed(1)}M` : abs >= 1_000 ? `${(abs / 1_000).toFixed(0)}K` : abs.toLocaleString();
-    return `$${formatted}`;
-  }
-  return n.toLocaleString();
+  if (unit === "currency") return `$${Math.round(n).toLocaleString()}`;
+  return Math.round(n).toLocaleString();
 }
 
 function formatRange(r: OutcomeRange): string {
@@ -204,8 +200,6 @@ function ResultsContent() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [recId, setRecId] = useState("");
-  const [pdfLoading, setPdfLoading] = useState(false);
-  const [pdfError, setPdfError] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -279,60 +273,7 @@ function ResultsContent() {
     } finally { setLoading(false); }
   }
 
-  const handleDownloadPdf = useCallback(async () => {
-    if (!recs.length || pdfLoading) return;
-    setPdfLoading(true);
-    setPdfError(null);
-    try {
-      if (recId) {
-        const res = await fetch(`/api/recommendations/pdf?rec_id=${encodeURIComponent(recId)}`);
-        if (!res.ok) {
-          const errBody = await res.json().catch(() => ({}));
-          throw new Error(errBody.error || `Server error (${res.status})`);
-        }
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        const today = new Date().toISOString().slice(0, 10);
-        a.download = `compass-recommendation-${today}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } else {
-        const { default: jsPDF } = await import("jspdf");
-        const { default: html2canvas } = await import("html2canvas");
-        const el = document.getElementById("compass-report-content");
-        if (!el) throw new Error("Content not found");
-        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF({ unit: "in", format: "letter" });
-        const pw = pdf.internal.pageSize.getWidth();
-        const ph = pdf.internal.pageSize.getHeight();
-        const margin = 0.5;
-        const iw = pw - margin * 2;
-        const ih = (canvas.height * iw) / canvas.width;
-        const usable = ph - margin * 2;
-        let remaining = ih;
-        pdf.addImage(imgData, "PNG", margin, margin, iw, ih);
-        remaining -= usable;
-        while (remaining > 0) {
-          const offsetPx = (ih - remaining) / (ih / canvas.height);
-          pdf.addPage();
-          const clipped = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", y: offsetPx, height: canvas.height - offsetPx });
-          const clipData = clipped.toDataURL("image/png");
-          const ch = (clipped.height * iw) / clipped.width;
-          pdf.addImage(clipData, "PNG", margin, margin, iw, ch);
-          remaining -= usable;
-        }
-        const today = new Date().toISOString().slice(0, 10);
-        pdf.save(`compass-report-${today}.pdf`);
-      }
-    } catch (e) {
-      setPdfError(e instanceof Error ? e.message : "Could not generate PDF.");
-    } finally { setPdfLoading(false); }
-  }, [recs, pdfLoading, recId]);
+
 
   const ts = new Date().toISOString().slice(0, 10);
 
@@ -439,17 +380,7 @@ function ResultsContent() {
                   <span>{top.evidence_summary.total_comparables} comparable implementations</span>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button onClick={handleDownloadPdf} disabled={pdfLoading} className="min-h-[44px] px-[18px] rounded-lg border border-[#cad3df] bg-white text-[#101826] font-extrabold text-sm inline-flex items-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50">
-                  {pdfLoading ? (
-                    <><div className="w-4 h-4 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin" /> Preparing report...</>
-                  ) : (
-                    <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</>
-                  )}
-                </button>
-              </div>
             </div>
-            {pdfError && <p className="text-xs text-red-600 mt-4">{pdfError}</p>}
           </header>
 
           {/* ===== 2. INVESTIGATION SUMMARY ===== */}
@@ -488,13 +419,15 @@ function ResultsContent() {
               <div className="mb-5 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-2.5">Potential impact observed across comparable implementations</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => (
-                    <div key={i}>
-                      <div className="text-[17px] font-extrabold text-[#101826]">{formatRange(r)}</div>
-                      <div className="text-[9px] font-bold text-[#586984] uppercase tracking-[0.04em]">{r.direction} in {r.metric_label}</div>
-                      <div className="text-[8px] text-[#75859b]">{r.sample_size} implementation{r.sample_size !== 1 ? "s" : ""}</div>
-                    </div>
-                  ))}
+                  {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => {
+                    const label = r.unit === "currency" ? "Annual cost savings" : r.unit === "number" ? "Annual time savings" : r.metric_label;
+                    return (
+                      <div key={i}>
+                        <div className="text-[17px] font-extrabold text-[#101826]">{formatRange(r)}</div>
+                        <div className="text-[9px] font-bold text-[#586984] uppercase tracking-[0.04em]">{r.direction} in {label}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -525,31 +458,6 @@ function ResultsContent() {
                     </ul>
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Comparable implementations */}
-            {top.comparable_implementations && top.comparable_implementations.filter(c => !isBadValue(c.organization)).length > 0 && (
-              <div className="border-t border-[#ebeff4] pt-5">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-3">Comparable implementations</p>
-                <div className="space-y-2.5">
-                  {top.comparable_implementations.filter(c => !isBadValue(c.organization)).slice(0, 3).map((c, i) => {
-                    const company = formatCompany(c.organization);
-                    return (
-                      <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
-                        <div className="flex items-center gap-2.5 mb-1">
-                          <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-[#11263c] text-white flex items-center justify-center text-[7px] font-bold uppercase">{companyInitials(company)}</span>
-                          <span className="text-[12px] font-extrabold text-[#101826]">{company}</span>
-                          <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-[0.04em] border ml-auto ${tierBadge(c.evidence_tier)}`}>{tierLabel(c.evidence_tier)}</span>
-                        </div>
-                        {c.workflow_context && <p className="text-[10px] text-[#586984] mb-0.5 ml-[26px]"><span className="font-bold">Workflow:</span> {c.workflow_context}</p>}
-                        {c.intervention && <p className="text-[10px] text-[#4f6280] ml-[26px] leading-[1.4]"><span className="font-bold">Intervention:</span> {c.intervention}</p>}
-                        <p className="text-[10px] text-[#4f6280] ml-[26px]"><span className="font-bold">Outcome:</span> {c.outcome_summary}</p>
-                        <p className="text-[9px] text-[#75859b] italic ml-[26px] mt-0.5">{c.limitations ? `Note: ${c.limitations}` : c.relevance_explanation}</p>
-                      </div>
-                    );
-                  })}
-                </div>
               </div>
             )}
           </section>
