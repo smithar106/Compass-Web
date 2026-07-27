@@ -438,7 +438,7 @@ function ResultsContent() {
                   const cat = (top.category || "").toLowerCase();
                   const reasons: string[] = [];
                   if (cat.includes("automation")) {
-                    reasons.push("This workflow contains highly repeatable routing decisions well suited to automation.");
+                    reasons.push("This workflow follows consistent, repeatable steps that are well suited to automation.");
                     reasons.push("Comparable organizations automated these activities before introducing AI.");
                     reasons.push("The workflow follows consistent patterns that can be standardized.");
                     reasons.push("This approach requires fewer organizational changes than the alternatives.");

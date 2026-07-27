@@ -14,7 +14,7 @@ describe("Homepage content", () => {
   it("should have hero recommendation panel", () => {
     expect(site.hero.recommendation.problem).toContain("misses 100+ inbound calls");
     expect(site.hero.recommendation.impact).toBe("+$2.1M");
-    expect(site.hero.recommendation.confidence).toBe("89%");
+    expect(site.hero.recommendation.confidence).toBe("93%");
   });
 
   it("should have sales example with impact and confidence note", () => {
