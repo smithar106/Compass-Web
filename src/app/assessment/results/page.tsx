@@ -406,11 +406,6 @@ function ResultsContent() {
                   return `Compass compared your workflow against ${total} comparable operational implementations. Based on workflow similarity, implementation outcomes, evidence quality, organizational fit, and implementation complexity, ${cat.toLowerCase()} produced the strongest evidence of success. Comparable organizations consistently achieved better ${outcomes} with lower implementation complexity than alternative approaches.`;
                 })()}
               </p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 text-[11px] text-[#4f6280]">
-                <span><span className="font-bold">Comparable implementations analyzed:</span> {top.evidence_summary?.total_comparables || 0}</span>
-                <span><span className="font-bold">Evidence quality:</span> {top.evidence_summary?.overall_tier || "bronze"}</span>
-                <span><span className="font-bold">Workflow similarity:</span> High</span>
-              </div>
             </div>
 
             {/* SECTION 3: Expected Operational Impact */}
