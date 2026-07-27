@@ -263,17 +263,6 @@ export default function HomePage() {
             </table>
           </div>
 
-          {/* Bottom callout */}
-          <div className="mt-16 text-center max-w-3xl mx-auto">
-            <p className="text-[22px] md:text-[26px] font-bold text-ink leading-tight">
-              Consultants rely on experience. Compass relies on evidence.
-            </p>
-            <p className="mt-6 text-base text-ink/60 leading-relaxed">
-              Compass doesn&apos;t replace executive judgment.
-              It gives leaders access to operational evidence that no individual consultant could realistically assemble, retain, and analyze at scale.
-            </p>
-          </div>
-
           {/* Who Compass is for (8th section) */}
           <div className="mt-16 pt-14 border-t border-slate-200">
             <div className="text-center mb-8">
