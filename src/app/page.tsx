@@ -337,7 +337,6 @@ export default function HomePage() {
               }}
               rank={2}
               accent="blue"
-              showEvidence={false}
             />
             <ExampleCard
               data={{
