@@ -45,13 +45,20 @@ export async function POST(request: NextRequest) {
     clearTimeout(timeout);
 
     if (!engineRes.ok) {
-      const errText = await engineRes.text();
-      return NextResponse.json({ error: `Engine error: ${errText.slice(0, 200)}`, type: "engine_error" }, { status: 502 });
+      const errText = await engineRes.text().catch(() => "");
+      console.error(`[Recs:${requestId}] Engine error (${engineRes.status}): ${errText.slice(0, 500)}`);
+      return NextResponse.json({ error: "Engine returned an error.", type: "engine_error" }, { status: 502 });
     }
 
     const engineResult = await engineRes.json();
 
     if (!engineResult.recommendations || !Array.isArray(engineResult.recommendations)) {
+      console.error(`[Recs:${requestId}] Malformed engine response — missing recommendations array`);
+      return NextResponse.json({ error: "Malformed response from engine.", type: "malformed_response" }, { status: 502 });
+    }
+
+    if (!engineResult.recommendation_id) {
+      console.error(`[Recs:${requestId}] Engine response missing recommendation_id`);
       return NextResponse.json({ error: "Malformed response from engine.", type: "malformed_response" }, { status: 502 });
     }
 
@@ -94,13 +101,14 @@ export async function GET(request: NextRequest) {
       }
 
       if (!engineRes.ok) {
-        const errText = await engineRes.text().catch(() => "Unknown error");
-        lastError = `Engine error (${engineRes.status}): ${errText.slice(0, 200)}`;
+        const errText = await engineRes.text().catch(() => "");
+        console.error(`[Recs:${requestId}] GET engine error (${engineRes.status}): ${errText.slice(0, 500)}`);
         if (attempt < maxRetries) {
+          lastError = "Engine temporarily unavailable";
           await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
           continue;
         }
-        return NextResponse.json({ error: lastError }, { status: 502 });
+        return NextResponse.json({ error: "Engine temporarily unavailable" }, { status: 502 });
       }
 
       const data = await engineRes.json();

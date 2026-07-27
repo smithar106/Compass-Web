@@ -214,16 +214,35 @@ function ResultsContent() {
     else submit();
   }, [searchParams]);
 
-  async function loadRun(id: string) {
+  async function loadRun(id: string, retries = 2) {
     try {
       setLoading(true);
-      const r = await fetch(`/api/recommendations?recommendation_id=${encodeURIComponent(id)}`);
-      if (!r.ok) throw new Error((await r.json()).error || "Failed");
-      const d = await r.json();
-      setRecs(d.recommendations || []);
-      setRecId(id);
-    } catch (e) {
-      setLoadError(e instanceof Error ? e.message : "Failed");
+      setLoadError(null);
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          const r = await fetch(`/api/recommendations?recommendation_id=${encodeURIComponent(id)}`);
+          if (r.ok) {
+            const d = await r.json();
+            setRecs(d.recommendations || []);
+            setRecId(id);
+            return;
+          }
+          if (r.status === 404) {
+            throw new Error("Recommendation not found.");
+          }
+          if (attempt < retries) {
+            await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+            continue;
+          }
+          throw new Error((await r.json().catch(() => ({}))).error || "Failed to load");
+        } catch (fetchErr: any) {
+          if (fetchErr.message === "Recommendation not found.") throw fetchErr;
+          if (attempt >= retries) throw fetchErr;
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        }
+      }
+    } catch (e: any) {
+      setLoadError(e.message || "Failed to load");
     } finally { setLoading(false); }
   }
 
@@ -326,17 +345,34 @@ function ResultsContent() {
     </div>
   );
 
-  if (loadError) return (
-    <div className="bg-white min-h-screen flex items-center justify-center px-4">
-      <div className="text-center max-w-sm">
-        <p className="text-sm text-[#4f6280] font-semibold mb-4">{loadError}</p>
-        <div className="flex gap-2 justify-center">
-          <button onClick={() => { setLoadError(null); submit(); }} className="px-4 py-1.5 bg-brand-green text-white text-xs font-bold rounded-lg hover:bg-brand-green-dark">Retry</button>
-          <button onClick={() => router.push("/assessment")} className="px-4 py-1.5 border border-[#cad3df] text-[#4f6280] text-xs font-bold rounded-lg">Back</button>
+  if (loadError) {
+    const isNotFound = loadError.includes("not found");
+    return (
+      <div className="bg-white min-h-screen flex items-center justify-center px-4">
+        <div className="text-center max-w-sm">
+          {isNotFound ? (
+            <>
+              <p className="text-sm text-[#4f6280] font-semibold mb-1">Recommendation not found</p>
+              <p className="text-xs text-[#5f718f] mb-4">This link may be incomplete or the recommendation may no longer be available.</p>
+              <div className="flex gap-2 justify-center">
+                <button onClick={() => router.push("/assessment")} className="px-4 py-1.5 bg-brand-green text-white text-xs font-bold rounded-lg hover:bg-brand-green-dark">Start new assessment</button>
+                <button onClick={() => router.push("/")} className="px-4 py-1.5 border border-[#cad3df] text-[#4f6280] text-xs font-bold rounded-lg">Return home</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-[#4f6280] font-semibold mb-1">Recommendation temporarily unavailable</p>
+              <p className="text-xs text-[#5f718f] mb-4">Your result has not been deleted.</p>
+              <div className="flex gap-2 justify-center">
+                <button onClick={() => { setLoadError(null); if (recId) loadRun(recId); else submit(); }} className="px-4 py-1.5 bg-brand-green text-white text-xs font-bold rounded-lg hover:bg-brand-green-dark">Retry</button>
+                <button onClick={() => router.push("/assessment")} className="px-4 py-1.5 border border-[#cad3df] text-[#4f6280] text-xs font-bold rounded-lg">Back</button>
+              </div>
+            </>
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   if (!recs.length) return (
     <div className="bg-white min-h-screen flex items-center justify-center px-4">
