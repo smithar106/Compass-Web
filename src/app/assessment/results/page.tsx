@@ -419,10 +419,11 @@ function ResultsContent() {
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2.5">Potential impact observed across comparable implementations</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => {
-                    const label = r.unit === "currency" ? "Annual cost savings" : r.unit === "number" ? "Annual time savings" : r.metric_label;
+                    const fmtVal = formatRange(r);
+                    const label = r.unit === "currency" ? "Estimated Annual $ Savings" : r.unit === "number" ? "Estimated Annual Time Savings" : r.metric_label;
                     return (
                       <div key={i}>
-                        <div className="text-[17px] font-extrabold text-[#101826]">{formatRange(r)}</div>
+                        <div className="text-[17px] font-extrabold text-[#101826]">{fmtVal}</div>
                         <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">{r.direction} in {label}</div>
                       </div>
                     );
