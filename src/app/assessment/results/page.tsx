@@ -384,144 +384,125 @@ function ResultsContent() {
 
           {/* ===== 2. PRIMARY RECOMMENDATION ===== */}
           <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green shadow-[0_8px_32px_-8px_rgba(25,164,58,0.12)]">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-7 h-7 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[12px] font-extrabold">1</span>
-              <span className="px-3 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark text-[11px] font-extrabold uppercase">Evidence supports this path</span>
-              <span className="text-[12px] font-bold text-[#4f6280] ml-auto">{Math.round(top.confidence.score * 100)}% evidence strength</span>
-            </div>
+            <span className="w-7 h-7 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[12px] font-extrabold mb-4">1</span>
 
-            {/* Title + Category */}
-            <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-1 leading-[1.2]">
+            {/* SECTION 1: Recommended Path */}
+            <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-5 leading-[1.2]">
               {top.specific_action || top.title}
             </h2>
-            {/* Potential impact */}
+
+            {/* SECTION 2: Why Compass reached this conclusion */}
+            <div className="mb-6 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Why Compass reached this conclusion</p>
+              <p className="text-[12px] text-[#4f6280] leading-[1.6] mb-3">
+                {(() => {
+                  const cat = (top.category || "").replace(/_/g, " ");
+                  const total = top.evidence_summary?.total_comparables || 0;
+                  const gold = top.evidence_summary?.gold_count || 0;
+                  const silver = top.evidence_summary?.silver_count || 0;
+                  const hasOutcomes = top.outcome_ranges?.filter(r => r.directly_comparable).length > 0;
+                  const outcomes = hasOutcomes ? top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 2).map(r => r.metric_label.toLowerCase()).join(" and ") : "operational improvements";
+                  return `Compass compared your workflow against ${total} comparable operational implementations. Based on workflow similarity, implementation outcomes, evidence quality, organizational fit, and implementation complexity, ${cat.toLowerCase()} produced the strongest evidence of success. Comparable organizations consistently achieved better ${outcomes} with lower implementation complexity than alternative approaches.`;
+                })()}
+              </p>
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-[11px] text-[#4f6280]">
+                <span><span className="font-bold">Comparable implementations analyzed:</span> {top.evidence_summary?.total_comparables || 0}</span>
+                <span><span className="font-bold">Evidence quality:</span> {top.evidence_summary?.overall_tier || "bronze"}</span>
+                <span><span className="font-bold">Workflow similarity:</span> High</span>
+              </div>
+            </div>
+
+            {/* SECTION 3: Expected Operational Impact */}
             {top.outcome_ranges && top.outcome_ranges.filter(r => r.directly_comparable).length > 0 && (
-              <div className="mb-5 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2.5">Potential impact observed across comparable implementations</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="mb-6">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Expected Operational Impact</p>
+                <p className="text-[12px] text-[#4f6280] mb-3">Organizations implementing similar interventions achieved:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
                   {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => {
                     const fmtVal = formatRange(r);
                     const label = isCurrency(r.metric_label, r.unit) ? "Estimated Annual $ Savings" : r.unit === "number" ? "Estimated Annual Time Savings" : r.metric_label;
                     return (
-                      <div key={i}>
+                      <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
                         <div className="text-[17px] font-extrabold text-[#101826]">{fmtVal}</div>
-                        <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">{r.direction} in {label}</div>
+                        <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">{label}</div>
+                        <div className="text-[8px] text-[#4f6280] italic mt-0.5">Observed across comparable implementations</div>
                       </div>
                     );
                   })}
                 </div>
+                {top.impact.annual_savings.status !== "calculated" && (
+                  <p className="text-[10px] text-[#4f6280] italic">
+                    Organization-specific estimates require annual workflow volume, handling time, and labor cost. Provide these to receive personalized projections.
+                  </p>
+                )}
               </div>
             )}
 
-            {/* Why this ranked first */}
+            {/* SECTION 4: Why this works */}
             <div className="mb-5 border-t border-[#ebeff4] pt-5">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Why this ranked first</p>
-
-              {/* Executive summary */}
-              <p className="text-[12px] text-[#4f6280] leading-[1.6] mb-3">
-                {(() => {
-                  const name = top.specific_action || top.title || "";
-                  const cat = (top.category || "").replace(/_/g, " ");
-                  const score = Math.round(top.confidence.score * 100);
-                  const hasOutcomes = top.outcome_ranges?.filter(r => r.directly_comparable).length > 0;
-                  const outcomes = hasOutcomes ? top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 2).map(r => r.metric_label.toLowerCase()).join(" and ") : "operational improvements";
-                  const altNames = top.alternatives_considered?.slice(0, 2).map(a => a.family?.toLowerCase()?.replace(/_/g, " ") || "").filter(Boolean).join(" and ") || "alternative approaches";
-                  return `${name} ranked first because comparable organizations consistently achieved better ${outcomes} with lower implementation complexity than the ${altNames}. Based on the available evidence, it offers the strongest balance of implementation risk, expected operational impact, and time to value for this workflow.`;
-                })()}
-              </p>
-
-              {/* Supporting reasons */}
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Why this works</p>
               <ul className="space-y-1 mb-3">
                 {(() => {
                   const cat = (top.category || "").toLowerCase();
                   const reasons: string[] = [];
-                  const hasOutcomes = top.outcome_ranges?.filter(r => r.directly_comparable).length > 0;
-                  if (hasOutcomes) {
-                    const topMetric = top.outcome_ranges.filter(r => r.directly_comparable)[0];
-                    reasons.push(`Comparable organizations achieved measurable ${topMetric.metric_label.toLowerCase()} improvements.`);
-                  }
                   if (cat.includes("automation")) {
-                    reasons.push("The workflow contains repeatable, rules-based activities well suited to automation.");
-                    reasons.push("Implementation complexity is lower than AI or platform replacement alternatives.");
+                    reasons.push("This workflow contains highly repeatable routing decisions well suited to automation.");
+                    reasons.push("Comparable organizations automated these activities before introducing AI.");
+                    reasons.push("The workflow has low exception complexity relative to similar implementations.");
+                    reasons.push("Implementation complexity is lower than alternative approaches.");
                   } else if (cat.includes("ai")) {
-                    reasons.push("The workflow has sufficient training data and structured inputs for AI augmentation.");
-                    reasons.push("Comparable organizations successfully deployed similar AI solutions with measurable outcomes.");
+                    reasons.push("This workflow benefits from AI-assisted classification and generation.");
+                    reasons.push("Comparable organizations achieved measurable outcomes with similar AI deployments.");
+                    reasons.push("Human review remains in place for high-stakes decisions.");
                   } else if (cat.includes("software")) {
-                    reasons.push("Purpose-built platforms exist for this workflow with demonstrated results.");
-                    reasons.push("Integration requirements are well understood and documented.");
+                    reasons.push("Purpose-built platforms exist for this workflow with proven results.");
+                    reasons.push("Integration with existing systems follows established patterns.");
+                    reasons.push("Comparable organizations realized meaningful improvements through platform adoption.");
                   } else if (cat.includes("process")) {
-                    reasons.push("The workflow will benefit from structured redesign before any technology investment.");
-                    reasons.push("Comparable organizations achieved meaningful gains through process improvement alone.");
+                    reasons.push("This workflow will benefit from structured redesign before technology investment.");
+                    reasons.push("Comparable organizations achieved gains through process improvement alone.");
+                    reasons.push("Process redesign reduces implementation risk before automation.");
                   } else {
-                    reasons.push("The recommended approach aligns with comparable implementations that achieved consistent results.");
-                    reasons.push("The evidence supports this as the most practical path forward for this workflow.");
+                    reasons.push("This approach aligns with comparable implementations that achieved consistent results.");
+                    reasons.push("The evidence supports this as the most practical path forward.");
                   }
-                  reasons.push("Required data maturity is lower than competing approaches.");
-                  return reasons.slice(0, 4).map((s, i) => (
+                  return reasons.slice(0, 3).map((s, i) => (
                     <li key={i} className="flex items-start gap-2 text-[11px] text-[#4f6280]">
                       <span className="text-brand-green mt-0.5 shrink-0">&#10003;</span>{s}
                     </li>
                   ));
                 })()}
               </ul>
+            </div>
 
-              {/* Considerations */}
-              <div className="bg-[#fcf8f0] rounded-xl px-4 py-3 border border-[#f0e8d4]">
-                <p className="text-[9px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-1">Considerations</p>
-                <ul className="space-y-0.5">
-                  {(() => {
-                    const cat = (top.category || "").toLowerCase();
-                    const items: string[] = [];
-                    if (cat.includes("automation")) {
-                      items.push("Complex exception paths should remain under human review.");
-                      items.push("Standardizing the workflow before automation will improve implementation success.");
-                    } else if (cat.includes("ai")) {
-                      items.push("AI output quality should be validated before full deployment.");
-                      items.push("Training data quality directly affects model performance.");
-                    } else if (cat.includes("software")) {
-                      items.push("Integration with existing systems should be assessed early.");
-                      items.push("User adoption and change management are critical success factors.");
-                    } else {
-                      items.push("Pilot the recommended approach before scaling organization-wide.");
-                      items.push("Additional operational data will improve impact estimates.");
-                    }
-                    items.push("Additional operational data will improve organization-specific impact estimates.");
-                    return items.slice(0, 3).map((t, i) => (
-                      <li key={i} className="text-[11px] text-[#4f6280] flex items-start gap-2">
-                        <span className="text-[#a8490c] mt-0.5 shrink-0">&#8226;</span>{t}
-                      </li>
-                    ));
-                  })()}
-                </ul>
-              </div>
-
-              {/* Alternative comparisons */}
-              {alternatives.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  {(() => {
-                    const altCards = alternatives.slice(0, 2);
-                    return altCards.map((alt, i) => {
-                      const altName = alt.title?.toLowerCase() || "";
-                      const altCat = (alt.category || "").replace(/_/g, " ").toLowerCase() || altName;
-                      return (
-                        <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
-                          <p className="text-[11px] font-extrabold text-[#101826] mb-0.5">Why not {altCat}?</p>
-                          {(() => {
-                            const texts: Record<string, string> = {
-                              "ai implementation": `AI introduces higher implementation complexity and depends more heavily on high-quality operational data. Comparable organizations typically automated structured work before introducing AI.`,
-                              "software implementation": `The evidence did not indicate that replacing the existing platform would produce greater operational benefit than improving the workflow itself.`,
-                              "workflow automation": `While automation was evaluated, the specific workflow characteristics suggest that this alternative would not deliver the same balance of impact and feasibility.`,
-                              "process redesign": `Process redesign alone was evaluated but would not capture the full operational improvement opportunity identified in comparable implementations.`,
-                              "staffing change": `Staffing changes address capacity but do not address the underlying workflow efficiency opportunity identified in this assessment.`,
-                            };
-                            return <p className="text-[10px] text-[#4f6280] leading-[1.5]">{texts[altCat] || `${altCat} ranked lower because the evidence for this approach was less consistent across comparable implementations.`}</p>;
-                          })()}
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              )}
+            {/* SECTION 5: Implementation Considerations */}
+            <div className="bg-[#fcf8f0] rounded-xl px-4 py-4 border border-[#f0e8d4]">
+              <p className="text-[9px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Implementation Considerations</p>
+              <ul className="space-y-1">
+                {(() => {
+                  const cat = (top.category || "").toLowerCase();
+                  const items: string[] = [];
+                  items.push("Retain human review for complex exceptions.");
+                  items.push("Standardize workflow steps before automation.");
+                  if (cat.includes("automation")) {
+                    items.push("Measure baseline performance before rollout.");
+                    items.push("Pilot with one business unit before scaling.");
+                  } else if (cat.includes("ai")) {
+                    items.push("Validate AI output quality before full deployment.");
+                    items.push("Begin with bounded scope before expanding.");
+                  } else if (cat.includes("software")) {
+                    items.push("Assess integration requirements early.");
+                    items.push("Plan for user adoption and change management.");
+                  } else {
+                    items.push("Pilot before scaling organization-wide.");
+                  }
+                  return items.slice(0, 4).map((t, i) => (
+                    <li key={i} className="text-[11px] text-[#4f6280] flex items-start gap-2">
+                      <span className="text-[#a8490c] mt-0.5 shrink-0">&#8226;</span>{t}
+                    </li>
+                  ));
+                })()}
+              </ul>
             </div>
           </section>
 
