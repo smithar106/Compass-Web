@@ -387,6 +387,7 @@ function ResultsContent() {
             <span className="w-7 h-7 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[12px] font-extrabold mb-4">1</span>
 
             {/* SECTION 1: Recommended Path */}
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Recommended Path</p>
             <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-5 leading-[1.2]">
               {top.specific_action || top.title}
             </h2>
