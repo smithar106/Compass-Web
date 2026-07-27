@@ -281,7 +281,7 @@ function ResultsContent() {
     <div className="bg-white min-h-screen flex items-center justify-center px-4">
       <div className="text-center max-w-sm">
         <div className="w-6 h-6 border-2 border-gray-300 border-t-brand-green rounded-full animate-spin mx-auto mb-3" />
-        <div className="text-xs text-[#4f6280] font-semibold mb-1">Analyzing comparable implementations</div>
+        <div className="text-xs text-[#4f6280] font-semibold mb-1">Generating your findings</div>
       </div>
     </div>
   );
@@ -349,9 +349,7 @@ function ResultsContent() {
             <div><span className="text-[#4f6280]">Timeline:</span> <span className="font-bold text-[#101826]">{rec.alternative_comparison.expected_timeline}</span></div>
           </div>
         )}
-        {rec.evidence_summary && (
-          <p className="text-[10px] text-[#4f6280] mb-2">{rec.evidence_summary.total_comparables} comparable implementations</p>
-        )}
+
         {rec.alternative_comparison?.reason_for_rank && (
           <p className="text-[10px] text-[#4f6280] italic">{rec.alternative_comparison.reason_for_rank}</p>
         )}
@@ -372,27 +370,14 @@ function ResultsContent() {
                   <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Executive Decision Brief</h1>
                 </div>
                 <p className="text-[#4f6280] font-semibold mt-1 mb-2 text-[15px]">Evidence-based findings for your operational assessment</p>
-                <div className="flex flex-wrap gap-x-6 gap-y-1 text-[13px] font-semibold text-[#4f6280]">
+                <div className="text-[13px] font-semibold text-[#4f6280]">
                   <span>Generated {ts}</span>
-                  <span>Engine v3.0.0</span>
-                  <span>Dataset v3</span>
-                  <span>{top.evidence_summary.total_comparables} comparable implementations</span>
                 </div>
               </div>
             </div>
           </header>
 
-          {/* ===== 2. INVESTIGATION SUMMARY ===== */}
-          <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec]">
-            <div className="flex flex-wrap gap-x-8 gap-y-2 text-[13px]">
-              <div><span className="font-bold text-[#4f6280]">Problem:</span> <span className="text-[#101826]">{top.specific_action || top.title}</span></div>
-              <div><span className="font-bold text-[#4f6280]">Workflow:</span> <span className="text-[#101826]">{top.intervention_id?.replace(/_/g, " ") || "Process"}</span></div>
-              <div><span className="font-bold text-[#4f6280]">Evidence:</span> <span className="text-[#101826]">{top.evidence_summary.total_comparables} comparable implementations</span></div>
-              <div><span className="font-bold text-[#4f6280]">Evidence strength:</span> <span className="text-[#101826]">{Math.round(top.confidence.score * 100)}% ({top.confidence.label})</span></div>
-            </div>
-          </section>
-
-          {/* ===== 3. PRIMARY RECOMMENDATION ===== */}
+          {/* ===== 2. PRIMARY RECOMMENDATION ===== */}
           <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green shadow-[0_8px_32px_-8px_rgba(25,164,58,0.12)]">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-7 h-7 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[12px] font-extrabold">1</span>
