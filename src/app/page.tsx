@@ -199,8 +199,7 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-[28px] md:text-[34px] font-bold text-ink tracking-tight">Why Compass Is Different</h2>
             <p className="mt-4 text-base text-ink/70 max-w-3xl mx-auto leading-relaxed">
-              Most organizations make operational decisions one of two ways: hiring consultants or hiring AI implementation firms.
-              Compass introduces a third approach—evidence-based decision intelligence.
+              Compass doesn&apos;t replace executive judgment. It gives leaders access to operational evidence that no individual consultant could realistically assemble, retain, and analyze at scale.
             </p>
           </div>
 
