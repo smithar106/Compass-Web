@@ -154,20 +154,26 @@ function teamDisplay(team: ProjectTeam): string {
   return "Not available";
 }
 
-function formatNum(n: number, unit: string): string {
+function isCurrency(metricLabel: string, unit: string): boolean {
+  if (unit === "currency") return true;
+  const label = metricLabel.toLowerCase();
+  return label.includes("cost") || label.includes("savings") || label.includes("revenue") || label.includes("annual $");
+}
+
+function formatNum(n: number, unit: string, metricLabel?: string): string {
   if (unit === "%") return `${n}%`;
-  if (unit === "currency") return `$${Math.round(n).toLocaleString()}`;
+  if (isCurrency(metricLabel || "", unit)) return `$${Math.round(n).toLocaleString()}`;
   return Math.round(n).toLocaleString();
 }
 
 function formatRange(r: OutcomeRange): string {
   if (!r.directly_comparable) return r.compatibility_notes || "Incompatible metrics";
   if (r.calculation_method === "single_value" && r.median != null) {
-    return formatNum(r.median, r.unit);
+    return formatNum(r.median, r.unit, r.metric_label);
   }
   if (r.low != null && r.high != null) {
-    const low = formatNum(r.low, r.unit);
-    const high = formatNum(r.high, r.unit);
+    const low = formatNum(r.low, r.unit, r.metric_label);
+    const high = formatNum(r.high, r.unit, r.metric_label);
     return `${low}–${high}`;
   }
   return "";
@@ -404,7 +410,7 @@ function ResultsContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => {
                     const fmtVal = formatRange(r);
-                    const label = r.unit === "currency" ? "Estimated Annual $ Savings" : r.unit === "number" ? "Estimated Annual Time Savings" : r.metric_label;
+                    const label = isCurrency(r.metric_label, r.unit) ? "Estimated Annual $ Savings" : r.unit === "number" ? "Estimated Annual Time Savings" : r.metric_label;
                     return (
                       <div key={i}>
                         <div className="text-[17px] font-extrabold text-[#101826]">{fmtVal}</div>
