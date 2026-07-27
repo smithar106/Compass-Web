@@ -335,7 +335,7 @@ export default function HomePage() {
                 confidence: site.exampleFinance.confidence,
                 timeline: site.exampleFinance.timeline,
                 teamSize: "1–2",
-                evidenceTier: "gold",
+                evidenceTier: "silver",
                 tools: ["Microsoft Copilot", "ServiceNow", "Salesforce"],
                 evidence: [
                   { org: "Intercom", outcome: "72% automation" },
@@ -355,7 +355,7 @@ export default function HomePage() {
                 confidence: site.exampleHealthcare.confidence,
                 timeline: site.exampleHealthcare.timeline,
                 teamSize: "2–4",
-                evidenceTier: "gold",
+                evidenceTier: "silver",
                 tools: ["Lean", "Six Sigma", "Change Mgmt"],
                 evidence: [
                   { org: "UnitedHealth", outcome: "68% faster triage" },
