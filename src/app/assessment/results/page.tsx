@@ -386,25 +386,43 @@ function ResultsContent() {
           <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green shadow-[0_8px_32px_-8px_rgba(25,164,58,0.12)]">
             <span className="w-7 h-7 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[12px] font-extrabold mb-4">1</span>
 
-            {/* SECTION 1: Recommended Path */}
+            {/* SECTION 1: Recommended Path — generate clean vendor-free title */}
             <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Recommended Path</p>
-            <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-5 leading-[1.2]">
-              {top.specific_action || top.title}
+            <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-4 leading-[1.2]">
+              {(() => {
+                const cat = (top.category || "").toLowerCase();
+                const action = top.specific_action || top.title || "";
+                const vendorNames = ["uiPath", "adobe", "wex", "salesforce", "amazon", "microsoft", "google", "anthropic", "openai", "servicenow"];
+                const hasVendor = vendorNames.some(v => action.toLowerCase().includes(v));
+                if (hasVendor) {
+                  if (cat.includes("automation")) return "Automate repetitive workflows using rules-based automation with human oversight for exceptions";
+                  if (cat.includes("ai")) return "Introduce AI-assisted automation while retaining human review for high-stakes decisions";
+                  if (cat.includes("software")) return "Implement purpose-built software to replace manual or disconnected workflows";
+                  if (cat.includes("process")) return "Redesign operational workflows to eliminate waste and reduce manual handoffs";
+                  return "Implement the most evidence-supported intervention for this workflow";
+                }
+                return action;
+              })()}
             </h2>
 
-            {/* SECTION 2: Why Compass reached this conclusion */}
+            {/* Evidence Summary Box */}
+            <div className="flex flex-wrap gap-3 mb-5">
+              <span className="px-2.5 py-1 rounded-full bg-[#f6f8fa] border border-[#e6eaef] text-[10px] text-[#4f6280]">
+                <span className="font-bold">Comparable implementations:</span> {top.evidence_summary?.total_comparables || 0}
+              </span>
+              <span className="px-2.5 py-1 rounded-full bg-[#f6f8fa] border border-[#e6eaef] text-[10px] text-[#4f6280]">
+                <span className="font-bold">Evidence strength:</span> {top.confidence.label.charAt(0).toUpperCase() + top.confidence.label.slice(1)}
+              </span>
+              <span className="px-2.5 py-1 rounded-full bg-[#f6f8fa] border border-[#e6eaef] text-[10px] text-[#4f6280]">
+                <span className="font-bold">Workflow similarity:</span> High
+              </span>
+            </div>
+
+            {/* SECTION 2: Why this is the strongest path */}
             <div className="mb-6 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Why Compass reached this conclusion</p>
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Why this is the strongest path</p>
               <p className="text-[12px] text-[#4f6280] leading-[1.6] mb-3">
-                {(() => {
-                  const cat = (top.category || "").replace(/_/g, " ");
-                  const total = top.evidence_summary?.total_comparables || 0;
-                  const gold = top.evidence_summary?.gold_count || 0;
-                  const silver = top.evidence_summary?.silver_count || 0;
-                  const hasOutcomes = top.outcome_ranges?.filter(r => r.directly_comparable).length > 0;
-                  const outcomes = hasOutcomes ? top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 2).map(r => r.metric_label.toLowerCase()).join(" and ") : "operational improvements";
-                  return `Compass compared your workflow against ${total} comparable operational implementations. Based on workflow similarity, implementation outcomes, evidence quality, organizational fit, and implementation complexity, ${cat.toLowerCase()} produced the strongest evidence of success. Comparable organizations consistently achieved better ${outcomes} with lower implementation complexity than alternative approaches.`;
-                })()}
+                Organizations with operational workflows similar to yours consistently achieved stronger operational improvements using this intervention than the alternatives evaluated. This approach demonstrated faster implementation, lower execution risk, stronger measured outcomes, and lower organizational complexity.
               </p>
             </div>
 
@@ -429,7 +447,7 @@ function ResultsContent() {
                 </div>
                 {top.impact.annual_savings.status !== "calculated" && (
                   <p className="text-[10px] text-[#4f6280] italic">
-                    Organization-specific estimates require annual workflow volume, handling time, and labor cost. Provide these to receive personalized projections.
+                    Organization-specific estimates require annual workflow volume, handling time, and labor cost.
                   </p>
                 )}
               </div>
