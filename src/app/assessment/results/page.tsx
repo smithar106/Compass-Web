@@ -369,8 +369,7 @@ function ResultsContent() {
             <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Recommendation</h1>
-                  <span className="px-3 py-1 rounded-full bg-brand-green-light text-brand-green-dark text-[11px] font-extrabold uppercase whitespace-nowrap">Recommendation Complete</span>
+                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Recommendation Report</h1>
                 </div>
                 <p className="text-[#4f6280] font-semibold mt-1 mb-2 text-[15px]">Evidence-based findings for your operational assessment</p>
                 <div className="flex flex-wrap gap-x-6 gap-y-1 text-[13px] font-semibold text-[#5f718f]">
