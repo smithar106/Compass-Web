@@ -265,7 +265,7 @@ function ResultsContent() {
         const t = await res.text();
         let m = `Error (${res.status})`, ty = "err";
         try { const e = JSON.parse(t); m = e.error || m; ty = e.type || ty; } catch {}
-        throw new Error(ty === "engine_unreachable" ? "Engine unreachable. Please try again." : m);
+        throw new Error(ty === "engine_unreachable" ? "Service is temporarily unreachable. Please try again." : m);
       }
       const d = await res.json();
       setRecs(d.recommendations || []);
@@ -395,7 +395,7 @@ function ResultsContent() {
                 const vendorNames = ["uiPath", "adobe", "wex", "salesforce", "amazon", "microsoft", "google", "anthropic", "openai", "servicenow"];
                 const hasVendor = vendorNames.some(v => action.toLowerCase().includes(v));
                 if (hasVendor) {
-                  if (cat.includes("automation")) return "Automate repetitive workflows using rules-based automation with human oversight for exceptions";
+                  if (cat.includes("automation")) return "Streamline repetitive work through structured workflow automation";
                   if (cat.includes("ai")) return "Introduce AI-assisted automation while retaining human review for high-stakes decisions";
                   if (cat.includes("software")) return "Implement purpose-built software to replace manual or disconnected workflows";
                   if (cat.includes("process")) return "Redesign operational workflows to eliminate waste and reduce manual handoffs";
@@ -427,14 +427,14 @@ function ResultsContent() {
                       <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
                         <div className="text-[17px] font-extrabold text-[#101826]">{fmtVal}</div>
                         <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">{label}</div>
-                        <div className="text-[8px] text-[#4f6280] italic mt-0.5">Observed across comparable implementations</div>
+                        <div className="text-[8px] text-[#4f6280] italic mt-0.5">Observed across similar organizations</div>
                       </div>
                     );
                   })}
                 </div>
                 {top.impact.annual_savings.status !== "calculated" && (
                   <p className="text-[10px] text-[#4f6280] italic">
-                    Organization-specific estimates require annual workflow volume, handling time, and labor cost.
+                    Share your operating data to generate organization-specific financial projections.
                   </p>
                 )}
               </div>
@@ -450,8 +450,8 @@ function ResultsContent() {
                   if (cat.includes("automation")) {
                     reasons.push("This workflow contains highly repeatable routing decisions well suited to automation.");
                     reasons.push("Comparable organizations automated these activities before introducing AI.");
-                    reasons.push("The workflow has low exception complexity relative to similar implementations.");
-                    reasons.push("Implementation complexity is lower than alternative approaches.");
+                    reasons.push("The workflow follows consistent patterns that can be standardized.");
+                    reasons.push("This approach requires fewer organizational changes than the alternatives.");
                   } else if (cat.includes("ai")) {
                     reasons.push("This workflow benefits from AI-assisted classification and generation.");
                     reasons.push("Comparable organizations achieved measurable outcomes with similar AI deployments.");
@@ -465,7 +465,7 @@ function ResultsContent() {
                     reasons.push("Comparable organizations achieved gains through process improvement alone.");
                     reasons.push("Process redesign reduces implementation risk before automation.");
                   } else {
-                    reasons.push("This approach aligns with comparable implementations that achieved consistent results.");
+                    reasons.push("Organizations solving similar problems consistently achieved strong results through this approach.");
                     reasons.push("The evidence supports this as the most practical path forward.");
                   }
                   return reasons.slice(0, 3).map((s, i) => (
@@ -552,19 +552,19 @@ function ResultsContent() {
                   <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">4</span>
                   <p className="text-[13px] font-extrabold text-[#101826]">Reassess before scaling</p>
                 </div>
-                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Compare pilot outcomes against comparable implementations to refine projections.</p>
+                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Compare pilot outcomes against similar organizations to refine projections.</p>
                 <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Confirms whether to proceed with full-scale implementation.</p>
               </div>
             </div>
             <p className="text-[11px] text-[#4f6280] italic mt-5 text-center">
-              Compass compares your pilot outcomes against comparable implementations to refine future recommendations.
+              Compass compares your pilot outcomes against similar organizations to refine future recommendations.
             </p>
           </section>
 
           {/* ===== 8. METHODOLOGY ===== */}
           <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec] text-[11px] text-[#4f6280] leading-[1.6]">
             <p>
-              Compass compares your operational problem against comparable real-world implementations. Recommendations are ranked using workflow similarity, evidence quality, implementation complexity, organizational readiness, and measured outcomes. Outcomes observed in comparable organizations do not guarantee identical results.
+              Compass evaluates your operational needs against real-world business outcomes from organizations facing similar challenges. Each recommendation is assessed on operational fit, evidence strength, expected business impact, organizational readiness, and speed to value. Outcomes observed in other organizations do not guarantee identical results.
             </p>
           </section>
         </div>
