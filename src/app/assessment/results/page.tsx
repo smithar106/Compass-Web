@@ -164,15 +164,25 @@ function evidenceMixSummary(es: { total_comparables: number; gold_count: number;
   return `${label}: ${parts.join(", ")}`;
 }
 
+function formatNum(n: number, unit: string): string {
+  if (unit === "%") return `${n}%`;
+  if (unit === "currency") {
+    const abs = Math.abs(n);
+    const formatted = abs >= 1_000_000 ? `${(abs / 1_000_000).toFixed(1)}M` : abs >= 1_000 ? `${(abs / 1_000).toFixed(0)}K` : abs.toLocaleString();
+    return `$${formatted}`;
+  }
+  return n.toLocaleString();
+}
+
 function formatRange(r: OutcomeRange): string {
   if (!r.directly_comparable) return r.compatibility_notes || "Incompatible metrics";
   if (r.calculation_method === "single_value" && r.median != null) {
-    const suffix = r.unit === "%" ? "%" : r.unit === "currency" ? "" : "";
-    return `${r.median}${suffix}`;
+    return formatNum(r.median, r.unit);
   }
   if (r.low != null && r.high != null) {
-    const suffix = r.unit === "%" ? "%" : "";
-    return `${r.low}${suffix}–${r.high}${suffix}`;
+    const low = formatNum(r.low, r.unit);
+    const high = formatNum(r.high, r.unit);
+    return `${low}–${high}`;
   }
   return "";
 }
