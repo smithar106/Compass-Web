@@ -350,9 +350,7 @@ function ResultsContent() {
           </div>
         )}
 
-        {rec.alternative_comparison?.reason_for_rank && (
-          <p className="text-[10px] text-[#4f6280] italic">{rec.alternative_comparison.reason_for_rank}</p>
-        )}
+
       </section>
     );
   }
@@ -369,7 +367,8 @@ function ResultsContent() {
                 <div className="flex items-center gap-3 mb-1">
                   <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Executive Decision Brief</h1>
                 </div>
-                <p className="text-[#4f6280] font-semibold mt-1 mb-2 text-[15px]">Evidence-based findings for your operational assessment</p>
+                <p className="text-[#4f6280] font-semibold mt-1 mb-1 text-[15px]">Evidence-based findings for your operational assessment</p>
+                <p className="text-[13px] font-bold text-brand-green-dark mb-2">+1,000 Solutions Analyzed</p>
                 <div className="text-[13px] font-semibold text-[#4f6280]">
                   <span>Generated {ts}</span>
                 </div>
@@ -478,63 +477,55 @@ function ResultsContent() {
             </section>
           )}
 
-          {/* ===== 6. ASSUMPTIONS & INFORMATION GAPS ===== */}
-          <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
-            <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-5">Assumptions &amp; Information Gaps</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">What Compass knows</p>
-                <div className="space-y-2.5">
-                  {top.assumptions_detail?.length > 0 ? top.assumptions_detail.map((a, i) => (
-                    <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
-                      <p className="text-[12px] font-bold text-[#4f6280]">{a.title}</p>
-                      <p className="text-[11px] text-[#4f6280] leading-[1.4] mt-0.5">{a.explanation}</p>
-                    </div>
-                  )) : <p className="text-[11px] text-[#4f6280]">No significant assumptions identified.</p>}
+          {/* ===== 6. NEXT STEPS ===== */}
+          <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green/30">
+            <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-2">Next Steps</h2>
+            <p className="text-[13px] text-[#4f6280] leading-[1.6] mb-6">
+              Evidence supports this recommendation. The next step is to validate it using your organization&apos;s operating data before broader implementation.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">1</span>
+                  <p className="text-[13px] font-extrabold text-[#101826]">Validate current workflow baseline</p>
                 </div>
+                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Measure current cycle time, volume, exception rate, and manual effort for the targeted workflow.</p>
+                <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Establishes baseline metrics for comparison.</p>
               </div>
-              <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">What would improve this analysis</p>
-                <div className="space-y-2.5">
-                  {top.information_gaps?.length > 0 ? top.information_gaps.map((g, i) => (
-                    <div key={i} className="bg-[#fcf8f0] rounded-xl px-4 py-3 border border-[#f0e8d4]">
-                      <p className="text-[12px] font-bold text-[#4f6280]">{g.title}</p>
-                      <p className="text-[11px] text-[#4f6280] leading-[1.4] mt-0.5">{g.explanation}</p>
-                      <p className="text-[10px] text-brand-green-dark font-semibold mt-1">Resolution: {g.resolution_action}</p>
-                    </div>
-                  )) : <p className="text-[11px] text-[#4f6280]">No major information gaps identified.</p>}
+              <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">2</span>
+                  <p className="text-[13px] font-extrabold text-[#101826]">Share operating data with Compass</p>
                 </div>
+                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Provide annual workflow volume, handling time, and labor cost to personalize financial projections.</p>
+                <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Enables organization-specific savings estimates.</p>
+              </div>
+              <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">3</span>
+                  <p className="text-[13px] font-extrabold text-[#101826]">Run a focused pilot</p>
+                </div>
+                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Implement the recommended approach in a bounded scope with defined success metrics.</p>
+                <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Validates observed outcomes in your specific context.</p>
+              </div>
+              <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">4</span>
+                  <p className="text-[13px] font-extrabold text-[#101826]">Reassess before scaling</p>
+                </div>
+                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Compare pilot outcomes against comparable implementations to refine projections.</p>
+                <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Confirms whether to proceed with full-scale implementation.</p>
               </div>
             </div>
+            <p className="text-[11px] text-[#4f6280] italic mt-5 text-center">
+              Compass compares your pilot outcomes against comparable implementations to refine future recommendations.
+            </p>
           </section>
-
-          {/* ===== 7. NEXT VALIDATION STEP ===== */}
-          {top.next_validation_step && (
-            <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green/40 shadow-[0_8px_32px_-8px_rgba(25,164,58,0.10)]">
-              <div className="flex items-start gap-5">
-                <div className="w-10 h-10 rounded-full bg-brand-green-light flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-brand-green-dark text-[18px] font-extrabold">&#8594;</span>
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-[18px] font-extrabold tracking-[-0.01em] text-[#101826] mb-1">Next step</h2>
-                  <p className="text-[16px] font-bold text-[#101826] mb-2">{top.next_validation_step.action}</p>
-                  <p className="text-[12px] text-[#4f6280] leading-[1.5] mb-3"><span className="font-bold">Purpose:</span> {top.next_validation_step.purpose}</p>
-                  <div className="flex flex-wrap gap-x-8 gap-y-1 text-[11px] text-[#4f6280]">
-                    <span><span className="font-bold">Owner:</span> {top.next_validation_step.owner}</span>
-                    <span><span className="font-bold">Duration:</span> {top.next_validation_step.duration}</span>
-                  </div>
-                  {top.next_validation_step.success_criteria && (
-                    <p className="text-[11px] text-[#4f6280] mt-2"><span className="font-bold">Success criteria:</span> {top.next_validation_step.success_criteria}</p>
-                  )}
-                </div>
-              </div>
-            </section>
-          )}
 
           {/* ===== 8. METHODOLOGY ===== */}
           <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec] text-[11px] text-[#4f6280] leading-[1.6]">
             <p>
-              Compass compares your operational problem against comparable real-world implementations. Recommendations are ranked using workflow similarity, evidence quality, implementation complexity, organizational readiness, and measured outcomes. The database contains {top.evidence_summary.total_comparables} implementations relevant to this assessment. Outcomes observed in comparable organizations do not guarantee identical results.
+              Compass compares your operational problem against comparable real-world implementations. Recommendations are ranked using workflow similarity, evidence quality, implementation complexity, organizational readiness, and measured outcomes. Outcomes observed in comparable organizations do not guarantee identical results.
             </p>
           </section>
         </div>
