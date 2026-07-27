@@ -154,16 +154,6 @@ function teamDisplay(team: ProjectTeam): string {
   return "Not available";
 }
 
-function evidenceMixSummary(es: { total_comparables: number; gold_count: number; silver_count: number; bronze_count: number }): string {
-  const parts: string[] = [];
-  if (es.gold_count > 0) parts.push(`${es.gold_count} Gold`);
-  if (es.silver_count > 0) parts.push(`${es.silver_count} Silver`);
-  if (es.bronze_count > 0) parts.push(`${es.bronze_count} Bronze`);
-  const label = es.total_comparables === 1 ? "1 implementation" : `${es.total_comparables} implementations`;
-  if (!parts.length) return label;
-  return `${label}: ${parts.join(", ")}`;
-}
-
 function formatNum(n: number, unit: string): string {
   if (unit === "%") return `${n}%`;
   if (unit === "currency") {
@@ -563,12 +553,6 @@ function ResultsContent() {
               </div>
             )}
 
-            {/* Confidence + Evidence */}
-            <div className="flex items-center gap-3 mt-5 pt-4 border-t border-[#ebeff4]">
-              <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-[0.04em] border ${tierBadge(top.evidence_summary.overall_tier)}`}>{tierLabel(top.evidence_summary.overall_tier)}</span>
-              <span className="text-[10px] font-bold text-[#586984]">{evidenceMixSummary(top.evidence_summary)}</span>
-              <span className="text-[10px] text-[#5f718f] ml-auto">{top.confidence.explanation.slice(0, 80)}{top.confidence.explanation.length > 80 ? "..." : ""}</span>
-            </div>
           </section>
 
           {/* ===== 4. ALTERNATIVE OPTIONS ===== */}
