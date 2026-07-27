@@ -22,7 +22,7 @@ function extractNum(s: string): string {
 function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: "green" | "blue" | "orange" }) {
   const isRec = rank === 1;
   const borderClass = accent === "green" ? "border-brand-green" : accent === "blue" ? "border-brand-blue" : "border-brand-orange";
-  const tagClass = accent === "green" ? "bg-brand-green-light text-brand-green-dark" : accent === "blue" ? "bg-brand-blue-light text-[#0958c9]" : "bg-brand-orange-light text-[#9b3c00]";
+  const tagClass = accent === "green" ? "bg-brand-green-light text-brand-green-dark" : accent === "blue" ? "bg-brand-blue-light text-brand-blue" : "bg-brand-orange-light text-brand-orange";
   const metricColor = accent === "green" ? "text-brand-green" : accent === "blue" ? "text-brand-blue" : "text-brand-orange";
   const rankBg = rank === 1 ? "bg-[#d7a500]" : rank === 3 ? "bg-[#a8490c]" : "bg-[#657386]";
   const tier = data.evidenceTier || "gold";
@@ -146,7 +146,7 @@ export default function HomePage() {
                 impact: site.hero.recommendation.impact,
                 confidence: site.hero.recommendation.confidence,
                 timeline: site.hero.recommendation.timeline,
-                teamSize: "1\u20132",
+                teamSize: "1–2",
                 evidenceTier: "gold",
                 tools: ["Claude", "OpenAI", "Salesforce"],
                 evidence: [
@@ -420,7 +420,7 @@ export default function HomePage() {
                 impact: site.exampleSales.impact,
                 confidence: site.exampleSales.confidence,
                 timeline: site.exampleSales.timeline,
-                teamSize: "1\u20132",
+                teamSize: "1–2",
                 evidenceTier: "gold",
                 tools: ["Anthropic", "OpenAI", "Salesforce"],
                 evidence: [
