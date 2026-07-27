@@ -114,7 +114,7 @@ export const site = {
       {
         title: "Product",
         links: [
-          { label: "Assessment", href: "/assessment" },
+          { label: "Assessment", href: "/assessment?demo=true" },
           { label: "About", href: "/about" },
         ],
       },
@@ -231,7 +231,7 @@ export const site = {
   },
 
   nav: [
-    { label: "Assessment", href: "/assessment" },
+    { label: "Assessment", href: "/assessment?demo=true" },
     { label: "About", href: "/about" },
   ],
 

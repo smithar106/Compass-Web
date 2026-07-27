@@ -130,7 +130,7 @@ export default function HomePage() {
                 {site.hero.subtitle}
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
-                <Link href="/assessment" className="inline-flex items-center px-8 py-4 bg-forest text-white text-lg font-semibold rounded-xl hover:bg-leaf transition-colors shadow-sm">
+                <Link href="/assessment?demo=true" className="inline-flex items-center px-8 py-4 bg-forest text-white text-lg font-semibold rounded-xl hover:bg-leaf transition-colors shadow-sm">
                   {site.hero.cta}
                 </Link>
                 <a href="#examples" className="inline-flex items-center px-8 py-4 border-2 border-forest text-forest text-lg font-semibold rounded-xl hover:bg-mist transition-colors">
@@ -500,7 +500,7 @@ export default function HomePage() {
           <h2 className="text-[28px] font-bold">{site.finalCta.headline}</h2>
           <p className="mt-4 text-lg text-cream/90">{site.finalCta.subtitle}</p>
           <div className="mt-8">
-            <Link href="/assessment" className="inline-flex items-center px-8 py-4 bg-cream text-ink text-lg font-semibold rounded-xl hover:bg-white transition-colors shadow-sm">
+            <Link href="/assessment?demo=true" className="inline-flex items-center px-8 py-4 bg-cream text-ink text-lg font-semibold rounded-xl hover:bg-white transition-colors shadow-sm">
               {site.finalCta.cta}
             </Link>
           </div>
