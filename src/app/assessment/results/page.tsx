@@ -424,18 +424,7 @@ function ResultsContent() {
             {pdfError && <p className="text-xs text-red-600 mt-4">{pdfError}</p>}
           </header>
 
-          {/* ===== 2. INVESTIGATION SUMMARY ===== */}
-          <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec]">
-            <h2 className="text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#5f718f] mb-3">Investigation summary</h2>
-            <div className="flex flex-wrap gap-x-8 gap-y-2 text-[12px]">
-              <div><span className="font-bold text-[#4f6280]">Problem:</span> <span className="text-[#101826]">{top.specific_action || top.title}</span></div>
-              <div><span className="font-bold text-[#4f6280]">Workflow:</span> <span className="text-[#101826]">{top.intervention_id?.replace(/_/g, " ") || "Process"}</span></div>
-              <div><span className="font-bold text-[#4f6280]">Evidence:</span> <span className="text-[#101826]">{evidenceMixSummary(top.evidence_summary)}</span></div>
-               <div><span className="font-bold text-[#4f6280]">Evidence strength:</span> <span className="text-[#101826]">{Math.round(top.confidence.score * 100)}% ({top.confidence.label})</span></div>
-            </div>
-          </section>
-
-          {/* ===== 3. RECOMMENDED PATH ===== */}
+          {/* ===== 2. RECOMMENDED PATH ===== */}
           <section className="bg-white rounded-2xl p-8 shadow-sm border border-brand-green/30">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-6 h-6 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[11px] font-extrabold">1</span>
