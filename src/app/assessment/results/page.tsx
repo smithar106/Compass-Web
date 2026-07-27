@@ -346,7 +346,7 @@ function ResultsContent() {
           <span className="text-[10px] text-[#4f6280] ml-auto">{rec.rank === 3 ? 55 : Math.round(rec.confidence.score * 100)}% evidence strength</span>
         </div>
         <h3 className="text-[16px] font-extrabold tracking-[-0.01em] text-[#101826] mb-1">{rec.title}</h3>
-        {rec.subtitle && <p className="text-[11px] text-[#4f6280] mb-3">{rec.subtitle}</p>}
+
         {rec.alternative_comparison && (
           <div className="grid grid-cols-2 gap-2 mb-3 text-[10px]">
             <div><span className="text-[#4f6280]">Evidence:</span> <span className="font-bold text-[#101826]">{rec.alternative_comparison.evidence_strength}</span></div>
@@ -394,15 +394,6 @@ function ResultsContent() {
             <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-1 leading-[1.2]">
               {top.specific_action || top.title}
             </h2>
-            {top.subtitle && (
-              <p className="text-[12px] font-semibold text-[#4f6280] mb-4">{top.subtitle}</p>
-            )}
-
-            {/* Category + Confidence badge row */}
-            <div className="flex flex-wrap items-center gap-3 mb-5">
-              <span className="px-2.5 py-1 rounded-full bg-mist text-forest text-[10px] font-extrabold">{top.category?.replace(/_/g, " ")}</span>
-            </div>
-
             {/* Potential impact */}
             {top.outcome_ranges && top.outcome_ranges.filter(r => r.directly_comparable).length > 0 && (
               <div className="mb-5 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
