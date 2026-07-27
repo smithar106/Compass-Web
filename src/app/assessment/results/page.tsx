@@ -203,13 +203,13 @@ function ResultsContent() {
   const [recs, setRecs] = useState<RecommendationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [runId, setRunId] = useState("");
+  const [recId, setRecId] = useState("");
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const id = searchParams?.get("run_id");
+    const id = searchParams?.get("recommendation_id");
     if (id) loadRun(id);
     else submit();
   }, [searchParams]);
@@ -217,11 +217,11 @@ function ResultsContent() {
   async function loadRun(id: string) {
     try {
       setLoading(true);
-      const r = await fetch(`/api/recommendations?run_id=${id}`);
+      const r = await fetch(`/api/recommendations?recommendation_id=${encodeURIComponent(id)}`);
       if (!r.ok) throw new Error((await r.json()).error || "Failed");
       const d = await r.json();
       setRecs(d.recommendations || []);
-      setRunId(id);
+      setRecId(id);
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : "Failed");
     } finally { setLoading(false); }
@@ -251,8 +251,8 @@ function ResultsContent() {
       const d = await res.json();
       setRecs(d.recommendations || []);
       if (d.recommendation_id) {
-        window.history.replaceState({}, "", `/assessment/results?run_id=${d.recommendation_id}`);
-        setRunId(d.recommendation_id);
+        window.history.replaceState({}, "", `/assessment/results?recommendation_id=${encodeURIComponent(d.recommendation_id)}`);
+        setRecId(d.recommendation_id);
         sessionStorage.removeItem(STORAGE_KEY);
       }
     } catch (e) {
@@ -265,8 +265,8 @@ function ResultsContent() {
     setPdfLoading(true);
     setPdfError(null);
     try {
-      if (runId) {
-        const res = await fetch(`/api/recommendations/pdf?rec_id=${encodeURIComponent(runId)}`);
+      if (recId) {
+        const res = await fetch(`/api/recommendations/pdf?rec_id=${encodeURIComponent(recId)}`);
         if (!res.ok) {
           const errBody = await res.json().catch(() => ({}));
           throw new Error(errBody.error || `Server error (${res.status})`);
@@ -313,7 +313,7 @@ function ResultsContent() {
     } catch (e) {
       setPdfError(e instanceof Error ? e.message : "Could not generate PDF.");
     } finally { setPdfLoading(false); }
-  }, [recs, pdfLoading, runId]);
+  }, [recs, pdfLoading, recId]);
 
   const ts = new Date().toISOString().slice(0, 10);
 

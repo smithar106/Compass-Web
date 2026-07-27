@@ -66,93 +66,62 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const runId = searchParams.get("run_id");
-    if (!runId) {
-      return NextResponse.json({ error: "run_id is required" }, { status: 400 });
-    }
-    const { createAdminClient } = await import("@/lib/supabase-admin");
-    const supabase = createAdminClient();
-    const { data: run } = await supabase
-      .from("recommendation_runs" as any)
-      .select("*, recommendation_options(*, recommendation_evidence_links(*))")
-      .eq("recommendation_run_id", runId)
-      .single();
-    if (!run) {
-      return NextResponse.json({ error: "Run not found" }, { status: 404 });
-    }
-    const options = (run as any).recommendation_options || [];
-    const recommendations = options
-      .sort((a: any, b: any) => a.rank - b.rank)
-      .map((opt: any) => formatRecommendation(opt));
-    return NextResponse.json({
-      recommendation_id: runId,
-      status: "complete",
-      recommendations,
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load recommendations";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
-}
+  const requestId = Math.random().toString(36).slice(2, 8);
+  const maxRetries = 2;
+  let lastError: string | null = null;
 
-function formatRecommendation(opt: any) {
-  const evidenceLinks = opt.recommendation_evidence_links || [];
-  const comparables = evidenceLinks
-    .filter((e: any) => !e.is_negative)
-    .map((e: any) => ({
-      record_id: e.id || "",
-      organization: e.organization,
-      intervention: e.intervention,
-      outcome_summary: e.outcome || "",
-      evidence_tier: e.evidence_tier || "bronze",
-      similarity_score: e.similarity_score || 0,
-      source_title: e.source_title || "",
-      source_url: e.source_url || "",
-      relevance_explanation: "",
-    }));
-  const negativeEvidence = evidenceLinks
-    .filter((e: any) => e.is_negative)
-    .map((e: any) => ({
-      organization: e.organization,
-      intervention: e.intervention,
-      failure_reasons: e.failure_reasons || [],
-      lessons: [],
-    }));
-  return {
-    rank: opt.rank,
-    is_compass_choice: opt.is_compass_choice,
-    intervention_id: opt.intervention_id || opt.intervention_category || "",
-    category: opt.intervention_category || "",
-    title: opt.title || "",
-    subtitle: opt.subtitle || "",
-    description: opt.summary || opt.description || "",
-    selection_status: opt.selection_status || "recommended",
-    rationale: opt.rationale || "",
-    why_it_ranked_here: opt.why_it_ranked || opt.why_it_ranked_here || [],
-    assumptions: opt.assumptions || [],
-    confidence: {
-      score: opt.confidence_score ?? opt.confidence?.score ?? 0,
-      label: opt.confidence_label ?? opt.confidence?.label ?? "insufficient",
-      explanation: opt.confidence_explanation ?? opt.confidence?.explanation ?? "",
-    },
-    impact: opt.impact || {
-      annual_savings: { status: "insufficient_input", low: null, expected: null, high: null, currency: "USD", basis: "", confidence: "low" },
-      annual_hours_returned: { status: "insufficient_input", low: null, expected: null, high: null, period: "annual", basis: "", confidence: "low" },
-      implementation_timeline: { min_weeks: null, expected_weeks: null, max_weeks: null, basis: "" },
-      project_team: { min_people: 0, expected_people: 0, max_people: 0, roles: [], basis: "" },
-    },
-    evidence_summary: {
-      overall_tier: opt.evidence_overall_tier || opt.evidence_summary?.overall_tier || "bronze",
-      total_comparables: opt.evidence_total_comparables || opt.evidence_summary?.total_comparables || 0,
-      gold_count: opt.evidence_gold_count || opt.evidence_summary?.gold_count || 0,
-      silver_count: opt.evidence_silver_count || opt.evidence_summary?.silver_count || 0,
-      bronze_count: opt.evidence_bronze_count || opt.evidence_summary?.bronze_count || 0,
-      average_evidence_score: opt.evidence_average_score || opt.evidence_summary?.average_evidence_score || 0,
-    },
-    comparable_implementations: comparables,
-    risks: opt.risks || [],
-    alternatives_considered: opt.alternatives_considered || [],
-  };
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const { searchParams } = new URL(request.url);
+      const recId = searchParams.get("recommendation_id") || searchParams.get("run_id");
+      if (!recId) {
+        return NextResponse.json({ error: "recommendation_id is required" }, { status: 400 });
+      }
+
+      if (!compassApiUrl) {
+        return NextResponse.json({ error: "Compass Engine URL is not configured." }, { status: 500 });
+      }
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      const engineRes = await fetch(`${compassApiUrl}/api/recommendations/${encodeURIComponent(recId)}`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      if (engineRes.status === 404) {
+        return NextResponse.json({ error: "Recommendation not found." }, { status: 404 });
+      }
+
+      if (!engineRes.ok) {
+        const errText = await engineRes.text().catch(() => "Unknown error");
+        lastError = `Engine error (${engineRes.status}): ${errText.slice(0, 200)}`;
+        if (attempt < maxRetries) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+        return NextResponse.json({ error: lastError }, { status: 502 });
+      }
+
+      const data = await engineRes.json();
+      return NextResponse.json(data, { status: 200 });
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        lastError = "Engine did not respond within 15 seconds.";
+        if (attempt < maxRetries) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+        return NextResponse.json({ error: lastError }, { status: 504 });
+      }
+      lastError = error instanceof Error ? error.message : "Failed to load recommendations";
+      if (attempt < maxRetries) {
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+      return NextResponse.json({ error: lastError }, { status: 500 });
+    }
+  }
+
+  return NextResponse.json({ error: lastError || "Failed to load recommendations" }, { status: 500 });
 }
