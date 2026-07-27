@@ -405,19 +405,6 @@ function ResultsContent() {
               })()}
             </h2>
 
-            {/* Evidence Summary Box */}
-            <div className="flex flex-wrap gap-3 mb-5">
-              <span className="px-2.5 py-1 rounded-full bg-[#f6f8fa] border border-[#e6eaef] text-[10px] text-[#4f6280]">
-                <span className="font-bold">Comparable implementations:</span> {top.evidence_summary?.total_comparables || 0}
-              </span>
-              <span className="px-2.5 py-1 rounded-full bg-[#f6f8fa] border border-[#e6eaef] text-[10px] text-[#4f6280]">
-                <span className="font-bold">Evidence strength:</span> {top.confidence.label.charAt(0).toUpperCase() + top.confidence.label.slice(1)}
-              </span>
-              <span className="px-2.5 py-1 rounded-full bg-[#f6f8fa] border border-[#e6eaef] text-[10px] text-[#4f6280]">
-                <span className="font-bold">Workflow similarity:</span> High
-              </span>
-            </div>
-
             {/* SECTION 2: Why this is the strongest path */}
             <div className="mb-6 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Why this is the strongest path</p>
