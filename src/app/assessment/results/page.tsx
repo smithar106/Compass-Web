@@ -374,7 +374,6 @@ function ResultsContent() {
                   <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Executive Decision Brief</h1>
                 </div>
                 <p className="text-[#4f6280] font-semibold mt-1 mb-1 text-[15px]">Evidence-based findings for your operational assessment</p>
-                <p className="text-[13px] font-bold text-brand-green-dark mb-2">Compared with {top.evidence_summary?.total_comparables || 1153} comparable operational implementations</p>
                 <div className="text-[13px] font-semibold text-[#4f6280]">
                   <span>Generated {ts}</span>
                 </div>
