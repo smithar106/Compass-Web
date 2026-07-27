@@ -420,7 +420,7 @@ function ResultsContent() {
             {/* Why this path */}
             {top.why_ranked_first && (
               <div className="mb-5 border-t border-[#ebeff4] pt-5">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Why this path</p>
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Why this path was chosen?</p>
                 <p className="text-[12px] text-[#4f6280] leading-[1.6] mb-3">{top.why_ranked_first.summary}</p>
                 {top.why_ranked_first.supporting_reasons.length > 0 && (
                   <ul className="space-y-1 mb-3">
