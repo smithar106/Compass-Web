@@ -374,7 +374,7 @@ function ResultsContent() {
                   <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Executive Decision Brief</h1>
                 </div>
                 <p className="text-[#4f6280] font-semibold mt-1 mb-1 text-[15px]">Evidence-based findings for your operational assessment</p>
-                <p className="text-[13px] font-bold text-brand-green-dark mb-2">+1,000 Solutions Analyzed</p>
+                <p className="text-[13px] font-bold text-brand-green-dark mb-2">Compared with {top.evidence_summary?.total_comparables || 1153} comparable operational implementations</p>
                 <div className="text-[13px] font-semibold text-[#4f6280]">
                   <span>Generated {ts}</span>
                 </div>
@@ -399,6 +399,94 @@ function ResultsContent() {
                 return "Implement the most evidence-supported intervention for this workflow";
               })()}
             </h2>
+
+            {/* Suggested Technology Stack */}
+            <div className="mb-5">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Suggested Technology Stack</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {(() => {
+                  const cat = (top.category || "").toLowerCase();
+                  if (cat.includes("workflow_automation") || cat.includes("automation")) {
+                    return (
+                      <>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Automation</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Power Automate, Make, Zapier, n8n</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Workflow Platform</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Google Workspace, Microsoft 365</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Document Automation</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">UiPath, Automation Anywhere</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">AI Assistant</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Claude, ChatGPT Enterprise, Gemini</p>
+                        </div>
+                      </>
+                    );
+                  }
+                  if (cat.includes("ai")) {
+                    return (
+                      <>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">AI Assistant</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Claude, ChatGPT Enterprise, Gemini, Microsoft Copilot</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Knowledge Platform</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">SharePoint, Google Drive, Box, Glean</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Workflow Platform</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Google Workspace, Microsoft 365</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Automation</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Power Automate, Zapier, n8n</p>
+                        </div>
+                      </>
+                    );
+                  }
+                  if (cat.includes("software")) {
+                    return (
+                      <>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Workflow Platform</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Google Workspace, Microsoft 365, ServiceNow</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Automation</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Power Automate, Make, Zapier</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Document Automation</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">UiPath, Automation Anywhere</p>
+                        </div>
+                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">AI Assistant</p>
+                          <p className="text-[10px] text-[#101826] leading-snug">Claude, ChatGPT Enterprise, Gemini</p>
+                        </div>
+                      </>
+                    );
+                  }
+                  return (
+                    <>
+                      <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                        <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Workflow Platform</p>
+                        <p className="text-[10px] text-[#101826] leading-snug">Google Workspace, Microsoft 365</p>
+                      </div>
+                      <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+                        <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Automation</p>
+                        <p className="text-[10px] text-[#101826] leading-snug">Power Automate, Make, Zapier</p>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
 
             {/* SECTION 2: Why this is the strongest path */}
             <div className="mb-6 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
