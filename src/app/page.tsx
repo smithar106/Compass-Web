@@ -357,7 +357,6 @@ export default function HomePage() {
               }}
               rank={3}
               accent="orange"
-              showEvidence={false}
             />
           </div>
         </div>
