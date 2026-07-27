@@ -391,17 +391,12 @@ function ResultsContent() {
             <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-4 leading-[1.2]">
               {(() => {
                 const cat = (top.category || "").toLowerCase();
-                const action = top.specific_action || top.title || "";
-                const vendorNames = ["uipath", "adobe", "wex", "salesforce", "amazon", "microsoft", "google", "anthropic", "openai", "servicenow"];
-                const hasVendor = vendorNames.some(v => action.toLowerCase().includes(v));
-                if (hasVendor) {
-                  if (cat.includes("automation")) return "Streamline repetitive work through structured workflow automation";
-                  if (cat.includes("ai")) return "Introduce AI-assisted automation while retaining human review for high-stakes decisions";
-                  if (cat.includes("software")) return "Implement purpose-built software to replace manual or disconnected workflows";
-                  if (cat.includes("process")) return "Redesign operational workflows to eliminate waste and reduce manual handoffs";
-                  return "Implement the most evidence-supported intervention for this workflow";
-                }
-                return action;
+                if (cat.includes("workflow_automation") || cat.includes("automation")) return "Streamline repetitive work through structured workflow automation";
+                if (cat.includes("ai")) return "Introduce AI-assisted automation while retaining human review for high-stakes decisions";
+                if (cat.includes("software")) return "Implement purpose-built software to replace manual or disconnected workflows";
+                if (cat.includes("process_redesign") || cat.includes("process")) return "Redesign operational workflows to eliminate waste and reduce manual handoffs";
+                if (cat.includes("staffing")) return "Restructure team allocation to address capacity gaps";
+                return "Implement the most evidence-supported intervention for this workflow";
               })()}
             </h2>
 
