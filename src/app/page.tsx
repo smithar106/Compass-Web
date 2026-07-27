@@ -84,7 +84,7 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
         <span className={`px-[10px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-[0.04em] ${TIER_BADGE[tier] || TIER_BADGE.gold}`}>
           {tier === "gold" ? "Gold" : tier === "silver" ? "Silver" : "Bronze"}
         </span>
-        <span className="text-[#586984] text-[11px] font-bold">High-quality evidence from {data.evidenceCount || 143} implementations</span>
+        <span className="text-[#586984] text-[11px] font-bold">{tier === "gold" ? "High-quality" : tier === "silver" ? "Medium-quality" : "Limited"} evidence from {data.evidenceCount || 143} implementations</span>
       </div>
 
       {/* Top Evidence */}
