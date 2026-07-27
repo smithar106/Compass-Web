@@ -53,24 +53,24 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
       <div className="grid grid-cols-4 gap-2 mb-[22px]">
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.impact}</div>
-          <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">Annual Savings</div>
+          <div className="text-[10px] font-bold text-[#4f6280] mt-1 whitespace-nowrap">Annual Savings</div>
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.confidence}</div>
-          <div className="text-[10px] font-bold text-[#61718a] mt-1 leading-tight">Evidence<br/>strength</div>
+          <div className="text-[10px] font-bold text-[#4f6280] mt-1 leading-tight">Evidence<br/>strength</div>
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.timeline}</div>
-          <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">Duration</div>
+          <div className="text-[10px] font-bold text-[#4f6280] mt-1 whitespace-nowrap">Duration</div>
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.teamSize || "1–2"}</div>
-          <div className="text-[10px] font-bold text-[#61718a] mt-1 whitespace-nowrap">Team Size</div>
+          <div className="text-[10px] font-bold text-[#4f6280] mt-1 whitespace-nowrap">Team Size</div>
         </div>
       </div>
 
       {/* Tool Stack */}
-      <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Tool Stack</p>
+      <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#4f6280] m-0 mb-2">Tool Stack</p>
       <div className="flex flex-wrap gap-2 mb-5">
         {tools.slice(0, 3).map((t, i) => (
           <span key={i} className={`px-[10px] py-[5px] rounded-lg text-[11px] font-extrabold ${tagClass}`}>{t}</span>
@@ -79,16 +79,16 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
       </div>
 
       {/* Evidence Quality */}
-      <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Evidence Quality</p>
+      <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#4f6280] m-0 mb-2">Evidence Quality</p>
       <div className="flex items-center gap-[10px] mb-4 flex-wrap">
         <span className={`px-[10px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-[0.04em] ${TIER_BADGE[tier] || TIER_BADGE.gold}`}>
           {tier === "gold" ? "Gold" : tier === "silver" ? "Silver" : "Bronze"}
         </span>
-        <span className="text-[#586984] text-[11px] font-bold">{tier === "gold" ? "High-quality" : tier === "silver" ? "Medium-quality" : "Limited"} evidence from {data.evidenceCount || 143} implementations</span>
+        <span className="text-[#4f6280] text-[11px] font-bold">{tier === "gold" ? "High-quality" : tier === "silver" ? "Medium-quality" : "Limited"} evidence from {data.evidenceCount || 143} implementations</span>
       </div>
 
       {/* Top Evidence */}
-      <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#5a6b84] m-0 mb-2">Top Evidence</p>
+      <p className="text-[10px] font-extrabold tracking-[0.06em] uppercase text-[#4f6280] m-0 mb-2">Top Evidence</p>
       <div className="mb-[14px] flex-1">
         {evidenceItems.length > 0 ? evidenceItems.slice(0, 3).map((c, i) => (
           <div key={i} className="min-h-[36px] grid grid-cols-[1fr_auto] gap-[10px] items-center border-b border-[#ebeff4] text-[12px]">
@@ -103,7 +103,7 @@ function ExampleCard({ data, rank, accent }: { data: any; rank: number; accent: 
             </span>
           </div>
         )) : (
-          <div className="text-[12px] text-[#5a6b84] font-bold py-2">Verified implementation</div>
+          <div className="text-[12px] text-[#4f6280] font-bold py-2">Verified implementation</div>
         )}
       </div>
 
