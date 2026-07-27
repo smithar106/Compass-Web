@@ -193,179 +193,86 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why Compass Is Different — 3 colored cards */}
+      {/* Why Compass Is Different — comparison table */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-[28px] md:text-[34px] font-bold text-ink tracking-tight">Why Compass Is Different</h2>
             <p className="mt-4 text-base text-ink/70 max-w-3xl mx-auto leading-relaxed">
-              Most organizations make operational decisions using either consulting engagements or AI implementation firms.
-              {" "}Compass introduces a third approach: evidence-based decision intelligence.
+              Most organizations make operational decisions one of two ways: hiring consultants or hiring AI implementation firms.
+              Compass introduces a third approach—evidence-based decision intelligence.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-            {/* Traditional Consulting */}
-            <div className="relative flex flex-col rounded-2xl border border-[#dfe5ec] bg-white shadow-sm overflow-hidden">
-              <div className="px-6 pt-7 pb-4 bg-[#f6f8fa] border-b border-[#dfe5ec]">
-                <h3 className="text-[17px] font-bold text-[#4f6280]">Traditional Consulting</h3>
-              </div>
-              <div className="flex-1 px-6 py-4 space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-slate-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Evidence</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Draws on consultant experience and interviews with limited access to comparable real-world implementations.
-                  </p>
-                </div>
-                <div className="border-t border-slate-100 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-slate-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Approach</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Delivers strategic recommendations over weeks, typically focused on organizational and operational change.
-                  </p>
-                </div>
-                <div className="border-t border-slate-100 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-slate-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Knowledge</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Expertise comes from what individual consultants and partners have learned from past client engagements.
-                  </p>
-                </div>
-                <div className="border-t border-slate-100 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-slate-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Scale</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Scales by adding more people to each new project, with every engagement starting completely from scratch.
-                  </p>
-                </div>
-                <div className="border-t border-slate-100 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-slate-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-slate-500">Trust</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Relies on expert opinion with limited transparency and may recommend additional consulting engagements.
-                  </p>
-                </div>
-              </div>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr>
+                  <th className="w-[140px] p-4 text-[11px] font-extrabold uppercase tracking-[0.08em] text-ink/40"></th>
+                  <th className="p-4 text-[15px] font-bold text-[#4f6280]">Traditional Consulting</th>
+                  <th className="p-4 text-[15px] font-bold text-[#4f6280]">AI Consulting</th>
+                  <th className="p-4 text-[15px] font-bold text-forest">Compass</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  {
+                    label: "Primary Asset",
+                    consulting: "Consultant expertise",
+                    ai: "AI implementation expertise",
+                    compass: "Evidence graph of comparable implementations",
+                  },
+                  {
+                    label: "Typical Recommendation",
+                    consulting: "Strategic advice",
+                    ai: "Deploy AI",
+                    compass: "Best operational solution—AI, software, process redesign, automation, staffing, or no intervention",
+                  },
+                  {
+                    label: "Evidence",
+                    consulting: "Limited to projects consultants have seen",
+                    ai: "Limited to previous AI deployments",
+                    compass: "Grounded in comparable real-world operational implementations",
+                  },
+                  {
+                    label: "Business Model",
+                    consulting: "Consulting engagement",
+                    ai: "AI implementation",
+                    compass: "Independent decision intelligence",
+                  },
+                  {
+                    label: "Time to Decision",
+                    consulting: "Weeks",
+                    ai: "Days to weeks",
+                    compass: "Minutes",
+                  },
+                  {
+                    label: "Recommendations are based on",
+                    consulting: "Consultant experience",
+                    ai: "Previous AI projects",
+                    compass: "Comparable real-world implementations",
+                  },
+                ].map((row, i) => (
+                  <tr key={row.label} className={i % 2 === 0 ? "bg-[#f9fafb]" : "bg-white"}>
+                    <td className="p-4 text-[12px] font-extrabold text-ink/60 uppercase tracking-[0.06em]">{row.label}</td>
+                    <td className="p-4 text-[13px] text-[#4f6280] leading-snug">{row.consulting}</td>
+                    <td className="p-4 text-[13px] text-[#4f6280] leading-snug">{row.ai}</td>
+                    <td className="p-4 text-[13px] text-ink/90 leading-snug font-[500]">{row.compass}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            {/* AI Consulting */}
-            <div className="relative flex flex-col rounded-2xl border border-[#dfe5ec] bg-white shadow-sm overflow-hidden">
-              <div className="px-6 pt-7 pb-4 bg-[#f6f8fa] border-b border-[#dfe5ec]">
-                <h3 className="text-[17px] font-bold text-[#4f6280]">AI Consulting</h3>
-              </div>
-              <div className="flex-1 px-6 py-4 space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Evidence</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Draws on AI expertise and past client implementations, limited to projects the team has previously delivered.
-                  </p>
-                </div>
-                <div className="border-t border-indigo-100 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Approach</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Primary goal is deploying AI successfully, usually recommending AI implementation within days to weeks.
-                  </p>
-                </div>
-                <div className="border-t border-indigo-100 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Knowledge</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Built on past client implementations and the team's hands-on experience deploying AI solutions and platforms.
-                  </p>
-                </div>
-                <div className="border-t border-indigo-100 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Scale</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Scales through adding consultants and engineers; each engagement builds on prior project experience.
-                  </p>
-                </div>
-                <div className="border-t border-indigo-100 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-indigo-300" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-indigo-500">Trust</p>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    Best-practice recommendations driven by AI vendor expertise; may recommend implementation services.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Compass */}
-            <div className="relative flex flex-col rounded-2xl border-2 border-forest/40 shadow-[0_8px_32px_-8px_rgba(45,106,79,0.12)] bg-white order-first md:order-none md:-translate-y-1 overflow-hidden">
-              <div className="px-6 pt-7 pb-4 bg-mist border-b border-forest/10">
-                <h3 className="text-[17px] font-bold text-forest">Compass</h3>
-              </div>
-              <div className="flex-1 px-6 py-4 space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-forest" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Evidence</p>
-                  </div>
-                  <p className="text-[13px] text-ink/80 leading-relaxed">
-                    Grounded in comparable real-world implementations and their measured outcomes, not individual experience or opinion.
-                  </p>
-                </div>
-                <div className="border-t border-forest/10 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-forest" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Approach</p>
-                  </div>
-                  <p className="text-[13px] text-ink/80 leading-relaxed">
-                    Identifies the most evidence-supported path—AI, software, process redesign, automation, or no intervention—before you build.
-                  </p>
-                </div>
-                <div className="border-t border-forest/10 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-forest" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Knowledge</p>
-                  </div>
-                  <p className="text-[13px] text-ink/80 leading-relaxed">
-                    Powered by a growing evidence graph of real-world operational interventions and their measured outcomes.
-                  </p>
-                </div>
-                <div className="border-t border-forest/10 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-forest" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Scale</p>
-                  </div>
-                  <p className="text-[13px] text-ink/80 leading-relaxed">
-                    Scales through structured evidence rather than headcount, delivering results in minutes instead of weeks.
-                  </p>
-                </div>
-                <div className="border-t border-forest/10 pt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1 h-4 rounded-full bg-forest" />
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-forest">Trust</p>
-                  </div>
-                  <p className="text-[13px] text-ink/80 leading-relaxed">
-                    Evidence-backed with no implementation bias. Focused solely on identifying the most evidence-supported path for your context.
-                  </p>
-                </div>
-              </div>
-            </div>
+          {/* Bottom callout */}
+          <div className="mt-16 text-center max-w-3xl mx-auto">
+            <p className="text-[22px] md:text-[26px] font-bold text-ink leading-tight">
+              Consultants rely on experience. Compass relies on evidence.
+            </p>
+            <p className="mt-6 text-base text-ink/60 leading-relaxed">
+              Compass doesn&apos;t replace executive judgment.
+              It gives leaders access to operational evidence that no individual consultant could realistically assemble, retain, and analyze at scale.
+            </p>
           </div>
 
           {/* Who Compass is for (8th section) */}
@@ -396,12 +303,11 @@ export default function HomePage() {
           {/* Bottom callout */}
           <div className="mt-16 text-center max-w-3xl mx-auto">
             <p className="text-[22px] md:text-[26px] font-bold text-ink leading-tight">
-              {"\u201C"}Consultants scale through people.<br />
-              Compass scales through evidence.{"\u201D"}
+              Consultants rely on experience. Compass relies on evidence.
             </p>
             <p className="mt-6 text-base text-ink/60 leading-relaxed">
-              Compass doesn&apos;t replace executive judgment.{" "}
-              It gives decision-makers access to operational evidence that no individual advisor could realistically assemble, retain, and analyze at scale.
+              Compass doesn&apos;t replace executive judgment.
+              It gives leaders access to operational evidence that no individual consultant could realistically assemble, retain, and analyze at scale.
             </p>
           </div>
         </div>
