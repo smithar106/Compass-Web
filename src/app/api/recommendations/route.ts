@@ -57,11 +57,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(engineResult, { status: 200 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Recommendation failed";
+    console.error(`[Recs] Error:`, error);
     if (error instanceof Error && error.name === "AbortError") {
       return NextResponse.json({ error: "Engine did not respond within 30 seconds.", type: "engine_unreachable" }, { status: 504 });
     }
-    return NextResponse.json({ error: message, type: "server_error" }, { status: 500 });
+    return NextResponse.json({ error: "Recommendation failed", type: "server_error" }, { status: 500 });
   }
 }
 
