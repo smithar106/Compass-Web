@@ -30,7 +30,7 @@ function ExampleCard({ data, rank, accent, showEvidence = true }: { data: any; r
           {rank}
         </span>
         <span className={`px-[11px] py-[5px] rounded-full text-[11px] font-extrabold uppercase tracking-normal ${isRec ? "bg-brand-green-light text-brand-green-dark" : "bg-[#edf0f3] text-[#1a1f2b]"}`}>
-          {isRec ? "Evidence supports this path" : "Other path"}
+          {isRec ? "Recommended Path" : "Other path"}
         </span>
       </div>
 
@@ -47,7 +47,7 @@ function ExampleCard({ data, rank, accent, showEvidence = true }: { data: any; r
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.confidence}</div>
-          <div className="text-[10px] font-bold text-[#4f6280] mt-1 leading-tight">Evidence<br/>strength</div>
+          <div className="text-[10px] font-bold text-[#4f6280] mt-1 leading-tight">Recommendation<br/>Support</div>
         </div>
         <div className="min-w-0 overflow-hidden">
           <div className={`text-[12px] sm:text-[13px] font-extrabold ${metricColor} whitespace-nowrap overflow-hidden text-ellipsis`}>{data.timeline}</div>
@@ -130,26 +130,29 @@ export default function HomePage() {
                 </a>
               </div>
             </div>
-            <ExampleCard
-              data={{
-                evidenceCount: 121,
-                problem: site.exampleSales.problem,
-                recommendation: site.exampleSales.recommendation,
-                impact: site.exampleSales.impact,
-                confidence: site.exampleSales.confidence,
-                timeline: site.exampleSales.timeline,
-                teamSize: "1–2",
-                evidenceTier: "gold",
-                tools: ["Claude", "OpenAI", "Salesforce"],
-                evidence: [
-                  { org: "Samsara", outcome: "207% ROI" },
-                  { org: "Kyber", outcome: "65% time saved" },
-                  { org: "HubSpot", outcome: "32% faster" },
-                ],
-              }}
-              rank={1}
-              accent="green"
-            />
+            <div>
+              <p className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-ink/30 mb-2 text-center">Illustrative Decision Brief</p>
+              <ExampleCard
+                data={{
+                  evidenceCount: 121,
+                  problem: site.exampleSales.problem,
+                  recommendation: site.exampleSales.recommendation,
+                  impact: site.exampleSales.impact,
+                  confidence: "Strong",
+                  timeline: site.exampleSales.timeline,
+                  teamSize: "1–2",
+                  evidenceTier: "gold",
+                  tools: ["Conversational AI", "CRM", "Workflow Automation"],
+                  evidence: [
+                    { org: "Samsara", outcome: "207% ROI" },
+                    { org: "Kyber", outcome: "65% time saved" },
+                    { org: "HubSpot", outcome: "32% faster" },
+                  ],
+                }}
+                rank={1}
+                accent="green"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -160,7 +163,7 @@ export default function HomePage() {
           <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-forest mb-4 text-center">{site.problem.label}</p>
           <h2 className="text-[28px] md:text-[34px] font-bold text-ink tracking-tight text-center max-w-4xl mx-auto">{site.problem.headline}</h2>
           <p className="mt-4 text-base text-ink/70 max-w-3xl mx-auto text-center leading-relaxed">{site.problem.body}</p>
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {site.problem.painPoints.map((p, i) => (
               <div key={i} className="bg-white border border-[#dfe5ec] rounded-xl p-5 shadow-sm">
                 <p className="text-[13px] font-extrabold text-[#101826] mb-1">{p.title}</p>
@@ -239,13 +242,16 @@ export default function HomePage() {
       {/* ===== INDUSTRY EXAMPLES ===== */}
       <section id="examples" className="py-16 px-4 sm:px-6 lg:px-8 bg-cream">
         <div className="mx-auto max-w-[1500px]">
-          <h2 className="text-xl font-bold text-ink text-center mb-8">Real recommendations across industries.</h2>
+          <div className="text-center mb-2">
+            <p className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-ink/30 mb-2">Illustrative Decision Briefs</p>
+            <h2 className="text-xl font-bold text-ink text-center mb-8">Example decisions across industries.</h2>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
             <ExampleCard
               data={{
                 evidenceCount: 143, problem: site.exampleSales.problem, recommendation: site.exampleSales.recommendation,
-                impact: site.exampleSales.impact, confidence: site.exampleSales.confidence, timeline: site.exampleSales.timeline,
-                teamSize: "1–2", evidenceTier: "gold", tools: ["Anthropic", "OpenAI", "Salesforce"],
+                impact: site.exampleSales.impact, confidence: "Strong", timeline: site.exampleSales.timeline,
+                teamSize: "1–2", evidenceTier: "gold", tools: ["Conversational AI", "CRM", "Workflow Automation"],
                 evidence: [{ org: "Dialpad", outcome: "207% ROI" }, { org: "Kyber", outcome: "65% time saved" }, { org: "HubSpot", outcome: "32% faster" }],
               }}
               rank={1} accent="green"
@@ -253,8 +259,8 @@ export default function HomePage() {
             <ExampleCard
               data={{
                 evidenceCount: 87, problem: site.exampleFinance.problem, recommendation: site.exampleFinance.recommendation,
-                impact: site.exampleFinance.impact, confidence: site.exampleFinance.confidence, timeline: site.exampleFinance.timeline,
-                teamSize: "1–2", evidenceTier: "silver", tools: ["Microsoft Copilot", "ServiceNow", "Salesforce"],
+                impact: site.exampleFinance.impact, confidence: "Moderate", timeline: site.exampleFinance.timeline,
+                teamSize: "1–2", evidenceTier: "silver", tools: ["Document AI", "Workflow Automation", "Exception Review"],
                 evidence: [{ org: "Intercom", outcome: "72% automation" }, { org: "Exequtech", outcome: "40% faster matching" }, { org: "Stripe", outcome: "55% fewer errors" }],
               }}
               rank={2} accent="blue"
@@ -262,8 +268,8 @@ export default function HomePage() {
             <ExampleCard
               data={{
                 evidenceCount: 62, problem: site.exampleHealthcare.problem, recommendation: site.exampleHealthcare.recommendation,
-                impact: site.exampleHealthcare.impact, confidence: site.exampleHealthcare.confidence, timeline: site.exampleHealthcare.timeline,
-                teamSize: "2–4", evidenceTier: "silver", tools: ["Lean", "Six Sigma", "Change Mgmt"],
+                impact: site.exampleHealthcare.impact, confidence: "Moderate", timeline: site.exampleHealthcare.timeline,
+                teamSize: "2–4", evidenceTier: "silver", tools: ["Rules Engine", "Claims Platform", "Human Escalation"],
                 evidence: [{ org: "UnitedHealth", outcome: "68% faster triage" }, { org: "Anthem", outcome: "42% cost reduction" }, { org: "Kaiser", outcome: "3.5M claims auto-processed" }],
               }}
               rank={3} accent="orange"

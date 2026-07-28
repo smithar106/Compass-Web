@@ -7,7 +7,7 @@ export const site = {
   hero: {
     eyebrow: "Operational Decision Intelligence",
     headline: "Find the right solution before you implement it.",
-    subtitle: "Organizations are under pressure to deploy AI, automate workflows, and transform operations. Compass helps leaders determine which intervention is actually most likely to succeed before they commit people, capital, and engineering resources.",
+    subtitle: "Organizations are under pressure to deploy AI, automate workflows, and transform operations. Compass helps leaders determine which intervention is most likely to succeed before they commit people, capital, and engineering resources.",
     cta: "Start an Investigation",
     ctaSecondary: "See How Compass Works",
     supportingLine: "Evidence from comparable real-world implementations\u2014not vendor claims or assumptions.",
@@ -18,12 +18,10 @@ export const site = {
     headline: "Organizations do not fail because they cannot implement. They fail because they implement the wrong solution.",
     body: "Critical operational decisions are often driven by consultants, vendor recommendations, internal opinion, or the latest technology trend. The result is months of engineering work, expensive implementations, low adoption, poor ROI, and organizational disruption.",
     painPoints: [
-      { title: "Wrong intervention selected", description: "Teams commit to AI or software before fully understanding the workflow." },
-      { title: "Alternatives never compared", description: "Process redesign, staffing, policy changes, or simpler software may perform better." },
-      { title: "Evidence is fragmented", description: "Relevant lessons are buried across case studies, reports, internal documents, and institutional knowledge." },
-      { title: "Vendor incentives distort decisions", description: "Most providers are rewarded for selling or implementing a particular solution." },
-      { title: "Implementation begins too early", description: "Organizations spend money before validating the underlying decision." },
-      { title: "Outcomes are difficult to predict", description: "Leaders lack structured comparisons with similar real-world implementations." },
+      { title: "Wrong intervention selected", description: "Teams commit to AI or software before fully understanding the workflow. Implementation begins before the underlying decision is validated." },
+      { title: "Alternatives never compared", description: "Process redesign, staffing, policy changes, or simpler software may perform better, but they are rarely evaluated." },
+      { title: "Evidence is fragmented", description: "Relevant lessons are buried across case studies and institutional knowledge. Leaders lack structured comparisons with similar real-world implementations." },
+      { title: "Vendor incentives distort decisions", description: "Most providers are rewarded for selling or implementing a particular solution rather than identifying the right one." },
     ],
   },
 

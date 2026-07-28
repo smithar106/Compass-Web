@@ -11,7 +11,7 @@ describe("Homepage content", () => {
   });
 
   it("should have problem section with pain points", () => {
-    expect(site.problem.painPoints).toHaveLength(6);
+    expect(site.problem.painPoints).toHaveLength(4);
     expect(site.problem.painPoints[0].title).toBe("Wrong intervention selected");
   });
 
