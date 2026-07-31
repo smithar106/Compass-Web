@@ -52,12 +52,12 @@ export const site = {
 },
   assessment: {
   intro: {
-    headline: "Analyze an Operational Problem",
-    body: "Answer a few questions about your workflow, constraints, and objectives. Compass compares your situation against a structured evidence base of real implementations to identify the most evidence-backed path forward.",
-    estimatedTime: "3\u20135 minutes",
-    sections: "10 departments",
-    questions: "Targeted questions about your operations",
-    cta: "Begin Assessment",
+    headline: "What decision are you trying to make?",
+    body: "This is context gathering, not a form. Tell Compass about your workflow, systems, and goals so it can compare your situation against real-world implementations and produce a decision you can defend.",
+    estimatedTime: "10\u201315 minutes",
+    sections: "Problem, workflow, systems, constraints",
+    questions: "Guided context about your operations",
+    cta: "Begin",
   },
   sections: {
     "General": "We'll start by understanding the department, workflow, and desired outcome \u2014 focused on the business problem, not the technology.",

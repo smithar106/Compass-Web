@@ -30,7 +30,7 @@ export function ImplementVisual() {
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <ULabel>Who executes</ULabel>
-          <span className="font-mono text-[9px] text-faint">independent of recommendation</span>
+          <span className="font-mono text-[9px] text-faint">independent of the decision</span>
         </div>
         <div className="mt-2 grid grid-cols-2 gap-2">
           {["Internal team", "Selected partner"].map((opt, i) => (

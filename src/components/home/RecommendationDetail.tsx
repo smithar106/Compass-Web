@@ -16,6 +16,7 @@ export interface ExampleRecommendation {
   roi: { range: string; payback: string };
   partner: string;
   learning: string;
+  ownership: { owner: string; decided: string; review: string; success: string };
   alternatives: { name: string; verdict: string; reason: string }[];
 }
 
@@ -78,10 +79,19 @@ export function RecommendationDetail({ example }: { example: ExampleRecommendati
           <MetaItem label="Confidence" value={`${e.confidence.label} · ${Math.round(e.confidence.score * 100)}%`} />
           <MetaItem label="Evidence strength" value={`${e.evidence.tier} · ${e.evidence.comparables} comparable`} />
           <MetaItem label="Implementation effort" value={e.effort} />
+          <MetaItem label="Timeline" value={timelineFor(e.effort)} />
           <MetaItem label="Expected impact" value={e.impact.range} />
           <MetaItem label="Implementation partner" value={e.partner} />
           <MetaItem label="Learning schedule" value={e.learning} />
           <MetaItem label="Expected ROI" value={`${e.roi.range} · payback ${e.roi.payback}`} />
+        </dl>
+
+        {/* decision ownership */}
+        <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 border border-line bg-paper px-4 py-3.5 sm:grid-cols-4">
+          <MetaItem label="Owner" value={e.ownership.owner} />
+          <MetaItem label="Decision date" value={e.ownership.decided} />
+          <MetaItem label="Review date" value={e.ownership.review} />
+          <MetaItem label="Success criteria" value={e.ownership.success} />
         </dl>
       </div>
 
@@ -115,6 +125,16 @@ function MetaItem({ label, value }: { label: string; value: string }) {
   );
 }
 
+function timelineFor(effort: string): string {
+  switch (effort) {
+    case "Low": return "3–4 weeks";
+    case "Low-Medium": return "4–6 weeks";
+    case "Medium": return "6–8 weeks";
+    case "High": return "10–12 weeks";
+    default: return "6–8 weeks";
+  }
+}
+
 function EvidencePanel({ e }: { e: ExampleRecommendation }) {
   return (
     <div>
@@ -145,7 +165,7 @@ function ConfidencePanel({ e }: { e: ExampleRecommendation }) {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <DetailLabel>Recommendation confidence</DetailLabel>
+        <DetailLabel>Decision confidence</DetailLabel>
         <ConfidenceBadge label={e.confidence.label} score={e.confidence.score} />
       </div>
       <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-line">

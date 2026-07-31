@@ -597,7 +597,7 @@ function ResultsContent() {
           <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green/30">
             <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-2">Next Steps</h2>
             <p className="text-[13px] text-[#4f6280] leading-[1.6] mb-6">
-              Evidence supports this recommendation. The next step is to validate it using your organization&apos;s operating data before broader implementation.
+              Evidence supports this decision. The next step is to validate it using your organization&apos;s operating data before broader implementation.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
@@ -634,14 +634,14 @@ function ResultsContent() {
               </div>
             </div>
             <p className="text-[11px] text-[#4f6280] italic mt-5 text-center">
-              Compass compares your pilot outcomes against similar organizations to refine future recommendations.
+              Compass compares your pilot outcomes against similar organizations to refine future decisions.
             </p>
           </section>
 
           {/* ===== 8. METHODOLOGY ===== */}
           <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec] text-[11px] text-[#4f6280] leading-[1.6]">
             <p>
-              Compass evaluates your operational needs against real-world business outcomes from organizations facing similar challenges. Each recommendation is assessed on operational fit, evidence strength, expected business impact, organizational readiness, and speed to value. Outcomes observed in other organizations do not guarantee identical results.
+              Compass evaluates your operational needs against real-world business outcomes from organizations facing similar challenges. Each decision is assessed on operational fit, evidence strength, expected business impact, organizational readiness, and speed to value. Outcomes observed in other organizations do not guarantee identical results.
             </p>
           </section>
         </div>

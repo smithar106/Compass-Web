@@ -82,7 +82,7 @@ export function SearchRecommendations() {
 
         <Reveal delay={120}>
           <p className="mt-6 text-[11.5px] leading-relaxed text-muted">
-            Illustrative recommendations for demonstration. Run your own analysis for results specific to your operations.
+            Illustrative decisions for demonstration. Run your own analysis for one specific to your operations.
           </p>
         </Reveal>
       </div>

@@ -21,7 +21,7 @@ const GRAPH = [
   { name: "Source documents", note: "Audits, evaluations, disclosures, records", x: "0%", y: "0%" },
   { name: "Evidence claims", note: "Extracted, attributable, deduplicated", x: "50%", y: "0%" },
   { name: "Implementation records", note: "Intervention, context, outcomes, risks", x: "50%", y: "62%" },
-  { name: "Recommendation", note: "Ranked, sourced, reproducible", x: "0%", y: "62%" },
+  { name: "Decision", note: "Ranked, sourced, reproducible", x: "0%", y: "62%" },
 ];
 
 export default function EvidencePage() {
@@ -29,7 +29,7 @@ export default function EvidencePage() {
     <>
       <PageHeader
         eyebrow="Evidence"
-        title="Recommendations that trace back to a source you can read."
+        title="Decisions that trace back to a source you can read."
         subtitle="Compass reasons over a growing structured evidence base of real-world implementations. Every material claim carries its source&mdash;and when the evidence is insufficient, Compass says so."
       />
 
@@ -78,7 +78,7 @@ export default function EvidencePage() {
                   <path d="M50 76 C 40 76, 44 76, 44 76" stroke="#C7F246" strokeWidth="0.4" fill="none" />
                   <path d="M44 92 C 44 92, 44 92, 44 92" stroke="#0E1722" strokeWidth="0.3" fill="none" strokeDasharray="1 1.5" />
                 </svg>
-                <p className="absolute bottom-3 right-4 text-[10px] text-faint">a recommendation loop, not a one-way pipeline</p>
+                <p className="absolute bottom-3 right-4 text-[10px] text-faint">a decision loop, not a one-way pipeline</p>
               </div>
             </Reveal>
           </div>
@@ -98,7 +98,7 @@ export default function EvidencePage() {
             <p className="mt-5 max-w-2xl text-lead leading-relaxed text-muted">
               Compass tracks which type of source backs each claim&mdash;and never inflates it. A
               vendor record is treated differently from an independent audit, and the difference is
-              visible in the recommendation.
+              visible in the decision.
             </p>
           </Reveal>
 

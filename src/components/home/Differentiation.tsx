@@ -1,10 +1,12 @@
 import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
+import { DecisionLoop, type DecisionStep } from "./DecisionLoop";
 import { cn } from "@/lib/utils";
 
 export function Differentiation() {
   const d = marketing.differentiation;
+  const steps = d.decisionSteps as DecisionStep[];
   return (
     <section className="border-b border-lineDark bg-paper-dark">
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
@@ -73,35 +75,16 @@ export function Differentiation() {
           })}
         </div>
 
-        {/* decision loop strip */}
-        <Reveal delay={200}>
-          <div className="mt-10 flex flex-col items-stretch gap-3 border border-lineDark bg-ink/40 p-6 sm:flex-row sm:items-center sm:gap-0 sm:p-0">
-            {["Decision N", "Implemented", "Measured", "Decision N+1"].map((step, i) => (
-              <div key={step} className="flex flex-1 items-center gap-3 sm:px-6 sm:py-5">
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[9px] font-bold",
-                    i === 0 ? "bg-ink text-paper" : "bg-lineDark text-paper/70"
-                  )}
-                >
-                  {i === 0 ? "N" : i === 3 ? "N+1" : "✓"}
-                </span>
-                <span className={cn("text-[13px] font-medium", i === 3 ? "text-accent" : "text-paper/80")}>
-                  {step}
-                </span>
-                {i < 3 && (
-                  <svg
-                    className="hidden h-4 w-4 text-paper/30 sm:block"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </div>
-            ))}
+        {/* decision loop: the moat, shown not told */}
+        <Reveal delay={160}>
+          <div className="mt-10 border border-lineDark bg-ink/40 p-6 sm:p-8">
+            <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-paper/40">
+              This is what consultants cannot do
+            </p>
+            <DecisionLoop steps={steps} />
+            <p className="mt-6 border-t border-lineDark pt-5 font-serif text-[17px] italic text-accent">
+              {d.moatLine}
+            </p>
           </div>
         </Reveal>
       </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
+import { ConfidenceBuild } from "./ConfidenceBuild";
 import { RecommendationDetail, type ExampleRecommendation } from "./RecommendationDetail";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +14,14 @@ export function LiveRecommendation() {
 
   const byRanking = (label: string) => examples.find((e) => e.ranking === label);
   const [selectedLabel, setSelectedLabel] = useState(lr.rankings[0].label);
+  const [building, setBuilding] = useState(true);
   const selected = byRanking(selectedLabel) ?? examples[0];
+
+  const select = (label: string) => {
+    if (label === selectedLabel && !building) return;
+    setSelectedLabel(label);
+    setBuilding(true);
+  };
 
   return (
     <section className="border-b border-line bg-paper">
@@ -24,7 +32,7 @@ export function LiveRecommendation() {
           {/* ranking list */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-faint">
-              Rank the decisions you care about
+              Pick a decision to interrogate
             </p>
             <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto lg:flex-col lg:gap-0 lg:overflow-visible">
               {lr.rankings.map((r) => {
@@ -35,7 +43,7 @@ export function LiveRecommendation() {
                   <button
                     key={r.id}
                     type="button"
-                    onClick={() => setSelectedLabel(r.label)}
+                    onClick={() => select(r.label)}
                     aria-pressed={isActive}
                     className={cn(
                       "flex min-w-[210px] flex-col border px-4 py-3.5 text-left transition-colors lg:min-w-0 lg:border-b lg:border-line lg:px-4 lg:py-4 lg:last:border-b-0",
@@ -55,11 +63,19 @@ export function LiveRecommendation() {
             </p>
           </div>
 
-          {/* detail */}
+          {/* confidence building → decision */}
           <Reveal delay={120}>
-            <div key={selected.id} className="animate-fade-in">
-              <RecommendationDetail example={selected} />
-            </div>
+            {building ? (
+              <ConfidenceBuild
+                key={selected.id}
+                comparables={selected.evidence.comparables}
+                onDone={() => setBuilding(false)}
+              />
+            ) : (
+              <div key={selected.id} className="animate-fade-in">
+                <RecommendationDetail example={selected} />
+              </div>
+            )}
           </Reveal>
         </div>
       </div>

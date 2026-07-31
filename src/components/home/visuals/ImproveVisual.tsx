@@ -21,7 +21,7 @@ export function ImproveVisual() {
     <VisualShell
       title="Outcome review"
       meta="learning loop · feeds Decide"
-      footnote="Structured reviews after 3, 6, 9, and 12 months compare projected with actual outcomes, capture lessons, and improve confidence in the next recommendation."
+      footnote="Structured reviews after 3, 6, 9, and 12 months compare projected with actual outcomes, capture lessons, and improve the next decision."
     >
       {/* timeline */}
       <div className="relative mb-6">
@@ -83,7 +83,7 @@ export function ImproveVisual() {
         </div>
         <div>
           <div className="flex items-center justify-between">
-            <ULabel>Recommendation confidence</ULabel>
+            <ULabel>Decision confidence</ULabel>
             <StatusTag tone="ok">improving</StatusTag>
           </div>
           <ul className="mt-2 space-y-2">

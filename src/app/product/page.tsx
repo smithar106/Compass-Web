@@ -3,6 +3,7 @@ import { Lifecycle } from "@/components/home/Lifecycle";
 import { Anatomy } from "@/components/home/Anatomy";
 import { Operations } from "@/components/home/Operations";
 import { Differentiation } from "@/components/home/Differentiation";
+import { SearchRecommendations } from "@/components/home/SearchRecommendations";
 import { FinalCta } from "@/components/home/FinalCta";
 import { Reveal } from "@/components/home/Reveal";
 
@@ -10,15 +11,15 @@ const OWNED = [
   "Operational problem definition",
   "Evidence collection",
   "Intervention comparison",
-  "Decision recommendations",
-  "Recommendation rationale",
+  "Decision records",
+  "Decision rationale",
   "Implementation Blueprints",
   "Success metrics",
   "Assumptions and risks",
   "Monitoring frameworks",
   "Outcome reviews",
   "Organizational learning",
-  "Future recommendation improvement",
+  "Future decision improvement",
 ];
 
 const EXECUTED = [
@@ -38,7 +39,7 @@ export default function ProductPage() {
             A decision system, not a consulting engagement.
           </>
         }
-        subtitle="Compass is the persistent judgment layer for operational decisions. It defines the problem, compares every viable intervention against structured evidence, produces the recommendation and the Blueprint&mdash;then stays with you to measure whether it worked."
+        subtitle="Compass is the persistent judgment layer for operational decisions. It defines the problem, compares every viable intervention against structured evidence, produces the decision and the Blueprint&mdash;then stays with you to measure whether it worked."
       />
 
       {/* What Compass owns */}
@@ -88,8 +89,8 @@ export default function ProductPage() {
                   </ul>
                   <div className="mt-8 border-l-2 border-accent-deep bg-surface px-4 py-3.5">
                     <p className="text-[12.5px] leading-relaxed text-muted">
-                      Vendors cannot pay to influence recommendations. Independence is preserved from
-                      problem to recommendation.
+                      Vendors cannot pay to influence decisions. Independence is preserved from
+                      problem to decision.
                     </p>
                   </div>
                 </div>
@@ -103,6 +104,7 @@ export default function ProductPage() {
       <Anatomy />
       <Operations />
       <Differentiation />
+      <SearchRecommendations />
       <FinalCta />
     </>
   );

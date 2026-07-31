@@ -21,45 +21,67 @@ export const headerCta = {
 };
 
 export const marketing = {
-  hero: {
-    eyebrow: "Make operational decisions with confidence",
-    claim: "Every operational decision is a bet. Make the right one.",
-    subtitle:
-      "Compass gives organizations confidence before they spend months implementing the wrong solution.",
-    trustLine: "Compass compares every viable intervention\u2014including none at all.",
-    inputLabel: "Your operational challenge",
-    inputPlaceholder: "Describe the problem, the workflow, or the outcome you need\u2026",
-    analyzeCta: "Analyze",
-    secondaryCta: "See how it works",
-    examplesLabel: "Try an example",
-    examples: [
-      "Manual invoice processing",
-      "Slow customer onboarding",
-      "High support costs",
-      "Knowledge trapped in spreadsheets",
-      "Customer escalation triage",
-    ],
-    pasteOptions: ["Paste process", "Paste policy", "Paste problem"],
-    uploadLabel: "Upload workflow",
-    uploadHint: ".txt, .md, .csv",
-    illustrativeNote: "Illustrative recommendations for demonstration.",
-  },
+    hero: {
+      eyebrow: "Make operational decisions with confidence",
+      claim: "The most expensive operational mistake isn\u2019t implementation. It\u2019s choosing the wrong implementation.",
+      subtitle:
+        "Compass gives organizations confidence before they spend months implementing the wrong solution.",
+      trustLine: "Compass compares every viable intervention\u2014including none at all.",
+      inputLabel: "Your operational challenge",
+      inputPlaceholder: "Describe the problem, the workflow, or the outcome you need\u2026",
+      analyzeCta: "Analyze",
+      secondaryCta: "See how it works",
+      examplesLabel: "Try an example",
+      examples: [
+        "Manual invoice processing",
+        "Slow customer onboarding",
+        "High support costs",
+        "Knowledge trapped in spreadsheets",
+        "Customer escalation triage",
+      ],
+      pasteOptions: ["Paste process", "Paste policy", "Paste problem"],
+      uploadLabel: "Upload workflow",
+      uploadHint: ".txt, .md, .csv",
+      illustrativeNote: "Illustrative decisions for demonstration.",
+      pathA: {
+        title: "I know my problem",
+        lead: "Describe it in your own words. Compass extracts the workflow, the likely root cause, and the decision you\u2019re really making.",
+        time: "2\u20133 minutes",
+      },
+      pathB: {
+        title: "I\u2019m not sure what\u2019s wrong",
+        lead: "Let Compass gather context about your workflow, systems, and goals\u2014then build a problem list before recommending anything.",
+        cta: "Start guided assessment",
+        time: "10\u201315 minutes",
+      },
+    },
 
-  category: {
-    label: "The missing system",
-    number: "01",
-    headline:
-      "Every organization already has an implementation process. Very few have a decision process.",
-    consequence:
-      "That is why initiatives fail. That is why transformations stall. That is why millions are spent solving the wrong problem.",
-    resolve: "Compass becomes the missing system.",
-    beliefLead: "We believe",
-    belief: [
-      "Implementation is becoming abundant.",
-      "Building software gets easier every year. Choosing the right operational intervention does not.",
-      "Organizations don\u2019t need more AI. They need more confidence.",
-      "That\u2019s why Compass exists.",
-    ],
+    category: {
+      label: "The missing system",
+      number: "01",
+      headline:
+        "Every organization already has an implementation process. Very few have a decision process.",
+      consequence:
+        "That is why initiatives fail. That is why transformations stall. That is why millions are spent solving the wrong problem.",
+      resolve: "Compass becomes the missing system.",
+      have: [
+        "ERP",
+        "CRM",
+        "HRIS",
+        "Project management",
+        "Knowledge base",
+        "Implementation teams",
+        "Consultants",
+        "AI",
+      ],
+      missing: "A repeatable decision process.",
+      beliefLead: "We believe",
+      belief: [
+        "Implementation is becoming abundant.",
+        "Building software gets easier every year. Choosing the right operational intervention does not.",
+        "Organizations don\u2019t need more AI. They need more confidence.",
+        "That\u2019s why Compass exists.",
+      ],
     question: {
       mostLabel: "Most companies ask",
       mostQuestion: "How do we use AI?",
@@ -75,75 +97,76 @@ export const marketing = {
     },
   },
 
-  pillars: {
-    label: "Why trust Compass",
-    number: "02",
-    headline: "Confidence is the product.",
-    subtitle:
-      "Not recommendations. Not software. Confidence\u2014before you commit months and millions to the wrong thing.",
-    items: [
-      {
-        number: "01",
-        name: "Evidence",
-        headline: "Confidence comes from evidence.",
-        body: "Not opinions. Not vendor marketing. Not whichever case study someone remembers. Compass compares your problem against organizations that faced the same operational challenge.",
-        tag: "Evidence creates confidence the recommendation fits the problem.",
-      },
-      {
-        number: "02",
-        name: "Execution",
-        headline: "Confidence comes from execution.",
-        body: "The recommendation isn\u2019t enough. Compass tells you how to implement it\u2014and who is best positioned to do it.",
-        tag: "Execution validates confidence the organization can deliver.",
-      },
-      {
-        number: "03",
-        name: "Measurement",
-        headline: "Confidence comes from measurement.",
-        body: "Success is defined before implementation begins. Not after. So outcomes are measured honestly.",
-        tag: "Measurement creates confidence the outcome is real.",
-      },
-      {
-        number: "04",
-        name: "Compounding",
-        headline: "Confidence compounds.",
-        body: "Every implementation makes the next decision smarter. That is institutional judgment\u2014and it stays inside your organization.",
-        tag: "Learning compounds confidence in every future decision.",
-      },
-    ],
-    loop: "Evidence \u00b7 Execution \u00b7 Measurement \u00b7 Compounding\u2014a loop that improves every decision.",
-  },
+    pillars: {
+      label: "How Compass works",
+      number: "02",
+      headline: "A repeatable process for expensive decisions.",
+      subtitle:
+        "Four capabilities, arranged as one loop. Each one removes a specific risk that makes operational decisions go wrong.",
+      items: [
+        {
+          number: "01",
+          name: "Evidence",
+          headline: "Find organizations that already solved your problem.",
+          body: "Compass compares your operational challenge against organizations that faced the same constraints, chose different interventions, measured the outcomes, and documented what actually worked.",
+          tag: "Every alternative is compared\u2014including no action.",
+        },
+        {
+          number: "02",
+          name: "Execution",
+          headline: "Know how it gets done\u2014and who does it.",
+          body: "Every decision carries an implementation plan matched to the right path: your internal team or a partner you select.",
+          tag: "The plan and the executor are decided before work starts.",
+        },
+        {
+          number: "03",
+          name: "Measurement",
+          headline: "Know what success looks like before you begin.",
+          body: "Success criteria are defined in advance and tracked against the original decision\u2014so the outcome is measured honestly.",
+          tag: "Success is defined before implementation. Not after.",
+        },
+        {
+          number: "04",
+          name: "Compounding",
+          headline: "Every decision makes the next one better.",
+          body: "Every implementation improves the next decision. Judgment compounds inside your organization.",
+          tag: "The moat is memory, not models.",
+        },
+      ],
+      loop: "Evidence \u00b7 Execution \u00b7 Measurement \u00b7 Compounding\u2014a loop that improves every decision.",
+    },
 
-  liveRecommendation: {
-    label: "Live recommendation",
-    number: "03",
-    headline: "Open a recommendation. It comes fully assembled.",
-    subtitle:
-      "Pick a ranking. Each decision expands into evidence, confidence, alternatives, partner, Blueprint, expected ROI, and a learning plan.",
-    illustrativeNote:
-      "Illustrative examples for demonstration. Run your own analysis for a recommendation specific to your operations.",
-    rankings: [
-      { id: "highest-confidence", label: "Highest confidence" },
-      { id: "highest-roi", label: "Highest ROI" },
-      { id: "fastest", label: "Fastest to implement" },
-      { id: "highest-evidence", label: "Highest evidence" },
-      { id: "most-common", label: "Most common" },
-    ],
-  },
+    liveRecommendation: {
+      label: "See how Compass thinks",
+      number: "03",
+      headline: "See how Compass thinks.",
+      subtitle:
+        "Pick a decision and open the reasoning behind it: the evidence, the alternatives, the implementation path, and the learning plan.",
+      illustrativeNote:
+        "Illustrative decisions for demonstration. Run your own analysis for one specific to your operations.",
+      rankings: [
+        { id: "highest-confidence", label: "Highest confidence" },
+        { id: "highest-roi", label: "Highest ROI" },
+        { id: "fastest", label: "Fastest to implement" },
+        { id: "highest-evidence", label: "Highest evidence" },
+        { id: "most-common", label: "Most common" },
+      ],
+    },
 
-  catalog: {
-    label: "How organizations solved it",
-    number: "04",
-    headline: "Explore how organizations solved problems like yours.",
-    subtitle:
-      "Each one is an operational case study: the recommendation, the evidence, the outcome, the partner, and what they learned.",
-    searchPlaceholder: "Search how organizations solved\u2026",
-    noResults: "No matching recommendations. Describe your own problem to get one.",
-  },
+    catalog: {
+      label: "Organizations like yours",
+      number: "04",
+      headline: "Organizations like yours.",
+      subtitle:
+        "Similar problems, real choices, documented outcomes: the decision, the evidence, the outcome, the partner, and what they learned.",
+      searchPlaceholder: "Search similar decisions\u2026",
+      noResults: "No matching decisions. Describe your own problem to get one.",
+    },
 
   examples: [
     {
       id: "invoice",
+      ownership: { owner: "VP of Finance Operations", decided: "Feb 2026", review: "90 days after go-live", success: "Processing cost down 40% by day 90" },
       problem: "Manual invoice processing",
       intervention: "Automated invoice matching with exception-based review",
       category: "Hybrid",
@@ -163,6 +186,7 @@ export const marketing = {
     },
     {
       id: "support-routing",
+      ownership: { owner: "Head of Support Operations", decided: "Jan 2026", review: "60 days after go-live", success: "Resolution time under 8 minutes by day 60" },
       problem: "Customer support routing",
       intervention: "Hybrid triage with deterministic routing",
       category: "Hybrid",
@@ -182,6 +206,7 @@ export const marketing = {
     },
     {
       id: "onboarding",
+      ownership: { owner: "VP of Customer Experience", decided: "Mar 2026", review: "45 days after go-live", success: "Onboarding 30% faster by day 45" },
       problem: "Slow customer onboarding",
       intervention: "Process redesign + template automation",
       category: "Process",
@@ -201,6 +226,7 @@ export const marketing = {
     },
     {
       id: "knowledge",
+      ownership: { owner: "Head of Business Operations", decided: "Feb 2026", review: "Quarterly", success: "Repeat questions down 20% by first quarter" },
       problem: "Knowledge trapped in spreadsheets",
       intervention: "Structured knowledge base + governed search",
       category: "Software",
@@ -220,6 +246,7 @@ export const marketing = {
     },
     {
       id: "escalation",
+      ownership: { owner: "COO", decided: "Feb 2026", review: "90 days after go-live", success: "Resolution time down 25% by day 90" },
       problem: "Customer escalation triage",
       intervention: "Hybrid workflow redesign + deterministic routing",
       category: "Hybrid",
@@ -239,6 +266,7 @@ export const marketing = {
     },
     {
       id: "returns",
+      ownership: { owner: "Operations Manager", decided: "Apr 2026", review: "60 days after go-live", success: "Exception handling 35% faster by day 60" },
       problem: "Returns and exceptions processing",
       intervention: "Deterministic rules with human review",
       category: "Software",
@@ -256,6 +284,7 @@ export const marketing = {
     },
     {
       id: "quotes",
+      ownership: { owner: "VP of Sales Operations", decided: "Mar 2026", review: "45 days after go-live", success: "Quote time halved by day 45" },
       problem: "Quote-to-order handoffs",
       intervention: "Handoff standardization + CRM workflow",
       category: "Process",
@@ -273,6 +302,7 @@ export const marketing = {
     },
     {
       id: "contracts",
+      ownership: { owner: "General Counsel", decided: "May 2026", review: "Monthly", success: "Review backlog cleared 40% faster by first quarter" },
       problem: "Contract review backlog",
       intervention: "AI-assisted clause extraction with review queues",
       category: "AI",
@@ -309,7 +339,7 @@ export const marketing = {
         name: "Judgment",
         role: "Compass",
         by: "The judgment layer",
-        items: ["Evidence", "Root causes", "Intervention comparison", "Recommendation"],
+        items: ["Evidence", "Root causes", "Intervention comparison", "Decision"],
         compass: true,
       },
       {
@@ -334,7 +364,7 @@ export const marketing = {
         index: "01",
         name: "Decide",
         question: "What should we do?",
-        output: "Evidence-backed Decision Recommendation",
+        output: "Decision Record",
         status: "Available now",
         capabilityLead: "Define the problem, then compare every viable intervention against structured evidence.",
         capabilities: [
@@ -342,7 +372,7 @@ export const marketing = {
           "Diagnose likely root causes",
           "Search structured implementation evidence",
           "Compare all viable intervention paths",
-          "Rank recommendations deterministically",
+          "Rank decisions deterministically",
           "Explain why alternatives lost",
           "Define success metrics and assumptions",
         ],
@@ -352,14 +382,14 @@ export const marketing = {
         index: "02",
         name: "Implement",
         question: "How should we execute?",
-        output: "Implementation Blueprint and execution path",
+        output: "Decision Blueprint and execution path",
         status: "Available now",
-        capabilityLead: "Turn the recommendation into a plan your team or a trusted partner can execute\u2014without Compass doing the implementation itself.",
+        capabilityLead: "Turn the decision into a plan your team or a trusted partner can execute\u2014without Compass doing the implementation itself.",
         capabilities: [
           "Generate an Implementation Blueprint",
           "Define systems, data, ownership, dependencies, and risks",
           "Choose internal implementation or a trusted partner",
-          "Preserve the independence of the original recommendation",
+          "Preserve the independence of the original decision",
           "Establish milestones and validation criteria before work begins",
         ],
       },
@@ -368,13 +398,13 @@ export const marketing = {
         index: "03",
         name: "Monitor",
         question: "Is the implementation working?",
-        output: "Implementation Health and Outcome Dashboard",
+        output: "Decision Review and Outcome Dashboard",
         status: "In development",
         capabilityLead: "Watch whether the intervention is actually producing the agreed outcome\u2014not just whether the work shipped.",
         capabilities: [
           "Track agreed success metrics",
           "Monitor milestones, adoption, risks, and blockers",
-          "Compare actual progress with the original recommendation",
+          "Compare actual progress with the original decision",
           "Preserve decisions, assumptions, and changes",
           "Surface when the intervention is drifting from the intended outcome",
         ],
@@ -384,7 +414,7 @@ export const marketing = {
         index: "04",
         name: "Improve",
         question: "What did we learn?",
-        output: "Outcome Review and next recommendation",
+        output: "Decision Learning and next decision",
         status: "Coming next",
         capabilityLead: "Turn the result into the next, better decision\u2014and into organizational memory that outlasts any individual.",
         capabilities: [
@@ -393,7 +423,7 @@ export const marketing = {
           "Identify which assumptions were correct or wrong",
           "Recommend adjustments",
           "Feed verified results back into organizational memory",
-          "Improve future recommendations",
+          "Improve future decisions",
         ],
       },
     ],
@@ -401,12 +431,12 @@ export const marketing = {
   },
 
   anatomy: {
-    label: "Recommendation anatomy",
+    label: "Decision anatomy",
     number: "09",
     headline: "A decision you can interrogate.",
     subtitle:
-      "Every Compass recommendation is built to answer eight questions\u2014clear enough for a COO, with the technical detail available on demand for engineering and implementation teams.",
-    reportNote: "Illustrative recommendation",
+      "Every Compass decision is built to answer eight questions\u2014clear enough for a COO, with the technical detail available on demand for engineering and implementation teams.",
+    reportNote: "Illustrative decision",
     reportProblem: "Manual customer escalation triage",
     questions: [
       {
@@ -437,7 +467,7 @@ export const marketing = {
         id: "evidence",
         question: "What evidence supports it?",
         answer:
-          "38 comparable implementations, 7 with independently validated outcomes. Each comparable record preserves its source, and the strongest evidence is cited directly in the recommendation.",
+          "38 comparable implementations, 7 with independently validated outcomes. Each comparable record preserves its source, and the strongest evidence is cited directly in the decision.",
         technical:
           "Evidence tier distribution: 9 gold, 17 silver, 12 bronze. Sources include a government audit, two academic evaluations, three public-company disclosures, and customer documentation.",
       },
@@ -445,9 +475,9 @@ export const marketing = {
         id: "assumptions",
         question: "Which assumptions could change it?",
         answer:
-          "The recommendation rests on a handful of stated assumptions\u2014escalation volume, agent availability, exception complexity. Each one is visible, and Compass says what would change the recommendation if it is wrong.",
+          "The decision rests on a handful of stated assumptions\u2014escalation volume, agent availability, exception complexity. Each one is visible, and Compass says what would change the decision if it is wrong.",
         technical:
-          "Assumptions carry a direction and effect size. If exception rate exceeds 18%, the recommendation shifts toward more human review; if volume drops 30%, deferral becomes viable.",
+          "Assumptions carry a direction and effect size. If exception rate exceeds 18%, the decision shifts toward more human review; if volume drops 30%, deferral becomes viable.",
       },
       {
         id: "success",
@@ -459,6 +489,7 @@ export const marketing = {
       },
       {
         id: "escalation",
+      ownership: { owner: "COO", decided: "Feb 2026", review: "90 days after go-live", success: "Resolution time down 25% by day 90" },
         question: "When is technical escalation required?",
         answer:
           "A clear escalation boundary is set in advance\u2014for engineering help, vendor involvement, or stopping the intervention. Operations teams do not have to improvise when something drifts.",
@@ -469,55 +500,67 @@ export const marketing = {
         id: "implementation",
         question: "How should it be implemented?",
         answer:
-          "The recommendation carries an Implementation Blueprint: phases, owners, dependencies, and validation criteria. Compass does not implement\u2014your team or a partner you select executes the plan.",
+          "The decision carries an Implementation Blueprint: phases, owners, dependencies, and validation criteria. Compass does not implement\u2014your team or a partner you select executes the plan.",
         technical:
           "Blueprint includes required systems, data contracts, human roles, security and privacy controls, rollout plan, and a validation gate before scale.",
       },
     ],
   },
 
-  differentiation: {
-    label: "The moat",
-    number: "05",
-    headline: "This is what consultants cannot do.",
-    subtitle:
-      "One project. One recommendation. Then the knowledge leaves. Compass turns every decision into organizational knowledge\u2014so judgment compounds inside your organization.",
-    columns: [
-      {
-        name: "Consultants",
-        note: "One project at a time",
-        highlighted: false,
-        items: [
-          "One project. One recommendation.",
-          "Knowledge concentrated in individuals",
-          "Knowledge leaves when the engagement ends",
-          "Recommendations delivered as documents",
-        ],
-      },
-      {
-        name: "Generic AI",
-        note: "Broad knowledge, difficult to verify",
-        highlighted: false,
-        items: [
-          "Can invent confidence",
-          "Weak organizational context",
-          "No systematic comparison of alternatives",
-          "No institutional memory",
-        ],
-      },
-      {
-        name: "Compass",
-        note: "Institutional judgment",
-        highlighted: true,
-        items: [
-          "Every decision becomes organizational knowledge",
-          "Every implementation improves the next recommendation",
-          "Institutional judgment compounds",
-          "The moat is memory, not models",
-        ],
-      },
-    ],
-  },
+    differentiation: {
+      label: "Why Compass gets better",
+      number: "05",
+      headline: "Every decision makes the next one better.",
+      subtitle:
+        "One project. One decision. Then the knowledge leaves. Compass turns every decision into organizational knowledge\u2014so judgment compounds inside your organization.",
+      moatLine: "The moat is memory, not models.",
+      decisionSteps: [
+        { text: "Decision #17", tone: "start" },
+        { text: "Implemented", tone: "step" },
+        { text: "Measured", tone: "step" },
+        { text: "Learned", tone: "step" },
+        { text: "Decision #18", tone: "start" },
+        { text: "Implemented", tone: "step" },
+        { text: "Measured", tone: "step" },
+        { text: "Decision #19", tone: "start" },
+        { text: "Better decision", tone: "end" },
+      ],
+      columns: [
+        {
+          name: "Consultants",
+          note: "One project at a time",
+          highlighted: false,
+          items: [
+            "One project. One recommendation.",
+            "Knowledge concentrated in individuals",
+            "Knowledge leaves when the engagement ends",
+            "Recommendations delivered as documents",
+          ],
+        },
+        {
+          name: "Generic AI",
+          note: "Broad knowledge, difficult to verify",
+          highlighted: false,
+          items: [
+            "Can invent confidence",
+            "Weak organizational context",
+            "No systematic comparison of alternatives",
+            "No institutional memory",
+          ],
+        },
+        {
+          name: "Compass",
+          note: "Institutional judgment",
+          highlighted: true,
+          items: [
+            "Every decision becomes organizational knowledge",
+            "Every implementation improves the next decision",
+            "Institutional judgment compounds",
+            "The moat is memory, not models",
+          ],
+        },
+      ],
+    },
 
   operations: {
     label: "Built for consequential decisions",
@@ -582,7 +625,9 @@ export const marketing = {
     headline: "Implementation is becoming abundant. Judgment remains scarce.",
     name: "Arthur Smith",
     role: "Founder, Compass",
-    bio: "Compass was founded by Arthur Smith after years of building operational and AI systems at Lime. He repeatedly saw teams move into implementation before rigorously deciding whether they were solving the right problem or choosing the right intervention. As software became easier to build, the real bottleneck became clear: judgment.",
+      bio: "Compass was founded by Arthur Smith after years of building operational and AI systems at Lime. He repeatedly saw teams move into implementation before rigorously deciding whether they were solving the right problem or choosing the right intervention. As software became easier to build, the real bottleneck became clear: judgment.",
+      founderLine:
+        "I wasn\u2019t trying to build another AI company. I was trying to solve a problem I kept seeing inside enterprise operations.",
     proofPointsLabel: "What that work produced",
     proofPoints: [
       "Production systems supporting operations across 200+ markets",
@@ -596,7 +641,7 @@ export const marketing = {
     eyebrow: "Make operational decisions with confidence",
     headline: "Before you implement anything, make sure it is the right thing.",
     subtitle:
-      "Describe your operational challenge. Get an evidence-backed recommendation, a clear implementation path, and a framework for measuring what happens next.",
+      "Describe your operational challenge. Get an evidence-backed decision, a clear implementation path, and a framework for measuring what happens next.",
     ctaPrimary: "Analyze a Problem",
     ctaSecondary: "Request a Demo",
   },
@@ -616,7 +661,7 @@ export const about = {
     headline: "Our internal compass",
     subtitle: "Four principles guide how we build.",
     items: [
-      { title: "Evidence", description: "Recommendations begin with comparable operational implementations\u2014not assumptions." },
+      { title: "Evidence", description: "Decisions begin with comparable operational implementations\u2014not assumptions." },
       { title: "Problems First", description: "Compass starts with the business problem, not the technology." },
       { title: "Transparency", description: "Every finding includes supporting evidence, assumptions, and alternatives." },
       { title: "Continuous Learning", description: "As the evidence base grows, Compass becomes increasingly capable of identifying comparable implementations." },

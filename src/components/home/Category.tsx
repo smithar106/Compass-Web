@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 export function Category() {
   const c = marketing.category;
   const q = c.question;
-  const model = c.model;
 
   return (
     <section className="border-b border-line bg-paper">
@@ -24,6 +23,28 @@ export function Category() {
             <Reveal delay={180}>
               <p className="mt-6 max-w-xl text-lead leading-relaxed text-muted">{c.consequence}</p>
               <p className="mt-4 text-lead font-semibold text-accent-deep">{c.resolve}</p>
+            </Reveal>
+
+            {/* what you have vs. what's missing */}
+            <Reveal delay={240}>
+              <div className="mt-8 border border-line bg-surface p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-faint">
+                  You already have
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {c.have.map((item) => (
+                    <span key={item} className="border border-line bg-paper px-2.5 py-1 text-[11.5px] font-medium text-muted">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+                <div className="my-4 flex items-center gap-3" aria-hidden="true">
+                  <span className="h-px flex-1 bg-line" />
+                  <span className="font-mono text-[10px] text-faint">missing</span>
+                  <span className="h-px flex-1 bg-line" />
+                </div>
+                <p className="text-[15px] font-semibold text-ink">{c.missing}</p>
+              </div>
             </Reveal>
           </div>
 
@@ -77,94 +98,7 @@ export function Category() {
           </div>
         </Reveal>
 
-        {/* the decision process model */}
-        <Reveal delay={160}>
-          <div className="mt-10 border border-line bg-paper/50 p-6 sm:p-8">
-            <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
-              {model.label}
-            </p>
-            <DecisionModel steps={model.steps} />
-            <p className="mt-6 font-serif text-[14px] italic text-muted">{model.closing}</p>
-          </div>
-        </Reveal>
       </div>
     </section>
-  );
-}
-
-function DecisionModel({ steps }: { steps: string[] }) {
-  return (
-    <div className="mt-5">
-      {/* desktop: horizontal flow */}
-      <ol className="hidden items-stretch md:flex">
-        {steps.map((step, i) => {
-          const isFinal = i === steps.length - 1;
-          return (
-            <li key={step} className="flex flex-1 items-center">
-              <div
-                className={cn(
-                  "flex flex-1 flex-col items-center gap-2 border px-3 py-4 text-center",
-                  isFinal ? "border-ink bg-ink" : "border-line bg-surface"
-                )}
-              >
-                <span
-                  className={cn(
-                    "font-mono text-[10px] font-bold",
-                    isFinal ? "text-accent" : "text-faint"
-                  )}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span
-                  className={cn(
-                    "text-[13px] font-semibold leading-snug",
-                    isFinal ? "text-paper" : "text-ink"
-                  )}
-                >
-                  {step}
-                </span>
-              </div>
-              {i < steps.length - 1 && (
-                <span aria-hidden="true" className="mx-1.5 flex h-8 items-center text-faint">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-      {/* mobile: vertical flow */}
-      <ol className="md:hidden">
-        {steps.map((step, i) => {
-          const isFinal = i === steps.length - 1;
-          return (
-            <li key={step}>
-              <div
-                className={cn(
-                  "flex items-center gap-3 border px-4 py-3",
-                  isFinal ? "border-ink bg-ink" : "border-line bg-surface"
-                )}
-              >
-                <span className={cn("font-mono text-[10px] font-bold", isFinal ? "text-accent" : "text-faint")}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className={cn("text-[14px] font-semibold", isFinal ? "text-paper" : "text-ink")}>
-                  {step}
-                </span>
-              </div>
-              {i < steps.length - 1 && (
-                <div className="flex justify-center py-1" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-faint">
-                    <path d="M8 2v11M3.5 9 8 13.5 12.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </div>
   );
 }

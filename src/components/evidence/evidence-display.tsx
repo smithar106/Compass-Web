@@ -145,7 +145,7 @@ export function EvidenceDisplay({
       {/* Assumptions */}
       <div>
         <SectionHeading label="Assumptions" />
-        <p className="text-xs text-stone/70 mb-2 italic">These are not facts. If any assumption is wrong, the recommendation may change.</p>
+        <p className="text-xs text-stone/70 mb-2 italic">These are not facts. If any assumption is wrong, the decision may change.</p>
         <div className="space-y-2">
           {assumptions.map((a, i) => (
             <div key={i} className="border border-amber-200 bg-amber-50/30 rounded-lg p-3">
@@ -185,12 +185,12 @@ export function EvidenceDisplay({
         </div>
       )}
 
-      {/* What could change this recommendation */}
+      {/* What could change this decision */}
       <div>
-        <SectionHeading label="What could change this recommendation" />
+        <SectionHeading label="What could change this decision" />
         <div className="p-3 bg-amber-50/40 border border-amber-200 rounded-lg">
           <p className="text-xs text-stone leading-relaxed">
-            {whatCouldChange || "New user-provided information, changing business conditions, or availability of new data could alter this recommendation. The recommendation is based on the current state of the organization."}
+            {whatCouldChange || "New user-provided information, changing business conditions, or availability of new data could alter this decision. The decision is based on the current state of the organization."}
           </p>
         </div>
       </div>

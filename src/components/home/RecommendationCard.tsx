@@ -32,9 +32,9 @@ export function RecommendationCard({ example, open, onToggle }: { example: Examp
           </span>
         </div>
 
-        {/* case-study flow */}
+        {/* decision flow */}
         <div className="mt-4">
-          <FlowRow label="Recommendation" value={e.intervention} />
+          <FlowRow label="Decision" value={e.intervention} />
           <FlowConnector />
           <FlowRow
             label="Evidence"
@@ -44,6 +44,8 @@ export function RecommendationCard({ example, open, onToggle }: { example: Examp
           <FlowRow label="Outcome" value={`${e.impact.range} \u00b7 ${e.roi.range} / yr \u00b7 payback ${e.roi.payback}`} />
           <FlowConnector />
           <FlowRow label="Partner" value={e.partner} />
+          <FlowConnector />
+          <FlowRow label="Owner" value={`${e.ownership.owner} \u00b7 review ${e.ownership.review}`} />
           <FlowConnector />
           <FlowRow label="Lessons learned" value={e.learning} />
         </div>

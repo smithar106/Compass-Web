@@ -20,7 +20,7 @@ export function MonitorVisual() {
     <VisualShell
       title="Implementation health"
       meta="Week 8 of 12"
-      footnote="Outcome tracking, not task management: metrics are compared against the original recommendation, and drift surfaces before it becomes a surprise."
+      footnote="Outcome tracking, not task management: metrics are compared against the original decision, and drift surfaces before it becomes a surprise."
     >
       {/* metrics */}
       <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">

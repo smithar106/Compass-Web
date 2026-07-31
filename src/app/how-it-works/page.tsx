@@ -1,7 +1,9 @@
+import { marketing } from "@/content/marketing";
 import { PageHeader } from "@/components/home/PageHeader";
 import { Stack } from "@/components/home/Stack";
 import { FinalCta } from "@/components/home/FinalCta";
 import { Reveal } from "@/components/home/Reveal";
+import { DecisionModel } from "@/components/home/DecisionModel";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -23,11 +25,11 @@ const STEPS = [
   },
   {
     number: "03",
-    name: "Review the recommendation",
+    name: "Review the decision",
     tag: "Live today",
     tone: "now" as const,
-    body: "You get a Decision Recommendation: the recommended intervention, why it won, why each alternative lost, the evidence behind it, the assumptions that could change it, and the success metrics.",
-    output: "A recommendation you can interrogate and defend.",
+    body: "You get a Decision Record: the intervention, why it won, why each alternative lost, the evidence behind it, the assumptions that could change it, and the success criteria.",
+    output: "A decision you can interrogate and defend.",
   },
   {
     number: "04",
@@ -35,7 +37,7 @@ const STEPS = [
     tag: "Live today",
     tone: "now" as const,
     body: "Generate an Implementation Blueprint\u2014phases, owners, dependencies, milestones, and validation criteria\u2014and decide whether your internal team or a selected partner will execute it.",
-    output: "A Blueprint that preserves the independence of the original recommendation.",
+    output: "A Blueprint that preserves the independence of the original decision.",
   },
   {
     number: "05",
@@ -50,7 +52,7 @@ const STEPS = [
     name: "Monitor and improve",
     tag: "In development",
     tone: "next" as const,
-    body: "Compass tracks the agreed success metrics, surfaces drift against the original recommendation, and runs structured reviews at 3, 6, 9, and 12 months\u2014feeding verified results back into the next decision.",
+    body: "Compass tracks the agreed success metrics, surfaces drift against the original decision, and runs structured reviews at 3, 6, 9, and 12 months\u2014feeding verified results back into the next decision.",
     output: "The Decide stage gets better every time a decision completes.",
   },
 ];
@@ -102,6 +104,23 @@ export default function HowItWorksPage() {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* the decision process model */}
+      <section className="border-b border-line bg-paper">
+        <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8 lg:px-10 lg:py-16">
+          <Reveal>
+            <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
+              {marketing.category.model.label}
+            </p>
+          </Reveal>
+          <Reveal delay={100}>
+            <DecisionModel steps={marketing.category.model.steps} />
+            <p className="mt-6 font-serif text-[14px] italic text-muted">
+              {marketing.category.model.closing}
+            </p>
+          </Reveal>
         </div>
       </section>
 
