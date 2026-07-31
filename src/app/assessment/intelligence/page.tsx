@@ -85,7 +85,7 @@ export default function IntelligencePage() {
               href="/assessment"
               className="inline-flex items-center px-6 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors"
             >
-              {site.assessment.intro.cta}
+              {site.assessment.intro.opportunities.cta}
             </Link>
           </div>
         )}

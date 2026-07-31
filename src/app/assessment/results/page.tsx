@@ -13,6 +13,7 @@ interface ComparableEvidence {
   outcome_summary: string; evidence_tier: string; evidence_score: number;
   similarity_score: number; relevance_explanation: string;
   limitations: string; source_url: string; publication_date: string;
+  source_title?: string; supporting_passage?: string;
   normalized_metrics: { metric: string; value: string; raw: string }[];
 }
 
@@ -206,6 +207,9 @@ function ResultsContent() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [recId, setRecId] = useState("");
+  const [entryMode, setEntryMode] = useState<string | null>(null);
+  const [proposed, setProposed] = useState<{ intervention: string; category: string } | null>(null);
+  const [meta, setMeta] = useState<any>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -224,6 +228,7 @@ function ResultsContent() {
           if (r.ok) {
             const d = await r.json();
             setRecs(d.recommendations || []);
+            setMeta(d.methodology || null);
             setRecId(id);
             return;
           }
@@ -255,6 +260,9 @@ function ResultsContent() {
       try { s = JSON.parse(raw); } catch { setLoadError("Corrupted session."); setLoading(false); return; }
       if (!s.completed || !s.answers?.length) { setLoadError("Incomplete investigation."); setLoading(false); return; }
 
+      setEntryMode(s.mode || null);
+      setProposed(s.proposed || null);
+
       const p = buildProfile(s.answers);
       const res = await fetch("/api/recommendations", {
         method: "POST",
@@ -269,6 +277,7 @@ function ResultsContent() {
       }
       const d = await res.json();
       setRecs(d.recommendations || []);
+      setMeta(d.methodology || null);
       if (d.recommendation_id) {
         window.history.replaceState({}, "", `/assessment/results?recommendation_id=${encodeURIComponent(d.recommendation_id)}`);
         setRecId(d.recommendation_id);
@@ -343,7 +352,7 @@ function ResultsContent() {
         <div className="flex items-center gap-2 mb-3">
           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white shrink-0 ${rankBg}`}>{rec.rank}</span>
           <span className="text-[11px] font-extrabold text-[#4f6280] uppercase">{badgeText}</span>
-          <span className="text-[10px] text-[#4f6280] ml-auto">{rec.rank === 3 ? 55 : Math.round(rec.confidence.score * 100)}% evidence strength</span>
+          <span className="text-[10px] text-[#4f6280] ml-auto">{Math.round(rec.confidence.score * 100)}% evidence strength</span>
         </div>
         <h3 className="text-[16px] font-extrabold tracking-[-0.01em] text-[#101826] mb-1">{rec.title}</h3>
 
@@ -381,125 +390,49 @@ function ResultsContent() {
             </div>
           </header>
 
+          {/* ===== 1.5 VALIDATION REPORT (validate entry) ===== */}
+          {entryMode === "validate" && proposed?.category && recs.length > 0 && (
+            <ValidationReport proposed={proposed} recs={recs} />
+          )}
+
+          {/* ===== 1.6 GROUNDING STATE ===== */}
+          <GroundingBanner rec={top} meta={meta} />
+
           {/* ===== 2. PRIMARY RECOMMENDATION ===== */}
           <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green shadow-[0_8px_32px_-8px_rgba(25,164,58,0.12)]">
             <span className="w-7 h-7 rounded-full bg-[#d7a500] text-white flex items-center justify-center text-[12px] font-extrabold mb-4">1</span>
 
-            {/* SECTION 1: Recommended Path — generate clean vendor-free title */}
+            {/* SECTION 1: Recommended Path — label derived from engine category */}
             <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Recommended Path</p>
             <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-[#101826] mb-4 leading-[1.2]">
-              {(() => {
-                const cat = (top.category || "").toLowerCase();
-                if (cat.includes("workflow_automation") || cat.includes("automation")) return "Streamline repetitive work through structured workflow automation";
-                if (cat.includes("ai")) return "Introduce AI-assisted automation while retaining human review for high-stakes decisions";
-                if (cat.includes("software")) return "Implement purpose-built software to replace manual or disconnected workflows";
-                if (cat.includes("process_redesign") || cat.includes("process")) return "Redesign operational workflows to eliminate waste and reduce manual handoffs";
-                if (cat.includes("staffing")) return "Restructure team allocation to address capacity gaps";
-                return "Implement the most evidence-supported intervention for this workflow";
-              })()}
+              {top.title || "Evidence-supported intervention"}
             </h2>
+            {top.description && (
+              <p className="text-[12.5px] text-[#4f6280] leading-[1.6] mb-4">{top.description}</p>
+            )}
 
-            {/* Suggested Technology Stack */}
-            <div className="mb-5">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Suggested Technology Stack</p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(() => {
-                  const cat = (top.category || "").toLowerCase();
-                  if (cat.includes("workflow_automation") || cat.includes("automation")) {
-                    return (
-                      <>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Automation</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Power Automate, Make, Zapier, n8n</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Workflow Platform</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Google Workspace, Microsoft 365</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Document Automation</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">UiPath, Automation Anywhere</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">AI Assistant</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Claude, ChatGPT Enterprise, Gemini</p>
-                        </div>
-                      </>
-                    );
-                  }
-                  if (cat.includes("ai")) {
-                    return (
-                      <>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">AI Assistant</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Claude, ChatGPT Enterprise, Gemini, Microsoft Copilot</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Knowledge Platform</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">SharePoint, Google Drive, Box, Glean</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Workflow Platform</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Google Workspace, Microsoft 365</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Automation</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Power Automate, Zapier, n8n</p>
-                        </div>
-                      </>
-                    );
-                  }
-                  if (cat.includes("software")) {
-                    return (
-                      <>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Workflow Platform</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Google Workspace, Microsoft 365, ServiceNow</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Automation</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Power Automate, Make, Zapier</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Document Automation</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">UiPath, Automation Anywhere</p>
-                        </div>
-                        <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                          <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">AI Assistant</p>
-                          <p className="text-[10px] text-[#101826] leading-snug">Claude, ChatGPT Enterprise, Gemini</p>
-                        </div>
-                      </>
-                    );
-                  }
-                  return (
-                    <>
-                      <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                        <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Workflow Platform</p>
-                        <p className="text-[10px] text-[#101826] leading-snug">Google Workspace, Microsoft 365</p>
-                      </div>
-                      <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
-                        <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">Automation</p>
-                        <p className="text-[10px] text-[#101826] leading-snug">Power Automate, Make, Zapier</p>
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
-
-            {/* SECTION 2: Why this is the strongest path */}
+            {/* SECTION 2: Why this decision — engine rationale + why-it-ranked */}
             <div className="mb-6 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Why this is the strongest path</p>
-              <p className="text-[12px] text-[#4f6280] leading-[1.6] mb-3">
-                Organizations with operational workflows similar to yours consistently achieved stronger operational improvements using this intervention than the alternatives evaluated. This approach demonstrated faster implementation, lower execution risk, stronger measured outcomes, and lower organizational complexity.
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Why this is the strongest path</p>
+              <p className="text-[12px] text-[#4f6280] leading-[1.6] mb-2">
+                {top.rationale || (top.why_ranked_first?.summary) || "Ranked by comparable evidence and workflow fit."}
               </p>
+              {top.why_it_ranked_here && top.why_it_ranked_here.length > 0 && (
+                <ul className="space-y-1">
+                  {top.why_it_ranked_here.slice(0, 5).map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-[11.5px] text-[#101826]/85">
+                      <span className="text-brand-green mt-0.5 shrink-0">&#10003;</span>{r}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
-            {/* SECTION 3: Expected Operational Impact */}
+            {/* SECTION 3: Expected Operational Impact (evidence-derived ranges) */}
             {top.outcome_ranges && top.outcome_ranges.filter(r => r.directly_comparable).length > 0 && (
               <div className="mb-6">
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Expected Operational Impact</p>
-                <p className="text-[12px] text-[#4f6280] mb-3">Organizations implementing similar interventions achieved:</p>
+                <p className="text-[12px] text-[#4f6280] mb-3">Ranges observed across comparable implementations:</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
                   {top.outcome_ranges.filter(r => r.directly_comparable).slice(0, 3).map((r, i) => {
                     const fmtVal = formatRange(r) + (r.unit === "number" && !isCurrency(r.metric_label, r.unit) ? " hours" : "");
@@ -509,7 +442,7 @@ function ResultsContent() {
                       <div key={i} className="bg-[#f6f8fa] rounded-xl px-4 py-3 border border-[#e6eaef]">
                         <div className="text-[17px] font-extrabold text-[#101826]">{fmtVal}</div>
                         <div className="text-[9px] font-bold text-[#4f6280] uppercase tracking-[0.04em]">{label}</div>
-                        <div className="text-[8px] text-[#4f6280] italic mt-0.5">Observed across similar organizations</div>
+                        <div className="text-[8px] text-[#4f6280] italic mt-0.5">Observed across {r.sample_size} comparable implementations</div>
                       </div>
                     );
                   })}
@@ -517,72 +450,65 @@ function ResultsContent() {
               </div>
             )}
 
-            {/* SECTION 4: Why this works */}
-            <div className="mb-5 border-t border-[#ebeff4] pt-5">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Why this works</p>
-              <ul className="space-y-1 mb-3">
+            {/* SECTION 4: Confidence breakdown (factors, not a single invented %) */}
+            <ConfidenceFactors rec={top} recs={recs} meta={meta} />
+
+            {/* SECTION 5: Indicative technology stack — clearly labeled, not vendor selection */}
+            <div className="mb-6">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-1">
+                Indicative technology stack
+              </p>
+              <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-2">
+                Typical tool categories for this intervention type. Compass does not select or recommend specific vendors.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(() => {
                   const cat = (top.category || "").toLowerCase();
-                  const reasons: string[] = [];
-                  if (cat.includes("automation")) {
-                    reasons.push("This workflow follows consistent, repeatable steps that are well suited to automation.");
-                    reasons.push("Comparable organizations automated these activities before introducing AI.");
-                    reasons.push("The workflow follows consistent patterns that can be standardized.");
-                    reasons.push("This approach requires fewer organizational changes than the alternatives.");
-                  } else if (cat.includes("ai")) {
-                    reasons.push("This workflow benefits from AI-assisted classification and generation.");
-                    reasons.push("Comparable organizations achieved measurable outcomes with similar AI deployments.");
-                    reasons.push("Human review remains in place for high-stakes decisions.");
-                  } else if (cat.includes("software")) {
-                    reasons.push("Purpose-built platforms exist for this workflow with proven results.");
-                    reasons.push("Integration with existing systems follows established patterns.");
-                    reasons.push("Comparable organizations realized meaningful improvements through platform adoption.");
-                  } else if (cat.includes("process")) {
-                    reasons.push("This workflow will benefit from structured redesign before technology investment.");
-                    reasons.push("Comparable organizations achieved gains through process improvement alone.");
-                    reasons.push("Process redesign reduces implementation risk before automation.");
-                  } else {
-                    reasons.push("Organizations solving similar problems consistently achieved strong results through this approach.");
-                    reasons.push("The evidence supports this as the most practical path forward.");
+                  if (cat.includes("workflow_automation") || cat.includes("automation")) {
+                    return (
+                      <>
+                        <StackCell label="Automation" value="Rules-based automation platforms" />
+                        <StackCell label="Workflow Platform" value="Workflow and orchestration tools" />
+                        <StackCell label="Document Automation" value="Document processing tools" />
+                        <StackCell label="AI Assistant" value="AI-assisted drafting tools" />
+                      </>
+                    );
                   }
-                  return reasons.slice(0, 3).map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-[11px] text-[#4f6280]">
-                      <span className="text-brand-green mt-0.5 shrink-0">&#10003;</span>{s}
-                    </li>
-                  ));
+                  if (cat.includes("ai")) {
+                    return (
+                      <>
+                        <StackCell label="AI Assistant" value="LLM / generative AI platforms" />
+                        <StackCell label="Knowledge Platform" value="Knowledge and retrieval systems" />
+                        <StackCell label="Workflow Platform" value="Workflow and orchestration tools" />
+                        <StackCell label="Automation" value="Rules-based automation platforms" />
+                      </>
+                    );
+                  }
+                  if (cat.includes("software")) {
+                    return (
+                      <>
+                        <StackCell label="Workflow Platform" value="Purpose-built SaaS platforms" />
+                        <StackCell label="Automation" value="Rules-based automation platforms" />
+                        <StackCell label="Document Automation" value="Document processing tools" />
+                        <StackCell label="AI Assistant" value="AI-assisted drafting tools" />
+                      </>
+                    );
+                  }
+                  return (
+                    <>
+                      <StackCell label="Workflow Platform" value="Workflow and orchestration tools" />
+                      <StackCell label="Automation" value="Rules-based automation platforms" />
+                    </>
+                  );
                 })()}
-              </ul>
+              </div>
             </div>
 
-            {/* SECTION 5: Implementation Considerations */}
-            <div className="bg-[#fcf8f0] rounded-xl px-4 py-4 border border-[#f0e8d4]">
-              <p className="text-[9px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Implementation Considerations</p>
-              <ul className="space-y-1">
-                {(() => {
-                  const cat = (top.category || "").toLowerCase();
-                  const items: string[] = [];
-                  items.push("Retain human review for complex exceptions.");
-                  items.push("Standardize workflow steps before automation.");
-                  if (cat.includes("automation")) {
-                    items.push("Measure baseline performance before rollout.");
-                    items.push("Pilot with one business unit before scaling.");
-                  } else if (cat.includes("ai")) {
-                    items.push("Validate AI output quality before full deployment.");
-                    items.push("Begin with bounded scope before expanding.");
-                  } else if (cat.includes("software")) {
-                    items.push("Assess integration requirements early.");
-                    items.push("Plan for user adoption and change management.");
-                  } else {
-                    items.push("Pilot before scaling organization-wide.");
-                  }
-                  return items.slice(0, 4).map((t, i) => (
-                    <li key={i} className="text-[11px] text-[#4f6280] flex items-start gap-2">
-                      <span className="text-[#a8490c] mt-0.5 shrink-0">&#8226;</span>{t}
-                    </li>
-                  ));
-                })()}
-              </ul>
-            </div>
+            {/* SECTION 6: Evidence behind this decision */}
+            <EvidenceBehind rec={top} />
+
+            {/* SECTION 7: Assumptions, gaps, risks */}
+            <AssumptionsGapsPanel rec={top} />
           </section>
 
           {/* ===== 4. ALTERNATIVES ===== */}
@@ -593,50 +519,8 @@ function ResultsContent() {
             <AlternativeCard rec={alternatives.filter(r => r.rank === 3)[0]} accent="orange" />
           )}
 
-          {/* ===== 5. NEXT STEPS ===== */}
-          <section className="bg-white rounded-2xl p-8 shadow-sm border-2 border-brand-green/30">
-            <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-2">Next Steps</h2>
-            <p className="text-[13px] text-[#4f6280] leading-[1.6] mb-6">
-              Evidence supports this decision. The next step is to validate it using your organization&apos;s operating data before broader implementation.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">1</span>
-                  <p className="text-[13px] font-extrabold text-[#101826]">Validate current workflow baseline</p>
-                </div>
-                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Measure current cycle time, volume, exception rate, and manual effort for the targeted workflow.</p>
-                <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Establishes baseline metrics for comparison.</p>
-              </div>
-              <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">2</span>
-                  <p className="text-[13px] font-extrabold text-[#101826]">Share operating data with Compass</p>
-                </div>
-                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Provide annual workflow volume, handling time, and labor cost to personalize financial projections.</p>
-                <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Enables organization-specific savings estimates.</p>
-              </div>
-              <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">3</span>
-                  <p className="text-[13px] font-extrabold text-[#101826]">Run a focused pilot</p>
-                </div>
-                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Implement the recommended approach in a bounded scope with defined success metrics.</p>
-                <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Validates observed outcomes in your specific context.</p>
-              </div>
-              <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="w-7 h-7 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-extrabold shrink-0">4</span>
-                  <p className="text-[13px] font-extrabold text-[#101826]">Reassess before scaling</p>
-                </div>
-                <p className="text-[11px] text-[#4f6280] leading-[1.5] ml-10">Compare pilot outcomes against similar organizations to refine projections.</p>
-                <p className="text-[11px] text-brand-green-dark font-semibold ml-10 mt-1">Outcome: Confirms whether to proceed with full-scale implementation.</p>
-              </div>
-            </div>
-            <p className="text-[11px] text-[#4f6280] italic mt-5 text-center">
-              Compass compares your pilot outcomes against similar organizations to refine future decisions.
-            </p>
-          </section>
+          {/* ===== 5. NEXT VALIDATION STEP (from engine) ===== */}
+          <NextValidationStepPanel rec={top} />
 
           {/* ===== 8. METHODOLOGY ===== */}
           <section className="bg-white rounded-2xl p-6 shadow-sm border border-[#dfe5ec] text-[11px] text-[#4f6280] leading-[1.6]">
@@ -646,6 +530,375 @@ function ResultsContent() {
           </section>
         </div>
       </div>
+    </div>
+  );
+}
+
+function StackCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-[#f6f8fa] rounded-xl px-3 py-2.5 border border-[#e6eaef]">
+      <p className="text-[8px] font-extrabold text-[#4f6280] uppercase tracking-[0.06em] mb-1">{label}</p>
+      <p className="text-[10px] text-[#101826] leading-snug">{value}</p>
+    </div>
+  );
+}
+
+function categoryFamily(cat: string | undefined): string {
+  const c = (cat || "").toLowerCase();
+  if (c.includes("no_action") || c.includes("no-action") || c.includes("defer")) return "No action";
+  if (c.includes("ai")) return "AI";
+  if (c.includes("process")) return "Process redesign";
+  if (c.includes("staffing") || c.includes("human")) return "Human work";
+  if (c.includes("software") || c.includes("automation") || c.includes("workflow")) return "Deterministic software";
+  return c;
+}
+
+function familiesMatch(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (a === "Hybrid" && (b === "AI" || b === "Deterministic software")) return true;
+  if (b === "Hybrid" && (a === "AI" || a === "Deterministic software")) return true;
+  return false;
+}
+
+function ValidationReport({ proposed, recs }: { proposed: { intervention: string; category: string }; recs: RecommendationData[] }) {
+  const top = recs[0];
+  const topFamily = categoryFamily(top?.category);
+  const validated = !!top && familiesMatch(proposed.category, topFamily);
+  let rank = 0;
+  recs.forEach((r, i) => {
+    if (rank === 0 && familiesMatch(proposed.category, categoryFamily(r.category))) rank = i + 1;
+  });
+
+  return (
+    <section className={`rounded-2xl p-6 shadow-sm border-2 ${validated ? "border-[#1E7B4C] bg-[#E5F3EA]" : "border-[#B45309] bg-[#FBF0E0]"}`}>
+      <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Decision Validation Report</p>
+      <div className="flex items-start gap-3">
+        <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white text-[11px] font-bold ${validated ? "bg-[#1E7B4C]" : "bg-[#B45309]"}`} aria-hidden="true">
+          {validated ? "✓" : "!"}
+        </span>
+        <div>
+          <h2 className="text-[16px] font-extrabold text-[#101826]">
+            {validated ? "Your proposed approach is validated." : "The evidence points to a different approach."}
+          </h2>
+          <p className="mt-1 text-[13px] leading-[1.6] text-[#4f6280]">
+            {validated ? (
+              <>
+                You proposed <strong>{proposed.intervention || proposed.category}</strong> ({proposed.category}).
+                Compass ranked it first, with the strongest evidence among every alternative compared. The
+                rationale and alternatives below show why.
+              </>
+            ) : (
+              <>
+                You proposed <strong>{proposed.intervention || proposed.category}</strong> ({proposed.category}).
+                Compass ranked <strong>{top?.title}</strong> ({topFamily}) first.{" "}
+                {rank > 0 ? <>Your proposed approach ranked #{rank} among the compared paths.</> : <>It did not rank among the compared paths.</>}{" "}
+                The evidence and alternatives below show why.
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Recommendation integrity helpers
+// ---------------------------------------------------------------------------
+
+function avgComparableSimilarity(rec: RecommendationData): number {
+  const c = rec.comparable_implementations || [];
+  if (!c.length) return 0;
+  return Math.round(c.reduce((s, x) => s + (x.similarity_score || 0), 0) / c.length);
+}
+
+function groundingState(rec: RecommendationData, meta: any) {
+  const tier = rec.evidence_summary?.overall_tier;
+  const total = rec.evidence_summary?.total_comparables || 0;
+  const label = rec.confidence?.label;
+  if (label === "insufficient" || tier === "insufficient" || total === 0) {
+    return {
+      key: "insufficient" as const,
+      label: "Insufficient Evidence",
+      tone: "bg-[#FBF0E0] border-[#B45309] text-[#7a3b06]",
+      dot: "bg-[#B45309]",
+      note:
+        "Compass found too little highly comparable evidence to make a defensible recommendation. The next validation step below shows what would change that.",
+    };
+  }
+  const avgSim = avgComparableSimilarity(rec);
+  const gaps = (rec.information_gaps || []).length;
+  if (avgSim < 40 || gaps > 0) {
+    return {
+      key: "partial" as const,
+      label: "Partially Grounded",
+      tone: "bg-[#EAF2FF] border-[#156ff5] text-[#0b3f8f]",
+      dot: "bg-[#156ff5]",
+      note: `Live evidence-backed, but with partial grounding: comparable implementations matched at ${avgSim}/100 average similarity${gaps ? `, and ${gaps} material information gap${gaps > 1 ? "s" : ""} remain` : ""}. Source links for the underlying records are pending.`,
+    };
+  }
+  const orgs = (meta?.evidence_count?.unique_organizations) || 0;
+  return {
+    key: "live" as const,
+    label: "Live Evidence-Backed",
+    tone: "bg-[#E5F3EA] border-[#1E7B4C] text-[#14532d]",
+    dot: "bg-[#1E7B4C]",
+    note: `Derived live from ${total} comparable implementations${orgs ? ` across ${orgs} organizations` : ""}, with deterministic scoring over the evidence graph.`,
+  };
+}
+
+function factorValue(value: string, detail: string, tone: "ok" | "warn" | "muted") {
+  return { value, detail, tone };
+}
+
+function buildConfidenceFactors(rec: RecommendationData, recs: RecommendationData[], meta: any) {
+  const es = rec.evidence_summary || {};
+  const ec = meta?.evidence_count || {};
+  const avgSim = avgComparableSimilarity(rec);
+  const gaps = (rec.information_gaps || []).length;
+  const margin = Math.round((rec.confidence?.score || 0) * 100 - (recs[1]?.confidence?.score || 0) * 100);
+  const gold = es.gold_count || 0;
+  const silver = es.silver_count || 0;
+  const tierLabel = es.overall_tier || "insufficient";
+  const measured = ec.outcome_measured_implementations || 0;
+  const quantified = ec.quantified_outcome_implementations || 0;
+  const orgs = ec.unique_organizations || 0;
+
+  const factors: { label: string; value: string; detail: string; tone: "ok" | "warn" | "muted" }[] = [];
+
+  // Problem match — average similarity of top comparables to the user's problem
+  factors.push({
+    label: "Problem match",
+    ...(avgSim >= 50
+      ? factorValue("Strong", `Top comparables matched at ~${avgSim}/100 similarity.`, "ok")
+      : avgSim >= 30
+        ? factorValue("Moderate", `Top comparables matched at ~${avgSim}/100 similarity.`, "warn")
+        : factorValue("Limited", `Top comparables matched at ~${avgSim}/100 similarity — broad, not exact.`, "warn"))
+  });
+
+  // Evidence strength — tier + gold/silver
+  factors.push({
+    label: "Evidence strength",
+    ...(gold >= 1
+      ? factorValue("Strong", `${gold} gold-tier source${gold > 1 ? "s" : ""} with quantified outcomes.`, "ok")
+      : silver >= 3 || tierLabel === "silver"
+        ? factorValue("Moderate", `${silver} silver-tier sources; overall tier ${tierLabel}.`, "warn")
+        : factorValue("Limited", `Overall evidence tier ${tierLabel}. No gold-tier sources in this result.`, "warn"))
+  });
+
+  // Outcome evidence — measured + quantified comparables
+  factors.push({
+    label: "Outcome evidence",
+    ...(measured >= 5
+      ? factorValue("Strong", `${measured} comparable implementations measured outcomes (${quantified} quantified).`, "ok")
+      : measured >= 2
+        ? factorValue("Moderate", `${measured} comparable implementations measured outcomes (${quantified} quantified).`, "warn")
+        : factorValue("Limited", `${measured} comparable implementations measured outcomes.`, "warn"))
+  });
+
+  // Evidence diversity — unique organizations
+  factors.push({
+    label: "Evidence diversity",
+    ...(orgs >= 20
+      ? factorValue("Strong", `Evidence spans ${orgs} independent organizations.`, "ok")
+      : orgs >= 8
+        ? factorValue("Moderate", `Evidence spans ${orgs} independent organizations.`, "warn")
+        : factorValue("Limited", `Evidence spans ${orgs} independent organizations.`, "warn"))
+  });
+
+  // Missing information — information gaps
+  factors.push({
+    label: "Missing information",
+    ...(gaps === 0
+      ? factorValue("None", "No material information gaps flagged.", "ok")
+      : gaps <= 2
+        ? factorValue("Moderate", `${gaps} information gap${gaps > 1 ? "s" : ""} listed below.`, "warn")
+        : factorValue("Material", `${gaps} information gaps listed below.`, "warn"))
+  });
+
+  // Alternative margin
+  factors.push({
+    label: "Alternative margin",
+    ...(margin >= 15
+      ? factorValue("Wide", `Top decision leads the runner-up by ${margin} confidence points.`, "ok")
+      : margin >= 5
+        ? factorValue("Moderate", `Top decision leads the runner-up by ${margin} confidence points.`, "warn")
+        : factorValue("Narrow", `Top decision leads the runner-up by ${margin} confidence points.`, "warn"))
+  });
+
+  return factors;
+}
+
+function GroundingBanner({ rec, meta }: { rec: RecommendationData; meta: any }) {
+  const g = groundingState(rec, meta);
+  return (
+    <div className={`rounded-2xl px-5 py-4 border ${g.tone} flex items-start gap-3`}>
+      <span aria-hidden="true" className={`mt-1 h-2 w-2 shrink-0 rounded-full ${g.dot}`} />
+      <div>
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.06em]">{g.label}</p>
+        <p className="mt-1 text-[12.5px] leading-[1.6] text-[#101826]/80">{g.note}</p>
+      </div>
+    </div>
+  );
+}
+
+function ConfidenceFactorRow({ label, value, detail, tone }: { label: string; value: string; detail: string; tone: "ok" | "warn" | "muted" }) {
+  const color = tone === "ok" ? "text-[#1E7B4C]" : tone === "warn" ? "text-[#B45309]" : "text-[#4f6280]";
+  return (
+    <div className="py-2.5 border-b border-[#ebeff4] last:border-b-0">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[12px] font-semibold text-[#101826]">{label}</span>
+        <span className={`text-[12px] font-extrabold ${color}`}>{value}</span>
+      </div>
+      <p className="mt-0.5 text-[11px] text-[#4f6280] leading-[1.5]">{detail}</p>
+    </div>
+  );
+}
+
+function ConfidenceFactors({ rec, recs, meta }: { rec: RecommendationData; recs: RecommendationData[]; meta: any }) {
+  const factors = buildConfidenceFactors(rec, recs, meta);
+  return (
+    <div className="mb-6 border border-[#e6eaef] rounded-xl p-4">
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280]">
+          Confidence breakdown
+        </p>
+        <span className="text-[12px] font-bold text-[#101826]">
+          Overall: {rec.confidence?.label || "unknown"}
+        </span>
+      </div>
+      <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-2">
+        Each factor is derived from the evidence actually retrieved for this decision. Confidence is shown as a
+        breakdown, not a single precise percentage, because a single number would imply more precision than the
+        current model supports.
+      </p>
+      {factors.map((f) => (
+        <ConfidenceFactorRow key={f.label} {...f} />
+      ))}
+    </div>
+  );
+}
+
+function EvidenceBehind({ rec }: { rec: RecommendationData }) {
+  const c = (rec.comparable_implementations || []).slice(0, 5);
+  const withSource = c.filter((x) => x.source_url).length;
+  return (
+    <div className="mb-6 border border-[#e6eaef] rounded-xl overflow-hidden">
+      <div className="px-4 py-3 bg-[#f6f8fa] border-b border-[#e6eaef]">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280]">
+          Evidence behind this decision
+        </p>
+      </div>
+      <div className="p-4">
+        {c.length === 0 ? (
+          <p className="text-[12px] text-[#4f6280] italic">
+            No comparable implementations were attached to this recommendation by the engine.
+          </p>
+        ) : (
+          <ul className="divide-y divide-[#ebeff4]">
+            {c.map((x) => (
+              <li key={x.record_id || x.organization} className="py-3 first:pt-0">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[12.5px] font-bold text-[#101826]">{x.organization || "Verified implementation"}</span>
+                  <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide text-[#4f6280]">
+                    <span className={`px-1.5 py-0.5 rounded ${x.evidence_tier === "gold" ? "bg-[#fff6d8] text-[#7a5b00]" : x.evidence_tier === "silver" ? "bg-[#f0f3f6] text-[#3f4a5a]" : "bg-[#fff0e6] text-[#7a3b06]"}`}>
+                      {x.evidence_tier || "unknown"}
+                    </span>
+                    <span>sim {x.similarity_score || 0}%</span>
+                  </span>
+                </div>
+                {x.intervention && <p className="mt-0.5 text-[11.5px] text-[#4f6280]">{x.intervention}</p>}
+                <p className="mt-1 text-[11.5px] text-[#101826]/85 leading-[1.5]">{x.outcome_summary || x.observed_outcome || "Outcome not quantified"}</p>
+                {x.supporting_passage && (
+                  <p className="mt-1 text-[11px] italic text-[#4f6280] leading-[1.5]">&ldquo;{x.supporting_passage.slice(0, 220)}&rdquo;</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 pt-3 border-t border-[#ebeff4] text-[11px] leading-[1.5] text-[#4f6280]">
+          Provenance: {withSource} of {c.length} records carry a resolvable source link. Compass will only treat
+          records as fully traceable once their source can be opened; passages above are extracted evidence and
+          should be treated as partially traceable until then.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function NextValidationStepPanel({ rec }: { rec: RecommendationData }) {
+  const n = rec.next_validation_step;
+  if (!n) return null;
+  return (
+    <section className="bg-white rounded-2xl p-8 shadow-sm border border-[#dfe5ec]">
+      <h2 className="text-[17px] font-extrabold tracking-[-0.01em] text-[#101826] mb-1">Next validation step</h2>
+      <p className="text-[11px] text-[#4f6280] mb-4">Recommended by the engine to close the confidence gap before committing to implementation.</p>
+      <div className="bg-[#f6f8fa] rounded-xl px-5 py-4 border border-[#e6eaef]">
+        <p className="text-[13px] font-extrabold text-[#101826]">{n.action}</p>
+        <p className="mt-1 text-[11.5px] text-[#4f6280] leading-[1.5]">{n.purpose}</p>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-[11.5px]">
+          <div><span className="font-bold text-[#4f6280]">Owner: </span><span className="text-[#101826]">{n.owner}</span></div>
+          <div><span className="font-bold text-[#4f6280]">Duration: </span><span className="text-[#101826]">{n.duration}</span></div>
+          <div className="sm:col-span-2"><span className="font-bold text-[#4f6280]">Success criteria: </span><span className="text-[#101826]">{n.success_criteria}</span></div>
+          <div className="sm:col-span-2"><span className="font-bold text-[#4f6280]">Enables: </span><span className="text-[#101826]">{n.decision_enabled}</span></div>
+        </div>
+        {n.required_inputs && n.required_inputs.length > 0 && (
+          <p className="mt-3 text-[11px] text-[#4f6280]">Required inputs: {n.required_inputs.join(" · ")}</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function AssumptionsGapsPanel({ rec }: { rec: RecommendationData }) {
+  const assumptions = rec.assumptions_detail || [];
+  const gaps = rec.information_gaps || [];
+  const risks = rec.risks || [];
+  if (assumptions.length === 0 && gaps.length === 0 && risks.length === 0) return null;
+  return (
+    <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {assumptions.length > 0 && (
+        <div className="border border-[#e6eaef] rounded-xl p-4">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Assumptions that could change this decision</p>
+          <ul className="space-y-2.5">
+            {assumptions.slice(0, 4).map((a) => (
+              <li key={a.title} className="text-[11.5px]">
+                <p className="font-bold text-[#101826]">{a.title}</p>
+                <p className="text-[#4f6280] leading-[1.5] mt-0.5">{a.explanation}</p>
+                <p className="text-[#1E7B4C] mt-0.5">Resolution: {a.resolution_action}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {gaps.length > 0 && (
+        <div className="border border-[#e6eaef] rounded-xl p-4">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">What is missing</p>
+          <ul className="space-y-2.5">
+            {gaps.slice(0, 4).map((g) => (
+              <li key={g.title} className="text-[11.5px]">
+                <p className="font-bold text-[#101826]">{g.title}</p>
+                <p className="text-[#4f6280] leading-[1.5] mt-0.5">{g.explanation}</p>
+                <p className="text-[#B45309] mt-0.5">Effect on confidence: {g.effect_on_confidence}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {risks.length > 0 && (
+        <div className="md:col-span-2 border border-[#e6eaef] rounded-xl p-4">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-3">Risks identified from evidence</p>
+          <ul className="space-y-2.5">
+            {risks.slice(0, 4).map((r: any, i: number) => (
+              <li key={i} className="text-[11.5px]">
+                <p className="font-bold text-[#101826]">{r.title}</p>
+                <p className="text-[#4f6280] leading-[1.5] mt-0.5">{r.explanation}</p>
+                {r.mitigation && <p className="text-[#1E7B4C] mt-0.5">Mitigation: {r.mitigation}</p>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

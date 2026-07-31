@@ -3,15 +3,20 @@ import { site } from "@/content/site";
 
 describe("Homepage content", () => {
   it("should open on a new truth rather than a feature description", () => {
-    expect(site.marketing.hero.claim).toContain("most expensive operational mistake");
-    expect(site.marketing.hero.subtitle).toContain("confidence before they spend months");
+    expect(site.marketing.hero.heading).toBe("How can Compass help today?");
+    expect(site.marketing.hero.quote).toContain("most expensive operational mistake");
   });
 
-  it("should offer two entry paths: describe a known problem or start guided", () => {
-    expect(site.marketing.hero.pathA.title).toBe("I know my problem");
-    expect(site.marketing.hero.pathA.time).toContain("minutes");
-    expect(site.marketing.hero.pathB.title).toContain("not sure what");
-    expect(site.marketing.hero.pathB.cta).toContain("guided");
+  it("should offer three entry paths that converge on the same engine", () => {
+    const paths = site.marketing.hero.paths;
+    expect(paths).toHaveLength(3);
+    expect(paths.map((p) => p.id)).toEqual(["analyze", "opportunities", "validate"]);
+    expect(paths[0].title).toContain("Analyze an Operational Problem");
+    expect(paths[1].title).toContain("Find My Biggest Improvement Opportunity");
+    expect(paths[2].title).toContain("Validate an Implementation Decision");
+    expect(paths[0].href).toContain("mode=analyze");
+    expect(paths[1].href).toContain("mode=opportunities");
+    expect(paths[2].href).toContain("mode=validate");
   });
 
   it("should position Compass around reduced decision risk, not AI", () => {
@@ -91,8 +96,11 @@ describe("Homepage content", () => {
     expect(site.marketing.finalCta.ctaPrimary).toBe("Analyze a Problem");
   });
 
-  it("should preserve the assessment (context gathering) and design partner flows", () => {
-    expect(site.assessment.intro.headline).toBe("What decision are you trying to make?");
+  it("should preserve the three intake modes and the design partner flow", () => {
+    expect(site.assessment.intro.analyze.headline).toContain("Describe the problem");
+    expect(site.assessment.intro.opportunities.cta).toBe("Start Assessment");
+    expect(site.assessment.intro.validate.cta).toBe("Validate Decision");
+    expect(site.assessment.intro.validate.interventions).toContain("AI");
     expect(site.designPartners.form.headline).toContain("design partner");
   });
 });

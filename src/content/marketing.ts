@@ -23,37 +23,37 @@ export const headerCta = {
 export const marketing = {
     hero: {
       eyebrow: "Make operational decisions with confidence",
-      claim: "The most expensive operational mistake isn\u2019t implementation. It\u2019s choosing the wrong implementation.",
-      subtitle:
-        "Compass gives organizations confidence before they spend months implementing the wrong solution.",
+      heading: "How can Compass help today?",
+      sub: "Compass gives organizations confidence before they spend months implementing the wrong solution.",
+      quote: "The most expensive operational mistake isn\u2019t implementation. It\u2019s choosing the wrong implementation.",
       trustLine: "Compass compares every viable intervention\u2014including none at all.",
-      inputLabel: "Your operational challenge",
-      inputPlaceholder: "Describe the problem, the workflow, or the outcome you need\u2026",
-      analyzeCta: "Analyze",
       secondaryCta: "See how it works",
-      examplesLabel: "Try an example",
-      examples: [
-        "Manual invoice processing",
-        "Slow customer onboarding",
-        "High support costs",
-        "Knowledge trapped in spreadsheets",
-        "Customer escalation triage",
+      paths: [
+        {
+          id: "analyze",
+          title: "Analyze an Operational Problem",
+          lead: "I already know the problem. Help me determine the best intervention.",
+          time: "2\u20133 minutes",
+          cta: "Analyze Problem",
+          href: "/assessment?mode=analyze",
+        },
+        {
+          id: "opportunities",
+          title: "Find My Biggest Improvement Opportunity",
+          lead: "I\u2019m not sure where to begin. Help identify the highest-impact operational opportunities.",
+          time: "10\u201315 minutes",
+          cta: "Start Assessment",
+          href: "/assessment?mode=opportunities",
+        },
+        {
+          id: "validate",
+          title: "Validate an Implementation Decision",
+          lead: "We\u2019re already planning an implementation. Tell us whether we\u2019re making the right decision.",
+          time: "5\u201310 minutes",
+          cta: "Validate Decision",
+          href: "/assessment?mode=validate",
+        },
       ],
-      pasteOptions: ["Paste process", "Paste policy", "Paste problem"],
-      uploadLabel: "Upload workflow",
-      uploadHint: ".txt, .md, .csv",
-      illustrativeNote: "Illustrative decisions for demonstration.",
-      pathA: {
-        title: "I know my problem",
-        lead: "Describe it in your own words. Compass extracts the workflow, the likely root cause, and the decision you\u2019re really making.",
-        time: "2\u20133 minutes",
-      },
-      pathB: {
-        title: "I\u2019m not sure what\u2019s wrong",
-        lead: "Let Compass gather context about your workflow, systems, and goals\u2014then build a problem list before recommending anything.",
-        cta: "Start guided assessment",
-        time: "10\u201315 minutes",
-      },
     },
 
     category: {
