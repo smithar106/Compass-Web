@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       clearTimeout(timeout);
 
       if (engineRes.status === 404) {
-        return NextResponse.json({ error: "Recommendation not found." }, { status: 404 });
+        return NextResponse.json({ error: "Decision not found." }, { status: 404 });
       }
 
       if (!engineRes.ok) {

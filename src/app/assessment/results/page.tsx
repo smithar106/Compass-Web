@@ -210,6 +210,7 @@ function ResultsContent() {
   const [entryMode, setEntryMode] = useState<string | null>(null);
   const [proposed, setProposed] = useState<{ intervention: string; category: string } | null>(null);
   const [meta, setMeta] = useState<any>(null);
+  const [summary, setSummary] = useState<any>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -229,11 +230,12 @@ function ResultsContent() {
             const d = await r.json();
             setRecs(d.recommendations || []);
             setMeta(d.methodology || null);
+            setSummary(d.assessment_summary || null);
             setRecId(id);
             return;
           }
           if (r.status === 404) {
-            throw new Error("Recommendation not found.");
+            throw new Error("Decision not found.");
           }
           if (attempt < retries) {
             await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
@@ -241,7 +243,7 @@ function ResultsContent() {
           }
           throw new Error((await r.json().catch(() => ({}))).error || "Failed to load");
         } catch (fetchErr: any) {
-          if (fetchErr.message === "Recommendation not found.") throw fetchErr;
+          if (fetchErr.message === "Decision not found.") throw fetchErr;
           if (attempt >= retries) throw fetchErr;
           await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
         }
@@ -278,6 +280,7 @@ function ResultsContent() {
       const d = await res.json();
       setRecs(d.recommendations || []);
       setMeta(d.methodology || null);
+      setSummary(d.assessment_summary || null);
       if (d.recommendation_id) {
         window.history.replaceState({}, "", `/assessment/results?recommendation_id=${encodeURIComponent(d.recommendation_id)}`);
         setRecId(d.recommendation_id);
@@ -308,8 +311,8 @@ function ResultsContent() {
         <div className="text-center max-w-sm">
           {isNotFound ? (
             <>
-              <p className="text-sm text-[#4f6280] font-semibold mb-1">Recommendation not found</p>
-              <p className="text-xs text-[#4f6280] mb-4">This link may be incomplete or the recommendation may no longer be available.</p>
+              <p className="text-sm text-[#4f6280] font-semibold mb-1">Decision not found</p>
+              <p className="text-xs text-[#4f6280] mb-4">This link may be incomplete or the decision may no longer be available.</p>
               <div className="flex gap-2 justify-center">
                 <button onClick={() => router.push("/assessment")} className="px-4 py-1.5 bg-brand-green text-white text-xs font-bold rounded-lg hover:bg-brand-green-dark">Start new assessment</button>
                 <button onClick={() => router.push("/")} className="px-4 py-1.5 border border-[#cad3df] text-[#4f6280] text-xs font-bold rounded-lg">Return home</button>
@@ -317,7 +320,7 @@ function ResultsContent() {
             </>
           ) : (
             <>
-              <p className="text-sm text-[#4f6280] font-semibold mb-1">Recommendation temporarily unavailable</p>
+              <p className="text-sm text-[#4f6280] font-semibold mb-1">Decision temporarily unavailable</p>
               <p className="text-xs text-[#4f6280] mb-4">Your result has not been deleted.</p>
               <div className="flex gap-2 justify-center">
                 <button onClick={() => { setLoadError(null); if (recId) loadRun(recId); else submit(); }} className="px-4 py-1.5 bg-brand-green text-white text-xs font-bold rounded-lg hover:bg-brand-green-dark">Retry</button>
@@ -333,7 +336,7 @@ function ResultsContent() {
   if (!recs.length) return (
     <div className="bg-white min-h-screen flex items-center justify-center px-4">
       <div className="text-center max-w-sm">
-        <p className="text-sm text-[#4f6280] font-semibold mb-1">No recommendations generated</p>
+        <p className="text-sm text-[#4f6280] font-semibold mb-1">No decision generated</p>
         <p className="text-xs text-[#4f6280] mb-4">The assessment did not produce results.</p>
         <button onClick={() => router.push("/assessment")} className="px-4 py-1.5 border border-[#cad3df] text-[#4f6280] text-xs font-bold rounded-lg">Back</button>
       </div>
@@ -380,9 +383,9 @@ function ResultsContent() {
             <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Executive Decision Brief</h1>
+                  <h1 className="text-[28px] sm:text-[34px] font-extrabold tracking-[-0.04em] text-[#101826] m-0 leading-tight">Decision Package</h1>
                 </div>
-                <p className="text-[#4f6280] font-semibold mt-1 mb-1 text-[15px]">Evidence-based findings for your operational assessment</p>
+                <p className="text-[#4f6280] font-semibold mt-1 mb-1 text-[15px]">An evidence-backed decision with full traceability</p>
                 <div className="text-[13px] font-semibold text-[#4f6280]">
                   <span>Generated {ts}</span>
                 </div>
@@ -450,8 +453,11 @@ function ResultsContent() {
               </div>
             )}
 
-            {/* SECTION 4: Confidence breakdown (factors, not a single invented %) */}
-            <ConfidenceFactors rec={top} recs={recs} meta={meta} />
+            {/* SECTION 4: Decision Defensibility (explainable scorecard) */}
+            <DecisionDefensibility rec={top} meta={meta} summary={summary} />
+
+            {/* SECTION 5: Recommendation Quality (factor bars + detail) */}
+            <ConfidenceFactors rec={top} recs={recs} meta={meta} summary={summary} />
 
             {/* SECTION 5: Indicative technology stack — clearly labeled, not vendor selection */}
             <div className="mb-6">
@@ -651,6 +657,119 @@ function factorValue(value: string, detail: string, tone: "ok" | "warn" | "muted
   return { value, detail, tone };
 }
 
+function defensibilityChecks(rec: RecommendationData, meta: any, summary: any) {
+  const es = rec.evidence_summary || {};
+  const comparables = rec.comparable_implementations || [];
+  const outcomeRanges = (rec.outcome_ranges || []).filter((r) => r.directly_comparable);
+  const hasOutcome = outcomeRanges.length > 0;
+  const hasImplementationPattern = comparables.some(
+    (c) => (c.intervention && c.intervention.length > 5) || (c.intervention_description && c.intervention_description.length > 5)
+  );
+  const gaps = rec.information_gaps || [];
+  const assumptions = rec.assumptions_detail || [];
+  const risks = rec.risks || [];
+  const alternatives = rec.alternatives_considered || [];
+
+  const checks = [
+    {
+      key: "problem",
+      label: "Why this problem?",
+      ok: !!(summary?.problem_statement || summary?.workflow),
+      detail: summary?.problem_statement ? "Problem statement captured from your input." : "Workflow identified, free-text problem not provided.",
+    },
+    {
+      key: "intervention",
+      label: "Why this intervention?",
+      ok: !!rec.title && alternatives.length > 0,
+      detail: alternatives.length > 0 ? `${alternatives.length} alternative paths compared.` : "Recommended intervention selected; alternatives not surfaced.",
+    },
+    {
+      key: "comparables",
+      label: "Who else solved it?",
+      ok: (es.total_comparables || 0) > 0,
+      detail: es.total_comparables ? `${es.total_comparables} comparable implementations retrieved.` : "No comparable implementations attached to this decision.",
+    },
+    {
+      key: "implementation",
+      label: "How did they implement it?",
+      ok: hasImplementationPattern,
+      detail: hasImplementationPattern ? "Implementation patterns present in comparable records." : "No implementation detail in comparable records.",
+    },
+    {
+      key: "outcomes",
+      label: "What outcomes did they achieve?",
+      ok: hasOutcome,
+      detail: hasOutcome ? `Outcome ranges from ${outcomeRanges.length} comparable metric${outcomeRanges.length > 1 ? "s" : ""}.` : "Outcomes not quantified in retrieved records.",
+    },
+    {
+      key: "risk",
+      label: "What risks should we expect?",
+      ok: risks.length > 0,
+      detail: risks.length > 0 ? `${risks.length} risk${risks.length > 1 ? "s" : ""} identified from evidence.` : "No risks surfaced for this decision.",
+    },
+    {
+      key: "measurement",
+      label: "How will we measure success?",
+      ok: !!rec.next_validation_step,
+      detail: rec.next_validation_step ? "Validation step with success criteria defined." : "No measurement plan defined yet.",
+    },
+    {
+      key: "gaps",
+      label: "What would change this?",
+      ok: gaps.length > 0 || assumptions.length > 0,
+      detail: `${gaps.length} evidence gap${gaps.length !== 1 ? "s" : ""} and ${assumptions.length} assumption${assumptions.length !== 1 ? "s" : ""} surfaced.`,
+    },
+  ];
+
+  return { checks, score: checks.filter((c) => c.ok).length, total: checks.length };
+}
+
+function DecisionDefensibility({ rec, meta, summary }: { rec: RecommendationData; meta: any; summary: any }) {
+  const { checks, score, total } = defensibilityChecks(rec, meta, summary);
+  const tone = score >= 6 ? "text-[#1E7B4C]" : score >= 4 ? "text-[#B45309]" : "text-[#C4382C]";
+  const gapsCount = (rec.information_gaps || []).length;
+  return (
+    <div className="mb-6 border border-[#e6eaef] rounded-xl overflow-hidden">
+      <div className="px-4 py-3 bg-[#f6f8fa] border-b border-[#e6eaef] flex items-center justify-between gap-3">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280]">
+          Decision Defensibility
+        </p>
+        <span className={`font-mono text-[16px] font-bold ${tone}`}>
+          {score} <span className="text-[#4f6280] text-[12px]">/ {total}</span>
+        </span>
+      </div>
+      <div className="p-4">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+          {checks.map((c) => (
+            <li key={c.key} className="flex items-start gap-2.5">
+              <span
+                aria-hidden="true"
+                className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${
+                  c.ok ? "bg-[#1E7B4C]" : "bg-[#B45309]"
+                }`}
+              >
+                {c.ok ? "✓" : "⚠"}
+              </span>
+              <div className="min-w-0">
+                <p className="text-[12px] font-semibold text-[#101826]">{c.label}</p>
+                <p className="text-[11px] text-[#4f6280] leading-[1.45]">{c.detail}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        {gapsCount > 0 && (
+          <p className="mt-3 pt-3 border-t border-[#ebeff4] text-[11px] text-[#B45309]">
+            Evidence gaps: {gapsCount} — see “What is missing” below for what would raise this score.
+          </p>
+        )}
+        <p className="mt-2 text-[10.5px] text-[#4f6280] italic">
+          Each check reflects the evidence actually retrieved for this decision. Nothing here is assumed.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function buildConfidenceFactors(rec: RecommendationData, recs: RecommendationData[], meta: any) {
   const es = rec.evidence_summary || {};
   const ec = meta?.evidence_count || {};
@@ -755,26 +874,63 @@ function ConfidenceFactorRow({ label, value, detail, tone }: { label: string; va
   );
 }
 
-function ConfidenceFactors({ rec, recs, meta }: { rec: RecommendationData; recs: RecommendationData[]; meta: any }) {
+function QualityBar({ label, value, note }: { label: string; value: number; note: string }) {
+  const v = Math.max(0, Math.min(100, value));
+  const color = v >= 60 ? "bg-[#1E7B4C]" : v >= 35 ? "bg-[#B45309]" : "bg-[#C4382C]";
+  return (
+    <div className="py-1.5">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[12px] font-semibold text-[#101826]">{label}</span>
+        <span className="text-[11px] text-[#4f6280]">{note}</span>
+      </div>
+      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#eef1f5]">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${v}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function ConfidenceFactors({ rec, recs, meta, summary }: { rec: RecommendationData; recs: RecommendationData[]; meta: any; summary: any }) {
   const factors = buildConfidenceFactors(rec, recs, meta);
+  const es = rec.evidence_summary || {};
+  const comparables = rec.comparable_implementations || [];
+  const { score, total } = defensibilityChecks(rec, meta, summary);
+  const avgSim = avgComparableSimilarity(rec);
+  const implShare = comparables.length
+    ? Math.round((comparables.filter((c) => (c.intervention && c.intervention.length > 5) || (c.intervention_description && c.intervention_description.length > 5)).length / comparables.length) * 100)
+    : 0;
+  const outcomeShare = (rec.outcome_ranges || []).filter((r) => r.directly_comparable).length > 0 ? 100 : 0;
+  const riskCoverage = (rec.risks || []).length > 0 ? 100 : 0;
+  const overall = rec.confidence?.label || "unknown";
+
   return (
     <div className="mb-6 border border-[#e6eaef] rounded-xl p-4">
-      <div className="flex items-center justify-between gap-3 mb-2">
+      <div className="flex items-center justify-between gap-3 mb-1">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280]">
-          Confidence breakdown
+          Recommendation Quality
         </p>
         <span className="text-[12px] font-bold text-[#101826]">
-          Overall: {rec.confidence?.label || "unknown"}
+          Defensibility {score} / {total} · Overall: {overall}
         </span>
       </div>
       <p className="text-[11px] text-[#4f6280] leading-[1.5] mb-2">
-        Each factor is derived from the evidence actually retrieved for this decision. Confidence is shown as a
-        breakdown, not a single precise percentage, because a single number would imply more precision than the
-        current model supports.
+        Confidence is shown as explainable factors instead of a single precise percentage, because a single
+        number would imply more precision than the current model supports.
       </p>
-      {factors.map((f) => (
-        <ConfidenceFactorRow key={f.label} {...f} />
-      ))}
+
+      <div className="mb-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+        <QualityBar label="Problem fit" value={avgSim} note={`~${avgSim}/100 avg similarity`} />
+        <QualityBar label="Implementation evidence" value={implShare} note={`${implShare}% of comparables with implementation detail`} />
+        <QualityBar label="Outcome evidence" value={outcomeShare} note={outcomeShare ? "quantified outcome ranges present" : "no quantified outcomes"} />
+        <QualityBar label="Risk coverage" value={riskCoverage} note={riskCoverage ? "risks surfaced from evidence" : "no risks surfaced"} />
+      </div>
+
+      <div className="pt-2 border-t border-[#ebeff4]">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-1">Factor detail</p>
+        {factors.map((f) => (
+          <ConfidenceFactorRow key={f.label} {...f} />
+        ))}
+      </div>
     </div>
   );
 }

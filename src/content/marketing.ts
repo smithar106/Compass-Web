@@ -614,7 +614,7 @@ export const marketing = {
       { title: "Every alternative is compared", body: "The rejected paths are shown with the reasons they lost." },
       { title: "Every assumption is visible", body: "Assumptions are listed with what would change if they are wrong." },
       { title: "Insufficient evidence leads to deferred judgment", body: "Compass says \u201cnot enough evidence\u201d rather than inventing an answer." },
-      { title: "Partners cannot pay to influence recommendations", body: "A partner becomes relevant only after the customer selects the intervention." },
+      { title: "Partners cannot pay to influence decisions", body: "A partner becomes relevant only after the customer selects the intervention." },
       { title: "AI is not automatically preferred", body: "AI is evaluated like any other intervention\u2014and often loses." },
     ],
   },
