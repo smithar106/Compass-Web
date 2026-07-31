@@ -1,33 +1,14 @@
 import Link from "next/link";
 import { marketing } from "@/content/marketing";
 import { ArrowIcon } from "./primitives";
+import { EvidenceStats } from "./EvidenceStats";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 type PathIcon = "search" | "compass" | "check-square";
 
-async function getLiveEvidenceCount(): Promise<string | null> {
-  const base =
-    process.env.COMPASS_API_URL ??
-    (process.env.NODE_ENV === "development" ? "http://127.0.0.1:8001" : null);
-  if (!base) return null;
-  try {
-    const res = await fetch(`${base}/api/metadata`, {
-      next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return null;
-    const m = await res.json();
-    const n = Number(m.published_records);
-    return Number.isFinite(n) && n > 0 ? n.toLocaleString("en-US") : null;
-  } catch {
-    return null;
-  }
-}
-
-export async function DecisionEntry() {
+export function DecisionEntry() {
   const h = marketing.hero;
-  const liveCount = await getLiveEvidenceCount();
 
   return (
     <section className="relative overflow-hidden border-b border-line bg-paper">
@@ -91,7 +72,7 @@ export async function DecisionEntry() {
 
           {/* product proof */}
           <Reveal delay={200} className="lg:justify-self-end lg:self-start">
-            <DecisionDefensibilityPanel liveCount={liveCount} />
+            <DecisionDefensibilityPanel />
           </Reveal>
         </div>
 
@@ -150,7 +131,7 @@ function HeroEyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-function DecisionDefensibilityPanel({ liveCount }: { liveCount: string | null }) {
+function DecisionDefensibilityPanel() {
   const d = marketing.hero.defensibility;
   return (
     <div className="w-full max-w-md overflow-hidden rounded-md border border-line bg-surface shadow-panel-lg">
@@ -206,11 +187,7 @@ function DecisionDefensibilityPanel({ liveCount }: { liveCount: string | null })
 
       {/* footer */}
       <div className="flex items-center justify-between gap-3 border-t border-line bg-paper/60 px-4 py-2.5">
-        <span className="text-[10.5px] font-medium text-muted">
-          {liveCount
-            ? d.footer.replace("{count}", liveCount)
-            : "Evidence from a growing body of real implementations"}
-        </span>
+        <EvidenceStats variant="compact" />
         <Link
           href={d.learnMore.href}
           className="group inline-flex items-center gap-1 text-[11.5px] font-semibold text-accent-deep transition-colors hover:text-ink"

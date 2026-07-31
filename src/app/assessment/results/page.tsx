@@ -973,6 +973,7 @@ function EvidenceBehind({ rec }: { rec: RecommendationData }) {
           </ul>
         )}
         <p className="mt-3 pt-3 border-t border-[#ebeff4] text-[11px] leading-[1.5] text-[#4f6280]">
+          Compared against a growing library of verified implementation evidence.
           Provenance: {withSource} of {c.length} records carry a resolvable source link. Compass will only treat
           records as fully traceable once their source can be opened; passages above are extracted evidence and
           should be treated as partially traceable until then.

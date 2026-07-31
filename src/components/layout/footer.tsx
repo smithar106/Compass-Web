@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { name, footer } from "@/content/marketing";
 import { Needle } from "@/components/home/primitives";
+import { EvidenceStats } from "@/components/home/EvidenceStats";
 
 export function Footer() {
   return (

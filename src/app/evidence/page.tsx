@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/home/PageHeader";
 import { FinalCta } from "@/components/home/FinalCta";
+import { EvidenceStats } from "@/components/home/EvidenceStats";
 import { Reveal } from "@/components/home/Reveal";
 import { cn } from "@/lib/utils";
 
@@ -118,6 +119,15 @@ export default function EvidencePage() {
               </div>
             </Reveal>
           </div>
+        </div>
+      </section>
+
+      {/* Evidence library stats */}
+      <section className="border-b border-line bg-paper">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-16">
+          <Reveal>
+            <EvidenceStats variant="full" />
+          </Reveal>
         </div>
       </section>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   groundingState,
@@ -43,7 +43,25 @@ export function DecisionPackageView({
 }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [implementing, setImplementing] = useState(false);
+  const [library, setLibrary] = useState<number | null>(null);
   const top = recs[0];
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/metadata", { cache: "no-store" });
+        if (res.ok) {
+          const m = await res.json();
+          const n = Number(m.published_records);
+          if (Number.isFinite(n) && n > 0 && alive) setLibrary(n);
+        }
+      } catch {}
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const g = useMemo(() => groundingState(top, meta), [top, meta]);
   const dd = useMemo(() => defensibilityChecks(top, summary), [top, summary]);
@@ -100,7 +118,7 @@ export function DecisionPackageView({
                 {top.title || "Evidence-supported intervention"}
               </h2>
               <p className="mt-2 max-w-2xl text-[13.5px] leading-[1.6] text-[#4f6280]">
-                {executiveSummary(top, meta)}
+                {executiveSummary(top, meta, library)}
               </p>
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
@@ -165,7 +183,7 @@ export function DecisionPackageView({
 
       <div key={tab} className="animate-fade-in">
         {tab === "overview" && <OverviewTab top={top} dd={dd} meta={meta} />}
-        {tab === "evidence" && <EvidenceTab top={top} />}
+        {tab === "evidence" && <EvidenceTab top={top} library={library} />}
         {tab === "implementation" && <ImplementationContent top={top} />}
         {tab === "partners" && <PartnersTab top={top} />}
         {tab === "measurement" && <MeasurementTab top={top} />}
@@ -220,12 +238,13 @@ function buildKpis(top: DecisionRec, meta: any): Kpi[] {
   ];
 }
 
-function executiveSummary(top: DecisionRec, meta: any): string {
+function executiveSummary(top: DecisionRec, meta: any, library: number | null): string {
   const total = top.evidence_summary?.total_comparables || 0;
   const orgs = meta?.evidence_count?.unique_organizations || 0;
+  const libraryLabel = library ? `${library} verified implementations` : "a growing library of verified implementations";
   const base = `Based on organizations similar to yours, Compass recommends ${top.title || "an intervention"} as the highest-confidence option.`;
   if (total > 0) {
-    return `${base} This rests on ${total} comparable implementation${total > 1 ? "s" : ""}${orgs ? ` across ${orgs} organizations` : ""}.`;
+    return `${base} This rests on ${total} comparable implementation${total > 1 ? "s" : ""} matched from ${libraryLabel}.`;
   }
   return base;
 }
@@ -308,7 +327,7 @@ function OverviewTab({ top, dd, meta }: { top: DecisionRec; dd: ReturnType<typeo
 
 /* ---------------- Evidence ---------------- */
 
-function EvidenceTab({ top }: { top: DecisionRec }) {
+function EvidenceTab({ top, library }: { top: DecisionRec; library: number | null }) {
   const comparables = top.comparable_implementations || [];
   const withSource = comparables.filter((c) => c.source_url).length;
   return (
@@ -344,6 +363,9 @@ function EvidenceTab({ top }: { top: DecisionRec }) {
           </ul>
         )}
         <p className="mt-4 border-t border-[#ebeff4] pt-3 text-[11px] leading-[1.5] text-[#4f6280]">
+          {library
+            ? `Compared against ${library} verified implementations. `
+            : "Compared against a growing library of verified implementations. "}
           Provenance: {withSource} of {comparables.length} records carry a resolvable source link. Records are fully
           traceable only once their source can be opened.
         </p>
