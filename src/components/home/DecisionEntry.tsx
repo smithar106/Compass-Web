@@ -1,81 +1,274 @@
 import Link from "next/link";
 import { marketing } from "@/content/marketing";
-import { Eyebrow, ArrowIcon } from "./primitives";
+import { ArrowIcon } from "./primitives";
 import { Reveal } from "./Reveal";
+import { cn } from "@/lib/utils";
 
-const PATH_ACCENTS = [
-  { ring: "hover:border-ink", tag: "bg-ink text-paper", arrow: "text-accent" },
-  { ring: "hover:border-ink", tag: "bg-ink text-paper", arrow: "text-accent" },
-  { ring: "hover:border-ink", tag: "bg-ink text-paper", arrow: "text-accent" },
-];
+type PathIcon = "search" | "compass" | "check-square";
 
 export function DecisionEntry() {
   const h = marketing.hero;
+
   return (
     <section className="relative overflow-hidden border-b border-line bg-paper">
+      {/* faint grid + evidence-path texture */}
       <div
         aria-hidden="true"
-        className="grid-backdrop pointer-events-none absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_65%)]"
+        className="grid-backdrop pointer-events-none absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_72%)]"
       />
-      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-28 sm:px-8 lg:px-10 lg:pb-20 lg:pt-36">
-        <Reveal>
-          <Eyebrow number="00">{h.eyebrow}</Eyebrow>
-        </Reveal>
-        <Reveal delay={80}>
-          <h1 className="mt-6 max-w-3xl text-hero font-semibold tracking-tight text-ink">{h.heading}</h1>
-        </Reveal>
-        <Reveal delay={150}>
-          <p className="mt-5 max-w-2xl font-serif text-[19px] italic leading-relaxed text-accent-deep">
-            {h.quote}
-          </p>
-        </Reveal>
-        <Reveal delay={200}>
-          <p className="mt-3 max-w-2xl text-lead leading-relaxed text-muted">{h.sub}</p>
-        </Reveal>
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 top-6 hidden h-[560px] w-[720px] opacity-60 lg:block"
+        viewBox="0 0 720 560"
+        fill="none"
+      >
+        <path d="M40 420 C 160 380, 240 440, 360 360 S 560 280, 680 200" stroke="#4C650C" strokeOpacity="0.12" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M40 480 C 180 440, 300 500, 420 420 S 600 360, 690 300" stroke="#4C650C" strokeOpacity="0.08" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 6" />
+        <circle cx="360" cy="360" r="3" fill="#4C650C" fillOpacity="0.25" />
+        <circle cx="680" cy="200" r="3" fill="#4C650C" fillOpacity="0.25" />
+      </svg>
 
-        {/* three entry paths */}
-        <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
-          {h.paths.map((p, i) => {
-            const accent = PATH_ACCENTS[i % PATH_ACCENTS.length];
-            return (
-              <Reveal key={p.id} delay={240 + i * 100} className="h-full">
+      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-28 sm:px-8 lg:px-10 lg:pb-20 lg:pt-36">
+        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+          {/* copy */}
+          <div>
+            <Reveal>
+              <HeroEyebrow>{h.eyebrow}</HeroEyebrow>
+            </Reveal>
+
+            <Reveal delay={80}>
+              <h1 className="mt-6 text-hero font-semibold tracking-tight text-ink">
+                <span className="block">Make Operational</span>
+                <span className="block">
+                  <em className="font-serif italic font-medium text-accent-deep">{h.headlineAccent}</em> with
+                </span>
+                <span className="block">
+                  Confidence<span className="text-accent-deep">.</span>
+                </span>
+              </h1>
+            </Reveal>
+
+            <Reveal delay={160}>
+              <p className="mt-6 max-w-xl text-lead leading-relaxed text-muted">
+                {h.supporting.split(h.supportingAccent)[0]}
+                <em className="font-serif italic text-ink">{h.supportingAccent}</em>
+                {h.supporting.split(h.supportingAccent)[1]}
+              </p>
+            </Reveal>
+
+            <Reveal delay={240}>
+              <div className="mt-9">
                 <Link
-                  href={p.href}
-                  className={`group flex h-full flex-col border border-line bg-surface p-6 transition-colors ${accent.ring}`}
+                  href={h.ctaHref}
+                  className="group inline-flex items-center gap-2 bg-ink px-6 py-3.5 text-[15px] font-semibold text-paper transition-colors hover:bg-ink2"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <span className={`px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${accent.tag}`}>
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="shrink-0 border border-line bg-paper px-2 py-0.5 font-mono text-[10px] text-muted">
-                      {p.time}
-                    </span>
-                  </div>
-                  <h2 className="mt-4 text-[17px] font-semibold tracking-tight text-ink">{p.title}</h2>
-                  <p className="mt-2 flex-1 text-[13px] leading-relaxed text-muted">{p.lead}</p>
-                  <span className="mt-5 inline-flex items-center gap-2 border-t border-line pt-4 text-[13px] font-semibold text-ink transition-colors group-hover:text-accent-deep">
-                    {p.cta}
-                    <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </span>
+                  {h.cta}
+                  <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
-              </Reveal>
-            );
-          })}
+              </div>
+            </Reveal>
+          </div>
+
+          {/* product proof */}
+          <Reveal delay={200} className="lg:justify-self-end lg:self-start">
+            <DecisionDefensibilityPanel />
+          </Reveal>
         </div>
 
-        <Reveal delay={320}>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[12.5px] leading-relaxed text-muted">{h.trustLine}</p>
-            <Link
-              href="/how-it-works"
-              className="group inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent-deep transition-colors hover:text-ink"
-            >
-              {h.secondaryCta}
-              <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
+        {/* entry paths */}
+        <div className="mt-16 lg:mt-20">
+          <Reveal>
+            <div className="flex items-center justify-center gap-4">
+              <span aria-hidden="true" className="h-px w-12 bg-line sm:w-20" />
+              <h2 className="text-center text-[15px] font-semibold uppercase tracking-[0.14em] text-ink">
+                {h.entry.title}
+              </h2>
+              <span aria-hidden="true" className="h-px w-12 bg-line sm:w-20" />
+            </div>
+          </Reveal>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {h.entry.paths.map((p, i) => (
+              <Reveal key={p.id} delay={260 + i * 100} className="h-full">
+                <EntryPathCard path={{ ...p, icon: p.icon as PathIcon }} />
+              </Reveal>
+            ))}
           </div>
-        </Reveal>
+
+          <Reveal delay={340}>
+            <PrivacyNote>{h.privacy}</PrivacyNote>
+          </Reveal>
+
+          <Reveal delay={360}>
+            <div className="mt-6 text-right">
+              <Link
+                href={h.secondaryHref}
+                className="group inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent-deep transition-colors hover:text-ink"
+              >
+                {h.secondaryCta}
+                <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
+  );
+}
+
+function HeroEyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-accent-deep">
+      <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full border border-accent-deep/30 bg-accent-soft">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1.5 13 3.5v4c0 3.2-2 5.6-5 7-3-1.4-5-3.8-5-7v-4L8 1.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+          <path d="m5.5 8 1.7 1.7L10.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
+      {children}
+    </p>
+  );
+}
+
+function DecisionDefensibilityPanel() {
+  const d = marketing.hero.defensibility;
+  return (
+    <div className="w-full max-w-md overflow-hidden rounded-md border border-line bg-surface shadow-panel-lg">
+      {/* header */}
+      <div className="flex items-center justify-between gap-3 border-b border-line bg-paper/60 px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-accent">
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1.5 13 3.5v4c0 3.2-2 5.6-5 7-3-1.4-5-3.8-5-7v-4L8 1.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+              <path d="m5.5 8 1.7 1.7L10.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <span className="text-[12px] font-semibold tracking-wide text-ink">{d.title}</span>
+        </div>
+        <span className="border border-line bg-surface px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-muted">
+          {d.topLabel}
+        </span>
+      </div>
+
+      <div className="px-4 pt-2.5">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-faint">{d.illustrative}</span>
+      </div>
+
+      <ul className="space-y-2 p-4">
+        {d.rows.map((r) => (
+          <li key={r.q} className="flex items-center gap-3" title={r.note}>
+            <span
+              aria-hidden="true"
+              className={cn(
+                "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white",
+                r.ok ? "bg-ok" : "bg-warn"
+              )}
+            >
+              {r.ok ? "✓" : "⚠"}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="truncate text-[12px] font-medium text-ink">{r.q}</span>
+                <span className={cn("font-mono text-[10px] font-bold", r.ok ? "text-muted" : "text-warn")}>
+                  {r.pct}%
+                </span>
+              </div>
+              <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-line">
+                <div
+                  className={cn("h-full rounded-full", r.ok ? "bg-accent-deep" : "bg-warn")}
+                  style={{ width: `${r.pct}%` }}
+                />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* footer */}
+      <div className="flex items-center justify-between gap-3 border-t border-line bg-paper/60 px-4 py-2.5">
+        <span className="text-[10.5px] font-medium text-muted">
+          {d.footer.replace("{count}", Number(d.evidenceCount).toLocaleString("en-US"))}
+        </span>
+        <Link
+          href={d.learnMore.href}
+          className="group inline-flex items-center gap-1 text-[11.5px] font-semibold text-accent-deep transition-colors hover:text-ink"
+        >
+          {d.learnMore.label}
+          <ArrowIcon className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function EntryPathCard({ path }: { path: { number: string; title: string; desc: string; time: string; cta: string; href: string; icon: PathIcon } }) {
+  return (
+    <Link
+      href={path.href}
+      className="group flex h-full flex-col border border-line bg-surface p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-ink/40 hover:shadow-panel"
+    >
+      <div className="flex items-start justify-between">
+        <span
+          aria-hidden="true"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-soft text-accent-deep transition-transform duration-200 group-hover:scale-105"
+        >
+          <PathIconComponent icon={path.icon} />
+        </span>
+        <span className="font-mono text-[11px] font-bold text-faint">{path.number}</span>
+      </div>
+      <h3 className="mt-4 text-[16px] font-semibold tracking-tight text-ink">{path.title}</h3>
+      <p className="mt-2 flex-1 text-[13px] leading-relaxed text-muted">{path.desc}</p>
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
+        <span className="flex items-center gap-1.5 text-[11px] font-medium text-muted">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
+          {path.time}
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink transition-colors group-hover:text-accent-deep">
+          {path.cta}
+          <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function PathIconComponent({ icon }: { icon: PathIcon }) {
+  const base = { width: 18, height: 18, viewBox: "0 0 18 18", fill: "none" } as const;
+  if (icon === "compass") {
+    return (
+      <svg {...base} aria-hidden="true">
+        <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4" />
+        <path d="M12.2 5.8 10.9 10.9 5.8 12.2 7.1 7.1z" fill="currentColor" />
+      </svg>
+    );
+  }
+  if (icon === "check-square") {
+    return (
+      <svg {...base} aria-hidden="true">
+        <rect x="2.5" y="2.5" width="13" height="13" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+        <path d="m5.5 9 2 2 4-4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...base} aria-hidden="true">
+      <circle cx="7.5" cy="7.5" r="5" stroke="currentColor" strokeWidth="1.4" />
+      <path d="m11.5 11.5 3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PrivacyNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mt-8 flex items-center justify-center gap-2 text-center text-[12px] text-muted">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+        <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+      {children}
+    </p>
   );
 }

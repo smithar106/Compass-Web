@@ -2,13 +2,16 @@ import { describe, it, expect } from "vitest";
 import { site } from "@/content/site";
 
 describe("Homepage content", () => {
-  it("should open on a new truth rather than a feature description", () => {
-    expect(site.marketing.hero.heading).toBe("How can Compass help today?");
-    expect(site.marketing.hero.quote).toContain("most expensive operational mistake");
+  it("should open with a defensibility-led value proposition", () => {
+    expect(site.marketing.hero.headline).toBe("Make Operational Decisions with Confidence.");
+    expect(site.marketing.hero.headlineAccent).toBe("Decisions");
+    expect(site.marketing.hero.eyebrow).toContain("Evidence-backed");
+    expect(site.marketing.hero.defensibility.title).toBe("Decision Defensibility");
+    expect(site.marketing.hero.defensibility.rows).toHaveLength(8);
   });
 
   it("should offer three entry paths that converge on the same engine", () => {
-    const paths = site.marketing.hero.paths;
+    const paths = site.marketing.hero.entry.paths;
     expect(paths).toHaveLength(3);
     expect(paths.map((p) => p.id)).toEqual(["analyze", "opportunities", "validate"]);
     expect(paths[0].title).toContain("Analyze an Operational Problem");
@@ -17,12 +20,12 @@ describe("Homepage content", () => {
     expect(paths[0].href).toContain("mode=analyze");
     expect(paths[1].href).toContain("mode=opportunities");
     expect(paths[2].href).toContain("mode=validate");
+    expect(paths[0].number).toBe("01");
   });
 
   it("should position Compass around reduced decision risk, not AI", () => {
     expect(site.tagline).toBe("Make operational decisions with confidence.");
-    expect(site.marketing.hero.eyebrow).toContain("Make operational decisions with confidence");
-    expect(site.marketing.hero.trustLine).not.toContain("AI");
+    expect(site.marketing.hero.supporting).toContain("right intervention");
   });
 
   it("should establish the missing system: a decision process", () => {
