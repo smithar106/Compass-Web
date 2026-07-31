@@ -154,7 +154,7 @@ export default function DesignPartnersPage() {
               <button
                 type="submit"
                 disabled={submitState === "loading"}
-                className="px-8 py-3 bg-brand-green text-white text-[14px] font-extrabold rounded-xl hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                className="px-8 py-3 bg-ink text-paper text-[14px] font-extrabold hover:bg-ink2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
                 {submitState === "loading" ? (
                   <>

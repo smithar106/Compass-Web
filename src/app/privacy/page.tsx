@@ -9,7 +9,7 @@ export default function PrivacyPage() {
 
         <section className="mt-10 space-y-6 text-body text-stone leading-relaxed">
           <p>
-            Compass ("we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
+            Compass (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
           </p>
 
           <h2 className="text-subhead font-semibold text-ink mt-8">1. Information We Collect</h2>

@@ -103,7 +103,7 @@ export function RecommendationCard({ recommendation }: Props) {
             <div className="flex items-center gap-2 mb-1">
               {rec.is_compass_choice ? (
                 <span className="text-xs font-bold text-forest bg-mist px-2 py-0.5 rounded uppercase tracking-wider">
-                  Compass' Choice
+                  Compass&rsquo; Choice
                 </span>
               ) : (
                 <span className="text-xs font-medium text-stone bg-gray-100 px-2 py-0.5 rounded">

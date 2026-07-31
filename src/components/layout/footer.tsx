@@ -1,28 +1,33 @@
 import Link from "next/link";
 import { site } from "@/content/site";
+import { Needle } from "@/components/home/primitives";
 
 export function Footer() {
   return (
-    <footer className="bg-ink text-cream">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-1">
-            <Link href="/" className="text-xl font-semibold">
-              {site.name}
+    <footer className="border-t border-lineDark bg-paper-dark text-paper">
+      <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
+          <div className="md:col-span-5">
+            <Link href="/" className="flex items-center gap-2.5">
+              <Needle className="h-6 w-6 text-accent" />
+              <span className="text-lg font-bold tracking-tight">{site.name}</span>
             </Link>
-            <p className="mt-3 text-sm text-stone leading-relaxed">
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-paper/60">
               {site.footer.description}
             </p>
           </div>
+
           {site.footer.columns.map((col) => (
-            <div key={col.title}>
-              <h4 className="text-sm font-medium text-cream mb-4">{col.title}</h4>
-              <ul className="space-y-3">
+            <div key={col.title} className="md:col-span-2">
+              <h3 className="text-xs font-semibold uppercase tracking-eyebrow text-paper/50">
+                {col.title}
+              </h3>
+              <ul className="mt-4 space-y-3">
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-stone hover:text-leaf transition-colors"
+                      className="text-sm text-paper/70 transition-colors hover:text-accent"
                     >
                       {link.label}
                     </Link>
@@ -31,9 +36,15 @@ export function Footer() {
               </ul>
             </div>
           ))}
+
+          <div className="md:col-span-1" aria-hidden="true" />
         </div>
-        <div className="mt-12 pt-8 border-t border-stone/20">
-          <p className="text-sm text-stone">{site.footer.copyright}</p>
+
+        <div className="mt-14 flex flex-col gap-3 border-t border-lineDark pt-7 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
+          <p>{site.footer.copyright}</p>
+          <p className="font-mono">
+            Decide &middot; Implement &middot; Monitor &middot; Improve
+          </p>
         </div>
       </div>
     </footer>

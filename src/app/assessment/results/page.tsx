@@ -672,7 +672,7 @@ function buildProfile(answers: { questionId: string; value: any }[]) {
     : "efficiency";
   return {
     business_function: dd, workflow: wf[dept] || "process_automation",
-    problem_statement: m.get("situation") || `${dept} ops optimization`,
+    problem_statement: m.get("problem-description") || m.get("situation") || `${dept} ops optimization`,
     industry: dd === "engineering" || dd === "it" || dd === "product" ? "technology" : dd === "manufacturing" ? "manufacturing" : dd === "supply_chain" ? "logistics" : dd === "legal" ? "legal" : dd === "finance" ? "financial_services" : dd === "hr" ? "human_resources" : "professional_services",
     company_size: "",
     workflow_frequency: m.get("frequency") || "", people_involved: m.get("people") || "",

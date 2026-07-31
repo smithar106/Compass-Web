@@ -34,7 +34,7 @@ export default function TermsPage() {
 
           <h2 className="text-subhead font-semibold text-ink mt-8">4. Limitation of Liability</h2>
           <p>
-            Compass provides recommendations based on the information you provide and comparable real-world implementations. We do not guarantee specific outcomes or results. Our services are provided "as is" without warranties of any kind, either express or implied.
+            Compass provides recommendations based on the information you provide and comparable real-world implementations. We do not guarantee specific outcomes or results. Our services are provided &ldquo;as is&rdquo; without warranties of any kind, either express or implied.
             </p>
             <p>
               We are not liable for any indirect, incidental, or consequential damages arising from your use of our services, including business decisions made based on recommendation results.

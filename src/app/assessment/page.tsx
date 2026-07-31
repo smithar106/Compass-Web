@@ -57,6 +57,7 @@ function AssessmentForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const isDemo = searchParams.get("demo") === "true";
+  const prefillProblem = (searchParams.get("problem") || "").trim();
   const supabase = typeof window !== "undefined" ? createClient() : null;
   const [started, setStarted] = useState(false);
   const [session, setSession] = useState<AssessmentSession>({
@@ -164,8 +165,11 @@ function AssessmentForm() {
   };
 
   const startAssessment = async () => {
+    const initialAnswers: Answer[] = prefillProblem
+      ? [{ questionId: "problem-description", value: prefillProblem }]
+      : [];
     if (isDemo) {
-      setSession({ currentQuestion: 0, answers: [], completed: false, userId: "demo-user" });
+      setSession({ currentQuestion: 0, answers: initialAnswers, completed: false, userId: "demo-user" });
       setStarted(true);
       trackAssessmentStarted();
       return;
@@ -174,7 +178,7 @@ function AssessmentForm() {
     setAuthError(null);
     try {
       const user = await ensureAuthenticated();
-      setSession({ currentQuestion: 0, answers: [], completed: false, userId: user.id });
+      setSession({ currentQuestion: 0, answers: initialAnswers, completed: false, userId: user.id });
       setStarted(true);
       trackAssessmentStarted();
     } catch (err) {
@@ -192,6 +196,17 @@ function AssessmentForm() {
       <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           {isDemo && <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-amber-100 border border-amber-300 rounded-full text-xs font-medium text-amber-800">Demo mode</div>}
+          {prefillProblem && (
+            <div className="mb-6 flex items-start gap-3 border border-accent-deep/30 bg-accent-soft/60 px-4 py-3 text-left">
+              <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-deep" />
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.11em] text-accent-deep">
+                  Your challenge
+                </p>
+                <p className="mt-1 line-clamp-3 text-[13px] leading-snug text-ink">{prefillProblem}</p>
+              </div>
+            </div>
+          )}
           <h1 className="text-heading font-bold text-ink">{site.assessment.intro.headline}</h1>
           <p className="mt-4 text-body text-stone leading-relaxed">{site.assessment.intro.body}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-stone">
@@ -199,9 +214,9 @@ function AssessmentForm() {
             <span className="flex items-center gap-2"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>Department workflows</span>
           </div>
           <div className="mt-10">
-            <button onClick={startAssessment} disabled={authLoading} className="inline-flex items-center px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors disabled:opacity-50">
-              {authLoading ? "Preparing..." : site.assessment.intro.cta}
-            </button>
+              <button onClick={startAssessment} disabled={authLoading} className="inline-flex items-center px-8 py-3 bg-ink text-paper text-sm font-semibold hover:bg-ink2 transition-colors disabled:opacity-50">
+                {authLoading ? "Preparing..." : site.assessment.intro.cta}
+              </button>
           </div>
           {authError && <p className="mt-4 text-sm text-red-600">{authError}</p>}
         </div>
@@ -213,8 +228,8 @@ function AssessmentForm() {
     return (
       <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <div className="w-16 h-16 rounded-full bg-mist flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div className="w-16 h-16 rounded-full bg-accent-soft flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-accent-deep" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
           <h1 className="text-heading font-bold text-ink">{site.assessment.complete.headline}</h1>
           <p className="mt-4 text-body text-stone">{site.assessment.complete.body}</p>
@@ -222,7 +237,7 @@ function AssessmentForm() {
             <button
               onClick={goToResults}
               disabled={submitting}
-              className="inline-flex items-center px-8 py-3 bg-forest text-white text-sm font-medium rounded-lg hover:bg-leaf transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center px-8 py-3 bg-ink text-paper text-sm font-semibold hover:bg-ink2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <span className="flex items-center gap-2">
@@ -245,30 +260,30 @@ function AssessmentForm() {
     <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
         {/* Dynamic insight */}
-        <div className="mb-6 bg-mist/50 border border-forest/10 rounded-lg p-3">
-          <p className="text-sm text-forest font-medium">{currentInsight}</p>
+        <div className="mb-6 bg-accent-soft/60 border border-accent-deep/15 rounded-lg p-3">
+          <p className="text-sm text-ink font-medium">{currentInsight}</p>
         </div>
 
         {/* Progress */}
         <div className="mb-6">
-          <div className="flex items-center justify-between text-xs text-stone mb-2">
+          <div className="flex items-center justify-between text-xs text-muted mb-2">
             <span className="font-medium text-ink">{currentQuestion.section}</span>
             <span>{session.answers.length + 1} of {questions.length}</span>
           </div>
-          <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
-            <div className="h-full bg-forest rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+          <div className="w-full h-1.5 bg-line rounded-full overflow-hidden">
+            <div className="h-full bg-accent-deep rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
           </div>
         </div>
 
         {/* Question */}
-        <div className="bg-white border border-border rounded-lg p-6">
+        <div className="bg-white border border-line rounded-lg p-6">
           <h2 className="text-subhead font-semibold text-ink">{currentQuestion.question}</h2>
 
           <div className="mt-6">
             {currentQuestion.type === "boolean" && (
               <div className="flex gap-4">
-                <button onClick={() => { setCurrentValue(true); }} className={`flex-1 px-6 py-3 border-2 rounded-lg text-sm font-semibold transition-colors ${currentValue === true ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"}`}>Yes</button>
-                <button onClick={() => { setCurrentValue(false); }} className={`flex-1 px-6 py-3 border-2 rounded-lg text-sm font-semibold transition-colors ${currentValue === false ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"}`}>No</button>
+                <button onClick={() => { setCurrentValue(true); }} className={`flex-1 px-6 py-3 border-2 rounded-lg text-sm font-semibold transition-colors ${currentValue === true ? "border-ink bg-accent-soft text-ink" : "border-line text-muted hover:border-ink"}`}>Yes</button>
+                <button onClick={() => { setCurrentValue(false); }} className={`flex-1 px-6 py-3 border-2 rounded-lg text-sm font-semibold transition-colors ${currentValue === false ? "border-ink bg-accent-soft text-ink" : "border-line text-muted hover:border-ink"}`}>No</button>
               </div>
             )}
 
@@ -281,10 +296,10 @@ function AssessmentForm() {
                     className={`text-left transition-colors ${
                       currentQuestion.chip
                         ? `px-4 py-2.5 border-2 rounded-lg text-sm font-medium ${
-                            currentValue === opt ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"
+                            currentValue === opt ? "border-ink bg-accent-soft text-ink" : "border-line text-muted hover:border-ink"
                           }`
                         : `w-full px-4 py-3 border-2 rounded-lg text-sm transition-colors ${
-                            currentValue === opt ? "border-forest bg-mist text-forest" : "border-border text-stone hover:border-forest"
+                            currentValue === opt ? "border-ink bg-accent-soft text-ink" : "border-line text-muted hover:border-ink"
                           }`
                     }`}
                   >
@@ -301,7 +316,7 @@ function AssessmentForm() {
                 onChange={(e) => setCurrentValue(e.target.value)}
                 placeholder="Describe the workflow, pain points, and current process..."
                 rows={4}
-                className="w-full px-3 py-2 border-2 border-border rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest resize-y"
+                className="w-full px-3 py-2 border-2 border-line rounded-lg text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-accent-deep/20 focus:border-ink resize-y"
               />
             )}
           </div>
@@ -315,7 +330,7 @@ function AssessmentForm() {
               <button
                 onClick={handleAnswer}
                 disabled={currentValue === "" || currentValue === undefined}
-                className="px-5 py-2 bg-forest text-white text-sm font-semibold rounded-lg hover:bg-leaf transition-colors disabled:opacity-40"
+                className="px-5 py-2 bg-ink text-paper text-sm font-semibold hover:bg-ink2 transition-colors disabled:opacity-40"
               >
                 {session.currentQuestion + 1 >= questions.length ? "See results" : "Next"}
               </button>

@@ -104,7 +104,7 @@ export function WhyNotPanel({ opportunities }: WhyNotPanelProps) {
                 )}
 
                 <p className="mt-3 text-xs text-stone italic">
-                  Compass will re-evaluate this opportunity as your organization's capabilities and data quality improve.
+                  Compass will re-evaluate this opportunity as your organization&rsquo;s capabilities and data quality improve.
                 </p>
               </div>
             </div>
