@@ -13,103 +13,140 @@ function getCompassApiUrl(): string | null {
   );
 }
 
-function generateId(): string {
-  return typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : Math.random().toString(36).slice(2, 15);
+/**
+ * Thin-client proxy to the engine's server-side analysis sessions.
+ * Returns null when the engine flow is unavailable so callers can fall back.
+ */
+async function proxyToEngine(
+  path: string,
+  body?: unknown,
+  timeoutMs = 30000
+): Promise<Response | null> {
+  const base = getCompassApiUrl();
+  if (!base) return null;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const res = await fetch(`${base}${path}`, {
+      method: body !== undefined ? "POST" : "GET",
+      headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    return res;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const analysisId = generateId();
+  let body: any = {};
   try {
-    const body = await request.json();
-    const problemText: string = String(body.problem_text || "").trim();
-    if (!problemText) {
-      return NextResponse.json({ error: "problem_text is required" }, { status: 400 });
-    }
+    body = await request.json();
+  } catch {}
 
-    const compassApiUrl = getCompassApiUrl();
-    if (!compassApiUrl) {
-      return NextResponse.json(
-        { error: "Compass Engine URL is not configured.", type: "config_error" },
-        { status: 500 }
-      );
-    }
+  const action: string = body.action || "create";
+  const analysisId: string | undefined = body.analysis_id;
 
-    // Step 1: deterministic normalization, overridable by the confirm step edits.
-    const base = normalizeProblem(problemText);
-    const edits = (body.edits && typeof body.edits === "object" ? body.edits : {}) as Record<string, string>;
-    const normalization = {
-      workflow: edits.workflow || base.workflow,
-      businessFunction: edits.businessFunction || base.businessFunction,
-      problemStatement: edits.problemStatement || base.problemStatement,
-      rootCauseHypothesis: edits.rootCauseHypothesis || base.rootCauseHypothesis,
-      desiredOutcome: edits.desiredOutcome || base.desiredOutcome,
-      decision: base.decision,
-    };
+  // 1) Engine-owned orchestration (the platform path).
+  if (action === "confirm" && analysisId) {
+    const res = await proxyToEngine(`/api/analyze/${encodeURIComponent(analysisId)}/confirm`, { edits: body.edits || {} });
+    if (res && res.ok) return res;
+  } else if (action === "answers" && analysisId) {
+    const res = await proxyToEngine(`/api/analyze/${encodeURIComponent(analysisId)}/answers`, { answers: body.answers || {} });
+    if (res && res.ok) return res;
+  } else if (action === "create") {
+    const res = await proxyToEngine("/api/analyze", {
+      problem_text: String(body.problem_text || ""),
+      attachments: Array.isArray(body.attachments) ? body.attachments : [],
+    });
+    if (res && res.ok) return res;
+  }
 
-    const answers = (body.answers && typeof body.answers === "object" ? body.answers : {}) as Record<string, string>;
+  // 2) Compatibility fallback: web-orchestrated flow (kept until parity passes).
+  return localAnalyze(body);
+}
 
-    // Step 2: query the live evidence graph via the production engine.
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id") || searchParams.get("analysis_id");
+  if (id) {
+    const res = await proxyToEngine(`/api/analyze/${encodeURIComponent(id)}`, undefined, 15000);
+    if (res && res.ok) return res;
+  }
+  return NextResponse.json({ error: "Analysis session not found" }, { status: 404 });
+}
+
+async function localAnalyze(body: any): Promise<NextResponse> {
+  const problemText: string = String(body.problem_text || "").trim();
+  if (!problemText) {
+    return NextResponse.json({ error: "problem_text is required" }, { status: 400 });
+  }
+  const compassApiUrl = getCompassApiUrl();
+  if (!compassApiUrl) {
+    return NextResponse.json({ error: "Compass Engine URL is not configured.", type: "config_error" }, { status: 500 });
+  }
+
+  const base = normalizeProblem(problemText + " " + (Array.isArray(body.attachments) ? body.attachments.join(" ") : ""));
+  const edits = body.edits && typeof body.edits === "object" ? body.edits : {};
+  const normalization = {
+    workflow: edits.workflow || base.workflow,
+    businessFunction: edits.businessFunction || base.businessFunction,
+    problemStatement: edits.problemStatement || base.problemStatement,
+    rootCauseHypothesis: edits.rootCauseHypothesis || base.rootCauseHypothesis,
+    desiredOutcome: edits.desiredOutcome || base.desiredOutcome,
+    decision: base.decision,
+  };
+  const answers = body.answers && typeof body.answers === "object" ? body.answers : {};
+
+  let engineResult: any = null;
+  try {
     const profile = buildProfileFromAnalyze(normalization, answers);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-    let engineResult: any = null;
-    try {
-      const engineRes = await fetch(`${compassApiUrl}/api/recommendations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profile),
-        signal: controller.signal,
-      });
-      if (engineRes.ok) {
-        engineResult = await engineRes.json();
-      } else {
-        const text = await engineRes.text().catch(() => "");
-        return NextResponse.json(
-          { error: `Engine returned an error (${engineRes.status}).`, type: "engine_error", detail: text.slice(0, 300) },
-          { status: 502 }
-        );
-      }
-    } catch (e) {
-      const aborted = e instanceof Error && e.name === "AbortError";
-      return NextResponse.json(
-        { error: aborted ? "Engine did not respond in time." : "Engine unreachable.", type: "engine_unreachable" },
-        { status: aborted ? 504 : 502 }
-      );
-    } finally {
-      clearTimeout(timeout);
+    const timer = setTimeout(() => controller.abort(), 30000);
+    const res = await fetch(`${compassApiUrl}/api/recommendations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) {
+      return NextResponse.json({ error: `Engine returned an error (${res.status}).`, type: "engine_error" }, { status: 502 });
     }
-
-    // Step 3: deterministic targeted follow-ups from the engine's gaps + missing fields.
-    const top = engineResult?.recommendations?.[0] || null;
-    const engineGaps: { title: string }[] = top?.information_gaps || engineResult?.information_gaps || [];
-    const questions = selectFollowUps({ text: problemText, answers, engineGaps, max: 5 });
-
-    // Status: decision ready only if evidence supports it; otherwise preliminary or deferred.
-    const label = top?.confidence?.label;
-    const tier = top?.evidence_summary?.overall_tier;
-    const comparables = top?.evidence_summary?.total_comparables || 0;
-    const status =
-      label === "insufficient" || tier === "insufficient" || comparables === 0
-        ? "insufficient_evidence"
-        : questions.length === 0
-          ? "decision_ready"
-          : "preliminary_result";
-
+    engineResult = await res.json();
+  } catch (e) {
+    const aborted = e instanceof Error && e.name === "AbortError";
     return NextResponse.json(
-      {
-        analysis_id: analysisId,
-        normalization,
-        questions,
-        decision: engineResult,
-        status,
-        inferred: Array.from(inferAnswersFromText(problemText)),
-      },
-      { status: 200 }
+      { error: aborted ? "Engine did not respond in time." : "Engine unreachable.", type: "engine_unreachable" },
+      { status: aborted ? 504 : 502 }
     );
-  } catch (error) {
-    console.error("[Analyze] Error:", error);
-    return NextResponse.json({ error: "Analyze failed", type: "server_error" }, { status: 500 });
   }
+
+  const top = engineResult?.recommendations?.[0] || null;
+  const engineGaps = top?.information_gaps || engineResult?.information_gaps || [];
+  const questions = selectFollowUps({ text: problemText, answers, engineGaps, max: 5 });
+
+  const label = top?.confidence?.label;
+  const tier = top?.evidence_summary?.overall_tier;
+  const comparables = top?.evidence_summary?.total_comparables || 0;
+  const status =
+    label === "insufficient" || tier === "insufficient" || comparables === 0
+      ? "insufficient_evidence"
+      : questions.length === 0
+        ? "decision_ready"
+        : "preliminary_result";
+
+  return NextResponse.json(
+    {
+      analysis_id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2),
+      normalization,
+      questions,
+      decision: engineResult,
+      status,
+      inferred: Array.from(inferAnswersFromText(problemText)),
+    },
+    { status: 200 }
+  );
 }

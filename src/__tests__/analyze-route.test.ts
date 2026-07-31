@@ -2,16 +2,23 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/analyze/route";
 
+const sessionCreate = {
+  analysis_id: "sess-1",
+  normalization: {
+    workflow: "invoice_processing",
+    businessFunction: "finance",
+    problemStatement: "Manual invoice processing is expensive",
+    rootCauseHypothesis: "Manual receipt, validation, and matching steps.",
+    desiredOutcome: "cost",
+    decision: "Which intervention best improves cost for invoice processing?",
+  },
+  questions: [{ id: "cycle_time", question: "What is the current cycle time per item?", why: "", factor: "Outcome evidence", type: "choice", options: ["Hours"], required: true }],
+  status: "awaiting_answers",
+};
+
 const engineResponse = {
   recommendation_id: "abc-123",
-  methodology: {
-    evidence_count: {
-      comparable_implementations: 69,
-      unique_organizations: 63,
-      outcome_measured_implementations: 17,
-      quantified_outcome_implementations: 13,
-    },
-  },
+  methodology: { evidence_count: { comparable_implementations: 69, unique_organizations: 63 } },
   assessment_summary: { problem_statement: "Manual invoice processing is expensive" },
   recommendations: [
     {
@@ -23,13 +30,18 @@ const engineResponse = {
       outcome_ranges: [{ metric_label: "cycle time", directly_comparable: true, low: 25, high: 40, sample_size: 3 }],
       comparable_implementations: [],
       risks: [],
-      alternatives_considered: [{ family: "AI", reason: "2 comparables" }],
+      alternatives_considered: [],
       information_gaps: [{ title: "Annual workflow volume and handling time", explanation: "", effect_on_confidence: "" }],
       assumptions_detail: [],
-      next_validation_step: { action: "Measure a 4-week baseline", purpose: "", owner: "", duration: "", success_criteria: "", decision_enabled: "" },
+      next_validation_step: { action: "Measure baseline", purpose: "", owner: "", duration: "", success_criteria: "", decision_enabled: "" },
     },
   ],
 };
+
+interface Call {
+  url: string;
+  body: any;
+}
 
 function makeRequest(body: unknown) {
   return new NextRequest("http://localhost/api/analyze", {
@@ -39,78 +51,80 @@ function makeRequest(body: unknown) {
   });
 }
 
-describe("POST /api/analyze", () => {
+describe("POST /api/analyze (thin client proxy)", () => {
   const originalFetch = globalThis.fetch;
+  let calls: Call[] = [];
+  let sessionsAvailable = true;
+  let sessionStatus = "awaiting_answers";
+
   beforeEach(() => {
     vi.stubEnv("COMPASS_API_URL", "http://engine.test");
-    (globalThis as any).fetch = async () => ({ ok: true, json: async () => engineResponse });
+    calls = [];
+    sessionsAvailable = true;
+    sessionStatus = "awaiting_answers";
+    (globalThis as any).fetch = async (input: any, init?: any) => {
+      const url = String(input);
+      let body: any = {};
+      try {
+        body = init?.body ? JSON.parse(String(init.body)) : {};
+      } catch {}
+      calls.push({ url, body });
+      if (url.includes("/api/recommendations")) {
+        return { ok: true, status: 200, json: async () => engineResponse };
+      }
+      if (url.includes("/api/analyze") && !sessionsAvailable) {
+        return { ok: false, status: 404, json: async () => ({}) };
+      }
+      return { ok: true, status: 200, json: async () => ({ ...sessionCreate, status: sessionStatus }) };
+    };
   });
   afterEach(() => {
     vi.unstubAllGlobals();
     (globalThis as any).fetch = originalFetch;
   });
 
-  it("normalizes, queries the live graph, and returns ≤5 targeted questions", async () => {
-    const res = await POST(makeRequest({ problem_text: "Manual invoice processing is expensive" }));
+  it("proxies create to the engine session endpoint and returns the engine state", async () => {
+    const res = await POST(makeRequest({ action: "create", problem_text: "Manual invoice processing is expensive" }));
     expect(res.status).toBe(200);
     const data = await res.json();
+    expect(calls[0].url).toContain("/api/analyze");
+    expect(data.analysis_id).toBe("sess-1");
     expect(data.normalization.workflow).toBe("invoice_processing");
     expect(data.questions.length).toBeLessThanOrEqual(5);
-    expect(data.decision.recommendations[0].title).toBe("Workflow Automation");
-    expect(data.status).toBe("preliminary_result");
   });
 
-  it("never sends users into the 14-question assessment and skips answered questions", async () => {
-    const res = await POST(
-      makeRequest({
-        problem_text: "Onboarding takes 45 days for 20 people, daily volume",
-        answers: { exception_rate: "Many (10-30%)" },
-      })
-    );
-    const data = await res.json();
-    const ids = data.questions.map((q: { id: string }) => q.id);
-    expect(ids).not.toContain("cycle_time");
-    expect(ids).not.toContain("workflow_frequency");
-    expect(ids).not.toContain("people_involved");
-    expect(ids).not.toContain("exception_rate");
-    expect(data.questions.length).toBeLessThanOrEqual(5);
+  it("forwards confirm edits to the engine confirm endpoint", async () => {
+    const res = await POST(makeRequest({ action: "confirm", analysis_id: "sess-1", edits: { desiredOutcome: "time" } }));
+    expect(res.status).toBe(200);
+    const confirmCall = calls.find((c) => c.url.endsWith("/confirm"));
+    expect(confirmCall).toBeTruthy();
+    expect(confirmCall!.body.edits.desiredOutcome).toBe("time");
   });
 
-  it("applies confirm-step edits to the normalization", async () => {
-    const res = await POST(
-      makeRequest({ problem_text: "Support is slow", edits: { workflow: "ticketing", businessFunction: "support" } })
-    );
-    const data = await res.json();
-    expect(data.normalization.workflow).toBe("ticketing");
+  it("forwards answers to the engine answers endpoint", async () => {
+    const res = await POST(makeRequest({ action: "answers", analysis_id: "sess-1", answers: { cycle_time: "Hours" } }));
+    expect(res.status).toBe(200);
+    const answersCall = calls.find((c) => c.url.endsWith("/answers"));
+    expect(answersCall).toBeTruthy();
+    expect(answersCall!.body.answers.cycle_time).toBe("Hours");
   });
 
-  it("returns an honest insufficient_evidence status when the engine has no evidence", async () => {
-    (globalThis as any).fetch = async () => ({
-        ok: true,
-        json: async () => ({
-          recommendation_id: "y",
-          methodology: {},
-          assessment_summary: {},
-          recommendations: [
-            {
-              rank: 1,
-              title: "Additional Recommendation",
-              confidence: { score: 0, label: "insufficient", explanation: "" },
-              evidence_summary: { overall_tier: "insufficient", total_comparables: 0, gold_count: 0, silver_count: 0, bronze_count: 0, average_evidence_score: 0 },
-              outcome_ranges: [],
-              comparable_implementations: [],
-              risks: [],
-              alternatives_considered: [],
-              information_gaps: [],
-              assumptions_detail: [],
-              next_validation_step: null,
-            },
-          ],
-        }),
-      });
-    
-    const res = await POST(makeRequest({ problem_text: "Quantum chemistry solvent optimization" }));
+  it("passes an honest insufficient status through from the engine", async () => {
+    sessionStatus = "insufficient_evidence";
+    const res = await POST(makeRequest({ action: "create", problem_text: "Quantum chemistry solvent optimization" }));
     const data = await res.json();
     expect(data.status).toBe("insufficient_evidence");
+  });
+
+  it("falls back to web orchestration when the engine session endpoints are unavailable", async () => {
+    sessionsAvailable = false;
+    const res = await POST(makeRequest({ action: "create", problem_text: "Manual invoice processing is expensive" }));
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    // fallback normalizes locally and queries /api/recommendations
+    expect(calls.some((c) => c.url.includes("/api/recommendations"))).toBe(true);
+    expect(data.normalization.workflow).toBe("invoice_processing");
+    expect(data.questions.length).toBeLessThanOrEqual(5);
+    expect(data.status).toBe("preliminary_result");
   });
 });

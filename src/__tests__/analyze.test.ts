@@ -86,6 +86,17 @@ describe("Analyze pathway — adaptive follow-ups", () => {
     expect(b.length).toBeGreaterThan(0);
   });
 
+  it("does not ask the same question twice even when gaps overlap", () => {
+    const qs = selectFollowUps({
+      text: "Manual invoice processing is expensive",
+      answers: {},
+      engineGaps: [{ title: "Annual workflow volume and handling time" }, { title: "Loaded labor cost" }],
+      max: 5,
+    });
+    const ids = qs.map((q) => q.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it("is deterministic for identical inputs", () => {
     const input = { text: "Manual invoice processing is expensive", answers: { cycle_time: "Hours" }, engineGaps: [{ title: "Annual workflow volume and handling time" }] };
     const a = selectFollowUps(input);

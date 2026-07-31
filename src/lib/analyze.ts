@@ -158,8 +158,9 @@ export function selectFollowUps(params: {
   const outcomeInferred = inferDesiredOutcome(params.text) !== "efficiency" || /outcome|result|goal/.test(params.text.toLowerCase());
 
   const result: FollowUpQuestion[] = [];
+  const seen = new Set<string>();
   if (!outcomeInferred) {
-    result.push({
+    const q: FollowUpQuestion = {
       id: "desired_outcome",
       question: "What outcome matters most?",
       why: "The decision is ranked around the outcome you are trying to improve.",
@@ -167,14 +168,19 @@ export function selectFollowUps(params: {
       type: "choice",
       options: ["Reduce cost", "Save time", "Improve quality", "Increase revenue", "Compliance", "Scale capacity"],
       required: true,
-    });
+    };
+    result.push(q);
+    seen.add(q.id);
   }
 
   for (const id of priority) {
     if (result.length >= max) break;
-    if (inferred.has(id) || answered[id]) continue;
+    if (inferred.has(id) || answered[id] || seen.has(id)) continue;
     const q = QUESTION_BANK.find((x) => x.id === id);
-    if (q) result.push(q);
+    if (q) {
+      result.push(q);
+      seen.add(id);
+    }
   }
   return result.slice(0, max);
 }

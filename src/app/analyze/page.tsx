@@ -35,6 +35,8 @@ export default function AnalyzePage() {
   const [step, setStep] = useState<Step>("Describe");
   const [problemText, setProblemText] = useState("");
   const [hint, setHint] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [normalization, setNormalization] = useState<NormalizedProblem | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
@@ -53,6 +55,8 @@ export default function AnalyzePage() {
       if (raw) {
         const d = JSON.parse(raw);
         if (d.problemText) setProblemText(d.problemText);
+        if (d.attachments) setAttachments(d.attachments);
+        if (d.analysisId) setAnalysisId(d.analysisId);
         if (d.normalization) setNormalization(d.normalization);
         if (d.edits) setEdits(d.edits);
         if (d.questions) setQuestions(d.questions);
@@ -68,7 +72,7 @@ export default function AnalyzePage() {
     try {
       sessionStorage.setItem(
         DRAFT_KEY,
-        JSON.stringify({ problemText, normalization, edits, questions, answers, decision, status, step })
+        JSON.stringify({ problemText, attachments, analysisId, normalization, edits, questions, answers, decision, status, step })
       );
       setDraftSaved(true);
     } catch {}
@@ -96,6 +100,7 @@ export default function AnalyzePage() {
         throw new Error(data.error || "Analysis failed");
       }
       const r = data as AnalyzeResponse;
+      if (r.analysis_id) setAnalysisId(r.analysis_id);
       setNormalization(r.normalization);
       setQuestions(r.questions || []);
       setDecision(r.decision || null);
@@ -111,7 +116,7 @@ export default function AnalyzePage() {
 
   const onAnalyze = async () => {
     if (!problemText.trim()) return;
-    const r = await callAnalyze({ problem_text: problemText });
+    const r = await callAnalyze({ action: "create", problem_text: problemText, attachments });
     if (r) {
       setEdits({});
       setAnswers({});
@@ -120,7 +125,7 @@ export default function AnalyzePage() {
   };
 
   const onConfirm = async (skipToDecision: boolean) => {
-    const r = await callAnalyze({ problem_text: problemText, edits });
+    const r = await callAnalyze({ action: "confirm", analysis_id: analysisId, edits });
     if (r) {
       const remaining = (r.questions || []).length;
       if (skipToDecision || remaining === 0) {
@@ -132,7 +137,7 @@ export default function AnalyzePage() {
   };
 
   const onGenerate = async () => {
-    const r = await callAnalyze({ problem_text: problemText, edits, answers });
+    const r = await callAnalyze({ action: "answers", analysis_id: analysisId, answers });
     if (r) setStep("Decision");
   };
 
@@ -142,6 +147,8 @@ export default function AnalyzePage() {
     } catch {}
     setStep("Describe");
     setProblemText("");
+    setAttachments([]);
+    setAnalysisId(null);
     setNormalization(null);
     setEdits({});
     setQuestions([]);
@@ -156,8 +163,8 @@ export default function AnalyzePage() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      setProblemText(String(reader.result ?? "").slice(0, 4000));
-      setHint(`Uploaded ${file.name}`);
+      setAttachments((prev) => [...prev.slice(0, 9), String(reader.result ?? "").slice(0, 4000)]);
+      setHint(`Uploaded ${file.name} — included in the analysis.`);
     };
     reader.readAsText(file);
     e.target.value = "";
