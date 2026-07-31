@@ -27,7 +27,7 @@ export function SearchRecommendations() {
 
   return (
     <section className="border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeader eyebrow={c.label} number={c.number} headline={c.headline} subtitle={c.subtitle} />
         </div>
@@ -52,10 +52,6 @@ export function SearchRecommendations() {
                 aria-label="Search operational problems"
                 className="w-full border border-line bg-surface py-3 pl-10 pr-4 text-[14px] text-ink placeholder:text-faint focus:border-ink focus:outline-none focus:ring-2 focus:ring-accent-deep/20"
               />
-            </div>
-            <div className="flex items-center gap-2 text-[12px] text-muted">
-              <span className="font-mono text-faint">{String(filtered.length).padStart(2, "0")}</span>
-              <span>results</span>
             </div>
           </div>
         </Reveal>

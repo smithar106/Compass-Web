@@ -5,7 +5,7 @@ import { Needle } from "@/components/home/primitives";
 export function Footer() {
   return (
     <footer className="border-t border-lineDark bg-paper-dark text-paper">
-      <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
+      <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
           <div className="md:col-span-5">
             <Link href="/" className="flex items-center gap-2.5">
@@ -40,7 +40,7 @@ export function Footer() {
           <div className="md:col-span-1" aria-hidden="true" />
         </div>
 
-        <div className="mt-14 flex flex-col gap-3 border-t border-lineDark pt-7 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-3 border-t border-lineDark pt-6 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
           <p>{footer.copyright}</p>
           <p className="font-mono">
             Decide &middot; Implement &middot; Monitor &middot; Improve

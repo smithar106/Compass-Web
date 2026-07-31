@@ -14,7 +14,7 @@ export function PageHeader({
 }) {
   return (
     <section className="border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-5 pb-14 pt-36 sm:px-8 lg:px-10 lg:pb-20 lg:pt-44">
+      <div className="mx-auto max-w-7xl px-5 pb-12 pt-28 sm:px-8 lg:px-10 lg:pb-16 lg:pt-36">
         <Reveal>
           <Eyebrow number={number}>{eyebrow}</Eyebrow>
           <h1 className="mt-6 max-w-3xl text-title font-semibold tracking-tight text-ink">{title}</h1>

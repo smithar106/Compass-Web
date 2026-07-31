@@ -30,7 +30,7 @@ export function Lifecycle() {
 
   return (
     <section className="border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeader
             eyebrow={lc.label}
@@ -46,7 +46,7 @@ export function Lifecycle() {
         </div>
 
         {/* Desktop: rail + panel */}
-        <div className="mt-14 hidden grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] gap-12 lg:grid">
+        <div className="mt-10 hidden grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] gap-12 lg:grid">
           {/* rail */}
           <div>
             <ol className="relative">
@@ -156,7 +156,7 @@ export function Lifecycle() {
         </div>
 
         {/* Mobile: vertical journey */}
-        <div className="mt-12 space-y-0 lg:hidden">
+        <div className="mt-8 space-y-0 lg:hidden">
           <ol className="relative">
             <span aria-hidden="true" className="absolute bottom-6 left-[15px] top-2 w-px bg-line" />
             {lc.stages.map((stage) => {

@@ -65,7 +65,7 @@ export default function HowItWorksPage() {
       />
 
       <section className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-5xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8 lg:px-10 lg:py-16">
           <ol className="relative">
             <span aria-hidden="true" className="absolute bottom-4 left-[15px] top-4 w-px bg-line" />
             {STEPS.map((step, i) => (

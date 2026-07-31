@@ -17,10 +17,10 @@ export function LiveRecommendation() {
 
   return (
     <section className="border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <SectionHeader eyebrow={lr.label} number={lr.number} headline={lr.headline} subtitle={lr.subtitle} />
 
-        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-10">
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-10">
           {/* ranking list */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-faint">

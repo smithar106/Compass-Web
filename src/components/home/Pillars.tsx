@@ -6,12 +6,12 @@ export function Pillars() {
   const p = marketing.pillars;
   return (
     <section className="border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeader eyebrow={p.label} number={p.number} headline={p.headline} subtitle={p.subtitle} />
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden border border-line bg-line sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-10 grid grid-cols-1 gap-px overflow-hidden border border-line bg-line sm:grid-cols-2 xl:grid-cols-4">
           {p.items.map((item, i) => (
             <Reveal key={item.name} delay={i * 100} className="h-full">
               <article className="flex h-full flex-col bg-surface p-7">

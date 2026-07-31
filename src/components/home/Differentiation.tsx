@@ -7,7 +7,7 @@ export function Differentiation() {
   const d = marketing.differentiation;
   return (
     <section className="border-b border-lineDark bg-paper-dark">
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <SectionHeader
           eyebrow={d.label}
           number={d.number}
@@ -16,7 +16,7 @@ export function Differentiation() {
           subtitle={d.subtitle}
         />
 
-        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
           {d.columns.map((col, i) => {
             const isCompass = col.highlighted;
             return (

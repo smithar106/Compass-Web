@@ -11,7 +11,7 @@ export function FinalCta() {
         aria-hidden="true"
         className="grid-backdrop-dark pointer-events-none absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
       />
-      <div className="relative mx-auto max-w-7xl px-5 py-24 text-center sm:px-8 lg:px-10 lg:py-32">
+      <div className="relative mx-auto max-w-7xl px-5 py-16 text-center sm:px-8 lg:px-10 lg:py-24">
         <Reveal>
           <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent">
             {c.eyebrow}

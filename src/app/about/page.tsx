@@ -23,7 +23,7 @@ export default function AboutPage() {
       />
 
       <section className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_0.9fr] lg:gap-20">
             <Reveal>
               <div className="max-w-2xl">
@@ -60,7 +60,7 @@ export default function AboutPage() {
       </section>
 
       <section className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <Reveal>
             <h2 className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
               {about.principles.headline}

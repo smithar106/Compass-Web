@@ -14,7 +14,7 @@ export function Operations() {
 
   return (
     <section id="for-operations-leaders" className="border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeader eyebrow={o.label} number={o.number} headline={o.headline} subtitle={o.subtitle} />
           <Reveal delay={120} className="lg:pb-1">
@@ -32,7 +32,7 @@ export function Operations() {
         </div>
 
         {/* Desktop interactive split */}
-        <div className="mt-14 hidden grid-cols-2 gap-12 lg:grid">
+        <div className="mt-10 hidden grid-cols-2 gap-12 lg:grid">
           <div className="lg:sticky lg:top-28 lg:self-start">
             <Reveal>
               <div key={active} className="animate-fade-in border-t-2 border-ink pt-6">
@@ -108,7 +108,7 @@ export function Operations() {
         </div>
 
         {/* Mobile stacked list */}
-        <div className="mt-12 lg:hidden">
+        <div className="mt-8 lg:hidden">
           <ol>
             {o.scenarios.map((s, i) => (
               <li key={s.title} className="border-t border-line py-5 first:border-t-0">

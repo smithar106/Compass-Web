@@ -46,7 +46,7 @@ export function DecisionEntry() {
         aria-hidden="true"
         className="grid-backdrop pointer-events-none absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_65%)]"
       />
-      <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-32 sm:px-8 lg:px-10 lg:pb-28 lg:pt-44">
+      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-28 sm:px-8 lg:px-10 lg:pb-20 lg:pt-36">
         <div className="max-w-3xl">
           <Reveal>
             <Eyebrow number="00">{h.eyebrow}</Eyebrow>
@@ -60,7 +60,7 @@ export function DecisionEntry() {
         </div>
 
         <Reveal delay={240}>
-          <div className="mt-12 overflow-hidden border border-line bg-surface shadow-panel-lg">
+          <div className="mt-8 overflow-hidden border border-line bg-surface shadow-panel-lg">
             {/* console bar */}
             <div className="flex items-center justify-between gap-3 border-b border-line bg-ink px-4 py-2.5 sm:px-5">
               <div className="flex items-center gap-2">

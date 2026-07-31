@@ -43,7 +43,7 @@ export default function ProductPage() {
 
       {/* What Compass owns */}
       <section className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <Reveal>

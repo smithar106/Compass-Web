@@ -35,7 +35,7 @@ export default function EvidencePage() {
 
       {/* Evidence graph */}
       <section className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <Reveal>
@@ -87,7 +87,7 @@ export default function EvidencePage() {
 
       {/* Provenance */}
       <section className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
               Source provenance
@@ -102,7 +102,7 @@ export default function EvidencePage() {
             </p>
           </Reveal>
 
-          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {PROVENANCE.map((p, i) => (
               <Reveal key={p.name} delay={i * 70} className="h-full">
                 <div className="flex h-full flex-col border border-line bg-surface p-5">
@@ -137,7 +137,7 @@ export default function EvidencePage() {
 
       {/* Quality tiers + citation */}
       <section className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
             <div>
               <Reveal>

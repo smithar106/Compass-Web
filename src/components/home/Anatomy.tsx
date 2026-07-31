@@ -15,13 +15,13 @@ export function Anatomy() {
 
   return (
     <section className="border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeader eyebrow={a.label} number={a.number} headline={a.headline} subtitle={a.subtitle} />
         </div>
 
         <Reveal delay={140}>
-          <div className="mt-12 overflow-hidden border border-line bg-surface">
+          <div className="mt-8 overflow-hidden border border-line bg-surface">
             {/* report header */}
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-paper/60 px-4 py-3 sm:px-6">
               <div className="flex items-center gap-3">

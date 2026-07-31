@@ -52,12 +52,6 @@ export function Header() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <Link
-            href="/assessment"
-            className="text-[13.5px] font-medium text-muted transition-colors hover:text-ink"
-          >
-            Sign in
-          </Link>
-          <Link
             href={headerCta.href}
             className="group inline-flex items-center gap-2 bg-ink px-4 py-2 text-[13.5px] font-semibold text-paper transition-colors hover:bg-ink2"
           >
@@ -97,13 +91,6 @@ export function Header() {
               </Link>
             ))}
             <div className="mt-5 flex flex-col gap-3">
-              <Link
-                href="/assessment"
-                onClick={() => setMobileOpen(false)}
-                className="text-center text-[15px] font-medium text-muted"
-              >
-                Sign in
-              </Link>
               <Link
                 href={headerCta.href}
                 onClick={() => setMobileOpen(false)}

@@ -10,13 +10,13 @@ export function Category() {
 
   return (
     <section className="border-b border-line bg-paper">
-      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <Reveal>
           <Eyebrow number={c.number}>{c.label}</Eyebrow>
         </Reveal>
 
         {/* the missing system */}
-        <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-20">
+        <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-20">
           <div>
             <Reveal delay={80}>
               <h2 className="text-title font-semibold tracking-tight text-ink">{c.headline}</h2>
@@ -57,7 +57,7 @@ export function Category() {
 
         {/* the belief */}
         <Reveal delay={140}>
-          <div className="mt-14 border-t border-line pt-10">
+          <div className="mt-10 border-t border-line pt-10">
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-faint">
               {c.beliefLead}
             </p>
@@ -79,7 +79,7 @@ export function Category() {
 
         {/* the decision process model */}
         <Reveal delay={160}>
-          <div className="mt-14 border border-line bg-paper/50 p-6 sm:p-8">
+          <div className="mt-10 border border-line bg-paper/50 p-6 sm:p-8">
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
               {model.label}
             </p>
