@@ -1,6 +1,6 @@
 import { site } from "@/content/site";
 import { PageHeader } from "@/components/home/PageHeader";
-import { Reframe } from "@/components/home/Reframe";
+import { Trust } from "@/components/home/Trust";
 import { FinalCta } from "@/components/home/FinalCta";
 import { Reveal } from "@/components/home/Reveal";
 
@@ -89,7 +89,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <Reframe />
+      <Trust />
       <FinalCta />
     </>
   );

@@ -37,15 +37,6 @@ function DetailLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex items-start justify-between gap-6 border-b border-line/70 py-3 last:border-b-0">
-      <DetailLabel>{label}</DetailLabel>
-      <div className="text-right text-[13px] font-medium text-ink">{value}</div>
-    </div>
-  );
-}
-
 function Tab({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
@@ -62,15 +53,15 @@ function Tab({ active, onClick, children }: { active: boolean; onClick: () => vo
   );
 }
 
-const TABS = ["Overview", "Evidence", "Confidence", "Alternatives", "Partner", "Blueprint", "Expected ROI", "Learning plan"];
+const TABS = ["Evidence", "Confidence", "Implementation", "Learning"];
 
 export function RecommendationDetail({ example }: { example: ExampleRecommendation }) {
-  const [tab, setTab] = useState("Overview");
+  const [tab, setTab] = useState("Evidence");
   const e = example;
 
   return (
     <div className="overflow-hidden border border-line bg-surface">
-      {/* header */}
+      {/* header: problem + at-a-glance facts */}
       <div className="border-b border-line bg-paper/60 px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-[10px] font-semibold uppercase tracking-eyebrow text-faint">
@@ -82,6 +73,16 @@ export function RecommendationDetail({ example }: { example: ExampleRecommendati
         </div>
         <h3 className="mt-1.5 text-[18px] font-semibold tracking-tight text-ink">{e.problem}</h3>
         <p className="mt-0.5 text-[14px] text-muted">{e.intervention}</p>
+
+        <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line pt-4 sm:grid-cols-3 lg:grid-cols-4">
+          <MetaItem label="Confidence" value={`${e.confidence.label} · ${Math.round(e.confidence.score * 100)}%`} />
+          <MetaItem label="Evidence strength" value={`${e.evidence.tier} · ${e.evidence.comparables} comparable`} />
+          <MetaItem label="Implementation effort" value={e.effort} />
+          <MetaItem label="Expected impact" value={e.impact.range} />
+          <MetaItem label="Implementation partner" value={e.partner} />
+          <MetaItem label="Learning schedule" value={e.learning} />
+          <MetaItem label="Expected ROI" value={`${e.roi.range} · payback ${e.roi.payback}`} />
+        </dl>
       </div>
 
       {/* tabs */}
@@ -95,157 +96,134 @@ export function RecommendationDetail({ example }: { example: ExampleRecommendati
 
       <div className="p-5 sm:p-6">
         <div key={tab} className="animate-fade-in">
-          {tab === "Overview" && (
-            <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-              <Row label="Confidence" value={<ConfidenceBadge label={e.confidence.label} score={e.confidence.score} />} />
-              <Row label="Evidence strength" value={<TierBadge tier={e.evidence.tier} comparables={e.evidence.comparables} />} />
-              <Row label="Implementation effort" value={e.effort} />
-              <Row label="Expected impact" value={e.impact.range} />
-              <Row label="Implementation partner" value={e.partner} />
-              <Row label="Learning schedule" value={e.learning} />
-              <div className="col-span-full mt-2 border border-line bg-paper p-4">
-                <DetailLabel>Expected ROI</DetailLabel>
-                <p className="mt-1 text-[15px] font-semibold text-ink">
-                  {e.roi.range} <span className="font-normal text-muted">· payback {e.roi.payback}</span>
-                </p>
-                <p className="mt-1 text-[12px] text-muted">{e.impact.basis}</p>
-              </div>
-            </div>
-          )}
-
-          {tab === "Evidence" && (
-            <div>
-              <div className="grid grid-cols-3 divide-x divide-line border-b border-line pb-4">
-                <Stat value={String(e.evidence.comparables)} label="comparable implementations" />
-                <Stat value={String(e.evidence.validated)} label="independently validated outcomes" />
-                <Stat value={e.evidence.tier} label="evidence tier" />
-              </div>
-              <div className="mt-4">
-                <DetailLabel>Source types behind this recommendation</DetailLabel>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {e.evidence.sources.map((s) => (
-                    <span key={s} className="border border-line bg-paper px-2.5 py-1.5 text-[11.5px] font-medium text-ink">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-4 text-[12.5px] leading-relaxed text-muted">
-                  Every material claim in this recommendation traces back to a cited source. When the
-                  evidence is insufficient, Compass defers judgment instead of inventing an answer.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {tab === "Confidence" && (
-            <div>
-              <div className="flex items-center justify-between">
-                <DetailLabel>Recommendation confidence</DetailLabel>
-                <ConfidenceBadge label={e.confidence.label} score={e.confidence.score} />
-              </div>
-              <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-line">
-                <div
-                  className="h-full rounded-full bg-accent-deep"
-                  style={{ width: `${Math.round(e.confidence.score * 100)}%`, transition: "width 0.9s cubic-bezier(0.22,1,0.36,1)" }}
-                />
-              </div>
-              <div className="mt-1.5 flex justify-between font-mono text-[10px] text-faint">
-                <span>score</span>
-                <span>{e.confidence.score.toFixed(2)}</span>
-              </div>
-              <div className="mt-5 space-y-4">
-                <ConfidenceDriver label="Evidence fit" value={Math.max(0.2, e.confidence.score - 0.05)} note="How closely comparable implementations match your operating context." />
-                <ConfidenceDriver label="Organizational readiness" value={Math.max(0.2, e.confidence.score - 0.12)} note="Data, process stability, and owner availability." />
-                <ConfidenceDriver label="Execution risk" value={Math.max(0.15, 1 - e.confidence.score + 0.08)} note="Controllable risk after the recommendation is matched to a path." />
-              </div>
-            </div>
-          )}
-
-          {tab === "Alternatives" && (
-            <div>
-              <ul className="divide-y divide-line/70">
-                {e.alternatives.map((alt) => (
-                  <li key={alt.name} className="flex items-start gap-3 py-3.5 first:pt-0">
-                    <span
-                      className={cn(
-                        "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                        alt.verdict === "Rejected" ? "bg-ink text-paper" : "bg-ok text-white"
-                      )}
-                      aria-hidden="true"
-                    >
-                      {alt.verdict === "Rejected" ? "×" : "✓"}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center justify-between gap-x-3">
-                        <span className="text-[13.5px] font-medium text-ink">{alt.name}</span>
-                        <span className={cn("px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide", VERDICT_STYLE[alt.verdict] ?? "bg-line text-muted")}>
-                          {alt.verdict}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-[12px] leading-relaxed text-muted">{alt.reason}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-4 border-t border-line pt-4 text-[12px] leading-relaxed text-muted">
-                The same inputs and scoring version produce the same ranking. Alternatives are shown,
-                not hidden.
-              </p>
-            </div>
-          )}
-
-          {tab === "Partner" && (
-            <div>
-              <div className="border border-line bg-paper p-4">
-                <DetailLabel>Recommended execution path</DetailLabel>
-                <p className="mt-1.5 text-[15px] font-semibold text-ink">{e.partner}</p>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {["Internal team", "Selected partner"].map((opt, i) => (
-                  <div
-                    key={opt}
-                    className={cn(
-                      "border px-3 py-2 text-[12.5px] font-medium",
-                      i === 0 ? "border-ink bg-ink text-paper" : "border-line bg-paper text-muted"
-                    )}
-                  >
-                    {opt}
-                  </div>
-                ))}
-              </div>
-              <p className="mt-4 text-[12.5px] leading-relaxed text-muted">
-                Compass recommends the intervention first. A partner becomes relevant only after you
-                select the intervention\u2014and partners cannot pay to influence the recommendation.
-              </p>
-            </div>
-          )}
-
-          {tab === "Blueprint" && (
-            <BlueprintPlan effort={e.effort} partner={e.partner} />
-          )}
-
-          {tab === "Expected ROI" && (
-            <div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                <RoiStat label="Impact" value={e.impact.range} />
-                <RoiStat label="Annual value" value={e.roi.range} />
-                <RoiStat label="Payback" value={e.roi.payback} />
-              </div>
-              <div className="mt-5 border border-line bg-paper p-4">
-                <DetailLabel>Basis of the estimate</DetailLabel>
-                <p className="mt-1 text-[13px] leading-relaxed text-muted">{e.impact.basis}.</p>
-                <p className="mt-2 text-[12px] leading-relaxed text-muted">
-                  Impact is projected before implementation and re-measured against your baseline after
-                  it\u2014so the estimate is checkable, not assumed.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {tab === "Learning plan" && (
-            <LearningPlan learning={e.learning} />
-          )}
+          {tab === "Evidence" && <EvidencePanel e={e} />}
+          {tab === "Confidence" && <ConfidencePanel e={e} />}
+          {tab === "Implementation" && <ImplementationPanel e={e} />}
+          {tab === "Learning" && <LearningPlan learning={e.learning} />}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function MetaItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-[9.5px] font-semibold uppercase tracking-[0.12em] text-faint">{label}</dt>
+      <dd className="mt-0.5 text-[12.5px] font-medium text-ink">{value}</dd>
+    </div>
+  );
+}
+
+function EvidencePanel({ e }: { e: ExampleRecommendation }) {
+  return (
+    <div>
+      <div className="grid grid-cols-3 divide-x divide-line border-b border-line pb-4">
+        <Stat value={String(e.evidence.comparables)} label="comparable implementations" />
+        <Stat value={String(e.evidence.validated)} label="independently validated outcomes" />
+        <Stat value={e.evidence.tier} label="evidence tier" />
+      </div>
+      <div className="mt-4">
+        <DetailLabel>Source types behind this recommendation</DetailLabel>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {e.evidence.sources.map((s) => (
+            <span key={s} className="border border-line bg-paper px-2.5 py-1.5 text-[11.5px] font-medium text-ink">
+              {s}
+            </span>
+          ))}
+        </div>
+        <p className="mt-4 text-[12.5px] leading-relaxed text-muted">
+          Every material claim in this recommendation traces back to a cited source. When the
+          evidence is insufficient, Compass defers judgment instead of inventing an answer.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ConfidencePanel({ e }: { e: ExampleRecommendation }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <DetailLabel>Recommendation confidence</DetailLabel>
+        <ConfidenceBadge label={e.confidence.label} score={e.confidence.score} />
+      </div>
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-line">
+        <div
+          className="h-full rounded-full bg-accent-deep"
+          style={{ width: `${Math.round(e.confidence.score * 100)}%`, transition: "width 0.9s cubic-bezier(0.22,1,0.36,1)" }}
+        />
+      </div>
+      <div className="mt-1.5 flex justify-between font-mono text-[10px] text-faint">
+        <span>score</span>
+        <span>{e.confidence.score.toFixed(2)}</span>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <ConfidenceDriver label="Evidence fit" value={Math.max(0.2, e.confidence.score - 0.05)} note="How closely comparable implementations match your operating context." />
+        <ConfidenceDriver label="Organizational readiness" value={Math.max(0.2, e.confidence.score - 0.12)} note="Data, process stability, and owner availability." />
+        <ConfidenceDriver label="Execution risk" value={Math.max(0.15, 1 - e.confidence.score + 0.08)} note="Controllable risk after the recommendation is matched to a path." />
+      </div>
+
+      <div className="mt-6 border-t border-line pt-5">
+        <DetailLabel>Alternatives and why they lost</DetailLabel>
+        <ul className="mt-3 divide-y divide-line/70">
+          {e.alternatives.map((alt) => (
+            <li key={alt.name} className="flex items-start gap-3 py-3 first:pt-0">
+              <span
+                className={cn(
+                  "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                  alt.verdict === "Rejected" ? "bg-ink text-paper" : "bg-ok text-white"
+                )}
+                aria-hidden="true"
+              >
+                {alt.verdict === "Rejected" ? "×" : "✓"}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-x-3">
+                  <span className="text-[13.5px] font-medium text-ink">{alt.name}</span>
+                  <span className={cn("px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide", VERDICT_STYLE[alt.verdict] ?? "bg-line text-muted")}>
+                    {alt.verdict}
+                  </span>
+                </div>
+                <p className="mt-1 text-[12px] leading-relaxed text-muted">{alt.reason}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-[12px] leading-relaxed text-muted">
+          The same inputs and scoring version produce the same ranking. Alternatives are shown, not hidden.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ImplementationPanel({ e }: { e: ExampleRecommendation }) {
+  return (
+    <div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {["Internal team", "Selected partner"].map((opt, i) => (
+          <div
+            key={opt}
+            className={cn(
+              "border px-3 py-2 text-[12.5px] font-medium",
+              i === 0 ? "border-ink bg-ink text-paper" : "border-line bg-paper text-muted"
+            )}
+          >
+            {opt}
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
+        Recommended execution path: <span className="font-semibold text-ink">{e.partner}</span>. A
+        partner becomes relevant only after you select the intervention\u2014and partners cannot pay to
+        influence the recommendation.
+      </p>
+
+      <div className="mt-5 border-t border-line pt-5">
+        <DetailLabel>Blueprint</DetailLabel>
+        <BlueprintPhases effort={e.effort} partner={e.partner} />
       </div>
     </div>
   );
@@ -269,17 +247,6 @@ function ConfidenceBadge({ label, score }: { label: string; score: number }) {
   );
 }
 
-function TierBadge({ tier, comparables }: { tier: string; comparables: number }) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <span className={cn("px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide", TIER_STYLE[tier] ?? "bg-line text-muted")}>
-        {tier}
-      </span>
-      <span className="font-mono text-[11px] text-faint">{comparables} comparable</span>
-    </span>
-  );
-}
-
 function ConfidenceDriver({ label, value, note }: { label: string; value: number; note: string }) {
   return (
     <div>
@@ -295,16 +262,7 @@ function ConfidenceDriver({ label, value, note }: { label: string; value: number
   );
 }
 
-function RoiStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border border-line bg-paper p-3">
-      <DetailLabel>{label}</DetailLabel>
-      <p className="mt-1 text-[14px] font-semibold leading-snug text-ink">{value}</p>
-    </div>
-  );
-}
-
-function BlueprintPlan({ effort, partner }: { effort: string; partner: string }) {
+function BlueprintPhases({ effort, partner }: { effort: string; partner: string }) {
   const weeks = effort === "Low" ? 3 : effort === "Low-Medium" ? 4 : effort === "Medium" ? 6 : 10;
   const phases = [
     { p: "P1", name: "Baseline and metrics setup", dur: "2 wks", owner: "Ops lead", metric: "Baseline locked" },
@@ -334,7 +292,7 @@ function BlueprintPlan({ effort, partner }: { effort: string; partner: string })
           </li>
         ))}
       </ul>
-      <p className="mt-4 border-t border-line pt-4 text-[12px] leading-relaxed text-muted">
+      <p className="mt-4 text-[12px] leading-relaxed text-muted">
         Compass does not implement. Your team or the selected partner executes the plan while Compass
         preserves the rationale, requirements, and validation criteria.
       </p>

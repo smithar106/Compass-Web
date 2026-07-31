@@ -165,9 +165,7 @@ export function DecisionEntry() {
 
         <Reveal delay={320}>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[12.5px] leading-relaxed text-muted">
-              AI, deterministic software, process redesign, human work, hybrid\u2014or no action yet.
-            </p>
+            <p className="text-[12.5px] leading-relaxed text-muted">{h.trustLine}</p>
             <Link
               href="/how-it-works"
               className="group inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent-deep transition-colors hover:text-ink"

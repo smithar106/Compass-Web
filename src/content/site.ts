@@ -1,8 +1,8 @@
 export const site = {
   name: "Compass",
-  tagline: "Confidence infrastructure for operational decisions.",
+  tagline: "Make operational decisions with confidence.",
   description:
-    "Compass is confidence infrastructure for operational decisions: it compares your problem against real-world implementations, matches the right intervention and implementation path, and measures whether it worked.",
+    "Compass helps organizations identify the right operational intervention, execute it through the right partner, measure what happened, and continuously improve future decisions.",
 
   nav: [
     { label: "Product", href: "/product" },
@@ -18,10 +18,11 @@ export const site = {
 
   marketing: {
     hero: {
-      eyebrow: "Confidence infrastructure for operational decisions",
-      claim: "Describe your operational challenge. Get a recommendation you can defend.",
+      eyebrow: "Make operational decisions with confidence",
+      claim: "Every operational decision is a bet. Make the right one.",
       subtitle:
-        "Compass compares your problem against a growing structured evidence base of real-world implementations, matches it to the right intervention and implementation path, and measures whether it worked.",
+        "Compass gives organizations confidence before they spend months implementing the wrong solution.",
+      trustLine: "Compass compares every viable intervention\u2014including none at all.",
       inputLabel: "Your operational challenge",
       inputPlaceholder: "Describe the problem, the workflow, or the outcome you need\u2026",
       analyzeCta: "Analyze",
@@ -40,48 +41,78 @@ export const site = {
       illustrativeNote: "Illustrative recommendations for demonstration.",
     },
 
-    pillars: {
-      label: "Four confidence pillars",
+    category: {
+      label: "The missing system",
       number: "01",
-      headline: "Confidence infrastructure for operational decisions.",
+      headline:
+        "Every organization already has an implementation process. Very few have a decision process.",
+      consequence:
+        "That is why initiatives fail. That is why transformations stall. That is why millions are spent solving the wrong problem.",
+      resolve: "Compass becomes the missing system.",
+      beliefLead: "We believe",
+      belief: [
+        "Implementation is becoming abundant.",
+        "Building software gets easier every year. Choosing the right operational intervention does not.",
+        "Organizations don\u2019t need more AI. They need more confidence.",
+        "That\u2019s why Compass exists.",
+      ],
+      question: {
+        mostLabel: "Most companies ask",
+        mostQuestion: "How do we use AI?",
+        compassLabel: "Compass asks",
+        compassQuestion:
+          "What operational problem should we solve, which intervention will work, and how will we know?",
+        body: "Organizations have more tools and vendors than ever. What they lack is confidence that they are solving the right problem in the right way.",
+      },
+      model: {
+        label: "The decision process",
+        steps: ["Problem", "Confidence", "Implementation", "Measurement", "Learning", "Better decision"],
+        closing: "Each decision feeds the next. Judgment compounds inside the organization.",
+      },
+    },
+
+    pillars: {
+      label: "Why trust Compass",
+      number: "02",
+      headline: "Confidence is the product.",
       subtitle:
-        "Everything Compass does exists to create one thing: confidence in the decision you are about to make and the outcome you will actually get.",
+        "Not recommendations. Not software. Confidence\u2014before you commit months and millions to the wrong thing.",
       items: [
         {
           number: "01",
           name: "Evidence",
-          headline: "Find organizations that solved your exact operational problem.",
-          body: "Compass compares your problem and operating context against a growing structured evidence base of real-world implementations, so the recommendation fits the problem\u2014not whichever example someone remembers.",
+          headline: "Confidence comes from evidence.",
+          body: "Not opinions. Not vendor marketing. Not whichever case study someone remembers. Compass compares your problem against organizations that faced the same operational challenge.",
           tag: "Evidence creates confidence the recommendation fits the problem.",
         },
         {
           number: "02",
-          name: "Implementation",
-          headline: "Match the recommendation with the correct implementation path and partner.",
-          body: "Every recommendation carries an Implementation Blueprint and is matched to the right execution path\u2014your internal team or a partner you select\u2014so the organization can actually execute.",
-          tag: "Matching creates confidence the organization can execute.",
+          name: "Execution",
+          headline: "Confidence comes from execution.",
+          body: "The recommendation isn\u2019t enough. Compass tells you how to implement it\u2014and who is best positioned to do it.",
+          tag: "Execution validates confidence the organization can deliver.",
         },
         {
           number: "03",
-          name: "Learning",
-          headline: "Measure whether the recommendation actually worked.",
-          body: "Success metrics, baselines, and milestones are defined before work begins, then tracked against the original recommendation\u2014so outcomes are measured honestly, not reported favorably.",
-          tag: "Learning creates confidence outcomes are measured honestly.",
+          name: "Measurement",
+          headline: "Confidence comes from measurement.",
+          body: "Success is defined before implementation begins. Not after. So outcomes are measured honestly.",
+          tag: "Measurement creates confidence the outcome is real.",
         },
         {
           number: "04",
-          name: "Improvement",
-          headline: "Make every future operational decision better.",
-          body: "Verified results flow back into the evidence base and the next recommendation\u2014so the organization keeps improving its judgment over time.",
-          tag: "Improvement creates confidence the organization will make better decisions.",
+          name: "Compounding",
+          headline: "Confidence compounds.",
+          body: "Every implementation makes the next decision smarter. That is institutional judgment\u2014and it stays inside your organization.",
+          tag: "Learning compounds confidence in every future decision.",
         },
       ],
-      loop: "Evidence \u00b7 Implementation \u00b7 Learning \u00b7 Improvement\u2014a continuous loop, not a one-time engagement.",
+      loop: "Evidence \u00b7 Execution \u00b7 Measurement \u00b7 Compounding\u2014a loop that improves every decision.",
     },
 
     liveRecommendation: {
       label: "Live recommendation",
-      number: "02",
+      number: "03",
       headline: "Open a recommendation. It comes fully assembled.",
       subtitle:
         "Pick a ranking. Each decision expands into evidence, confidence, alternatives, partner, Blueprint, expected ROI, and a learning plan.",
@@ -94,16 +125,15 @@ export const site = {
         { id: "highest-evidence", label: "Highest evidence" },
         { id: "most-common", label: "Most common" },
       ],
-      detailTabs: ["Overview", "Evidence", "Confidence", "Alternatives", "Partner", "Blueprint", "Expected ROI", "Learning plan"],
     },
 
     catalog: {
-      label: "Browse operational problems",
-      number: "03",
-      headline: "Search operational problems like you search vendors\u2014except the results are recommendations.",
+      label: "How organizations solved it",
+      number: "04",
+      headline: "Explore how organizations solved problems like yours.",
       subtitle:
-        "Every result is an operational recommendation: problem, intervention, confidence, evidence strength, implementation effort, expected impact, partner, and a learning schedule.",
-      searchPlaceholder: "Search operational problems\u2026",
+        "Each one is an operational case study: the recommendation, the evidence, the outcome, the partner, and what they learned.",
+      searchPlaceholder: "Search how organizations solved\u2026",
       noResults: "No matching recommendations. Describe your own problem to get one.",
     },
 
@@ -258,8 +288,8 @@ export const site = {
 
     stack: {
       label: "Where Compass sits",
-      number: "06",
-      headline: "Enterprise AI needs context, judgment, and execution.",
+      number: "07",
+      headline: "Every major operational change needs context, judgment, and execution.",
       closing:
         "Knowledge platforms provide context. Implementation platforms execute. Compass provides judgment.",
       body: "Most companies are building the knowledge layer or the execution layer. Compass exists to solve the missing layer in between: judgment.",
@@ -286,17 +316,6 @@ export const site = {
           compass: false,
         },
       ],
-    },
-
-    reframe: {
-      label: "The question",
-      number: "07",
-      mostLabel: "Most companies ask",
-      mostQuestion: "How do we use AI?",
-      compassLabel: "Compass asks",
-      compassQuestion:
-        "What operational problem should we solve, which intervention will work, and how will we know?",
-      body: "Organizations have more tools and vendors than ever. What they lack is confidence that they are solving the right problem in the right way.",
     },
 
     lifecycle: {
@@ -454,22 +473,21 @@ export const site = {
     },
 
     differentiation: {
-      label: "Why Compass is structurally different",
-      number: "10",
-      headline: "Consultants sell expertise. Compass builds institutional judgment.",
+      label: "The moat",
+      number: "05",
+      headline: "This is what consultants cannot do.",
       subtitle:
-        "A completed decision becomes the input to the next decision\u2014so institutional knowledge stays inside your organization, not in the heads of departing consultants.",
+        "One project. One recommendation. Then the knowledge leaves. Compass turns every decision into organizational knowledge\u2014so judgment compounds inside your organization.",
       columns: [
         {
           name: "Consultants",
-          note: "Expertise, engaged one project at a time",
+          note: "One project at a time",
           highlighted: false,
           items: [
-            "One-off engagement",
+            "One project. One recommendation.",
             "Knowledge concentrated in individuals",
-            "Limited continuity after delivery",
-            "Variable methodology",
-            "Recommendations often delivered as documents",
+            "Knowledge leaves when the engagement ends",
+            "Recommendations delivered as documents",
           ],
         },
         {
@@ -477,24 +495,21 @@ export const site = {
           note: "Broad knowledge, difficult to verify",
           highlighted: false,
           items: [
-            "Broad internet knowledge",
-            "Difficult to verify",
-            "Weak organizational context",
             "Can invent confidence",
-            "Does not systematically compare intervention paths",
+            "Weak organizational context",
+            "No systematic comparison of alternatives",
+            "No institutional memory",
           ],
         },
         {
           name: "Compass",
-          note: "A persistent decision system",
+          note: "Institutional judgment",
           highlighted: true,
           items: [
-            "Persistent decision system",
-            "Structured implementation evidence",
-            "Repeatable intervention comparison",
-            "Traceable sources and assumptions",
-            "Outcome learning that improves future decisions",
-            "Institutional knowledge that remains inside the organization",
+            "Every decision becomes organizational knowledge",
+            "Every implementation improves the next recommendation",
+            "Institutional judgment compounds",
+            "The moat is memory, not models",
           ],
         },
       ],
@@ -502,7 +517,7 @@ export const site = {
 
     operations: {
       label: "Built for consequential decisions",
-      number: "11",
+      number: "10",
       headline: "For the people who own the outcome.",
       subtitle:
         "Made for operations leaders who are accountable for the results of major investments\u2014and who need to defend the choice after it is made.",
@@ -543,7 +558,7 @@ export const site = {
 
     trust: {
       label: "Why it's trustworthy",
-      number: "04",
+      number: "11",
       headline: "Confidence is a design constraint, not marketing.",
       subtitle:
         "These principles are checkable in the product, not promises on a page.",
@@ -558,8 +573,8 @@ export const site = {
     },
 
     founder: {
-      label: "Why Compass exists",
-      number: "05",
+      label: "Built by an operator who kept seeing the same mistake",
+      number: "06",
       headline: "Implementation is becoming abundant. Judgment remains scarce.",
       name: "Arthur Smith",
       role: "Founder, Compass",
@@ -574,7 +589,7 @@ export const site = {
     },
 
     finalCta: {
-      eyebrow: "Confidence infrastructure \u00b7 The judgment layer",
+      eyebrow: "Make operational decisions with confidence",
       headline: "Before you implement anything, make sure it is the right thing.",
       subtitle:
         "Describe your operational challenge. Get an evidence-backed recommendation, a clear implementation path, and a framework for measuring what happens next.",
@@ -613,7 +628,7 @@ export const site = {
   },
 
   about: {
-    headline: "Confidence infrastructure for operational decisions.",
+    headline: "Make operational decisions with confidence.",
     thesis: "Every organization is being told to use AI. We believe the more important question is whether AI is the right solution in the first place.",
     body: [
       "Compass helps organizations determine the best operational intervention before implementation begins. It compares AI, software, workflow automation, process redesign, staffing, outsourcing, shared services, and other approaches using evidence from real-world implementations.",
@@ -714,7 +729,7 @@ export const site = {
   },
 
   footer: {
-    description: "Confidence infrastructure for operational decisions.",
+    description: "Make operational decisions with confidence.",
     copyright: `\u00A9 ${new Date().getFullYear()} Compass. All rights reserved.`,
     columns: [
       {
@@ -744,8 +759,8 @@ export const site = {
   },
 
   metadata: {
-    title: "Compass \u2014 Confidence Infrastructure for Operational Decisions",
+    title: "Compass \u2014 Make Operational Decisions with Confidence",
     description:
-      "Compass is confidence infrastructure for operational decisions. Describe your operational challenge and get an evidence-backed recommendation, an implementation path, and a learning plan.",
+      "Compass helps organizations identify the right operational intervention, execute it through the right partner, measure what happened, and continuously improve future decisions.",
   },
 };
