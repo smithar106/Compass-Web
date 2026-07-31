@@ -18,11 +18,34 @@ const TIERS = [
 ];
 
 const GRAPH = [
-  { name: "Source documents", note: "Audits, evaluations, disclosures, records", x: "0%", y: "0%" },
-  { name: "Evidence claims", note: "Extracted, attributable, deduplicated", x: "50%", y: "0%" },
-  { name: "Implementation records", note: "Intervention, context, outcomes, risks", x: "50%", y: "62%" },
-  { name: "Decision", note: "Ranked, sourced, reproducible", x: "0%", y: "62%" },
+  { name: "Source documents", note: "Audits, evaluations, disclosures, records" },
+  { name: "Evidence claims", note: "Extracted, attributable, deduplicated" },
+  { name: "Implementation records", note: "Intervention, context, outcomes, risks" },
+  { name: "Decision", note: "Ranked, sourced, reproducible" },
 ];
+
+function GraphNode({
+  node,
+  index,
+  left,
+  top,
+}: {
+  node: { name: string; note: string };
+  index: string;
+  left: string;
+  top: string;
+}) {
+  return (
+    <div
+      className="absolute h-[26%] w-[42%] overflow-hidden border border-line bg-surface p-3 shadow-card-sm"
+      style={{ left, top }}
+    >
+      <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-accent-deep">{index}</p>
+      <p className="mt-1 text-[12.5px] font-semibold leading-tight text-ink">{node.name}</p>
+      <p className="mt-0.5 text-[10.5px] leading-snug text-muted">{node.note}</p>
+    </div>
+  );
+}
 
 export default function EvidencePage() {
   return (
@@ -55,30 +78,50 @@ export default function EvidencePage() {
 
             <Reveal delay={120}>
               <div className="relative aspect-square w-full overflow-hidden border border-line bg-surface">
-                <div
+                <div aria-hidden="true" className="grid-backdrop absolute inset-0 opacity-50" />
+
+                {/* nodes — fixed geometry so the connectors align */}
+                <GraphNode node={GRAPH[0]} index="01" left="3%" top="6%" />
+                <GraphNode node={GRAPH[1]} index="02" left="55%" top="6%" />
+                <GraphNode node={GRAPH[2]} index="03" left="55%" top="68%" />
+                <GraphNode node={GRAPH[3]} index="04" left="3%" top="68%" />
+
+                {/* connectors — drawn at the node edges (square container ⇒ 1 viewBox unit = 1%) */}
+                <svg
+                  className="pointer-events-none absolute inset-0 h-full w-full"
+                  viewBox="0 0 100 100"
                   aria-hidden="true"
-                  className="grid-backdrop absolute inset-0 opacity-50"
-                />
-                {GRAPH.map((node, i) => (
-                  <div
-                    key={node.name}
-                    className="absolute w-[44%] border border-line bg-surface p-4 shadow-card-sm"
-                    style={{ left: node.x, top: node.y }}
-                  >
-                    <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-accent-deep">
-                      {String(i + 1).padStart(2, "0")}
-                    </p>
-                    <p className="mt-1 text-[13px] font-semibold text-ink">{node.name}</p>
-                    <p className="mt-0.5 text-[11px] leading-snug text-muted">{node.note}</p>
-                  </div>
-                ))}
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                  <path d="M44 9 C 60 9, 44 9, 50 9" stroke="#C7F246" strokeWidth="0.4" fill="none" />
-                  <path d="M56 38 C 56 48, 56 50, 56 58" stroke="#C7F246" strokeWidth="0.4" fill="none" strokeDasharray="1.5 1.5" />
-                  <path d="M50 76 C 40 76, 44 76, 44 76" stroke="#C7F246" strokeWidth="0.4" fill="none" />
-                  <path d="M44 92 C 44 92, 44 92, 44 92" stroke="#0E1722" strokeWidth="0.3" fill="none" strokeDasharray="1 1.5" />
+                >
+                  {/* source documents → evidence claims */}
+                  <line x1="45" y1="19" x2="55" y2="19" stroke="#4C650C" strokeWidth="0.6" />
+                  <path d="M55 19 l-3.2 -1.6 v3.2 z" fill="#4C650C" />
+
+                  {/* evidence claims → implementation records */}
+                  <line x1="76" y1="32" x2="76" y2="68" stroke="#4C650C" strokeWidth="0.6" />
+                  <path d="M76 68 l-1.6 -3.2 h3.2 z" fill="#4C650C" />
+
+                  {/* implementation records → decision */}
+                  <line x1="55" y1="81" x2="45" y2="81" stroke="#4C650C" strokeWidth="0.6" />
+                  <path d="M45 81 l3.2 -1.6 v3.2 z" fill="#4C650C" />
+
+                  {/* decision → source documents (the learning loop) */}
+                  <line x1="24" y1="68" x2="24" y2="32" stroke="#4C650C" strokeWidth="0.6" strokeDasharray="2 1.6" strokeLinecap="round" />
+                  <path d="M24 32 l-1.6 3.2 h3.2 z" fill="#4C650C" />
+
+                  <text x="50" y="12" textAnchor="middle" fontSize="3.4" letterSpacing="0.3" fill="#8A93A3">
+                    EXTRACT
+                  </text>
+                  <text x="79" y="50" textAnchor="start" fontSize="3.4" letterSpacing="0.3" fill="#8A93A3" transform="rotate(90 79 50)">
+                    STRUCTURE
+                  </text>
+                  <text x="27" y="50" textAnchor="start" fontSize="3.4" letterSpacing="0.3" fill="#8A93A3" transform="rotate(-90 27 50)">
+                    LEARNING LOOP
+                  </text>
                 </svg>
-                <p className="absolute bottom-3 right-4 text-[10px] text-faint">a decision loop, not a one-way pipeline</p>
+
+                <p className="absolute bottom-2 right-3 text-[10px] text-faint">
+                  a decision loop, not a one-way pipeline
+                </p>
               </div>
             </Reveal>
           </div>
