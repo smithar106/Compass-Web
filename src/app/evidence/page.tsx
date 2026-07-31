@@ -24,25 +24,14 @@ const GRAPH = [
   { name: "Decision", note: "Ranked, sourced, reproducible" },
 ];
 
-function GraphNode({
-  node,
-  index,
-  left,
-  top,
-}: {
-  node: { name: string; note: string };
-  index: string;
-  left: string;
-  top: string;
-}) {
+function CircleNode({ node, x, y }: { node: { name: string; note: string }; x: string; y: string }) {
   return (
     <div
-      className="absolute h-[26%] w-[42%] overflow-hidden border border-line bg-surface p-3 shadow-card-sm"
-      style={{ left, top }}
+      className="absolute w-[38%] -translate-x-1/2 -translate-y-1/2 border border-line bg-surface p-3 shadow-card-sm"
+      style={{ left: `${x}%`, top: `${y}%` }}
     >
-      <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-accent-deep">{index}</p>
-      <p className="mt-1 text-[12.5px] font-semibold leading-tight text-ink">{node.name}</p>
-      <p className="mt-0.5 text-[10.5px] leading-snug text-muted">{node.note}</p>
+      <p className="text-[12px] font-semibold leading-tight text-ink">{node.name}</p>
+      <p className="mt-0.5 text-[10px] leading-snug text-muted">{node.note}</p>
     </div>
   );
 }
@@ -78,46 +67,50 @@ export default function EvidencePage() {
 
             <Reveal delay={120}>
               <div className="relative aspect-square w-full overflow-hidden border border-line bg-surface">
-                <div aria-hidden="true" className="grid-backdrop absolute inset-0 opacity-50" />
+                <div aria-hidden="true" className="grid-backdrop absolute inset-0 opacity-40" />
 
-                {/* nodes — fixed geometry so the connectors align */}
-                <GraphNode node={GRAPH[0]} index="01" left="3%" top="6%" />
-                <GraphNode node={GRAPH[1]} index="02" left="55%" top="6%" />
-                <GraphNode node={GRAPH[2]} index="03" left="55%" top="68%" />
-                <GraphNode node={GRAPH[3]} index="04" left="3%" top="68%" />
-
-                {/* connectors — drawn at the node edges (square container ⇒ 1 viewBox unit = 1%) */}
                 <svg
-                  className="pointer-events-none absolute inset-0 h-full w-full"
+                  className="absolute inset-0 h-full w-full"
                   viewBox="0 0 100 100"
                   aria-hidden="true"
                 >
-                  {/* source documents → evidence claims */}
-                  <line x1="45" y1="19" x2="55" y2="19" stroke="#4C650C" strokeWidth="0.6" />
-                  <path d="M55 19 l-3.2 -1.6 v3.2 z" fill="#4C650C" />
+                  <defs>
+                    <marker id="ev-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                      <path d="M0 0 L10 5 L0 10 z" fill="#4C650C" />
+                    </marker>
+                    <marker id="ev-arrow-faint" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                      <path d="M0 0 L10 5 L0 10 z" fill="#4C650C" fillOpacity="0.45" />
+                    </marker>
+                  </defs>
 
-                  {/* evidence claims → implementation records */}
-                  <line x1="76" y1="32" x2="76" y2="68" stroke="#4C650C" strokeWidth="0.6" />
-                  <path d="M76 68 l-1.6 -3.2 h3.2 z" fill="#4C650C" />
+                  {/* quadrant dividers */}
+                  <line x1="50" y1="6" x2="50" y2="94" stroke="#E3E0D7" strokeWidth="0.5" />
+                  <line x1="6" y1="50" x2="94" y2="50" stroke="#E3E0D7" strokeWidth="0.5" />
 
-                  {/* implementation records → decision */}
-                  <line x1="55" y1="81" x2="45" y2="81" stroke="#4C650C" strokeWidth="0.6" />
-                  <path d="M45 81 l3.2 -1.6 v3.2 z" fill="#4C650C" />
+                  {/* ring passing through the four node centers */}
+                  <circle cx="50" cy="50" r="35.36" fill="none" stroke="#4C650C" strokeOpacity="0.18" strokeWidth="0.8" />
 
-                  {/* decision → source documents (the learning loop) */}
-                  <line x1="24" y1="68" x2="24" y2="32" stroke="#4C650C" strokeWidth="0.6" strokeDasharray="2 1.6" strokeLinecap="round" />
-                  <path d="M24 32 l-1.6 3.2 h3.2 z" fill="#4C650C" />
-
-                  <text x="50" y="12" textAnchor="middle" fontSize="3.4" letterSpacing="0.3" fill="#8A93A3">
-                    EXTRACT
-                  </text>
-                  <text x="79" y="50" textAnchor="start" fontSize="3.4" letterSpacing="0.3" fill="#8A93A3" transform="rotate(90 79 50)">
-                    STRUCTURE
-                  </text>
-                  <text x="27" y="50" textAnchor="start" fontSize="3.4" letterSpacing="0.3" fill="#8A93A3" transform="rotate(-90 27 50)">
-                    LEARNING LOOP
-                  </text>
+                  {/* clockwise loop: Source → Claims → Records → Decision → Source */}
+                  <path d="M75 25 A 35.36 35.36 0 0 1 75 75" fill="none" stroke="#4C650C" strokeWidth="1" markerEnd="url(#ev-arrow)" />
+                  <path d="M75 75 A 35.36 35.36 0 0 1 25 75" fill="none" stroke="#4C650C" strokeWidth="1" markerEnd="url(#ev-arrow)" />
+                  <path d="M25 75 A 35.36 35.36 0 0 1 25 25" fill="none" stroke="#4C650C" strokeWidth="1" markerEnd="url(#ev-arrow)" />
+                  {/* the learning loop return */}
+                  <path d="M25 25 A 35.36 35.36 0 0 1 75 25" fill="none" stroke="#4C650C" strokeWidth="1" strokeDasharray="2.4 1.8" strokeLinecap="round" markerEnd="url(#ev-arrow-faint)" />
                 </svg>
+
+                <CircleNode node={GRAPH[0]} x="75" y="25" />
+                <CircleNode node={GRAPH[1]} x="75" y="75" />
+                <CircleNode node={GRAPH[2]} x="25" y="75" />
+                <CircleNode node={GRAPH[3]} x="25" y="25" />
+
+                {/* center */}
+                <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="mx-auto text-accent-deep" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.1" />
+                    <path d="M14.5 9.5 13.3 13.3 9.5 14.5 10.7 10.7z" fill="currentColor" />
+                  </svg>
+                  <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-faint">Evidence loop</p>
+                </div>
 
                 <p className="absolute bottom-2 right-3 text-[10px] text-faint">
                   a decision loop, not a one-way pipeline

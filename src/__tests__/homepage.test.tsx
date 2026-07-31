@@ -17,7 +17,7 @@ describe("Homepage content", () => {
     expect(paths[0].title).toContain("Analyze an Operational Problem");
     expect(paths[1].title).toContain("Find My Biggest Improvement Opportunity");
     expect(paths[2].title).toContain("Validate an Implementation Decision");
-    expect(paths[0].href).toContain("mode=analyze");
+    expect(paths[0].href).toBe("/analyze");
     expect(paths[1].href).toContain("mode=opportunities");
     expect(paths[2].href).toContain("mode=validate");
     expect(paths[0].number).toBe("01");

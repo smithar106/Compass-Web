@@ -17,7 +17,7 @@ export const nav = [
 
 export const headerCta = {
   label: "Analyze a Problem",
-  href: "/assessment",
+  href: "/analyze",
 };
 
 export const marketing = {
@@ -29,7 +29,7 @@ export const marketing = {
         "Compass analyzes real-world implementations and outcomes to recommend the right intervention\u2014so you can invest with confidence and avoid costly mistakes.",
       supportingAccent: "right intervention",
       cta: "Analyze a Problem",
-      ctaHref: "/assessment?mode=analyze",
+      ctaHref: "/analyze",
       secondaryCta: "See how it works",
       secondaryHref: "/how-it-works",
       defensibility: {
@@ -60,7 +60,7 @@ export const marketing = {
             desc: "I already know the problem. Help me determine the best intervention.",
             time: "2\u20133 minutes",
             cta: "Analyze Problem",
-            href: "/assessment?mode=analyze",
+            href: "/analyze",
             icon: "search",
           },
           {
@@ -718,7 +718,7 @@ export const footer = {
     {
       title: "Get Started",
       links: [
-        { label: "Analyze a Problem", href: "/assessment" },
+        { label: "Analyze a Problem", href: "/analyze" },
         { label: "Design Partners", href: "/design-partners" },
       ],
     },
