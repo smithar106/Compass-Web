@@ -1,10 +1,10 @@
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 export function Differentiation() {
-  const d = site.marketing.differentiation;
+  const d = marketing.differentiation;
   return (
     <section className="border-b border-lineDark bg-paper-dark">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">

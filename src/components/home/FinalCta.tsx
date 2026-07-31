@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { ArrowIcon } from "./primitives";
 import { Reveal } from "./Reveal";
 
 export function FinalCta() {
-  const c = site.marketing.finalCta;
+  const c = marketing.finalCta;
   return (
     <section className="relative overflow-hidden bg-paper-dark">
       <div

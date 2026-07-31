@@ -217,7 +217,7 @@ function ImplementationPanel({ e }: { e: ExampleRecommendation }) {
       </div>
       <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
         Recommended execution path: <span className="font-semibold text-ink">{e.partner}</span>. A
-        partner becomes relevant only after you select the intervention\u2014and partners cannot pay to
+        partner becomes relevant only after you select the intervention&mdash;and partners cannot pay to
         influence the recommendation.
       </p>
 
@@ -323,7 +323,7 @@ function LearningPlan({ learning }: { learning: string }) {
         ))}
       </ol>
       <p className="mt-4 border-t border-line pt-4 text-[12px] leading-relaxed text-muted">
-        Verified results flow back into the evidence base\u2014so the next recommendation for your
+        Verified results flow back into the evidence base&mdash;so the next recommendation for your
         organization is measurably better than the last.
       </p>
     </div>

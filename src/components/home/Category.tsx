@@ -1,10 +1,10 @@
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { Eyebrow } from "./primitives";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 export function Category() {
-  const c = site.marketing.category;
+  const c = marketing.category;
   const q = c.question;
   const model = c.model;
 

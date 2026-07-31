@@ -38,7 +38,7 @@ export default function ProductPage() {
             A decision system, not a consulting engagement.
           </>
         }
-        subtitle="Compass is the persistent judgment layer for operational decisions. It defines the problem, compares every viable intervention against structured evidence, produces the recommendation and the Blueprint\u2014then stays with you to measure whether it worked."
+        subtitle="Compass is the persistent judgment layer for operational decisions. It defines the problem, compares every viable intervention against structured evidence, produces the recommendation and the Blueprint&mdash;then stays with you to measure whether it worked."
       />
 
       {/* What Compass owns */}
@@ -52,7 +52,7 @@ export default function ProductPage() {
                 </h2>
                 <p className="mt-5 max-w-md text-lead leading-relaxed text-muted">
                   The decision layer stays with Compass. The implementation is executed by your team
-                  or a partner you select\u2014and a partner becomes relevant only after you choose
+                  or a partner you select&mdash;and a partner becomes relevant only after you choose
                   the intervention.
                 </p>
               </Reveal>

@@ -2,15 +2,15 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { SectionHeader, ArrowIcon } from "./primitives";
 import { Reveal } from "./Reveal";
 import { RecommendationCard } from "./RecommendationCard";
 import type { ExampleRecommendation } from "./RecommendationDetail";
 
 export function SearchRecommendations() {
-  const c = site.marketing.catalog;
-  const examples = site.marketing.examples as ExampleRecommendation[];
+  const c = marketing.catalog;
+  const examples = marketing.examples as ExampleRecommendation[];
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
 

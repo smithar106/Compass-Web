@@ -30,7 +30,7 @@ export default function EvidencePage() {
       <PageHeader
         eyebrow="Evidence"
         title="Recommendations that trace back to a source you can read."
-        subtitle="Compass reasons over a growing structured evidence base of real-world implementations. Every material claim carries its source\u2014and when the evidence is insufficient, Compass says so."
+        subtitle="Compass reasons over a growing structured evidence base of real-world implementations. Every material claim carries its source&mdash;and when the evidence is insufficient, Compass says so."
       />
 
       {/* Evidence graph */}
@@ -96,7 +96,7 @@ export default function EvidencePage() {
               Different sources carry different forms of confidence.
             </h2>
             <p className="mt-5 max-w-2xl text-lead leading-relaxed text-muted">
-              Compass tracks which type of source backs each claim\u2014and never inflates it. A
+              Compass tracks which type of source backs each claim&mdash;and never inflates it. A
               vendor record is treated differently from an independent audit, and the difference is
               visible in the recommendation.
             </p>

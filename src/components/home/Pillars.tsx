@@ -1,9 +1,9 @@
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
 
 export function Pillars() {
-  const p = site.marketing.pillars;
+  const p = marketing.pillars;
   return (
     <section className="border-b border-line bg-paper">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">

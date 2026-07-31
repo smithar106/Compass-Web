@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { site } from "@/content/site";
+import { name, metadata as siteMetadata } from "@/content/marketing";
 import "./globals.css";
 
 const inter = Inter({
@@ -20,18 +20,18 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: site.metadata.title,
-  description: site.metadata.description,
+  title: siteMetadata.title,
+  description: siteMetadata.description,
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
     ],
   },
   openGraph: {
-    title: site.metadata.title,
-    description: site.metadata.description,
+    title: siteMetadata.title,
+    description: siteMetadata.description,
     type: "website",
-    siteName: site.name,
+    siteName: name,
   },
   robots: { index: true, follow: true },
 };

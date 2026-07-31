@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
 import { RecommendationDetail, type ExampleRecommendation } from "./RecommendationDetail";
 import { cn } from "@/lib/utils";
 
 export function LiveRecommendation() {
-  const lr = site.marketing.liveRecommendation;
-  const examples = site.marketing.examples as ExampleRecommendation[];
+  const lr = marketing.liveRecommendation;
+  const examples = marketing.examples as ExampleRecommendation[];
 
   const byRanking = (label: string) => examples.find((e) => e.ranking === label);
   const [selectedLabel, setSelectedLabel] = useState(lr.rankings[0].label);

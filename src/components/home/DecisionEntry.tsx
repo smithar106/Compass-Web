@@ -3,12 +3,12 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { Eyebrow, ArrowIcon } from "./primitives";
 import { Reveal } from "./Reveal";
 
 export function DecisionEntry() {
-  const h = site.marketing.hero;
+  const h = marketing.hero;
   const router = useRouter();
   const [text, setText] = useState("");
   const [hint, setHint] = useState<string | null>(null);

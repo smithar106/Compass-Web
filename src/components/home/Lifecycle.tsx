@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { cn } from "@/lib/utils";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
@@ -25,7 +25,7 @@ const STAGE_COLORS: Record<string, string> = {
 };
 
 export function Lifecycle() {
-  const lc = site.marketing.lifecycle;
+  const lc = marketing.lifecycle;
   const [active, setActive] = useState("decide");
 
   return (

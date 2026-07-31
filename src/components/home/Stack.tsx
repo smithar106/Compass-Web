@@ -1,10 +1,10 @@
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { Eyebrow } from "./primitives";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 export function Stack() {
-  const s = site.marketing.stack;
+  const s = marketing.stack;
   return (
     <section className="border-b border-line bg-paper">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">

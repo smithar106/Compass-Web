@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { site } from "@/content/site";
+import { name, footer } from "@/content/marketing";
 import { Needle } from "@/components/home/primitives";
 
 export function Footer() {
@@ -10,14 +10,14 @@ export function Footer() {
           <div className="md:col-span-5">
             <Link href="/" className="flex items-center gap-2.5">
               <Needle className="h-6 w-6 text-accent" />
-              <span className="text-lg font-bold tracking-tight">{site.name}</span>
+              <span className="text-lg font-bold tracking-tight">{name}</span>
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-paper/60">
-              {site.footer.description}
+              {footer.description}
             </p>
           </div>
 
-          {site.footer.columns.map((col) => (
+          {footer.columns.map((col) => (
             <div key={col.title} className="md:col-span-2">
               <h3 className="text-xs font-semibold uppercase tracking-eyebrow text-paper/50">
                 {col.title}
@@ -41,7 +41,7 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col gap-3 border-t border-lineDark pt-7 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>{site.footer.copyright}</p>
+          <p>{footer.copyright}</p>
           <p className="font-mono">
             Decide &middot; Implement &middot; Monitor &middot; Improve
           </p>

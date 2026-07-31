@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 export function Anatomy() {
-  const a = site.marketing.anatomy;
+  const a = marketing.anatomy;
   const [activeId, setActiveId] = useState(a.questions[0].id);
   const [showTechnical, setShowTechnical] = useState(false);
 

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { site } from "@/content/site";
+import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 export function Operations() {
-  const o = site.marketing.operations;
+  const o = marketing.operations;
   const [active, setActive] = useState(0);
   const current = o.scenarios[active];
 

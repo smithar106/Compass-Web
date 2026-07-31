@@ -1,4 +1,4 @@
-import { site } from "@/content/site";
+import { about, marketing } from "@/content/marketing";
 import { PageHeader } from "@/components/home/PageHeader";
 import { Trust } from "@/components/home/Trust";
 import { FinalCta } from "@/components/home/FinalCta";
@@ -12,8 +12,7 @@ const PRINCIPLE_COLORS = [
 ];
 
 export default function AboutPage() {
-  const about = site.about;
-  const founder = site.marketing.founder;
+  const founder = marketing.founder;
 
   return (
     <>
