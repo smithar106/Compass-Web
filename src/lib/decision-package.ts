@@ -55,6 +55,17 @@ export interface DecisionRec {
     required_inputs?: string[];
   };
   alternatives_considered?: { family?: string; reason?: string }[];
+  why_it_ranked_here?: string[];
+  why_ranked_first?: { summary?: string; supporting_reasons?: string[] };
+  impact?: {
+    implementation_timeline?: { min_weeks?: number | null; max_weeks?: number | null; expected_weeks?: number | null };
+  };
+  specific_intervention?: {
+    required_changes?: string[];
+    prerequisites?: string[];
+    scope_boundaries?: string[];
+    excluded_scope?: string[];
+  };
 }
 
 export function avgComparableSimilarity(rec: DecisionRec): number {

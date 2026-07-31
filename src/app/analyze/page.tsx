@@ -407,6 +407,7 @@ export default function AnalyzePage() {
               meta={decision.methodology}
               summary={decision.assessment_summary}
               status={status}
+              recommendationId={decision.recommendation_id}
             />
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
               <button type="button" onClick={() => setStep("Clarify")} className="text-[13px] font-semibold text-muted transition-colors hover:text-ink">
