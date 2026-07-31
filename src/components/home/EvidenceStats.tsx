@@ -58,11 +58,11 @@ export async function EvidenceStats({
   }
 
   const stats = [
-    { value: fmt(n), label: "verified implementations" },
-    { value: fmt(m.unique_organizations || 0), label: "organizations" },
-    { value: fmt(m.industries || 0), label: "industries" },
-    { value: fmt(m.measured_outcomes || 0), label: "measured outcomes" },
-  ];
+    { value: fmt(n), label: "verified implementations", present: true },
+    { value: fmt(meta?.unique_organizations || 0), label: "organizations", present: meta?.unique_organizations != null },
+    { value: fmt(meta?.industries || 0), label: "industries", present: meta?.industries != null },
+    { value: fmt(meta?.measured_outcomes || 0), label: "measured outcomes", present: meta?.measured_outcomes != null },
+  ].filter((s) => s.present);
 
   if (variant === "compact") {
     return (
@@ -82,14 +82,16 @@ export async function EvidenceStats({
           Built from {fmt(n)} verified implementation records
         </p>
       </div>
-      <div className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-surface px-5 py-4">
-            <p className="font-mono text-[24px] font-bold tracking-tight text-ink">{s.value}</p>
-            <p className="mt-0.5 text-[11px] text-muted">{s.label}</p>
-          </div>
-        ))}
-      </div>
+      {stats.length > 1 && (
+        <div className={cn("grid grid-cols-2 gap-px bg-line", stats.length === 4 ? "sm:grid-cols-4" : stats.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2")}>
+          {stats.map((s) => (
+            <div key={s.label} className="bg-surface px-5 py-4">
+              <p className="font-mono text-[24px] font-bold tracking-tight text-ink">{s.value}</p>
+              <p className="mt-0.5 text-[11px] text-muted">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
       <p className="px-5 py-2 text-[10.5px] text-faint">
         A growing library of verified implementation evidence · {growth || "updated continuously"}
       </p>
