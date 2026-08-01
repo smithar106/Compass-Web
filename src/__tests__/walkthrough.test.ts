@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
-import { GET as getDecision, POST as saveDecision } from "@/app/api/decisions/[decision_id]/route";
+import { GET as getDecision } from "@/app/api/decisions/[decision_id]/route";
+import { POST as saveDecision } from "@/app/api/decisions/[decision_id]/save/route";
 import { POST as implementDecision } from "@/app/api/decisions/[decision_id]/implement/route";
 import { GET as getPartners } from "@/app/api/partners/route";
 import { GET as getPlan } from "@/app/api/implementations/[implementation_id]/route";
