@@ -34,12 +34,16 @@ export function DecisionPackageView({
   summary,
   status,
   recommendationId,
+  onImplement,
+  onSave,
 }: {
   recs: DecisionRec[];
   meta: any;
   summary: any;
   status?: string;
   recommendationId?: string;
+  onImplement?: () => void;
+  onSave?: () => void;
 }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [implementing, setImplementing] = useState(false);
@@ -144,7 +148,7 @@ export function DecisionPackageView({
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={() => setImplementing(true)}
+              onClick={() => (onImplement ? onImplement() : setImplementing(true))}
               className="inline-flex items-center justify-center gap-2 bg-ink px-6 py-3 text-[14px] font-semibold text-paper transition-colors hover:bg-ink2"
             >
               Implement This Plan
@@ -154,7 +158,7 @@ export function DecisionPackageView({
             </button>
             <button
               type="button"
-              onClick={saveDecision}
+              onClick={() => (onSave ? onSave() : saveDecision())}
               className="inline-flex items-center justify-center gap-2 border border-[#dfe5ec] bg-surface px-6 py-3 text-[14px] font-semibold text-ink transition-colors hover:border-ink/40"
             >
               Save Decision

@@ -422,6 +422,15 @@ export default function AnalyzePage() {
                 </Link>
               </div>
             </div>
+            <div className="mt-3">
+              <Link
+                href={`/decisions/${analysisId}`}
+                className="text-[12px] font-semibold text-accent-deep underline underline-offset-2 transition-colors hover:text-ink"
+              >
+                Open permanent decision link →
+              </Link>
+              <span className="ml-2 text-[11.5px] text-faint">This decision stays live at /decisions/{analysisId}</span>
+            </div>
           </div>
         )}
 
