@@ -22,64 +22,43 @@ export function CompoundingLoop() {
     >
       <Reveal>
         <div className="border border-line bg-surface shadow-panel">
-          {/* desktop: circular layout */}
-          <div className="hidden md:block">
-            <div className="relative aspect-[2.4/1] w-full">
-              <div aria-hidden="true" className="grid-backdrop absolute inset-0 opacity-30" />
-              <div className="absolute left-[10%] right-[10%] top-[16%] flex items-center justify-between gap-0">
-                {LOOP.map((step, i) => (
-                  <div key={step.name} className="flex flex-1 items-center">
-                    <div
-                      className={cn(
-                        "flex h-24 w-full flex-col items-center justify-center border px-2 text-center",
-                        i === 0 ? "border-ink bg-ink" : "border-line bg-paper"
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "font-mono text-[10px] font-bold",
-                          i === 0 ? "text-accent" : "text-faint"
-                        )}
-                      >
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <span
-                        className={cn(
-                          "mt-1 text-[12.5px] font-semibold leading-tight",
-                          i === 0 ? "text-paper" : "text-ink"
-                        )}
-                      >
-                        {step.name}
-                      </span>
-                    </div>
-                    {i < LOOP.length - 1 && (
-                      <span aria-hidden="true" className="mx-1 text-faint">
-                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                          <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {/* return path */}
-              <div className="absolute bottom-[12%] left-[10%] right-[10%]">
-                <svg className="h-10 w-full" viewBox="0 0 600 40" fill="none" preserveAspectRatio="none" aria-hidden="true">
-                  <path
-                    d="M560 34 C 400 34, 200 4, 40 34"
-                    stroke="#4C650C"
-                    strokeWidth="1.4"
-                    strokeDasharray="5 4"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-              <div className="absolute bottom-[2%] left-1/2 -translate-x-1/2 text-center">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-deep">
-                  feeds back into the next decision
-                </p>
-              </div>
-            </div>
+          {/* desktop: horizontal step rail */}
+          <ol className="hidden md:flex md:items-stretch">
+            {LOOP.map((step, i) => (
+              <li key={step.name} className="flex flex-1 items-center">
+                <div
+                  className={cn(
+                    "flex h-full w-full flex-col items-center justify-center gap-1.5 border px-3 py-6 text-center",
+                    i === 0 ? "border-ink bg-ink" : "border-line bg-paper"
+                  )}
+                >
+                  <span className={cn("font-mono text-[10px] font-bold", i === 0 ? "text-accent" : "text-faint")}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className={cn("text-[13px] font-semibold leading-tight", i === 0 ? "text-paper" : "text-ink")}>
+                    {step.name}
+                  </span>
+                </div>
+                {i < LOOP.length - 1 && (
+                  <span aria-hidden="true" className="mx-1 flex h-8 shrink-0 items-center text-faint">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                      <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+
+          {/* desktop: return label */}
+          <div className="hidden items-center justify-center gap-2 border-t border-line bg-paper/60 px-4 py-2.5 md:flex">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="text-accent-deep">
+              <path d="M12.5 2.5v4h-4M3.5 13.5v-4h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M4 7.5A5.5 5.5 0 0 1 12.5 5M12 8.5A5.5 5.5 0 0 1 3.5 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-deep">
+              feeds back into the next decision
+            </p>
           </div>
 
           {/* mobile: vertical loop */}
@@ -116,7 +95,11 @@ export function CompoundingLoop() {
                 </li>
               );
             })}
-            <p className="mt-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-deep">
+            <p className="mt-3 flex items-center justify-center gap-2 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-deep">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M12.5 2.5v4h-4M3.5 13.5v-4h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M4 7.5A5.5 5.5 0 0 1 12.5 5M12 8.5A5.5 5.5 0 0 1 3.5 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
               feeds back into the next decision
             </p>
           </ol>
