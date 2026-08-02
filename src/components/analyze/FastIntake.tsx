@@ -345,7 +345,7 @@ export function FastIntake() {
             </div>
             <div className="flex flex-col gap-3 border-t border-line px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-[12px] text-muted">
-                {complete ? "Compass has everything it needs." : `${5 - answeredCount} selection${5 - answeredCount === 1 ? "" : "s"} remaining.`}
+                {complete && "Compass has everything it needs."}
               </p>
               <button
                 type="button"
