@@ -27,7 +27,8 @@ export const marketing = {
       headline: "Make Operational Decisions with Confidence.",
       headlineAccent: "Decisions",
       supporting:
-        "Compass helps organizations determine what to implement, why it should work, and how success will be measured before implementation begins.",
+        "Compass helps organizations determine what to implement, why it will work, and how success will be measured \u2014 before they commit people and capital to the wrong intervention.",
+      stakes: "The wrong intervention is the most expensive line item most companies never budget for.",
       cta: "Analyze a Problem",
       ctaHref: "/analyze",
       secondaryCta: "See How It Works",
@@ -93,7 +94,7 @@ export const marketing = {
       headline: "Every organization already has an implementation process.",
       subheadline: "Very few have a decision process.",
       supporting:
-        "Organizations can buy software, hire consultants, deploy agents, and build internal tools faster than ever. The harder question is deciding what should be implemented in the first place.",
+        "Organizations can buy software, hire consultants, deploy agents, and build internal tools faster than ever. The harder question is deciding what should be implemented in the first place \u2014 and a wrong call on a big operational decision can cost more than the project itself.",
       have: [
         "ERP",
         "CRM",

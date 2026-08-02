@@ -64,6 +64,9 @@ export function DecisionEntry() {
               <p className="mt-6 max-w-xl text-lead leading-relaxed text-muted">
                 {h.supporting}
               </p>
+              <p className="mt-4 max-w-xl border-l-2 border-accent-deep pl-4 font-serif text-[16px] italic leading-relaxed text-ink">
+                {h.stakes}
+              </p>
             </Reveal>
 
             <Reveal delay={240}>
