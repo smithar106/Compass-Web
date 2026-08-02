@@ -193,9 +193,7 @@ export function FastIntake() {
               : "Five quick decisions. A defensible answer."}
           </h1>
           <p className="mt-2 text-[13.5px] text-muted">
-            {complete
-              ? "You're ready. Get your Executive Decision Brief."
-              : `Answer ${5 - answeredCount} more to get your recommendation.`}
+            {complete && "You're ready. Get your Executive Decision Brief."}
           </p>
         </div>
 
