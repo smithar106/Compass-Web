@@ -127,4 +127,31 @@ describe("POST /api/analyze (thin client proxy)", () => {
     expect(data.questions.length).toBeLessThanOrEqual(5);
     expect(data.status).toBe("preliminary_result");
   });
+
+  it("maps fast-intake selections to a workflow without free text", async () => {
+    const res = await POST(makeRequest({
+      action: "intake",
+      department: "Finance",
+      problem: "Manual invoice processing",
+      people: "100–250",
+      outcome: "Reduce cost",
+      timeline: "90 days",
+    }));
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(calls.some((c) => c.url.includes("/api/recommendations"))).toBe(true);
+    expect(data.normalization.workflow).toBe("invoice_processing");
+    expect(data.normalization.businessFunction).toBe("finance");
+    expect(data.normalization.desiredOutcome).toBe("cost");
+    expect(data.questions).toHaveLength(0);
+    expect(data.status).toBe("decision_ready");
+    expect(data.intake).toMatchObject({ department: "Finance", problem: "Manual invoice processing" });
+  });
+
+  it("rejects an unknown fast-intake problem", async () => {
+    const res = await POST(makeRequest({ action: "intake", department: "Finance", problem: "Not a real problem" }));
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toContain("Unknown problem");
+  });
 });

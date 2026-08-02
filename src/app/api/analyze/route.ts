@@ -4,7 +4,13 @@ import {
   selectFollowUps,
   buildProfileFromAnalyze,
   inferAnswersFromText,
+  rootCauseFor,
 } from "@/lib/analyze";
+import {
+  problemByLabel,
+  OUTCOMES,
+  type IntakeProblem,
+} from "@/data/intake-taxonomy";
 
 function getCompassApiUrl(): string | null {
   return (
@@ -59,6 +65,9 @@ export async function POST(request: NextRequest) {
   } else if (action === "answers" && analysisId) {
     const res = await proxyToEngine(`/api/analyze/${encodeURIComponent(analysisId)}/answers`, { answers: body.answers || {} });
     if (res && res.ok) return res;
+  } else if (action === "intake") {
+    // 1a) Fast executive intake: structured selections map straight to a profile.
+    return localIntake(body);
   } else if (action === "create") {
     const res = await proxyToEngine("/api/analyze", {
       problem_text: String(body.problem_text || ""),
@@ -152,6 +161,91 @@ async function localAnalyze(body: any): Promise<NextResponse> {
       decision: engineResult,
       status,
       inferred: Array.from(inferAnswersFromText(problemText)),
+    },
+    { status: 200 }
+  );
+}
+
+/**
+ * Fast executive intake: five structured selections (department, problem,
+ * people, outcome, timeline) map directly to a profile and a decision. No
+ * free-text normalization required — the problem taxonomy carries the workflow.
+ */
+async function localIntake(body: any): Promise<NextResponse> {
+  const compassApiUrl = getCompassApiUrl();
+  if (!compassApiUrl) {
+    return NextResponse.json({ error: "Compass Engine URL is not configured.", type: "config_error" }, { status: 500 });
+  }
+
+  const department: string = String(body.department || "");
+  const problemLabel: string = String(body.problem || "");
+  const people: string = String(body.people || "");
+  const outcome: string = String(body.outcome || "");
+  const timeline: string = String(body.timeline || "");
+
+  const problem: IntakeProblem | undefined = problemByLabel(department, problemLabel);
+  if (!problem) {
+    return NextResponse.json({ error: "Unknown problem selection.", type: "intake_error" }, { status: 400 });
+  }
+
+  // Construct a deterministic normalization from the taxonomy (no NLP).
+  const problemStatement = `${department}: ${problem.label}`;
+  const outcomeKey = OUTCOMES.find((o) => o.label === outcome)?.key || "efficiency";
+  const desiredOutcome = outcomeKey;
+  const normalization = {
+    workflow: problem.workflow,
+    businessFunction: problem.businessFunction,
+    problemStatement,
+    rootCauseHypothesis: rootCauseFor(problem.workflow),
+    desiredOutcome,
+    decision: `Which intervention best improves ${desiredOutcome} for ${problem.workflow.replace(/_/g, " ")}?`,
+  };
+
+  const answers: Record<string, string> = {};
+  if (people) answers.people_involved = people;
+  if (timeline) answers.implementation_timeline = timeline;
+
+  let engineResult: any = null;
+  try {
+    const profile = buildProfileFromAnalyze(normalization, answers);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 30000);
+    const res = await fetch(`${compassApiUrl}/api/recommendations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) {
+      return NextResponse.json({ error: `Engine returned an error (${res.status}).`, type: "engine_error" }, { status: 502 });
+    }
+    engineResult = await res.json();
+  } catch (e) {
+    const aborted = e instanceof Error && e.name === "AbortError";
+    return NextResponse.json(
+      { error: aborted ? "Engine did not respond in time." : "Engine unreachable.", type: "engine_unreachable" },
+      { status: aborted ? 504 : 502 }
+    );
+  }
+
+  const top = engineResult?.recommendations?.[0] || null;
+  const label = top?.confidence?.label;
+  const tier = top?.evidence_summary?.overall_tier;
+  const comparables = top?.evidence_summary?.total_comparables || 0;
+  const status =
+    label === "insufficient" || tier === "insufficient" || comparables === 0
+      ? "insufficient_evidence"
+      : "decision_ready";
+
+  return NextResponse.json(
+    {
+      analysis_id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2),
+      normalization,
+      questions: [],
+      decision: engineResult,
+      status,
+      intake: { department, problem: problem.label, people, outcome, timeline },
     },
     { status: 200 }
   );
