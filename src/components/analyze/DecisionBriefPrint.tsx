@@ -29,35 +29,58 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
     try {
       const jsPDF = (await import("jspdf")).default;
       const html2canvas = (await import("html2canvas")).default;
+      // Capture the rendered document once, then slice the bitmap into
+      // letter-sized pages. This avoids the fragile y-offset re-capture that
+      // produced misaligned/blank pages when the element width differed from
+      // the capture window width.
+      const scale = 2;
       const canvas = await html2canvas(el, {
-        scale: 2,
+        scale,
         useCORS: true,
         backgroundColor: "#ffffff",
-        windowWidth: 1060,
+        logging: false,
       });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ unit: "in", format: "letter" });
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 0.5;
-      const imgWidth = pageWidth - margin * 2;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const usableHeight = pageHeight - margin * 2;
-      let remaining = imgHeight;
-      const scaleY = imgHeight / canvas.height;
-      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
-      remaining -= usableHeight;
-      while (remaining > 0) {
-        const offsetPx = (imgHeight - remaining) / scaleY;
-        pdf.addPage();
-        const clippedImage = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", windowWidth: 1060, y: offsetPx, height: canvas.height - offsetPx });
-        const clipData = clippedImage.toDataURL("image/png");
-        const clipHeight = (clippedImage.height * imgWidth) / clippedImage.width;
-        pdf.addImage(clipData, "PNG", margin, margin, imgWidth, clipHeight);
-        remaining -= usableHeight;
+
+      const pdf = new jsPDF({ unit: "pt", format: "letter", compress: true });
+      const pageWidth = pdf.internal.pageSize.getWidth(); // 612
+      const pageHeight = pdf.internal.pageSize.getHeight(); // 792
+      const margin = 36; // 0.5 in
+      const contentWidth = pageWidth - margin * 2; // 540
+      const contentHeight = pageHeight - margin * 2; // 720
+
+      // Scale factor from canvas pixels to PDF points at the target width.
+      const pxToPt = contentWidth / canvas.width;
+      const fullHeightPt = canvas.height * pxToPt;
+
+      const drawRegion = (srcY: number, slicePt: number) => {
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = Math.ceil(slicePt / pxToPt);
+        const ctx = sliceCanvas.getContext("2d");
+        if (!ctx) return;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+        ctx.drawImage(canvas, 0, srcY, canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+        return sliceCanvas;
+      };
+
+      let y = 0;
+      let first = true;
+      while (y < fullHeightPt - 0.5) {
+        const slicePt = Math.min(contentHeight, fullHeightPt - y);
+        const sliceCanvas = drawRegion(Math.round(y / pxToPt), slicePt);
+        if (sliceCanvas) {
+          if (!first) pdf.addPage();
+          pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", margin, margin, contentWidth, slicePt);
+          first = false;
+        }
+        y += contentHeight;
       }
+
       const filename = `Compass-Executive-Decision-Brief-${(top.title || "decision").slice(0, 40).replace(/\s+/g, "-")}.pdf`;
       pdf.save(filename);
+    } catch (e) {
+      console.error("PDF export failed", e);
     } finally {
       setExporting(false);
     }
@@ -116,16 +139,16 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
         {/* ===== print document ===== */}
         <div
           ref={contentRef}
-          className="bg-white px-8 py-10 shadow-[0_25px_50px_rgba(0,0,0,0.25)] sm:px-12"
-          style={{ width: 1060, maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.55 }}
+          className="mx-auto bg-white px-8 py-7 shadow-[0_25px_50px_rgba(0,0,0,0.25)] sm:px-10"
+          style={{ width: 816, maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.5 }}
         >
           <div className="h-1.5 w-full rounded bg-gradient-to-r from-[#1E7B4C] via-[#156ff5] via-[#762ee8] to-[#bb7a00]" aria-hidden="true" />
 
           {/* masthead */}
-          <div className="mt-8 flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#1E7B4C] pb-5">
+          <div className="mt-6 flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#1E7B4C] pb-4">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Executive Decision Brief</p>
-              <h1 className="mt-2 font-serif text-[30px] font-semibold leading-tight tracking-[-0.02em] text-[#1c1a17]">
+              <h1 className="mt-1.5 font-serif text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[#1c1a17]">
                 {top.title || "Evidence-supported intervention"}
               </h1>
               <p className="mt-1 text-[12px] text-[#6c685f]">Prepared by Compass &middot; {today}</p>
@@ -137,12 +160,12 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </div>
 
           {/* recommendation first */}
-          <div className="mt-8">
+          <div className="mt-6">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1E7B4C]">Recommended decision</p>
-            <p className="mt-2 font-serif text-[22px] font-medium leading-snug text-[#1c1a17]">
+            <p className="mt-1.5 font-serif text-[21px] font-medium leading-snug text-[#1c1a17]">
               Approve <b className="font-semibold underline decoration-[#e9f6ee] decoration-4">{top.title || "this intervention"}</b> as the recommended path.
             </p>
-            <p className="mt-3 text-[14px] leading-[1.6] text-[#6c685f]">
+            <p className="mt-2.5 text-[14px] leading-[1.55] text-[#6c685f]">
               {total > 0
                 ? `Compass recommends this based on ${total} comparable implementation${total > 1 ? "s" : ""} matched from ${libraryLabel}${orgs ? `, across ${orgs} organizations` : ""}.`
                 : "Compass recommends this as the highest-confidence option on the evidence criteria applied."}
@@ -340,9 +363,9 @@ function PrintMeta({ label, value, highlight }: { label: string; value: string; 
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mt-7">
-      <div className="mb-3 flex items-center gap-3">
-        <h2 className="font-serif text-[18px] font-semibold tracking-[-0.01em] text-[#1c1a17]">{title}</h2>
+    <section className="mt-5">
+      <div className="mb-2.5 flex items-center gap-3">
+        <h2 className="font-serif text-[17px] font-semibold tracking-[-0.01em] text-[#1c1a17]">{title}</h2>
         <span aria-hidden="true" className="h-px flex-1 bg-[#e6e2db]" />
       </div>
       {children}

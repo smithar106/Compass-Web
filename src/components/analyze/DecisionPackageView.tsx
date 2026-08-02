@@ -160,13 +160,13 @@ export function DecisionPackageView({
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={() => (onImplement ? onImplement() : setImplementing(true))}
-              className="inline-flex items-center justify-center gap-2 bg-ink px-6 py-3 text-[14px] font-semibold text-paper transition-colors hover:bg-ink2"
+              disabled
+              aria-disabled="true"
+              title="Feature coming soon"
+              className="inline-flex cursor-not-allowed items-center justify-center gap-2 bg-line px-6 py-3 text-[14px] font-semibold text-faint"
             >
               Implement This Plan
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-faint">(Feature Coming Soon)</span>
             </button>
             <button
               type="button"
@@ -473,13 +473,13 @@ export function DecisionPackageView({
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
-            onClick={() => (onImplement ? onImplement() : setImplementing(true))}
-            className="inline-flex items-center justify-center gap-2 bg-ink px-6 py-3 text-[14px] font-semibold text-paper transition-colors hover:bg-ink2"
+            disabled
+            aria-disabled="true"
+            title="Feature coming soon"
+            className="inline-flex cursor-not-allowed items-center justify-center gap-2 bg-line px-6 py-3 text-[14px] font-semibold text-faint"
           >
             Approve & Implement This Plan
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <span className="text-[10px] font-bold uppercase tracking-wide text-faint">(Feature Coming Soon)</span>
           </button>
           <button
             type="button"
