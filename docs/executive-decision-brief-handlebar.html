@@ -1,0 +1,511 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Executive Decision Brief — Maintenance-Free Handlebar</title>
+<style>
+:root{
+  --artifact-background:#ffffff;--artifact-background-light:#f5f4f1;
+  --artifact-border-light:#e6e2db;--artifact-border-dark:#d3ccc0;
+  --artifact-text-primary:#1c1a17;--artifact-text-secondary:#6c685f;
+  --artifact-primary-highlight:#14231b;--artifact-primary-hover:#243b2e;
+  --c-green:#1f9d57;--c-green-bg:#e9f6ee;--c-green-ink:#14663a;
+  --c-teal:#0e9db0;--c-teal-bg:#e5f6f8;--c-teal-ink:#0a6a78;
+  --c-amber:#d9932a;--c-amber-bg:#fbf1de;--c-amber-ink:#8f5c11;
+  --c-violet:#6a5acd;--c-violet-bg:#eeecfb;--c-violet-ink:#463a9e;
+  --c-red:#c14a3c;--c-red-bg:#faeae7;--c-red-ink:#8f2f24;
+}
+html[data-theme='dark']{
+  --artifact-background:#181712;--artifact-background-light:#221f19;
+  --artifact-border-light:#37332a;--artifact-border-dark:#4a4538;
+  --artifact-text-primary:#f2efe6;--artifact-text-secondary:#a49e8e;
+  --artifact-primary-highlight:#e9f6ee;--artifact-primary-hover:#d8ecd2;
+  --c-green:#4cc985;--c-green-bg:#16281e;--c-green-ink:#8fe3b2;
+  --c-teal:#3fc6d6;--c-teal-bg:#132a2d;--c-teal-ink:#87dbe6;
+  --c-amber:#e8b25a;--c-amber-bg:#2c2313;--c-amber-ink:#f0cf95;
+  --c-violet:#9d90e8;--c-violet-bg:#211d33;--c-violet-ink:#c3bbf4;
+  --c-red:#e08578;--c-red-bg:#2e1815;--c-red-ink:#f0ada2;
+}
+*{box-sizing:border-box;}
+body{margin:0;padding:0;background:var(--artifact-background);color:var(--artifact-text-primary);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;}
+.shell{max-width:1060px;margin:0 auto;padding:52px 40px 90px;}
+h1,h2,h3{font-family:Georgia,"Times New Roman",Times,serif;font-weight:400;line-height:1.06;letter-spacing:-0.02em;margin:0;}
+.eyebrow,.field-label,th{font-family:"SF Mono","IBM Plex Mono","Consolas",monospace;font-size:11px;font-weight:600;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--artifact-text-secondary);}
+.metric{font-family:"SF Mono","IBM Plex Mono","Consolas",monospace;font-weight:400;line-height:1;
+  letter-spacing:-0.02em;font-variant-numeric:tabular-nums;}
+
+
+/* masthead */
+.toprule{height:5px;width:100%;border-radius:3px;background:linear-gradient(90deg,var(--c-green),var(--c-teal) 42%,var(--c-violet) 74%,var(--c-amber));}
+.masthead{padding-top:20px;}
+.doc-kicker{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.masthead h1{font-size:clamp(2.1rem,4.4vw,3.1rem);margin-top:12px;max-width:none;}
+.meta-grid{display:grid;grid-template-columns:repeat(5,1fr);margin-top:26px;border:1px solid var(--artifact-border-light);border-radius:5px;overflow:hidden;}
+.meta-grid .cell{padding:14px 16px;border-right:1px solid var(--artifact-border-light);}
+.meta-grid .cell:last-child{border-right:none;}
+.meta-grid .field-label{display:block;margin-bottom:6px;}
+.meta-grid .val{font-size:14.5px;font-weight:600;line-height:1.2;}
+.meta-grid .cell.hl{background:var(--c-green-bg);}
+.meta-grid .cell.hl .val{color:var(--c-green-ink);}
+
+
+/* hero */
+.hero{margin-top:36px;}
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:"SF Mono",monospace;font-size:12px;font-weight:600;
+  letter-spacing:0.06em;text-transform:uppercase;padding:8px 15px;border-radius:100px;
+  background:var(--c-green-bg);color:var(--c-green-ink);border:1px solid var(--c-green);}
+.pill .dot{width:9px;height:9px;border-radius:50%;background:var(--c-green);}
+.rec{font-family:Georgia,serif;font-size:clamp(1.7rem,3.4vw,2.4rem);line-height:1.14;margin-top:18px;max-width:none;}
+.rec b{font-weight:400;background:linear-gradient(transparent 66%,var(--c-green-bg) 66%);box-shadow:inset 0 -3px 0 var(--c-green);}
+.summary{margin-top:18px;font-size:16.5px;line-height:1.55;max-width:none;}
+.proof{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.proof .chipx{font-family:"SF Mono",monospace;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;
+  padding:6px 11px;border-radius:5px;border:1px solid var(--artifact-border-dark);color:var(--artifact-text-secondary);
+  display:inline-flex;align-items:center;gap:7px;}
+.proof .chipx::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c-teal);}
+.proof .chipx.g::before{background:var(--c-green);}.proof .chipx.v::before{background:var(--c-violet);}
+.proof .chipx.a::before{background:var(--c-amber);}
+
+
+/* section head */
+section{margin-top:46px;}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.sec-head .chip{flex:0 0 auto;width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-family:"SF Mono",monospace;font-size:14px;font-weight:600;color:#fff;}
+html[data-theme='dark'] .sec-head .chip{color:#12211a;}
+.sec-head h2{font-size:clamp(1.35rem,2.6vw,1.75rem);}
+.sec-head .rule{flex:1;height:1px;background:var(--artifact-border-light);}
+.c-green .chip{background:var(--c-green);}.c-teal .chip{background:var(--c-teal);}
+.c-amber .chip{background:var(--c-amber);}.c-violet .chip{background:var(--c-violet);}
+.c-red .chip{background:var(--c-red);}.c-neutral .chip{background:var(--artifact-primary-highlight);color:var(--artifact-background);}
+
+
+/* problem band */
+.problem-band{border:1px solid color-mix(in srgb,var(--c-red) 35%,transparent);border-radius:10px;overflow:hidden;
+  background:var(--c-red-bg);}
+.pb-stats{display:grid;grid-template-columns:repeat(4,1fr);}
+.pb-stats .s{padding:18px 20px;border-right:1px solid color-mix(in srgb,var(--c-red) 20%,transparent);}
+.pb-stats .s:last-child{border-right:none;}
+.pb-stats .metric{font-size:clamp(1.7rem,3.6vw,2.4rem);color:var(--c-red-ink);}
+.pb-stats .l{margin-top:8px;font-size:12.5px;font-weight:600;line-height:1.35;}
+.pb-loop{padding:14px 20px;border-top:1px solid color-mix(in srgb,var(--c-red) 20%,transparent);
+  font-size:13.5px;line-height:1.45;}
+.pb-loop b{color:var(--c-red-ink);}
+
+
+/* why */
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.why .item{border:1px solid var(--artifact-border-light);border-top:4px solid var(--c-green);border-radius:6px;padding:18px;}
+.why .item:nth-child(2){border-top-color:var(--c-teal);}.why .item:nth-child(3){border-top-color:var(--c-amber);}
+.why .item .n{font-family:"SF Mono",monospace;font-size:11px;letter-spacing:0.1em;color:var(--artifact-text-secondary);display:block;margin-bottom:8px;}
+.why .item p{margin:0;font-size:14.5px;line-height:1.5;}.why .item p b{font-weight:600;}
+
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.kpi{border:1px solid var(--artifact-border-light);border-radius:8px;padding:20px 18px;position:relative;overflow:hidden;}
+.kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;}
+.kpi.k1::before{background:var(--c-green);}.kpi.k2::before{background:var(--c-teal);}
+.kpi.k3::before{background:var(--c-amber);}.kpi.k4::before{background:var(--c-violet);}
+.kpi .metric{font-size:clamp(2rem,4.4vw,2.9rem);margin-top:6px;}
+.kpi .metric .unit{font-size:0.4em;color:var(--artifact-text-secondary);margin-left:2px;}
+.kpi.k1 .metric{color:var(--c-green-ink);}.kpi.k2 .metric{color:var(--c-teal-ink);}
+.kpi.k3 .metric{color:var(--c-amber-ink);}.kpi.k4 .metric{color:var(--c-violet-ink);}
+.kpi .lbl{margin-top:10px;font-size:13px;font-weight:600;line-height:1.35;}
+.kpi .sub{margin-top:4px;font-family:"SF Mono",monospace;font-size:10.5px;color:var(--artifact-text-secondary);}
+
+
+/* risks/assumptions */
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.panel{border:1px solid var(--artifact-border-light);border-radius:8px;padding:18px 20px;}
+.panel.risk{background:var(--c-red-bg);border-color:color-mix(in srgb,var(--c-red) 35%,transparent);}
+.panel.assm{background:var(--c-teal-bg);border-color:color-mix(in srgb,var(--c-teal) 30%,transparent);}
+.panel .field-label{display:block;margin-bottom:12px;}
+.panel.risk .field-label{color:var(--c-red-ink);}.panel.assm .field-label{color:var(--c-teal-ink);}
+.panel .line{padding:9px 0;border-top:1px solid color-mix(in srgb,var(--artifact-text-secondary) 18%,transparent);font-size:13.5px;line-height:1.45;}
+.panel .line:first-of-type{border-top:none;}
+.panel .line b{font-weight:600;}.panel .line .mit{color:var(--artifact-text-secondary);}
+
+
+/* CTA */
+.cta{margin-top:44px;border-radius:10px;padding:26px 30px;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;
+  background:linear-gradient(120deg,var(--c-green-bg),var(--c-teal-bg));border:1px solid color-mix(in srgb,var(--c-green) 35%,transparent);}
+.cta .field-label{display:block;margin-bottom:6px;color:var(--c-green-ink);}
+.cta .big{font-family:Georgia,serif;font-size:1.4rem;line-height:1.12;}
+.cta .btn{background:var(--c-green);color:#fff;font-family:"SF Mono",monospace;font-size:13px;font-weight:600;letter-spacing:0.05em;
+  text-transform:uppercase;padding:15px 26px;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;}
+html[data-theme='dark'] .cta .btn{color:#0f1f16;}
+.cta .btn:hover{background:var(--c-green-ink);}
+
+
+/* engineering: how it works */
+.eng{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--artifact-border-light);border-radius:10px;overflow:hidden;}
+.eng .step{padding:20px 22px;border-right:1px solid var(--artifact-border-light);position:relative;}
+.eng .step:last-child{border-right:none;}
+.eng .step .k{font-family:"SF Mono",monospace;font-size:10.5px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
+.eng .step.fail{background:var(--c-red-bg);}.eng .step.fail .k{color:var(--c-red-ink);}
+.eng .step.fix{background:var(--c-green-bg);}.eng .step.fix .k{color:var(--c-green-ink);}
+.eng .step.choice{background:var(--c-violet-bg);}.eng .step.choice .k{color:var(--c-violet-ink);}
+.eng .step h3{font-family:Georgia,serif;font-size:1.12rem;margin:8px 0 10px;}
+.eng .step p{margin:0;font-size:13px;line-height:1.5;color:var(--artifact-text-primary);}
+.eng .loop{list-style:none;margin:0;padding:0;}
+.eng .loop li{font-size:12.5px;line-height:1.4;padding:5px 0 5px 18px;position:relative;color:var(--artifact-text-primary);}
+.eng .loop li::before{content:"\2192";position:absolute;left:0;color:var(--c-red);font-family:"SF Mono",monospace;}
+.eng .step.fix .loop li::before{content:"\2713";color:var(--c-green);}
+.valstrip{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;}
+.valstrip .v{font-family:"SF Mono",monospace;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;
+  padding:7px 12px;border-radius:5px;background:var(--c-teal-bg);color:var(--c-teal-ink);
+  border:1px solid color-mix(in srgb,var(--c-teal) 30%,transparent);display:inline-flex;align-items:center;gap:7px;}
+.valstrip .v::before{content:"\2713";}
+
+
+/* benefits */
+.benefit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.benefit{border:1px solid var(--artifact-border-light);border-radius:8px;padding:16px;border-top:4px solid var(--c-green);}
+.benefit:nth-child(2){border-top-color:var(--c-teal);}.benefit:nth-child(3){border-top-color:var(--c-amber);}
+.benefit:nth-child(4){border-top-color:var(--c-violet);}
+.benefit .field-label{color:var(--artifact-text-secondary);}
+.benefit h3{font-size:1.02rem;margin:8px 0 5px;}
+.benefit p{margin:0;font-size:12.5px;color:var(--artifact-text-secondary);line-height:1.45;}
+
+
+/* timeline */
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.tl{padding:0 16px;position:relative;}
+.tl:not(:last-child)::after{content:"";position:absolute;top:9px;left:60%;right:-40%;height:2px;background:var(--artifact-border-dark);}
+.tl .dot{width:18px;height:18px;border-radius:50%;background:var(--c-violet);position:relative;z-index:1;border:3px solid var(--artifact-background);}
+.tl:nth-child(1) .dot{background:var(--c-green);}.tl:nth-child(2) .dot{background:var(--c-teal);}.tl:nth-child(3) .dot{background:var(--c-amber);}
+.tl .when{font-family:"SF Mono",monospace;font-size:10.5px;letter-spacing:0.04em;text-transform:uppercase;color:var(--artifact-text-secondary);margin-top:12px;}
+.tl .what{font-size:14px;font-weight:600;margin-top:4px;line-height:1.25;}
+.tl .det{font-size:12.5px;color:var(--artifact-text-secondary);margin-top:4px;line-height:1.4;}
+
+
+/* pathways */
+.paths{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.path{border:1px solid var(--artifact-border-light);border-radius:8px;padding:20px 18px;display:flex;flex-direction:column;}
+.path.rec{border:2px solid var(--c-green);background:var(--c-green-bg);}
+.path .badge{font-family:"SF Mono",monospace;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--artifact-text-secondary);}
+.path.rec .badge{color:var(--c-green-ink);}
+.path h3{font-size:1.2rem;line-height:1.1;margin:4px 0 12px;}
+.path .oneliner{font-size:12.5px;color:var(--artifact-text-secondary);line-height:1.45;min-height:52px;margin-bottom:12px;}
+.path .prop{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--artifact-border-light);font-size:12.5px;}
+.path.rec .prop{border-top-color:color-mix(in srgb,var(--c-green) 28%,transparent);}
+.path .prop .k{color:var(--artifact-text-secondary);font-family:"SF Mono",monospace;font-size:10px;letter-spacing:0.03em;text-transform:uppercase;}
+.path .prop .v{font-weight:600;text-align:right;}
+.path .stamp{margin-top:14px;font-family:"SF Mono",monospace;font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;
+  padding:9px 0;text-align:center;border-radius:5px;font-weight:600;}
+.path.rec .stamp{background:var(--c-green);color:#fff;}html[data-theme='dark'] .path.rec .stamp{color:#0f1f16;}
+.path .stamp.no{color:var(--artifact-text-secondary);border:1px dashed var(--artifact-border-dark);}
+
+
+/* evidence */
+.evidence-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:14px;align-items:start;}
+.ev-card{border:1px solid var(--artifact-border-light);border-radius:8px;padding:16px 18px 18px;border-top:4px solid var(--c-teal);}
+.ev-card:nth-child(2){border-top-color:var(--c-green);}.ev-card:nth-child(3){border-top-color:var(--c-violet);}
+.ev-card .field-label{display:block;margin-bottom:10px;}
+.ev-card:nth-child(1) .field-label{color:var(--c-teal-ink);}.ev-card:nth-child(2) .field-label{color:var(--c-green-ink);}.ev-card:nth-child(3) .field-label{color:var(--c-violet-ink);}
+.ev-card p{margin:0;font-size:12.5px;color:var(--artifact-text-secondary);line-height:1.5;}
+.ev-card table{width:100%;border-collapse:collapse;}
+.ev-card td{padding:6px 4px;border-bottom:1px solid var(--artifact-border-light);font-size:12px;}
+.ev-card td.num{font-family:"SF Mono",monospace;text-align:right;color:var(--artifact-text-primary);}
+.ev-card tr:last-child td{border-bottom:none;font-weight:600;}
+.ev-card tr:last-child td.num{color:var(--c-green-ink);}
+.pagebreak{break-before:page;}
+
+
+.footnote{margin-top:32px;padding-top:16px;border-top:1px solid var(--artifact-border-light);font-size:12px;color:var(--artifact-text-secondary);line-height:1.5;max-width:78ch;}
+
+
+.reveal{opacity:0;transform:translateY(10px);animation:rise .55s ease forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.d1{animation-delay:.04s}.d2{animation-delay:.1s}.d3{animation-delay:.16s}.d4{animation-delay:.22s}.d5{animation-delay:.28s}
+@media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1;transform:none;}}
+
+
+@media(max-width:880px){
+  .shell{padding:36px 20px 64px;}
+  .meta-grid,.pb-stats{grid-template-columns:repeat(2,1fr);}
+  .why,.kpis,.benefit-grid,.timeline,.paths,.twocol,.eng,.evidence-grid{grid-template-columns:1fr;}
+  .eng .step,.pb-stats .s{border-right:none;border-bottom:1px solid var(--artifact-border-light);}
+  .tl:not(:last-child)::after{display:none;}
+}
+@media print{
+  body{margin:0;padding:0.3in 0.45in;background:#fff;font-size:13px;line-height:1.4;
+    print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+  .shell{max-width:100%!important;width:100%!important;padding:0;}
+  .toprule{height:4px;}
+  .masthead{padding-top:12px;}
+  .masthead h1{font-size:2rem!important;margin-top:8px;}
+  .meta-grid{margin-top:14px;} .meta-grid .cell{padding:8px 12px;}
+  .meta-grid .val{font-size:12px;}
+  .hero{margin-top:16px;}
+  .rec{font-size:1.6rem!important;margin-top:10px;}
+  .summary{font-size:12.5px!important;margin-top:10px;}
+  .proof{margin-top:10px;gap:6px;} .proof .chipx{padding:4px 8px;font-size:10px;}
+  section,.cta{break-inside:avoid;margin-top:14px!important;}
+  .problem-band{break-inside:avoid;}
+  .sec-head{margin-bottom:10px;} .sec-head .chip{width:30px;height:30px;font-size:12px;}
+  .sec-head h2{font-size:1.35rem!important;}
+  .why,.kpis,.benefit-grid,.twocol,.paths,.evidence-grid{gap:8px!important;}
+  .kpi,.path,.benefit,.why .item,.panel,.eng .step,.ev-card{break-inside:avoid;padding:12px 14px!important;}
+  .pb-stats .s{padding:11px 14px!important;} .pb-loop{padding:10px 14px!important;font-size:12px!important;}
+  .pb-stats .metric,.kpi .metric{font-size:1.7rem!important;}
+  .kpi .lbl{font-size:11.5px;margin-top:6px;} .why .item p{font-size:12.5px;}
+  .panel .line{padding:6px 0;font-size:12px;}
+  .cta{padding:16px 22px!important;} .cta .big{font-size:1.15rem;}
+  .cta .btn,button{display:none!important;}
+  .eng .step h3{font-size:1rem;margin:6px 0 7px;} .eng .loop li{padding:3px 0 3px 16px;font-size:11.5px;}
+  .eng .step p{font-size:11.5px;}
+  .valstrip{margin-top:10px;gap:6px;} .valstrip .v{padding:5px 9px;font-size:10px;}
+  .benefit h3{font-size:.95rem;} .benefit p{font-size:11.5px;}
+  .tl .what{font-size:12.5px;} .tl .det{font-size:11.5px;}
+  .path h3{font-size:1.05rem;} .path .oneliner{font-size:11.5px;min-height:44px;margin-bottom:8px;}
+  .path .prop{padding:5px 0;font-size:11.5px;} .path .stamp{margin-top:10px;padding:7px 0;}
+  .ev-card td{padding:4px;font-size:11px;} .ev-card p{font-size:11.5px;}
+  .footnote{margin-top:16px;font-size:10.5px;}
+  .kpi::before,.benefit,.why .item{border-top-width:3px;}
+  .reveal{opacity:1!important;transform:none!important;animation:none!important;}
+  *,*::before,*::after{animation:none!important;transition:none!important;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+
+  <div class="toprule reveal d1"></div>
+  <header class="masthead reveal d1">
+    <div class="doc-kicker">
+      <span class="eyebrow">Executive Decision Brief</span>
+      <span class="eyebrow">Confidential &middot; Hardware Engineering</span>
+    </div>
+    <h1>Maintenance-Free Handlebar Rollout</h1>
+    <div class="meta-grid">
+      <div class="cell"><span class="field-label">Prepared for</span><span class="val">CEO &amp; C-Suite</span></div>
+      <div class="cell"><span class="field-label">Sponsored by</span><span class="val">Office of the COO</span></div>
+      <div class="cell"><span class="field-label">Decision</span><span class="val">Fleet-wide adoption</span></div>
+      <div class="cell hl"><span class="field-label">Status</span><span class="val">Recommended</span></div>
+      <div class="cell"><span class="field-label">Date</span><span class="val">Aug 2026</span></div>
+    </div>
+  </header>
+
+
+  <div class="hero reveal d2">
+    <span class="pill"><span class="dot"></span>Defensible &middot; Approve now</span>
+    <div class="rec">Approve <b>100% fleet implementation</b> now.</div>
+    <p class="summary">Our self-adjusting handlebar and brake assembly designs out the fleet&rsquo;s single highest-frequency repair. After six months of engineering, it is reliability-validated and manufacturable today &mdash; going full-scale captures the entire savings pool a year early and retires a standing rider-safety liability.</p>
+    <div class="proof">
+      <span class="chipx g">6-month engineering program</span>
+      <span class="chipx">REL reliability-validated</span>
+      <span class="chipx v">DFM complete with supplier</span>
+      <span class="chipx a">Cross-platform: Scooter / E-bike / Sparrow</span>
+      <span class="chipx g">Fully mechanical &mdash; zero new electronics</span>
+    </div>
+  </div>
+
+
+  <!-- PROBLEM -->
+  <section class="reveal d3 c-red">
+    <div class="sec-head"><span class="chip">01</span><h2>The problem today</h2><span class="rule"></span></div>
+    <div class="problem-band">
+      <div class="pb-stats">
+        <div class="s"><div class="metric">#1</div><div class="l">Repair by ticket volume across the fleet</div></div>
+        <div class="s"><div class="metric">$27<span style="font-size:.45em">M/yr</span></div><div class="l">Current handlebar &amp; brake service spend</div></div>
+        <div class="s"><div class="metric">~750K</div><div class="l">Service touches per year, fleet-wide</div></div>
+        <div class="s"><div class="metric">Recurring</div><div class="l">Re-drifts out of spec within weeks of every fix</div></div>
+      </div>
+      <div class="pb-loop"><b>Root cause:</b> every current fix is a manual adjustment. Cable stretch, fixation loosening, and pad wear push lever free-play back out of spec &mdash; so the cost repeats rather than resolves, and brake feel degrades between services.</div>
+    </div>
+  </section>
+
+
+  <!-- WHY NOW -->
+  <section class="reveal d3 c-green">
+    <div class="sec-head"><span class="chip">02</span><h2>Why act now</h2><span class="rule"></span></div>
+    <div class="why">
+      <div class="item"><span class="n">COST COMPOUNDS</span><p><b>The bleed is continuous.</b> This is the most frequent repair we run &mdash; every month of delay is spend we don&rsquo;t recover.</p></div>
+      <div class="item"><span class="n">SOLVED &amp; PROVEN</span><p><b>The fix is validated.</b> Design, reliability testing, and DFM are complete. The engineering risk is already retired.</p></div>
+      <div class="item"><span class="n">SAFETY &amp; RATINGS</span><p><b>Rider trust is at stake.</b> Inconsistent braking drives low-star trips and safety escalations we can end now.</p></div>
+    </div>
+  </section>
+
+
+  <!-- IMPACT -->
+  <section class="reveal d4 c-teal">
+    <div class="sec-head"><span class="chip">03</span><h2>Impact at full scale</h2><span class="rule"></span></div>
+    <div class="kpis">
+      <div class="kpi k1"><div class="metric">$22<span class="unit">M/yr</span></div><div class="lbl">OpEx savings</div><div class="sub">~80% of service spend removed</div></div>
+      <div class="kpi k2"><div class="metric">+4.5<span class="unit">pts</span></div><div class="lbl">Fleet uptime</div><div class="sub">89.0% &rarr; 93.5%</div></div>
+      <div class="kpi k3"><div class="metric">&minus;65<span class="unit">%</span></div><div class="lbl">Repair tickets</div><div class="sub">Handlebar &amp; brake</div></div>
+      <div class="kpi k4"><div class="metric">7<span class="unit">mo</span></div><div class="lbl">Payback</div><div class="sub">+$7.20/unit &middot; ~$1.9M tooling</div></div>
+    </div>
+  </section>
+
+
+  <!-- RISKS -->
+  <section class="reveal d4 c-amber">
+    <div class="sec-head"><span class="chip">04</span><h2>Risks &amp; assumptions</h2><span class="rule"></span></div>
+    <div class="twocol">
+      <div class="panel risk">
+        <span class="field-label">Risks &amp; mitigations</span>
+        <div class="line"><b>Concentrated cut-in.</b> <span class="mit">Staged regional waves + a 30-day field-reliability gate.</span></div>
+        <div class="line"><b>Tooling &amp; supply ramp.</b> <span class="mit">Risk-buy long-lead parts; dual-source the module.</span></div>
+        <div class="line"><b>Retrofit labor spike.</b> <span class="mit">Fold into PM cycles; net labor drops within one quarter.</span></div>
+      </div>
+      <div class="panel assm">
+        <span class="field-label">Assumptions</span>
+        <div class="line">~250K vehicles, cross-platform (Scooter / E-bike / Sparrow).</div>
+        <div class="line">~3 service touches / vehicle / year at blended cost.</div>
+        <div class="line">~80% service elimination holds in field, per REL testing.</div>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="cta reveal d4">
+    <div class="txt"><span class="field-label">The decision</span><div class="big">Authorize full production cut-in &amp; retrofit program.</div></div>
+    <button class="btn" onclick="document.getElementById('detail').scrollIntoView({behavior:'smooth'})">Implement this plan &darr;</button>
+  </div>
+
+
+  <!-- ===== PAGE 2 ===== -->
+  <section id="detail" class="reveal c-violet pagebreak">
+    <div class="sec-head"><span class="chip">05</span><h2>How it works &mdash; and why it&rsquo;s different</h2><span class="rule"></span></div>
+    <div class="eng">
+      <div class="step fail">
+        <span class="k">The failure loop we mapped</span>
+        <h3>Why the old design never stays fixed</h3>
+        <ul class="loop">
+          <li>Cable elongation under cyclic load</li>
+          <li>Fixation structure loosens</li>
+          <li>Pad wear shifts lever free-play</li>
+          <li>Clamping force drifts out of spec</li>
+          <li>Corrupts the hall-sensor calibration signal</li>
+          <li>Manual re-adjustment &mdash; then repeats</li>
+        </ul>
+      </div>
+      <div class="step fix">
+        <span class="k">The engineering fix</span>
+        <h3>A closed-loop mechanical system</h3>
+        <ul class="loop">
+          <li>Fixed-length cabling &mdash; no factory-set drift</li>
+          <li>Automatic wear-compensation holds free-play</li>
+          <li>Consistent clamping force for full pad life</li>
+          <li>Stable signal &mdash; no calibration cycle</li>
+          <li>Zero scheduled adjustment</li>
+        </ul>
+      </div>
+      <div class="step choice">
+        <span class="k">The deliberate choice</span>
+        <h3>Reliability by subtraction</h3>
+        <p>We solved this mechanically on purpose. Adding sensors or actuators would have introduced firmware, calibration drift, and new failure modes. Removing the adjustment entirely is more robust, cheaper per unit, and works identically across all three platforms with no software dependency.</p>
+      </div>
+    </div>
+    <div class="valstrip">
+      <span class="v">200-cycle side-fall test passed</span>
+      <span class="v">Cycle-life to spec</span>
+      <span class="v">DFM complete with supplier</span>
+      <span class="v">Cross-platform tooling validated</span>
+      <span class="v">Concept &rarr; REL &rarr; DFM in 6 months</span>
+    </div>
+  </section>
+
+
+  <!-- BENEFITS -->
+  <section class="reveal c-teal">
+    <div class="sec-head"><span class="chip">06</span><h2>The benefits</h2><span class="rule"></span></div>
+    <div class="benefit-grid">
+      <div class="benefit"><span class="field-label">Cost</span><h3>Structural savings</h3><p>Removes the top repair from the catalog; compounds every quarter.</p></div>
+      <div class="benefit"><span class="field-label">Availability</span><h3>More vehicles earning</h3><p>Fewer service pulls, higher uptime in revenue hours.</p></div>
+      <div class="benefit"><span class="field-label">Safety</span><h3>Consistent braking</h3><p>In-spec for life; fewer complaints and escalations.</p></div>
+      <div class="benefit"><span class="field-label">Simplicity</span><h3>Fewer parts to manage</h3><p>No electronics, no calibration, standardized BOM.</p></div>
+    </div>
+  </section>
+
+
+  <!-- ROLLOUT -->
+  <section class="reveal c-violet">
+    <div class="sec-head"><span class="chip">07</span><h2>Rollout</h2><span class="rule"></span></div>
+    <div class="timeline">
+      <div class="tl"><div class="dot"></div><div class="when">Wk 0&ndash;2</div><div class="what">Release ECO/ECN, authorize tooling</div><div class="det">Arena PLM; risk-buy long-lead parts.</div></div>
+      <div class="tl"><div class="dot"></div><div class="when">Wk 3&ndash;10</div><div class="what">Tooling &amp; production cut-in</div><div class="det">New builds ship the new assembly as POR.</div></div>
+      <div class="tl"><div class="dot"></div><div class="when">Wk 8&ndash;16</div><div class="what">Retrofit waves by region</div><div class="det">Inside PM cycles, highest-volume markets first.</div></div>
+      <div class="tl"><div class="dot"></div><div class="when">Wk 16 gate</div><div class="what">Field-reliability confirmation</div><div class="det">Validate rate, then final wave to full coverage.</div></div>
+    </div>
+  </section>
+
+
+  <!-- ALTERNATIVES -->
+  <section class="reveal c-green">
+    <div class="sec-head"><span class="chip">08</span><h2>The alternatives</h2><span class="rule"></span></div>
+    <div class="paths">
+      <div class="path rec">
+        <span class="badge">Pathway A</span><h3>100% now</h3>
+        <div class="oneliner">Full cut-in + retrofit under one program, with staged waves and a reliability gate.</div>
+        <div class="prop"><span class="k">Savings</span><span class="v">Full ~$22M/yr</span></div>
+        <div class="prop"><span class="k">Time to value</span><span class="v">Fastest</span></div>
+        <div class="prop"><span class="k">Upfront capital</span><span class="v">Highest</span></div>
+        <div class="prop"><span class="k">Risk</span><span class="v">Managed</span></div>
+        <div class="stamp">Recommended</div>
+      </div>
+      <div class="path">
+        <span class="badge">Pathway B</span><h3>10% pilot &middot; 6 mo</h3>
+        <div class="oneliner">Deploy to ~10%, gather six months of data, then scale if successful.</div>
+        <div class="prop"><span class="k">Savings</span><span class="v">~$2M yr 1</span></div>
+        <div class="prop"><span class="k">Time to value</span><span class="v">Delayed 6&ndash;9 mo</span></div>
+        <div class="prop"><span class="k">Upfront capital</span><span class="v">Lower, then full</span></div>
+        <div class="prop"><span class="k">Risk</span><span class="v">Lowest</span></div>
+        <div class="stamp no">Fallback</div>
+      </div>
+      <div class="path">
+        <span class="badge">Pathway C</span><h3>Back to drawing board</h3>
+        <div class="oneliner">Hold the design and keep iterating before any field deployment.</div>
+        <div class="prop"><span class="k">Savings</span><span class="v">None</span></div>
+        <div class="prop"><span class="k">Time to value</span><span class="v">Indefinite</span></div>
+        <div class="prop"><span class="k">Upfront capital</span><span class="v">Minimal</span></div>
+        <div class="prop"><span class="k">Risk</span><span class="v">Opportunity cost</span></div>
+        <div class="stamp no">Not advised</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- EVIDENCE -->
+  <section class="reveal c-neutral">
+    <div class="sec-head"><span class="chip">09</span><h2>Evidence</h2><span class="rule"></span></div>
+    <div class="evidence-grid">
+      <div class="ev-card">
+        <span class="field-label">Savings model &rarr; $22M/yr</span>
+        <table>
+          <tr><td>Applicable fleet</td><td class="num">250,000</td></tr>
+          <tr><td>Events / vehicle / yr</td><td class="num">~3</td></tr>
+          <tr><td>Blended cost / event</td><td class="num">~$36</td></tr>
+          <tr><td>Events eliminated</td><td class="num">~80%</td></tr>
+          <tr><td>Incremental unit cost</td><td class="num">+$7.20</td></tr>
+          <tr><td>Gross savings, full scale</td><td class="num">~$21.6M/yr</td></tr>
+        </table>
+      </div>
+      <div class="ev-card">
+        <span class="field-label">Validation completed</span>
+        <p>200-cycle side-fall and cycle-life testing passed to spec. DFM complete with supplier; cross-platform tooling validated. Fully mechanical &mdash; no electronics, firmware, or calibration. Ready for ECO/ECN release now.</p>
+      </div>
+      <div class="ev-card">
+        <span class="field-label">Decision requested</span>
+        <p>One approval to authorize the full production cut-in and retrofit program (Pathway A), including tooling spend and long-lead risk-buy, reporting against the Week-16 field-reliability gate.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="footnote reveal">Figures are illustrative planning estimates for executive review, to be replaced with finalized program numbers. Fleet size, per-event cost, frequency, and resulting savings/uptime/payback are modeled assumptions, not booked results.</div>
+
+
+</div>
+<script>
+  window.GleanBridge.postMessage({actionId:'export-pdf',type:'glean-add-menu',metadata:{label:'Export as PDF',icon:'export'}});
+  window.GleanBridge.onMessage('action',function(data){if(data.actionId==='export-pdf')window.print();});
+</script>
+</body>
+</html>
