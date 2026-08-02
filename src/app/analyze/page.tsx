@@ -29,6 +29,7 @@ interface AnalyzeResponse {
   questions: FollowUpQuestion[];
   decision: any;
   status: string;
+  organization?: any;
 }
 
 export default function AnalyzePage() {
@@ -47,6 +48,13 @@ export default function AnalyzePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [draftSaved, setDraftSaved] = useState(false);
+  // Organization context (Phase 5 — resolve early, confirm inline).
+  const [orgName, setOrgName] = useState("");
+  const [orgDomain, setOrgDomain] = useState("");
+  const [orgIndustry, setOrgIndustry] = useState("");
+  const [organization, setOrganization] = useState<any>(null);
+  const [orgEdits, setOrgEdits] = useState<Record<string, string>>({});
+  const [orgExpanded, setOrgExpanded] = useState(false);
 
   // restore draft
   useEffect(() => {
@@ -63,6 +71,11 @@ export default function AnalyzePage() {
         if (d.answers) setAnswers(d.answers);
         if (d.decision) setDecision(d.decision);
         if (d.status) setStatus(d.status);
+        if (d.orgName) setOrgName(d.orgName);
+        if (d.orgDomain) setOrgDomain(d.orgDomain);
+        if (d.orgIndustry) setOrgIndustry(d.orgIndustry);
+        if (d.organization) setOrganization(d.organization);
+        if (d.orgEdits) setOrgEdits(d.orgEdits);
         if (d.step && STEP_INDEX[d.step as Step] !== undefined) setStep(d.step as Step);
       }
     } catch {}
@@ -72,7 +85,7 @@ export default function AnalyzePage() {
     try {
       sessionStorage.setItem(
         DRAFT_KEY,
-        JSON.stringify({ problemText, attachments, analysisId, normalization, edits, questions, answers, decision, status, step })
+        JSON.stringify({ problemText, attachments, analysisId, normalization, edits, questions, answers, decision, status, step, orgName, orgDomain, orgIndustry, organization, orgEdits })
       );
       setDraftSaved(true);
     } catch {}
@@ -105,6 +118,7 @@ export default function AnalyzePage() {
       setQuestions(r.questions || []);
       setDecision(r.decision || null);
       setStatus(r.status || "preliminary_result");
+      setOrganization(r.organization || null);
       return r;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Analysis failed. Please try again.");
@@ -116,16 +130,29 @@ export default function AnalyzePage() {
 
   const onAnalyze = async () => {
     if (!problemText.trim()) return;
-    const r = await callAnalyze({ action: "create", problem_text: problemText, attachments });
+    const r = await callAnalyze({
+      action: "create",
+      problem_text: problemText,
+      attachments,
+      organization_name: orgName.trim(),
+      organization_domain: orgDomain.trim(),
+      organization_industry: orgIndustry.trim(),
+    });
     if (r) {
       setEdits({});
       setAnswers({});
+      setOrgEdits({});
       setStep("Confirm");
     }
   };
 
   const onConfirm = async (skipToDecision: boolean) => {
-    const r = await callAnalyze({ action: "confirm", analysis_id: analysisId, edits });
+    const r = await callAnalyze({
+      action: "confirm",
+      analysis_id: analysisId,
+      edits,
+      organization: orgApplyEdits(organization, orgEdits),
+    });
     if (r) {
       const remaining = (r.questions || []).length;
       if (skipToDecision || remaining === 0) {
@@ -156,6 +183,11 @@ export default function AnalyzePage() {
     setDecision(null);
     setStatus("preliminary_result");
     setError(null);
+    setOrgName("");
+    setOrgDomain("");
+    setOrgIndustry("");
+    setOrganization(null);
+    setOrgEdits({});
   };
 
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -254,6 +286,29 @@ export default function AnalyzePage() {
                 </div>
               </div>
 
+              <div className="mt-6 border-t border-line pt-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">What organization is this decision for?</p>
+                    <p className="mt-0.5 text-[12px] text-muted">Optional — a company name, domain, or industry helps Compass match comparable implementations to your context.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOrgExpanded((v) => !v)}
+                    className="shrink-0 text-[12px] font-semibold text-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
+                  >
+                    {orgExpanded || orgName || orgDomain || orgIndustry ? "Hide" : "Add organization"}
+                  </button>
+                </div>
+                {(orgExpanded || orgName || orgDomain || orgIndustry) && (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                    <OrgInput label="Company name" value={orgName} onChange={setOrgName} placeholder="e.g. Acme Corp" />
+                    <OrgInput label="Company domain" value={orgDomain} onChange={setOrgDomain} placeholder="acme.com" />
+                    <OrgInput label="Industry (if unsure)" value={orgIndustry} onChange={setOrgIndustry} placeholder="e.g. Banking, SaaS, Healthcare" />
+                  </div>
+                )}
+              </div>
+
               <div className="mt-5 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-wrap items-center gap-2">
                   {["Paste process", "Paste policy", "Paste documentation"].map((label) => (
@@ -321,6 +376,37 @@ export default function AnalyzePage() {
                 <p className="mt-0.5 text-[13px] font-medium text-ink">{normalization.decision}</p>
               </div>
             </div>
+
+            {orgRows(organization).length > 0 && (
+              <div className="mt-6 rounded-lg border border-line bg-paper/40 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">What Compass understood about the organization</p>
+                    <p className="mt-0.5 text-[12px] text-muted">Edit anything that is wrong. Compass uses this context when matching comparable implementations.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOrgEdits({})}
+                    className="shrink-0 text-[11px] font-semibold text-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
+                  >
+                    Reset edits
+                  </button>
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {orgRows(organization).map((row) => (
+                    <OrgField
+                      key={row.key}
+                      label={row.label}
+                      value={orgEdits[row.key] ?? row.value}
+                      placeholder={row.value ? "" : "unknown — add if known"}
+                      confirmed={row.confirmed}
+                      onChange={(v) => setOrgEdits((e) => ({ ...e, [row.key]: v }))}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button type="button" onClick={() => onConfirm(true)} disabled={loading} className="text-[13px] font-semibold text-muted transition-colors hover:text-ink disabled:opacity-50">
                 Skip to decision
@@ -454,4 +540,102 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
       />
     </div>
   );
+}
+
+function OrgInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-[10px] font-bold uppercase tracking-[0.12em] text-faint">{label}</label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="mt-1.5 w-full rounded-md border border-line bg-paper/40 px-3 py-2 text-[13px] text-ink placeholder:text-faint focus:border-ink focus:outline-none focus:ring-2 focus:ring-accent-deep/20"
+      />
+    </div>
+  );
+}
+
+function OrgField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  confirmed,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  confirmed?: boolean;
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-2">
+        <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-faint">{label}</label>
+        {confirmed ? (
+          <span className="text-[9px] font-bold uppercase tracking-wide text-ok">Resolved</span>
+        ) : (
+          <span className="text-[9px] font-bold uppercase tracking-wide text-warn">Needs review</span>
+        )}
+      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="mt-1.5 w-full rounded-md border border-line bg-paper/60 px-3 py-2 text-[13px] text-ink placeholder:text-faint focus:border-ink focus:outline-none focus:ring-2 focus:ring-accent-deep/20"
+      />
+    </div>
+  );
+}
+
+interface OrgRow {
+  key: string;
+  label: string;
+  value: string;
+  confirmed: boolean;
+}
+
+function orgRows(organization: any): OrgRow[] {
+  const proposed = organization?.proposed ?? organization ?? {};
+  const fields = proposed.fields ?? {};
+  const needsReview: string[] = proposed.fields_requiring_confirmation ?? [];
+  const fv = (k: string) => fields[k]?.value ?? "";
+  const geography = fv("headquarters_country") || fv("geography");
+  const rows: OrgRow[] = [
+    { key: "canonical_name", label: "Organization", value: proposed.canonical_name ?? "", confirmed: true },
+    { key: "primary_industry", label: "Industry", value: fv("primary_industry"), confirmed: !needsReview.includes("primary_industry") },
+    { key: "industry_subsector", label: "Subsector", value: fv("industry_subsector"), confirmed: !needsReview.includes("industry_subsector") },
+    { key: "employee_band", label: "Company size", value: fv("employee_band"), confirmed: !needsReview.includes("employee_band") },
+    { key: "headquarters_country", label: "Geography", value: geography, confirmed: !needsReview.includes("headquarters_country") && !needsReview.includes("geography") },
+    { key: "business_model", label: "Business model", value: fv("business_model"), confirmed: !needsReview.includes("business_model") },
+    { key: "regulatory_context", label: "Regulatory context", value: fv("regulatory_context"), confirmed: !needsReview.includes("regulatory_context") },
+  ];
+  return rows.filter((r) => r.value || r.key === "canonical_name");
+}
+
+function orgApplyEdits(organization: any, edits: Record<string, string>): any | undefined {
+  if (!organization || Object.keys(edits).length === 0) return undefined;
+  const proposed = organization.proposed ?? organization;
+  const fields = { ...(proposed.fields ?? {}) };
+  for (const [key, val] of Object.entries(edits)) {
+    if (key === "canonical_name") {
+      proposed.canonical_name = val;
+      continue;
+    }
+    fields[key] = { ...(fields[key] ?? {}), value: val, source: "user", method: "explicit", confidence: 1.0, version: "user-confirmed" };
+  }
+  return { ...organization, proposed: { ...proposed, fields }, user_confirmed: Object.keys(edits) };
 }

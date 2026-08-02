@@ -51,7 +51,10 @@ export async function POST(request: NextRequest) {
 
   // 1) Engine-owned orchestration (the platform path).
   if (action === "confirm" && analysisId) {
-    const res = await proxyToEngine(`/api/analyze/${encodeURIComponent(analysisId)}/confirm`, { edits: body.edits || {} });
+    const res = await proxyToEngine(`/api/analyze/${encodeURIComponent(analysisId)}/confirm`, {
+      edits: body.edits || {},
+      organization: body.organization || undefined,
+    });
     if (res && res.ok) return res;
   } else if (action === "answers" && analysisId) {
     const res = await proxyToEngine(`/api/analyze/${encodeURIComponent(analysisId)}/answers`, { answers: body.answers || {} });
@@ -60,6 +63,9 @@ export async function POST(request: NextRequest) {
     const res = await proxyToEngine("/api/analyze", {
       problem_text: String(body.problem_text || ""),
       attachments: Array.isArray(body.attachments) ? body.attachments : [],
+      organization_name: String(body.organization_name || ""),
+      organization_domain: String(body.organization_domain || ""),
+      organization_industry: String(body.organization_industry || ""),
     });
     if (res && res.ok) return res;
   }
