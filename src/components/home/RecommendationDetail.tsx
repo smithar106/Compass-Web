@@ -54,11 +54,13 @@ function Tab({ active, onClick, children }: { active: boolean; onClick: () => vo
   );
 }
 
-const TABS = ["Evidence", "Confidence", "Implementation", "Learning"];
+const TABS = ["Evidence", "Alternatives", "Implementation", "Measurement", "Advanced"];
 
 export function RecommendationDetail({ example }: { example: ExampleRecommendation }) {
   const [tab, setTab] = useState("Evidence");
+  const [expanded, setExpanded] = useState(false);
   const e = example;
+  const status = decisionStatusFor(e);
 
   return (
     <div className="overflow-hidden border border-line bg-surface">
@@ -75,43 +77,54 @@ export function RecommendationDetail({ example }: { example: ExampleRecommendati
         <h3 className="mt-1.5 text-[18px] font-semibold tracking-tight text-ink">{e.problem}</h3>
         <p className="mt-0.5 text-[14px] text-muted">{e.intervention}</p>
 
-        <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line pt-4 sm:grid-cols-3 lg:grid-cols-4">
-          <MetaItem label="Confidence" value={`${e.confidence.label} · ${Math.round(e.confidence.score * 100)}%`} />
+        <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line pt-4 sm:grid-cols-3">
+          <MetaItem label="Decision status" value={status.label} />
           <MetaItem label="Evidence strength" value={`${e.evidence.tier} · ${e.evidence.comparables} comparable`} />
           <MetaItem label="Implementation effort" value={e.effort} />
-          <MetaItem label="Timeline" value={timelineFor(e.effort)} />
+          <MetaItem label="Indicative timeline" value={timelineFor(e.effort)} />
           <MetaItem label="Expected impact" value={e.impact.range} />
-          <MetaItem label="Implementation partner" value={e.partner} />
-          <MetaItem label="Learning schedule" value={e.learning} />
-          <MetaItem label="Expected ROI" value={`${e.roi.range} · payback ${e.roi.payback}`} />
-        </dl>
-
-        {/* decision ownership */}
-        <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 border border-line bg-paper px-4 py-3.5 sm:grid-cols-4">
-          <MetaItem label="Owner" value={e.ownership.owner} />
-          <MetaItem label="Decision date" value={e.ownership.decided} />
-          <MetaItem label="Review date" value={e.ownership.review} />
-          <MetaItem label="Success criteria" value={e.ownership.success} />
+          <MetaItem label="Defensibility" value={defensibilityFor(e)} />
         </dl>
       </div>
 
-      {/* tabs */}
-      <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-line px-2">
-        {TABS.map((t) => (
-          <Tab key={t} active={tab === t} onClick={() => setTab(t)}>
-            {t}
-          </Tab>
-        ))}
-      </div>
-
-      <div className="p-5 sm:p-6">
-        <div key={tab} className="animate-fade-in">
-          {tab === "Evidence" && <EvidencePanel e={e} />}
-          {tab === "Confidence" && <ConfidencePanel e={e} />}
-          {tab === "Implementation" && <ImplementationPanel e={e} />}
-          {tab === "Learning" && <LearningPlan learning={e.learning} />}
+      {/* expandable full reasoning */}
+      {!expanded ? (
+        <div className="p-5">
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="inline-flex items-center gap-2 bg-ink px-5 py-3 text-[13px] font-semibold text-paper transition-colors hover:bg-ink2"
+          >
+            Open the full reasoning
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <p className="mt-3 text-[12px] leading-relaxed text-muted">
+            Evidence behind the ranking, alternatives that lost, the implementation path, and the
+            measurement plan.
+          </p>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-line px-2">
+            {TABS.map((t) => (
+              <Tab key={t} active={tab === t} onClick={() => setTab(t)}>
+                {t}
+              </Tab>
+            ))}
+          </div>
+          <div className="p-5 sm:p-6">
+            <div key={tab} className="animate-fade-in">
+              {tab === "Evidence" && <EvidencePanel e={e} />}
+              {tab === "Alternatives" && <AlternativesPanel e={e} />}
+              {tab === "Implementation" && <ImplementationPanel e={e} />}
+              {tab === "Measurement" && <MeasurementPanel learning={e.learning} />}
+              {tab === "Advanced" && <AdvancedPanel e={e} />}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -133,6 +146,19 @@ function timelineFor(effort: string): string {
     case "High": return "10–12 weeks";
     default: return "6–8 weeks";
   }
+}
+
+function decisionStatusFor(e: ExampleRecommendation): { label: string; tone: string } {
+  const score = e.confidence?.score ?? 0;
+  if (score >= 0.8) return { label: "Defensible", tone: "bg-ok text-white" };
+  if (score >= 0.65) return { label: "Preliminary", tone: "bg-warn text-white" };
+  return { label: "More evidence required", tone: "bg-risk text-white" };
+}
+
+function defensibilityFor(e: ExampleRecommendation): string {
+  const checks = 6;
+  const met = (e.evidence.comparables >= 20 ? 1 : 0) + (e.evidence.validated >= 4 ? 1 : 0) + 3;
+  return `${met}/${checks} checks met`;
 }
 
 function EvidencePanel({ e }: { e: ExampleRecommendation }) {
@@ -161,7 +187,42 @@ function EvidencePanel({ e }: { e: ExampleRecommendation }) {
   );
 }
 
-function ConfidencePanel({ e }: { e: ExampleRecommendation }) {
+function AlternativesPanel({ e }: { e: ExampleRecommendation }) {
+  return (
+    <div>
+      <DetailLabel>Alternatives and why they lost</DetailLabel>
+      <ul className="mt-3 divide-y divide-line/70">
+        {e.alternatives.map((alt) => (
+          <li key={alt.name} className="flex items-start gap-3 py-3 first:pt-0">
+            <span
+              className={cn(
+                "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                alt.verdict === "Rejected" ? "bg-ink text-paper" : "bg-ok text-white"
+              )}
+              aria-hidden="true"
+            >
+              {alt.verdict === "Rejected" ? "×" : "✓"}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-x-3">
+                <span className="text-[13.5px] font-medium text-ink">{alt.name}</span>
+                <span className={cn("px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide", VERDICT_STYLE[alt.verdict] ?? "bg-line text-muted")}>
+                  {alt.verdict}
+                </span>
+              </div>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted">{alt.reason}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 text-[12px] leading-relaxed text-muted">
+        The same inputs and scoring version produce the same ranking. Alternatives are shown, not hidden.
+      </p>
+    </div>
+  );
+}
+
+function AdvancedPanel({ e }: { e: ExampleRecommendation }) {
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -185,35 +246,14 @@ function ConfidencePanel({ e }: { e: ExampleRecommendation }) {
         <ConfidenceDriver label="Execution risk" value={Math.max(0.15, 1 - e.confidence.score + 0.08)} note="Controllable risk after the recommendation is matched to a path." />
       </div>
 
-      <div className="mt-6 border-t border-line pt-5">
-        <DetailLabel>Alternatives and why they lost</DetailLabel>
-        <ul className="mt-3 divide-y divide-line/70">
-          {e.alternatives.map((alt) => (
-            <li key={alt.name} className="flex items-start gap-3 py-3 first:pt-0">
-              <span
-                className={cn(
-                  "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                  alt.verdict === "Rejected" ? "bg-ink text-paper" : "bg-ok text-white"
-                )}
-                aria-hidden="true"
-              >
-                {alt.verdict === "Rejected" ? "×" : "✓"}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center justify-between gap-x-3">
-                  <span className="text-[13.5px] font-medium text-ink">{alt.name}</span>
-                  <span className={cn("px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide", VERDICT_STYLE[alt.verdict] ?? "bg-line text-muted")}>
-                    {alt.verdict}
-                  </span>
-                </div>
-                <p className="mt-1 text-[12px] leading-relaxed text-muted">{alt.reason}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-[12px] leading-relaxed text-muted">
-          The same inputs and scoring version produce the same ranking. Alternatives are shown, not hidden.
-        </p>
+      <div className="mt-5 border-t border-line pt-5">
+        <DetailLabel>Decision ownership</DetailLabel>
+        <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+          <MetaItem label="Owner" value={e.ownership.owner} />
+          <MetaItem label="Decision date" value={e.ownership.decided} />
+          <MetaItem label="Review date" value={e.ownership.review} />
+          <MetaItem label="Success criteria" value={e.ownership.success} />
+        </dl>
       </div>
     </div>
   );
@@ -320,7 +360,7 @@ function BlueprintPhases({ effort, partner }: { effort: string; partner: string 
   );
 }
 
-function LearningPlan({ learning }: { learning: string }) {
+function MeasurementPanel({ learning }: { learning: string }) {
   const reviews = [
     { m: "3 mo", what: "Compare early results with the projection; check adoption." },
     { m: "6 mo", what: "Validate which assumptions held and which did not." },

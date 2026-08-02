@@ -32,7 +32,7 @@ export function LiveRecommendation() {
           {/* ranking list */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-faint">
-              Pick a decision to interrogate
+              {lr.exploreLabel}
             </p>
             <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto lg:flex-col lg:gap-0 lg:overflow-visible">
               {lr.rankings.map((r) => {

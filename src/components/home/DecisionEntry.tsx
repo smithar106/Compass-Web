@@ -6,6 +6,14 @@ import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 type PathIcon = "search" | "compass" | "check-square";
+type Status = "Complete" | "Strong" | "Partial" | "Missing";
+
+const STATUS_DOT: Record<Status, string> = {
+  Complete: "bg-ok",
+  Strong: "bg-accent-deep",
+  Partial: "bg-warn",
+  Missing: "bg-faint",
+};
 
 export function DecisionEntry() {
   const h = marketing.hero;
@@ -38,7 +46,10 @@ export function DecisionEntry() {
             </Reveal>
 
             <Reveal delay={80}>
-              <h1 className="mt-6 text-hero font-semibold tracking-tight text-ink">
+              <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                {h.categoryLine}
+              </p>
+              <h1 className="mt-3 text-hero font-semibold tracking-tight text-ink">
                 <span className="block">Make Operational</span>
                 <span className="block">
                   <em className="font-serif italic font-medium text-accent-deep">{h.headlineAccent}</em> with
@@ -51,20 +62,25 @@ export function DecisionEntry() {
 
             <Reveal delay={160}>
               <p className="mt-6 max-w-xl text-lead leading-relaxed text-muted">
-                {h.supporting.split(h.supportingAccent)[0]}
-                <em className="font-serif italic text-ink">{h.supportingAccent}</em>
-                {h.supporting.split(h.supportingAccent)[1]}
+                {h.supporting}
               </p>
             </Reveal>
 
             <Reveal delay={240}>
-              <div className="mt-9">
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   href={h.ctaHref}
                   className="group inline-flex items-center gap-2 bg-ink px-6 py-3.5 text-[15px] font-semibold text-paper transition-colors hover:bg-ink2"
                 >
                   {h.cta}
                   <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <Link
+                  href={h.secondaryHref}
+                  className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-accent-deep transition-colors hover:text-ink"
+                >
+                  {h.secondaryCta}
+                  <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>
             </Reveal>
@@ -98,18 +114,6 @@ export function DecisionEntry() {
 
           <Reveal delay={340}>
             <PrivacyNote>{h.privacy}</PrivacyNote>
-          </Reveal>
-
-          <Reveal delay={360}>
-            <div className="mt-6 text-right">
-              <Link
-                href={h.secondaryHref}
-                className="group inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent-deep transition-colors hover:text-ink"
-              >
-                {h.secondaryCta}
-                <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </div>
           </Reveal>
         </div>
       </div>
@@ -157,29 +161,13 @@ function DecisionDefensibilityPanel() {
 
       <ul className="space-y-2 p-4">
         {d.rows.map((r) => (
-          <li key={r.q} className="flex items-center gap-3" title={r.note}>
-            <span
-              aria-hidden="true"
-              className={cn(
-                "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white",
-                r.ok ? "bg-ok" : "bg-warn"
-              )}
-            >
-              {r.ok ? "✓" : "⚠"}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="truncate text-[12px] font-medium text-ink">{r.q}</span>
-                <span className={cn("font-mono text-[10px] font-bold", r.ok ? "text-muted" : "text-warn")}>
-                  {r.pct}%
-                </span>
-              </div>
-              <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-line">
-                <div
-                  className={cn("h-full rounded-full", r.ok ? "bg-accent-deep" : "bg-warn")}
-                  style={{ width: `${r.pct}%` }}
-                />
-              </div>
+          <li key={r.q} className="flex items-center gap-3">
+            <span aria-hidden="true" className={cn("h-2 w-2 shrink-0 rounded-full", STATUS_DOT[r.status as Status])} />
+            <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3">
+              <span className="truncate text-[12.5px] font-medium text-ink">{r.q}</span>
+              <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-faint">
+                {r.status}
+              </span>
             </div>
           </li>
         ))}

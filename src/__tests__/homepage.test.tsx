@@ -5,9 +5,20 @@ describe("Homepage content", () => {
   it("should open with a defensibility-led value proposition", () => {
     expect(site.marketing.hero.headline).toBe("Make Operational Decisions with Confidence.");
     expect(site.marketing.hero.headlineAccent).toBe("Decisions");
-    expect(site.marketing.hero.eyebrow).toContain("Evidence-backed");
-    expect(site.marketing.hero.defensibility.title).toBe("Decision Defensibility");
+    expect(site.marketing.hero.eyebrow).toContain("REAL-WORLD IMPLEMENTATIONS");
+    expect(site.marketing.hero.categoryLine).toContain("operating system");
+    expect(site.marketing.hero.defensibility.title).toBe("Why you can trust this decision");
     expect(site.marketing.hero.defensibility.rows).toHaveLength(8);
+    expect(site.marketing.hero.defensibility.rows.map((r) => r.status)).toEqual([
+      "Complete",
+      "Complete",
+      "Complete",
+      "Strong",
+      "Strong",
+      "Partial",
+      "Partial",
+      "Missing",
+    ]);
   });
 
   it("should offer three entry paths that converge on the same engine", () => {
@@ -25,32 +36,41 @@ describe("Homepage content", () => {
 
   it("should position Compass around reduced decision risk, not AI", () => {
     expect(site.tagline).toBe("Make operational decisions with confidence.");
-    expect(site.marketing.hero.supporting).toContain("right intervention");
+    expect(site.marketing.hero.supporting).toContain("what to implement");
   });
 
   it("should establish the missing system: a decision process", () => {
     const c = site.marketing.category;
     expect(c.headline).toContain("implementation process");
-    expect(c.headline).toContain("decision process");
-    expect(c.resolve).toBe("Compass becomes the missing system.");
+    expect(c.subheadline).toBe("Very few have a decision process.");
+    expect(c.thesis).toContain("Judgment remains scarce");
     expect(c.have).toContain("ERP");
     expect(c.missing).toBe("A repeatable decision process.");
-    expect(c.belief.some((b) => b.includes("more confidence"))).toBe(true);
-    expect(c.model.steps).toEqual(["Problem", "Confidence", "Implementation", "Measurement", "Learning", "Better decision"]);
+    expect(c.question.compassQuestion).toContain("which intervention will work");
+  });
+
+  it("should frame consulting, rebuilt as a persistent system with a Compass column", () => {
+    const c = site.marketing.consultingRebuilt;
+    expect(c.headline).toContain("Consulting, rebuilt");
+    expect(c.columns.map((col) => col.name)).toEqual(["Traditional consulting", "Generic AI", "Compass"]);
+    expect(c.columns[2].highlighted).toBe(true);
+    expect(c.columns[2].items).toContain("Reuses structured implementation intelligence");
+    expect(c.prominent).toBe("Consultants make recommendations. Compass builds organizational judgment.");
   });
 
   it("should frame the pillars as a repeatable process, in the right order", () => {
     const pillars = site.marketing.pillars.items;
     expect(pillars).toHaveLength(4);
-    expect(pillars.map((p) => p.name)).toEqual(["Evidence", "Execution", "Measurement", "Compounding"]);
+    expect(pillars.map((p) => p.name)).toEqual(["Evidence", "Execution", "Measurement", "Learning"]);
     expect(pillars[0].headline).toContain("Find organizations that already solved your problem");
-    expect(pillars[1].headline).toContain("who does it");
-    expect(pillars[2].headline).toContain("before you begin");
-    expect(pillars[3].headline).toContain("Every decision makes the next one better");
+    expect(pillars[1].headline).toContain("implementation path");
+    expect(pillars[2].headline).toContain("before implementation begins");
+    expect(pillars[3].headline).toContain("Every implementation improves the next decision");
   });
 
-  it("should expose the reasoning rankings", () => {
-    expect(site.marketing.liveRecommendation.label).toBe("See how Compass thinks");
+  it("should expose the reasoning rankings under an explore framing", () => {
+    expect(site.marketing.liveRecommendation.label).toBe("Explore a decision");
+    expect(site.marketing.liveRecommendation.headline).toBe("See how Compass thinks.");
     expect(site.marketing.liveRecommendation.rankings.map((r) => r.label)).toEqual([
       "Highest confidence",
       "Highest ROI",
@@ -71,13 +91,20 @@ describe("Homepage content", () => {
     expect(card.alternatives.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("should argue the compounding moat", () => {
+  it("should argue the compounding moat on the homepage", () => {
+    const c = site.marketing.compounding;
+    expect(c.label).toBe("Why Compass gets better");
+    expect(c.headline).toBe("Every decision makes the next one better.");
+    expect(c.moatLine).toBe("The moat is memory, not models.");
+    expect(c.steps[0].text).toBe("Decision #17");
+    expect(c.steps[c.steps.length - 1].text).toBe("Better decision");
+  });
+
+  it("should keep the full differentiation comparison on the product page", () => {
     const d = site.marketing.differentiation;
-    expect(d.label).toBe("Why Compass gets better");
-    expect(d.headline).toBe("Every decision makes the next one better.");
-    expect(d.moatLine).toBe("The moat is memory, not models.");
     expect(d.columns[2].name).toBe("Compass");
     expect(d.columns[2].highlighted).toBe(true);
+    expect(d.moatLine).toBe("The moat is memory, not models.");
   });
 
   it("should use decision terminology for product outputs", () => {

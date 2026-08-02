@@ -22,32 +22,30 @@ export const headerCta = {
 
 export const marketing = {
     hero: {
-      eyebrow: "Evidence-backed. Defensible. Decision-ready.",
+      eyebrow: "BUILT ON REAL-WORLD IMPLEMENTATIONS",
+      categoryLine: "The operating system for organizational judgment.",
       headline: "Make Operational Decisions with Confidence.",
       headlineAccent: "Decisions",
       supporting:
-        "Compass analyzes real-world implementations and outcomes to recommend the right intervention\u2014so you can invest with confidence and avoid costly mistakes.",
-      supportingAccent: "right intervention",
+        "Compass helps organizations determine what to implement, why it should work, and how success will be measured before implementation begins.",
       cta: "Analyze a Problem",
       ctaHref: "/analyze",
-      secondaryCta: "See how it works",
+      secondaryCta: "See How It Works",
       secondaryHref: "/how-it-works",
       defensibility: {
-        title: "Decision Defensibility",
+        title: "Why you can trust this decision",
         topLabel: "Decision defensibility",
         illustrative: "Illustrative product view",
-        evidenceCount: 1291,
-        footer: "Evidence from {count} real implementations",
         learnMore: { label: "Learn more", href: "/evidence" },
         rows: [
-          { q: "Why this problem", pct: 92, ok: true, note: "Problem statement grounded in your input" },
-          { q: "Why this intervention", pct: 88, ok: true, note: "Compared against every viable alternative" },
-          { q: "Who else solved it", pct: 85, ok: true, note: "Comparable implementations retrieved" },
-          { q: "How they implemented", pct: 80, ok: true, note: "Implementation patterns from comparable records" },
-          { q: "What outcomes", pct: 82, ok: true, note: "Outcome ranges from quantified metrics" },
-          { q: "What risks", pct: 76, ok: true, note: "Risks surfaced from evidence" },
-          { q: "How to measure success", pct: 72, ok: true, note: "Baseline and success criteria defined" },
-          { q: "What would change this", pct: 48, ok: false, note: "Assumptions and gaps under review" },
+          { q: "Why this problem", status: "Complete" },
+          { q: "Why this intervention", status: "Complete" },
+          { q: "Who else solved it", status: "Complete" },
+          { q: "How they implemented", status: "Strong" },
+          { q: "What outcomes", status: "Strong" },
+          { q: "What risks", status: "Partial" },
+          { q: "How to measure success", status: "Partial" },
+          { q: "What would change this", status: "Missing" },
         ],
       },
       entry: {
@@ -90,91 +88,118 @@ export const marketing = {
     },
 
     category: {
-      label: "The missing system",
+      label: "The missing decision system",
       number: "01",
-      headline:
-        "Every organization already has an implementation process. Very few have a decision process.",
-      consequence:
-        "That is why initiatives fail. That is why transformations stall. That is why millions are spent solving the wrong problem.",
-      resolve: "Compass becomes the missing system.",
+      headline: "Every organization already has an implementation process.",
+      subheadline: "Very few have a decision process.",
+      supporting:
+        "Organizations can buy software, hire consultants, deploy agents, and build internal tools faster than ever. The harder question is deciding what should be implemented in the first place.",
       have: [
         "ERP",
         "CRM",
         "HRIS",
         "Project management",
-        "Knowledge base",
+        "Knowledge systems",
         "Implementation teams",
         "Consultants",
-        "AI",
+        "AI tools",
       ],
       missing: "A repeatable decision process.",
-      beliefLead: "We believe",
-      belief: [
-        "Implementation is becoming abundant.",
-        "Building software gets easier every year. Choosing the right operational intervention does not.",
-        "Organizations don\u2019t need more AI. They need more confidence.",
-        "That\u2019s why Compass exists.",
+      thesis: "Implementation is becoming abundant. Judgment remains scarce.",
+      question: {
+        mostLabel: "Most companies ask",
+        mostQuestion: "How do we use AI?",
+        compassLabel: "Compass asks",
+        compassQuestion:
+          "What operational problem should we solve, which intervention will work, and how will we know?",
+      },
+    },
+
+    consultingRebuilt: {
+      label: "Consulting, rebuilt",
+      number: "02",
+      headline: "Consulting, rebuilt as a persistent decision system.",
+      supporting:
+        "Consultants help organizations make one decision. Compass builds the system that improves every decision after it.",
+      prominent: "Consultants make recommendations. Compass builds organizational judgment.",
+      columns: [
+        {
+          name: "Traditional consulting",
+          items: [
+            "Starts from scratch",
+            "Knowledge concentrated in a team",
+            "Static recommendations",
+            "Engagement ends at delivery",
+            "Learning may leave with the consultants",
+          ],
+        },
+        {
+          name: "Generic AI",
+          items: [
+            "Produces fast summaries",
+            "Weak evidence discipline",
+            "Can invent confidence",
+            "No repeatable comparison method",
+            "No institutional memory",
+          ],
+        },
+        {
+          name: "Compass",
+          highlighted: true,
+          items: [
+            "Reuses structured implementation intelligence",
+            "Applies a consistent decision methodology",
+            "Preserves evidence, assumptions, and rationale",
+            "Connects the decision to implementation",
+            "Measures outcomes",
+            "Improves future decisions",
+          ],
+        },
       ],
-    question: {
-      mostLabel: "Most companies ask",
-      mostQuestion: "How do we use AI?",
-      compassLabel: "Compass asks",
-      compassQuestion:
-        "What operational problem should we solve, which intervention will work, and how will we know?",
-      body: "Organizations have more tools and vendors than ever. What they lack is confidence that they are solving the right problem in the right way.",
     },
-    model: {
-      label: "The decision process",
-      steps: ["Problem", "Confidence", "Implementation", "Measurement", "Learning", "Better decision"],
-      closing: "Each decision feeds the next. Judgment compounds inside the organization.",
-    },
-  },
 
     pillars: {
       label: "How Compass works",
-      number: "02",
+      number: "03",
       headline: "A repeatable process for expensive decisions.",
       subtitle:
-        "Four capabilities, arranged as one loop. Each one removes a specific risk that makes operational decisions go wrong.",
+        "Four connected capabilities. Each one removes a specific risk that makes operational decisions go wrong.",
       items: [
         {
           number: "01",
           name: "Evidence",
           headline: "Find organizations that already solved your problem.",
-          body: "Compass compares your operational challenge against organizations that faced the same constraints, chose different interventions, measured the outcomes, and documented what actually worked.",
-          tag: "Every alternative is compared\u2014including no action.",
+          body: "Compass retrieves structured evidence from comparable implementations, outcomes, and risks.",
         },
         {
           number: "02",
           name: "Execution",
-          headline: "Know how it gets done\u2014and who does it.",
-          body: "Every decision carries an implementation plan matched to the right path: your internal team or a partner you select.",
-          tag: "The plan and the executor are decided before work starts.",
+          headline: "Turn the decision into an implementation path.",
+          body: "Every selected intervention carries a live implementation plan and execution options.",
         },
         {
           number: "03",
           name: "Measurement",
-          headline: "Know what success looks like before you begin.",
-          body: "Success criteria are defined in advance and tracked against the original decision\u2014so the outcome is measured honestly.",
-          tag: "Success is defined before implementation. Not after.",
+          headline: "Define success before implementation begins.",
+          body: "Baselines, milestones, and validation gates are set before work starts.",
         },
         {
           number: "04",
-          name: "Compounding",
-          headline: "Every decision makes the next one better.",
-          body: "Every implementation improves the next decision. Judgment compounds inside your organization.",
-          tag: "The moat is memory, not models.",
+          name: "Learning",
+          headline: "Every implementation improves the next decision.",
+          body: "Verified outcomes and lessons become organizational memory.",
         },
       ],
-      loop: "Evidence \u00b7 Execution \u00b7 Measurement \u00b7 Compounding\u2014a loop that improves every decision.",
+      loop: "Evidence \u00b7 Execution \u00b7 Measurement \u00b7 Learning \u2014 a loop that improves every decision.",
     },
 
     liveRecommendation: {
-      label: "See how Compass thinks",
-      number: "03",
+      label: "Explore a decision",
+      number: "04",
       headline: "See how Compass thinks.",
       subtitle:
-        "Pick a decision and open the reasoning behind it: the evidence, the alternatives, the implementation path, and the learning plan.",
+        "Open a decision and inspect the evidence, alternatives, implementation path, and learning plan behind it.",
+      exploreLabel: "Explore a decision",
       illustrativeNote:
         "Illustrative decisions for demonstration. Run your own analysis for one specific to your operations.",
       rankings: [
@@ -595,6 +620,24 @@ export const marketing = {
       ],
     },
 
+  compounding: {
+    label: "Why Compass gets better",
+    number: "05",
+    headline: "Every decision makes the next one better.",
+    subtitle:
+      "A consulting project ends. Compass preserves the decision, the implementation, the outcome, and what the organization learned.",
+    moatLine: "The moat is memory, not models.",
+    steps: [
+      { text: "Decision #17", tone: "start" },
+      { text: "Implemented", tone: "step" },
+      { text: "Measured", tone: "step" },
+      { text: "Learned", tone: "step" },
+      { text: "Decision #18", tone: "start" },
+      { text: "Better evidence", tone: "step" },
+      { text: "Better decision", tone: "end" },
+    ],
+  },
+
   operations: {
     label: "Built for consequential decisions",
     number: "10",
@@ -658,7 +701,9 @@ export const marketing = {
     headline: "Implementation is becoming abundant. Judgment remains scarce.",
     name: "Arthur Smith",
     role: "Founder, Compass",
-      bio: "Compass was founded by Arthur Smith after years of building operational and AI systems at Lime. He repeatedly saw teams move into implementation before rigorously deciding whether they were solving the right problem or choosing the right intervention. As software became easier to build, the real bottleneck became clear: judgment.",
+      bio: "Compass was founded by Arthur Smith after years of building operational and AI systems at Lime. He repeatedly saw teams move into implementation before rigorously determining whether they were solving the right problem or choosing the right intervention.",
+      body2:
+        "As software became easier to build, the real bottleneck became clear: judgment.",
       founderLine:
         "I wasn\u2019t trying to build another AI company. I was trying to solve a problem I kept seeing inside enterprise operations.",
     proofPointsLabel: "What that work produced",
@@ -666,7 +711,6 @@ export const marketing = {
       "Production systems supporting operations across 200+ markets",
       "Reporting cycles reduced by 88%",
       "Multiple production AI applications shipped",
-      "Experience translating ambiguous operational problems into technical systems",
     ],
   },
 
@@ -674,9 +718,9 @@ export const marketing = {
     eyebrow: "Make operational decisions with confidence",
     headline: "Before you implement anything, make sure it is the right thing.",
     subtitle:
-      "Describe your operational challenge. Get an evidence-backed decision, a clear implementation path, and a framework for measuring what happens next.",
+      "Bring Compass an operational problem. Get an evidence-backed decision, a clear implementation path, and a framework for measuring what happens next.",
     ctaPrimary: "Analyze a Problem",
-    ctaSecondary: "Request a Demo",
+    ctaSecondary: "Talk to Us",
   },
 };
 

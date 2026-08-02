@@ -19,7 +19,10 @@ export function Founder() {
             </Reveal>
             <Reveal delay={180}>
               <p className="mt-7 max-w-xl text-lead leading-relaxed text-muted">{f.bio}</p>
-              <p className="mt-5 max-w-xl border-l-2 border-accent-deep pl-4 font-serif text-[15px] italic leading-relaxed text-ink">
+              <p className="mt-5 max-w-xl font-serif text-[19px] italic leading-relaxed text-ink">
+                {f.body2}
+              </p>
+              <p className="mt-6 max-w-xl border-l-2 border-accent-deep pl-4 font-serif text-[15px] italic leading-relaxed text-ink">
                 {f.founderLine}
               </p>
             </Reveal>

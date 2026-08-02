@@ -1,7 +1,6 @@
 import { marketing } from "@/content/marketing";
 import { Eyebrow } from "./primitives";
 import { Reveal } from "./Reveal";
-import { cn } from "@/lib/utils";
 
 export function Category() {
   const c = marketing.category;
@@ -14,19 +13,24 @@ export function Category() {
           <Eyebrow number={c.number}>{c.label}</Eyebrow>
         </Reveal>
 
-        {/* the missing system */}
         <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-20">
           <div>
             <Reveal delay={80}>
-              <h2 className="text-title font-semibold tracking-tight text-ink">{c.headline}</h2>
+              <h2 className="max-w-xl text-title font-semibold tracking-tight text-ink">
+                {c.headline}
+              </h2>
             </Reveal>
-            <Reveal delay={180}>
-              <p className="mt-6 max-w-xl text-lead leading-relaxed text-muted">{c.consequence}</p>
-              <p className="mt-4 text-lead font-semibold text-accent-deep">{c.resolve}</p>
+            <Reveal delay={160}>
+              <p className="mt-2 font-serif text-[22px] italic leading-snug tracking-tight text-accent-deep">
+                {c.subheadline}
+              </p>
+            </Reveal>
+            <Reveal delay={220}>
+              <p className="mt-6 max-w-xl text-lead leading-relaxed text-muted">{c.supporting}</p>
             </Reveal>
 
             {/* what you have vs. what's missing */}
-            <Reveal delay={240}>
+            <Reveal delay={280}>
               <div className="mt-8 border border-line bg-surface p-5">
                 <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-faint">
                   You already have
@@ -69,35 +73,16 @@ export function Category() {
                   </p>
                 </div>
               </div>
-              <div className="border-t border-line px-6 py-4">
-                <p className="text-[13px] leading-relaxed text-muted">{q.body}</p>
-              </div>
             </div>
           </Reveal>
         </div>
 
-        {/* the belief */}
+        {/* thesis */}
         <Reveal delay={140}>
-          <div className="mt-10 border-t border-line pt-10">
-            <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-faint">
-              {c.beliefLead}
-            </p>
-            <ul className="mt-5 max-w-4xl space-y-3">
-              {c.belief.map((line, i) => (
-                <li
-                  key={line}
-                  className={cn(
-                    "text-section font-semibold leading-tight tracking-tight",
-                    i === c.belief.length - 1 ? "text-accent-deep" : "text-ink"
-                  )}
-                >
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <p className="mt-10 border-t border-line pt-10 text-[28px] font-semibold leading-tight tracking-tight text-ink sm:text-[32px]">
+            {c.thesis}
+          </p>
         </Reveal>
-
       </div>
     </section>
   );
