@@ -27,8 +27,8 @@ export const marketing = {
       headline: "Make Operational Decisions with Confidence.",
       headlineAccent: "Decisions",
       supporting:
-        "Compass helps organizations determine what to implement, why it will work, and how success will be measured \u2014 before they commit people and capital to the wrong intervention.",
-      stakes: "The wrong intervention is the most expensive line item most companies never budget for.",
+        "Compass gives you confidence in the decisions that move millions \u2014 every available source analyzed, synthesized, and presented before you commit people and capital.",
+      stakes: "Consultants offer opinions. Chatbots offer summaries. Compass offers a decision you can defend.",
       cta: "Analyze a Problem",
       ctaHref: "/analyze",
       secondaryCta: "See How It Works",

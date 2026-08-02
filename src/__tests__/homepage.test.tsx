@@ -36,7 +36,9 @@ describe("Homepage content", () => {
 
   it("should position Compass around reduced decision risk, not AI", () => {
     expect(site.tagline).toBe("Make operational decisions with confidence.");
-    expect(site.marketing.hero.supporting).toContain("what to implement");
+    expect(site.marketing.hero.supporting).toContain("decisions that move millions");
+    expect(site.marketing.hero.supporting).toContain("analyzed, synthesized");
+    expect(site.marketing.hero.stakes).toContain("Consultants offer opinions");
   });
 
   it("should establish the missing system: a decision process", () => {
