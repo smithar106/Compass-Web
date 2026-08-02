@@ -190,8 +190,30 @@ export function DecisionPackageView({
         </div>
       </section>
 
-      {/* ===== 01 IMPACT AT A GLANCE ===== */}
-      <MemoSection number="01" title="Impact at a glance">
+      {/* ===== 01 THE PROBLEM ===== */}
+      <MemoSection number="01" title="The problem">
+        <div className="overflow-hidden rounded-xl border border-[#dfe5ec] bg-white shadow-sm">
+          <div className="border-l-4 border-[#C14A3C] bg-[#FAEAE7] px-5 py-4">
+            <p className="text-[12.5px] font-semibold leading-[1.55] text-[#8f2f24]">
+              {summary?.problem_statement || top.rationale || "An operational workflow is underperforming on cost, time, or quality."}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-x-8 gap-y-2 p-5 sm:grid-cols-3">
+            {buildPainPoints(top, summary).map((p) => (
+              <div key={p.label} className="flex items-start gap-2.5">
+                <span aria-hidden="true" className="mt-[6px] h-2 w-2 shrink-0 rounded-full bg-[#C14A3C]" />
+                <div>
+                  <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-[#8f2f24]">{p.label}</p>
+                  <p className="mt-0.5 text-[12px] leading-[1.5] text-[#4f6280]">{p.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </MemoSection>
+
+      {/* ===== 02 IMPACT ===== */}
+      <MemoSection number="02" title="Impact">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           {kpis.map((k) => (
             <div key={k.label} className="rounded-lg border border-[#e6eaef] bg-paper/50 p-3.5">
@@ -205,16 +227,14 @@ export function DecisionPackageView({
         </div>
       </MemoSection>
 
-      {/* ===== 02 WHY NOW ===== */}
-      <MemoSection number="02" title="Why this decision, why now">
+      {/* ===== 03 WHY NOW ===== */}
+      <MemoSection number="03" title="Why this, why now">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
             <SectionLabel>The rationale</SectionLabel>
-            {top.rationale ? (
-              <p className="mt-2 text-[13px] leading-[1.6] text-[#4f6280]">{top.rationale}</p>
-            ) : (
-              <p className="mt-2 text-[13px] italic text-[#4f6280]">No rationale was attached by the engine.</p>
-            )}
+            <p className="mt-2 text-[13px] leading-[1.6] text-[#4f6280]">
+              {top.rationale || "This intervention ranks highest on problem fit, evidence strength, implementation depth, and outcome evidence."}
+            </p>
             {top.confidence?.explanation && (
               <p className="mt-3 border-l-2 border-accent-deep pl-3 text-[12.5px] leading-[1.55] text-muted">
                 {top.confidence.explanation}
@@ -223,9 +243,9 @@ export function DecisionPackageView({
           </div>
           <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
             <SectionLabel>Why it ranks first</SectionLabel>
-            <ul className="mt-2 space-y-1.5">
-              {(top.why_ranked_first?.supporting_reasons || top.why_it_ranked_here || ["Recommendation ranked highest on the evidence criteria applied."]).slice(0, 4).map((r, i) => (
-                <li key={i} className="flex items-start gap-2 text-[12.5px] text-[#101826]/90">
+            <ul className="mt-2 space-y-2">
+              {(top.why_ranked_first?.supporting_reasons || top.why_it_ranked_here || ["Recommendation ranked highest on the evidence criteria applied."]).slice(0, 3).map((r, i) => (
+                <li key={i} className="flex items-start gap-2 text-[13px] text-[#101826]/90">
                   <span className="mt-0.5 text-brand-green">&#10003;</span>
                   {r}
                 </li>
@@ -245,16 +265,16 @@ export function DecisionPackageView({
         </div>
       </MemoSection>
 
-      {/* ===== 03 DECISION DEFENSIBILITY ===== */}
-      <MemoSection number="03" title="Decision Defensibility">
+      {/* ===== 04 DECISION DEFENSIBILITY ===== */}
+      <MemoSection number="04" title="Can we defend it?">
         <div className="overflow-hidden rounded-xl border border-[#dfe5ec] bg-white shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e6eaef] bg-[#f6f8fa] px-5 py-3">
-            <SectionLabel>Can this decision be defended?</SectionLabel>
+            <SectionLabel>Decision Defensibility</SectionLabel>
             <span className="font-mono text-[14px] font-bold text-[#1E7B4C]">
-              {dd.score} <span className="text-[11px] text-[#4f6280]">/ {dd.total}</span>
+              {dd.score} <span className="text-[11px] text-[#4f6280]">/ {dd.total} checks</span>
             </span>
           </div>
-          <ul className="grid grid-cols-1 gap-x-8 gap-y-2.5 p-5 sm:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-2 p-5 sm:grid-cols-2">
             {dd.checks.map((c) => (
               <li key={c.key} className="flex items-start gap-2.5">
                 <span className={cn("mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white", c.ok ? "bg-[#1E7B4C]" : "bg-[#B45309]")} aria-hidden="true">
@@ -267,26 +287,20 @@ export function DecisionPackageView({
               </li>
             ))}
           </ul>
-          <div className="border-t border-[#ebeff4] px-5 py-3 text-[11.5px] leading-relaxed text-[#4f6280]">
-            {g.key === "live" && "Every question is answered from retrieved evidence. The same scoring inputs and version reproduce the same ranking."}
-            {g.key === "partial" && "The decision is live but partially grounded. Insufficient answers are flagged above; closing them raises defensibility."}
-            {g.key === "insufficient" && "The decision is not yet defensible. The validation step below defines what would change that."}
-          </div>
         </div>
       </MemoSection>
 
-      {/* ===== 04 RISKS & ASSUMPTIONS ===== */}
-      <MemoSection number="04" title="Risks & assumptions">
+      {/* ===== 05 RISKS & ASSUMPTIONS ===== */}
+      <MemoSection number="05" title="Risks & assumptions">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
-            <SectionLabel>Risks identified from evidence</SectionLabel>
+            <SectionLabel>Risks</SectionLabel>
             {top.risks && top.risks.length > 0 ? (
-              <ul className="mt-2 space-y-3">
-                {top.risks.slice(0, 4).map((r, i) => (
-                  <li key={i} className="text-[12px]">
-                    <p className="font-semibold text-[#101826]">{r.title}</p>
-                    <p className="leading-[1.5] text-[#4f6280]">{r.explanation}</p>
-                    {r.mitigation && <p className="mt-0.5 text-[#1E7B4C]">Mitigation: {r.mitigation}</p>}
+              <ul className="mt-2 space-y-2.5">
+                {top.risks.slice(0, 3).map((r, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-[12.5px]">
+                    <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-warn" />
+                    <p className="leading-[1.5] text-[#4f6280]"><span className="font-semibold text-[#101826]">{r.title}.</span> {r.mitigation ? `Mitigation: ${r.mitigation}` : r.explanation}</p>
                   </li>
                 ))}
               </ul>
@@ -295,14 +309,13 @@ export function DecisionPackageView({
             )}
           </div>
           <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
-            <SectionLabel>Assumptions that could change this decision</SectionLabel>
+            <SectionLabel>Assumptions</SectionLabel>
             {top.assumptions_detail && top.assumptions_detail.length > 0 ? (
               <ul className="mt-2 space-y-2.5">
-                {top.assumptions_detail.slice(0, 4).map((a, i) => (
-                  <li key={i} className="text-[12px]">
-                    <p className="font-semibold text-[#101826]">{a.title}</p>
-                    <p className="leading-[1.5] text-[#4f6280]">{a.explanation}</p>
-                    {a.resolution_action && <p className="text-[#1E7B4C]">Resolution: {a.resolution_action}</p>}
+                {top.assumptions_detail.slice(0, 3).map((a, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-[12.5px]">
+                    <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-deep" />
+                    <p className="leading-[1.5] text-[#4f6280]"><span className="font-semibold text-[#101826]">{a.title}.</span> {a.explanation}</p>
                   </li>
                 ))}
               </ul>
@@ -313,44 +326,38 @@ export function DecisionPackageView({
         </div>
       </MemoSection>
 
-      {/* ===== 05 IMPLEMENTATION ROADMAP ===== */}
-      <MemoSection number="05" title="Implementation roadmap">
+      {/* ===== 06 IMPLEMENTATION ROADMAP ===== */}
+      <MemoSection number="06" title="How we get there">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
-            <SectionLabel>Validation before scaling</SectionLabel>
-            {top.next_validation_step ? (
-              <div className="mt-2 rounded-lg border border-[#e6eaef] bg-paper/50 p-3.5">
-                <p className="text-[13.5px] font-bold text-[#101826]">{top.next_validation_step.action}</p>
-                <p className="mt-1 text-[11.5px] leading-[1.5] text-[#4f6280]">{top.next_validation_step.purpose}</p>
-                {top.next_validation_step.success_criteria && (
-                  <p className="mt-2 text-[11.5px]"><span className="font-bold text-[#4f6280]">Success criteria: </span><span className="text-[#101826]">{top.next_validation_step.success_criteria}</span></p>
-                )}
-                {top.next_validation_step.owner && (
-                  <p className="text-[11.5px]"><span className="font-bold text-[#4f6280]">Owner: </span><span className="text-[#101826]">{top.next_validation_step.owner}</span></p>
-                )}
-              </div>
-            ) : (
-              <p className="mt-2 text-[12.5px] italic text-[#4f6280]">No validation step was defined for this decision.</p>
-            )}
+            <SectionLabel>Execution path</SectionLabel>
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {["Internal team", "Selected partner"].map((opt, i) => (
+                <div
+                  key={opt}
+                  className={cn(
+                    "border px-3 py-2 text-[12.5px] font-medium",
+                    i === 0 ? "border-ink bg-ink text-paper" : "border-line bg-paper text-muted"
+                  )}
+                >
+                  {opt}
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-[11.5px] leading-[1.5] text-[#4f6280]">
+              Compass does not implement. Your team or a selected partner executes the plan. Partners
+              cannot influence the recommendation.
+            </p>
             <div className="mt-4 border-t border-[#ebeff4] pt-4">
-              <SectionLabel>Execution path</SectionLabel>
-              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {["Internal team", "Selected partner"].map((opt, i) => (
-                  <div
-                    key={opt}
-                    className={cn(
-                      "border px-3 py-2 text-[12.5px] font-medium",
-                      i === 0 ? "border-ink bg-ink text-paper" : "border-line bg-paper text-muted"
-                    )}
-                  >
-                    {opt}
-                  </div>
-                ))}
-              </div>
-              <p className="mt-2 text-[11.5px] leading-[1.5] text-[#4f6280]">
-                Compass does not implement. Your team or a selected partner executes the plan. Partners
-                become relevant only after the intervention is selected &mdash; they cannot influence the recommendation.
-              </p>
+              <SectionLabel>Gate before scale</SectionLabel>
+              {top.next_validation_step ? (
+                <p className="mt-1.5 text-[12.5px] leading-[1.5] text-[#4f6280]">
+                  <span className="font-semibold text-[#101826]">{top.next_validation_step.action}.</span>{" "}
+                  {top.next_validation_step.success_criteria || top.next_validation_step.purpose}
+                </p>
+              ) : (
+                <p className="mt-1.5 text-[12.5px] italic text-[#4f6280]">No validation step defined.</p>
+              )}
             </div>
           </div>
           <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
@@ -362,15 +369,15 @@ export function DecisionPackageView({
         </div>
       </MemoSection>
 
-      {/* ===== 06 THE ALTERNATIVES ===== */}
-      <MemoSection number="06" title="The alternatives">
+      {/* ===== 07 THE ALTERNATIVES ===== */}
+      <MemoSection number="07" title="The alternatives">
         <div className="overflow-hidden rounded-xl border border-[#dfe5ec] bg-white shadow-sm">
           <div className="border-b border-[#e6eaef] bg-[#f6f8fa] px-5 py-3">
             <SectionLabel>Why the alternatives lost</SectionLabel>
           </div>
           <ul className="divide-y divide-[#ebeff4] px-5">
             {top.alternatives_considered && top.alternatives_considered.length > 0 ? (
-              top.alternatives_considered.slice(0, 4).map((a) => (
+              top.alternatives_considered.slice(0, 3).map((a) => (
                 <li key={a.family} className="flex items-start gap-3 py-3.5 first:pt-3">
                   <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-[10px] font-bold text-paper">×</span>
                   <div className="min-w-0 flex-1">
@@ -383,92 +390,69 @@ export function DecisionPackageView({
               <li className="py-4 text-[12.5px] italic text-[#4f6280]">No alternatives were surfaced by the engine.</li>
             )}
           </ul>
-          <div className="border-t border-[#ebeff4] px-5 py-3 text-[11.5px] text-[#4f6280]">
-            The same scoring version reproduces the same ranking. Alternatives are shown, not hidden.
-          </div>
         </div>
       </MemoSection>
 
-      {/* ===== 07 EVIDENCE — comparable implementations ===== */}
-      <MemoSection number="07" title="Evidence & comparable implementations">
+      {/* ===== 08 EVIDENCE ===== */}
+      <MemoSection number="08" title="Evidence behind this">
         <div className="overflow-hidden rounded-xl border border-[#dfe5ec] bg-white shadow-sm">
-          <div className="border-b border-[#e6eaef] bg-[#f6f8fa] px-5 py-3">
-            <SectionLabel>Real-world implementations behind this decision</SectionLabel>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e6eaef] bg-[#f6f8fa] px-5 py-3">
+            <SectionLabel>Comparable implementations</SectionLabel>
+            <span className="text-[11px] font-medium text-[#4f6280]">
+              {library ? `vs ${library} verified implementations` : "vs a growing library"}
+            </span>
           </div>
           <div className="p-5">
             {top.comparable_implementations && top.comparable_implementations.length > 0 ? (
-              <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {top.comparable_implementations.slice(0, 6).map((c) => (
-                  <li key={c.record_id || c.organization} className="rounded-lg border border-[#e6eaef] p-4">
+              <ul className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+                {top.comparable_implementations.slice(0, 3).map((c) => (
+                  <li key={c.record_id || c.organization} className="rounded-lg border border-[#e6eaef] p-3.5">
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-[13px] font-bold text-[#101826]">{c.organization || "Verified implementation"}</span>
-                      <span className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-wide text-[#4f6280]">
-                        <span className={cn("rounded px-1.5 py-0.5", c.evidence_tier === "gold" ? "bg-[#fff6d8] text-[#7a5b00]" : c.evidence_tier === "silver" ? "bg-[#f0f3f6] text-[#3f4a5a]" : "bg-[#fff0e6] text-[#7a3b06]")}>
-                          {c.evidence_tier || "unknown"}
-                        </span>
-                        {c.similarity_score != null && <span>sim {c.similarity_score}%</span>}
+                      <span className="truncate text-[13px] font-bold text-[#101826]">{c.organization || "Verified implementation"}</span>
+                      <span className={cn("shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase", c.evidence_tier === "gold" ? "bg-[#fff6d8] text-[#7a5b00]" : c.evidence_tier === "silver" ? "bg-[#f0f3f6] text-[#3f4a5a]" : "bg-[#fff0e6] text-[#7a3b06]")}>
+                        {c.evidence_tier || "unknown"}
                       </span>
                     </div>
-                    <div className="mt-2 space-y-1 text-[11.5px] leading-[1.5]">
-                      {c.intervention && <p><span className="font-semibold text-[#101826]">Recommendation:</span> <span className="text-[#4f6280]">{c.intervention}</span></p>}
-                      <p><span className="font-semibold text-[#101826]">Outcome:</span> <span className="text-[#4f6280]">{c.outcome_summary || c.observed_outcome || "Not quantified"}</span></p>
-                      {c.supporting_passage && <p className="italic text-[#4f6280]">&ldquo;{c.supporting_passage.slice(0, 160)}&rdquo;</p>}
-                    </div>
+                    <p className="mt-1 text-[11.5px] leading-[1.5] text-[#4f6280]">{c.outcome_summary || c.observed_outcome || "Outcome not quantified"}</p>
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="text-[12.5px] italic text-[#4f6280]">No comparable implementations were attached by the engine.</p>
             )}
-            <p className="mt-4 border-t border-[#ebeff4] pt-3 text-[11px] leading-[1.5] text-[#4f6280]">
-              Compared against {library ? `${library} verified implementations` : "a growing library of verified implementations"}.
-              Every material claim traces back to a source. When the evidence is insufficient, Compass defers judgment instead of inventing an answer.
-            </p>
           </div>
         </div>
       </MemoSection>
 
-      {/* ===== 08 MEASUREMENT & LEARNING ===== */}
-      <MemoSection number="08" title="Measurement & learning">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
-            <SectionLabel>Expected operational impact</SectionLabel>
-            {top.outcome_ranges && top.outcome_ranges.some((r) => r.directly_comparable) ? (
-              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {top.outcome_ranges.filter((r) => r.directly_comparable).slice(0, 4).map((r) => (
-                  <div key={r.metric_label} className="rounded-lg border border-[#e6eaef] bg-paper/50 p-3">
-                    <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">{r.metric_label}</p>
-                    <p className="mt-1 text-[17px] font-extrabold text-[#101826]">
-                      {r.median != null ? r.median : r.low != null && r.high != null ? `${r.low}–${r.high}` : "—"}{r.unit === "%" ? "%" : ""}
-                    </p>
-                    <p className="text-[10px] text-[#4f6280]">observed in {r.sample_size || 0} comparable implementations</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-2 text-[12.5px] italic text-[#4f6280]">Outcomes were not quantified in the retrieved records.</p>
-            )}
+      {/* ===== 08 OUTCOMES & MEASUREMENT ===== */}
+      <MemoSection number="08" title="What we measure">
+        <div className="rounded-xl border border-[#dfe5ec] bg-white shadow-sm">
+          <div className="border-b border-[#e6eaef] bg-[#f6f8fa] px-5 py-3">
+            <SectionLabel>Expected impact, measured against a baseline</SectionLabel>
           </div>
-          <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
-            <SectionLabel>How success is measured</SectionLabel>
-            {top.next_validation_step ? (
-              <div className="mt-2 rounded-lg border border-[#e6eaef] bg-paper/50 p-3.5">
-                <p className="text-[13px] font-bold text-[#101826]">{top.next_validation_step.action}</p>
-                <p className="mt-1 text-[11.5px] leading-[1.5] text-[#4f6280]">{top.next_validation_step.purpose}</p>
-                {top.next_validation_step.success_criteria && (
-                  <p className="mt-2 text-[11.5px]"><span className="font-bold text-[#4f6280]">Success criteria: </span><span className="text-[#101826]">{top.next_validation_step.success_criteria}</span></p>
-                )}
-                {top.next_validation_step.duration && (
-                  <p className="text-[11.5px]"><span className="font-bold text-[#4f6280]">Duration: </span><span className="text-[#101826]">{top.next_validation_step.duration}</span></p>
-                )}
-              </div>
+          <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-3">
+            {top.outcome_ranges && top.outcome_ranges.some((r) => r.directly_comparable) ? (
+              top.outcome_ranges.filter((r) => r.directly_comparable).slice(0, 3).map((r) => (
+                <div key={r.metric_label} className="rounded-lg border border-[#e6eaef] bg-paper/50 p-3">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">{r.metric_label}</p>
+                  <p className="mt-1 text-[20px] font-extrabold text-[#101826]">
+                    {r.median != null ? r.median : r.low != null && r.high != null ? `${r.low}–${r.high}` : "—"}{r.unit === "%" ? "%" : ""}
+                  </p>
+                  <p className="text-[10px] text-[#4f6280]">observed in {r.sample_size || 0} comparable implementations</p>
+                </div>
+              ))
             ) : (
-              <p className="mt-2 text-[12.5px] italic text-[#4f6280]">No measurement plan defined yet.</p>
+              <p className="text-[12.5px] italic text-[#4f6280]">Outcomes were not quantified in the retrieved records.</p>
             )}
-            <p className="mt-3 text-[11.5px] leading-[1.5] text-[#4f6280]">
-              Verified outcomes and lessons flow back into the evidence base, so the next decision for
-              your organization is measurably better than the last.
-            </p>
+            <div className="flex flex-col justify-center rounded-lg border border-[#e6eaef] bg-paper/50 p-3 sm:col-span-2">
+              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">Success criteria</p>
+              <p className="mt-1 text-[13px] leading-[1.5] text-[#101826]">
+                {top.next_validation_step?.success_criteria || top.next_validation_step?.action || "Define the baseline, then validate against the gate before scale."}
+              </p>
+              <p className="mt-2 text-[11px] leading-[1.5] text-[#4f6280]">
+                Verified outcomes flow back into the evidence base &mdash; every implementation improves the next decision.
+              </p>
+            </div>
           </div>
         </div>
       </MemoSection>
@@ -574,6 +558,42 @@ function MetaCell({ label, value, highlight }: { label: string; value: string; h
 function decisionScope(top: DecisionRec): string {
   return top.category ? top.category.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Operational intervention";
 }
+
+function buildPainPoints(top: DecisionRec, summary: any): { label: string; text: string }[] {
+  const points: { label: string; text: string }[] = [];
+  const ranges = (top.outcome_ranges || []).filter((r) => r.directly_comparable);
+  const riskCount = (top.risks || []).length;
+  const gapCount = (top.information_gaps || []).length;
+
+  if (ranges.length > 0) {
+    const r = ranges[0];
+    const value = r.median != null ? r.median : r.low != null && r.high != null ? `${r.low}–${r.high}` : "";
+    points.push({
+      label: "Gap today",
+      text: `Comparable implementations moved ${r.metric_label || "the metric"} by ${value}${r.unit === "%" ? "%" : ""} — the current process is behind that.`,
+    });
+  }
+  if (gapCount > 0) {
+    points.push({
+      label: "Missing data",
+      text: `${gapCount} material information gap${gapCount > 1 ? "s" : ""} (${top.information_gaps![0].title}) still needs a baseline to close.`,
+    });
+  }
+  if (riskCount > 0) {
+    points.push({
+      label: "What could go wrong",
+      text: `${riskCount} evidence-backed risk${riskCount > 1 ? "s" : ""} to manage — the top one: ${top.risks![0].title}.`,
+    });
+  }
+  if (points.length === 0) {
+    points.push({
+      label: "The decision",
+      text: "This intervention ranks highest on problem fit, evidence strength, and outcome evidence.",
+    });
+  }
+  return points.slice(0, 3);
+}
+
 
 function buildKpis(top: DecisionRec, meta: any): Kpi[] {
   const es = top.evidence_summary || {};

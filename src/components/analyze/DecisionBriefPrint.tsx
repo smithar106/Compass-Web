@@ -157,8 +157,27 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             <PrintMeta label="Date" value={today} />
           </div>
 
+          {/* the problem */}
+          <Section title="The problem">
+            <div className="rounded border-l-4 border-[#C14A3C] bg-[#FAEAE7] p-4">
+              <p className="text-[13.5px] font-semibold leading-[1.55] text-[#8f2f24]">
+                {summary?.problem_statement || top.rationale || "An operational workflow is underperforming on cost, time, or quality."}
+              </p>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-3">
+              {buildPainPoints(top, summary).map((p) => (
+                <div key={p.label} className="flex items-start gap-2">
+                  <span aria-hidden="true" className="mt-[7px] h-2 w-2 shrink-0 rounded-full bg-[#C14A3C]" />
+                  <p className="text-[12px] leading-[1.5] text-[#1c1a17]/85">
+                    <b className="text-[#8f2f24]">{p.label}:</b> {p.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Section>
+
           {/* KPI cards */}
-          <Section title="Impact at a glance">
+          <Section title="Impact">
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <Kpi label="Confidence" value={top.confidence?.label || "—"} sub={top.confidence?.score != null ? `${Math.round(top.confidence.score * 100)}%` : ""} />
               <Kpi label="Evidence" value={String(total)} sub={`${orgs} organizations`} />
@@ -168,7 +187,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </Section>
 
           {/* why now */}
-          <Section title="Why this decision, why now">
+          <Section title="Why this, why now">
             <p className="text-[13.5px] leading-[1.6] text-[#1c1a17]/85">
               {top.rationale || "This intervention ranks highest on problem fit, evidence strength, implementation depth, and outcome evidence."}
             </p>
@@ -185,7 +204,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </Section>
 
           {/* decision defensibility */}
-          <Section title="Decision Defensibility">
+          <Section title="Can we defend it?">
             <p className="text-[12px] text-[#6c685f]">
               {dd.score} of {dd.total} questions answered from evidence.
             </p>
@@ -236,26 +255,15 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </Section>
 
           {/* implementation roadmap */}
-          <Section title="Implementation roadmap">
+          <Section title="How we get there">
             {top.next_validation_step ? (
               <div className="rounded border border-[#e6e2db] bg-[#f5f4f1] p-4">
                 <p className="text-[13px] font-bold text-[#1c1a17]">{top.next_validation_step.action}</p>
-                <p className="mt-1 text-[12px] leading-[1.5] text-[#6c685f]">{top.next_validation_step.purpose}</p>
-                {top.next_validation_step.success_criteria && (
-                  <p className="mt-1.5 text-[12px]"><b>Success criteria:</b> {top.next_validation_step.success_criteria}</p>
-                )}
-                {top.next_validation_step.owner && <p className="text-[12px]"><b>Owner:</b> {top.next_validation_step.owner}</p>}
+                <p className="mt-1 text-[12px] leading-[1.5] text-[#6c685f]">{top.next_validation_step.success_criteria || top.next_validation_step.purpose}</p>
               </div>
             ) : (
               <p className="text-[12px] italic text-[#6c685f]">No validation step defined.</p>
             )}
-            <div className="mt-3 grid grid-cols-4 gap-2">
-              {["Internal team", "Selected partner"].map((opt) => (
-                <div key={opt} className="rounded border border-[#e6e2db] bg-[#f5f4f1] px-3 py-2 text-[12px] font-semibold text-[#1c1a17]">
-                  {opt}
-                </div>
-              ))}
-            </div>
             <p className="mt-2 text-[11.5px] text-[#6c685f]">
               Compass does not implement. Your team or a selected partner executes the plan; partners cannot influence the recommendation.
             </p>
@@ -278,7 +286,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </Section>
 
           {/* evidence */}
-          <Section title="Evidence & comparable implementations">
+          <Section title="Evidence behind this">
             {(top.comparable_implementations || []).slice(0, 3).length > 0 ? (
               <ul className="divide-y divide-[#e6e2db]">
                 {(top.comparable_implementations || []).slice(0, 3).map((c) => (
@@ -362,4 +370,39 @@ function timelineText(top: DecisionRec): string {
     return lo && hi ? `${Math.max(1, Math.round(lo / 4.33))}–${Math.round(hi / 4.33)} mo` : `~${mo} mo`;
   }
   return lo && hi ? `${lo}–${hi} wk` : `${lo || hi} wk`;
+}
+
+function buildPainPoints(top: DecisionRec, summary: any): { label: string; text: string }[] {
+  const points: { label: string; text: string }[] = [];
+  const ranges = (top.outcome_ranges || []).filter((r) => r.directly_comparable);
+  const riskCount = (top.risks || []).length;
+  const gapCount = (top.information_gaps || []).length;
+
+  if (ranges.length > 0) {
+    const r = ranges[0];
+    const value = r.median != null ? r.median : r.low != null && r.high != null ? `${r.low}–${r.high}` : "";
+    points.push({
+      label: "Gap today",
+      text: `Comparable implementations moved ${r.metric_label || "the metric"} by ${value}${r.unit === "%" ? "%" : ""} — the current process is behind that.`,
+    });
+  }
+  if (gapCount > 0) {
+    points.push({
+      label: "Missing data",
+      text: `${gapCount} material information gap${gapCount > 1 ? "s" : ""} (${top.information_gaps![0].title}) still needs a baseline to close.`,
+    });
+  }
+  if (riskCount > 0) {
+    points.push({
+      label: "What could go wrong",
+      text: `${riskCount} evidence-backed risk${riskCount > 1 ? "s" : ""} to manage — the top one: ${top.risks![0].title}.`,
+    });
+  }
+  if (points.length === 0) {
+    points.push({
+      label: "The decision",
+      text: "This intervention ranks highest on problem fit, evidence strength, and outcome evidence.",
+    });
+  }
+  return points.slice(0, 3);
 }
