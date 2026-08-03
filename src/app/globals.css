@@ -127,8 +127,8 @@
   #compass-brief-print-clone .py-2 { padding-top: 4px !important; padding-bottom: 4px !important; }
   #compass-brief-print-clone section,
   #compass-brief-print-clone .print-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
   }
   #compass-brief-print-clone .print-avoid-break {
     break-inside: avoid;

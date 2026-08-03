@@ -40,16 +40,16 @@ describe("DecisionPackageView executive memo", () => {
     );
     expect(screen.getByText("Prepared by Compass")).toBeTruthy();
     expect(screen.getByText("Executive Decision Brief")).toBeTruthy();
-    expect(screen.getByText("The problem")).toBeTruthy();
-    expect(screen.getByText("Impact")).toBeTruthy();
-    expect(screen.getByText("Why this, why now")).toBeTruthy();
-    expect(screen.getByText("Can we defend it?")).toBeTruthy();
+    expect(screen.getByText("Recommendation")).toBeTruthy();
+    expect(screen.getAllByText("Evidence").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Next Steps")).toBeTruthy();
+    expect(screen.getByText("A. You should do this")).toBeTruthy();
+    expect(screen.getAllByText(/^A\d\./).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Comparable implementations")).toBeTruthy();
+    expect(screen.getByText("Decision Defensibility")).toBeTruthy();
+    expect(screen.getByText("Alternatives considered")).toBeTruthy();
+    expect(screen.getByText("Validate before scaling")).toBeTruthy();
     expect(screen.getByText("Risks & assumptions")).toBeTruthy();
-    expect(screen.getByText("How we get there")).toBeTruthy();
-    expect(screen.getByText("The alternatives")).toBeTruthy();
-    expect(screen.getByText("Evidence behind this")).toBeTruthy();
-    expect(screen.getByText("What we measure")).toBeTruthy();
-    expect(screen.getAllByText(/The decision/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Download PDF")).toBeTruthy();
   });
 
@@ -65,6 +65,6 @@ describe("DecisionPackageView executive memo", () => {
     const buttons = screen.getAllByText("Download PDF");
     fireEvent.click(buttons[0]);
     expect(screen.getAllByText((content) => content.includes("Prepared by Compass")).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("The alternatives").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Alternatives considered").length).toBeGreaterThanOrEqual(1);
   });
 });

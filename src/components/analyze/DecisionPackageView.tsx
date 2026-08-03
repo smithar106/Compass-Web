@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import {
   groundingState,
   defensibilityChecks,
-  buildConfidenceFactors,
   type DecisionRec,
 } from "@/lib/decision-package";
 import { DecisionBriefPrint } from "./DecisionBriefPrint";
@@ -63,7 +62,6 @@ export function DecisionPackageView({
 
   const g = useMemo(() => groundingState(top, meta), [top, meta]);
   const dd = useMemo(() => defensibilityChecks(top, summary), [top, summary]);
-  const factors = useMemo(() => buildConfidenceFactors(top, recs, meta), [top, recs, meta]);
 
   if (!top) return null;
 
@@ -195,31 +193,21 @@ export function DecisionPackageView({
         </div>
       </section>
 
-      {/* ===== 01 THE PROBLEM ===== */}
-      <MemoSection number="01" tone="red" title="The problem">
-        <div className="overflow-hidden rounded-xl border border-[#e5b7b0] bg-[#faeae7] shadow-sm">
-          <div className="border-l-4 border-[#C14A3C] bg-white/50 px-5 py-4">
-            <p className="text-[12.5px] font-semibold leading-[1.55] text-[#8f2f24]">
-              {summary?.problem_statement || top.rationale || "An operational workflow is underperforming on cost, time, or quality."}
+      {/* ============ 1. RECOMMENDATION ============ */}
+      <BriefPanel number="1" title="Recommendation" tone="green">
+        <p className="text-[12px] font-semibold text-[#14402a]">A. You should do this</p>
+        <h3 className="mt-1 font-serif text-[22px] font-semibold leading-snug tracking-[-0.01em] text-[#101826]">
+          {top.title || "Approve the recommended intervention"}
+        </h3>
+        <div className="mt-3 space-y-2 border-t border-[#a8d6bd]/70 pt-3">
+          {buildRecommendationReasons(top, summary).map((r) => (
+            <p key={r.key} className="flex items-start gap-2.5 text-[13px] leading-[1.55] text-[#3c5645]">
+              <span className="mt-0.5 shrink-0 font-mono text-[12px] font-bold text-[#14663a]">{r.key}.</span>
+              <span>{r.text}</span>
             </p>
-          </div>
-          <div className="grid grid-cols-1 gap-x-8 gap-y-2 p-5 sm:grid-cols-3">
-            {buildPainPoints(top, summary).map((p) => (
-              <div key={p.label} className="flex items-start gap-2.5">
-                <span aria-hidden="true" className="mt-[6px] h-2 w-2 shrink-0 rounded-full bg-[#C14A3C]" />
-                <div>
-                  <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-[#8f2f24]">{p.label}</p>
-                  <p className="mt-0.5 text-[12px] leading-[1.5] text-[#5b4a47]">{p.text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
-      </MemoSection>
-
-      {/* ===== 02 IMPACT ===== */}
-      <MemoSection number="02" tone="teal" title="Impact">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
           {kpis.map((k) => (
             <div key={k.label} className="rounded-lg border border-[#a9dce2] bg-[#e5f6f8] p-3.5">
               <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p>
@@ -230,78 +218,89 @@ export function DecisionPackageView({
             </div>
           ))}
         </div>
-      </MemoSection>
+      </BriefPanel>
 
-      {/* ===== 03 WHY NOW ===== */}
-      <MemoSection number="03" tone="green" title="Why this, why now">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-5 shadow-sm">
-            <SectionLabel>The rationale</SectionLabel>
-            <p className="mt-2 text-[13px] leading-[1.6] text-[#3c5645]">
-              {top.rationale || "This intervention ranks highest on problem fit, evidence strength, implementation depth, and outcome evidence."}
-            </p>
-            {top.confidence?.explanation && (
-              <p className="mt-3 border-l-2 border-[#1f9d57] pl-3 text-[12.5px] leading-[1.55] text-[#3c5645]">
-                {top.confidence.explanation}
-              </p>
-            )}
-          </div>
-          <div className="rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-5 shadow-sm">
-            <SectionLabel>Why it ranks first</SectionLabel>
-            <ul className="mt-2 space-y-2">
-              {(top.why_ranked_first?.supporting_reasons || top.why_it_ranked_here || ["Recommendation ranked highest on the evidence criteria applied."]).slice(0, 3).map((r, i) => (
-                <li key={i} className="flex items-start gap-2 text-[13px] text-[#2c4a36]">
-                  <span className="mt-0.5 text-[#1f9d57]">&#10003;</span>
-                  {r}
-                </li>
-              ))}
-            </ul>
-            {factors.length > 0 && (
-              <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1.5 border-t border-[#a8d6bd]/60 pt-3">
-                {factors.slice(0, 4).map((f) => (
-                  <div key={f.label} className="flex items-baseline justify-between gap-2 text-[11.5px]">
-                    <span className="text-[#3c5645]">{f.label}</span>
-                    <span className={cn("font-semibold", f.tone === "ok" ? "text-[#1E7B4C]" : f.tone === "warn" ? "text-[#B45309]" : "text-[#6c685f]")}>{f.value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* ============ 2. EVIDENCE ============ */}
+      <BriefPanel number="2" title="Evidence" tone="teal">
+        <SubHeader tone="teal">Comparable implementations</SubHeader>
+        {top.comparable_implementations && top.comparable_implementations.length > 0 ? (
+          <ul className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+            {top.comparable_implementations.slice(0, 3).map((c) => (
+              <li key={c.record_id || c.organization} className="rounded-lg border border-[#a9dce2] bg-white/50 p-3.5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="truncate text-[13px] font-bold text-[#0a3a42]">{c.organization || "Verified implementation"}</span>
+                  <span className={cn("shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase", c.evidence_tier === "gold" ? "bg-[#fff6d8] text-[#7a5b00]" : c.evidence_tier === "silver" ? "bg-[#f0f3f6] text-[#3f4a5a]" : "bg-[#fff0e6] text-[#7a3b06]")}>
+                    {c.evidence_tier || "unknown"}
+                  </span>
+                </div>
+                <p className="mt-1 text-[11.5px] leading-[1.5] text-[#0a6a78]/80">{c.outcome_summary || c.observed_outcome || "Outcome not quantified"}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-[12.5px] italic text-[#0a6a78]/70">No comparable implementations were attached by the engine.</p>
+        )}
+
+        <SubHeader tone="teal">Decision Defensibility</SubHeader>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-mono text-[14px] font-bold text-[#463a9e]">
+            {dd.score} <span className="text-[11px] text-[#463a9e]/70">/ {dd.total} checks</span>
+          </span>
+          <span className="text-[11px] text-[#0a6a78]/75">questions answered from evidence</span>
         </div>
-      </MemoSection>
+        <ul className="mt-2 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
+          {dd.checks.map((c) => (
+            <li key={c.key} className="flex items-start gap-2.5">
+              <span className={cn("mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white", c.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
+                {c.ok ? "✓" : "⚠"}
+              </span>
+              <div>
+                <p className="text-[12.5px] font-semibold text-[#2c2a45]">{c.label}</p>
+                <p className="text-[11px] leading-[1.45] text-[#463a9e]/75">{c.detail}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
 
-      {/* ===== 04 DECISION DEFENSIBILITY ===== */}
-      <MemoSection number="04" tone="violet" title="Can we defend it?">
-        <div className="overflow-hidden rounded-xl border border-[#c5bef0] bg-[#eeecfb] shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#c5bef0]/60 bg-white/40 px-5 py-3">
-            <SectionLabel>Decision Defensibility</SectionLabel>
-            <span className="font-mono text-[14px] font-bold text-[#463a9e]">
-              {dd.score} <span className="text-[11px] text-[#463a9e]/70">/ {dd.total} checks</span>
-            </span>
-          </div>
-          <ul className="grid grid-cols-1 gap-x-8 gap-y-2 p-5 sm:grid-cols-2">
-            {dd.checks.map((c) => (
-              <li key={c.key} className="flex items-start gap-2.5">
-                <span className={cn("mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white", c.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
-                  {c.ok ? "✓" : "⚠"}
-                </span>
-                <div>
-                  <p className="text-[12.5px] font-semibold text-[#2c2a45]">{c.label}</p>
-                  <p className="text-[11px] leading-[1.45] text-[#463a9e]/75">{c.detail}</p>
+        <SubHeader tone="teal">Alternatives considered</SubHeader>
+        {top.alternatives_considered && top.alternatives_considered.length > 0 ? (
+          <ul className="divide-y divide-[#c5bef0]/50">
+            {top.alternatives_considered.slice(0, 3).map((a) => (
+              <li key={a.family} className="flex items-start gap-3 py-2.5 first:pt-0">
+                <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#463a9e] text-[10px] font-bold text-white">×</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-[#2c2a45]">{a.family}</p>
+                  <p className="text-[11.5px] leading-[1.5] text-[#463a9e]/75">{a.reason}</p>
                 </div>
               </li>
             ))}
           </ul>
-        </div>
-      </MemoSection>
+        ) : (
+          <p className="text-[12.5px] italic text-[#463a9e]/70">No alternatives were surfaced by the engine.</p>
+        )}
 
-      {/* ===== 05 RISKS & ASSUMPTIONS ===== */}
-      <MemoSection number="05" tone="amber" title="Risks & assumptions">
+        <p className="mt-3 border-t border-[#a9dce2]/50 pt-2.5 text-[11px] text-[#0a6a78]/80">
+          Compared against {library ? `${library} verified implementations` : "a growing library"}. Every material claim traces to a source; Compass defers when evidence is insufficient.
+        </p>
+      </BriefPanel>
+
+      {/* ============ 3. NEXT STEPS ============ */}
+      <BriefPanel number="3" title="Next Steps" tone="amber">
+        <SubHeader tone="amber">Validate before scaling</SubHeader>
+        {top.next_validation_step ? (
+          <div className="rounded-lg border border-[#e8cf9c] bg-white/60 p-3.5">
+            <p className="text-[13px] font-bold text-[#8f5c11]">{top.next_validation_step.action}</p>
+            <p className="mt-1 text-[12px] leading-[1.5] text-[#5c5240]">{top.next_validation_step.success_criteria || top.next_validation_step.purpose}</p>
+          </div>
+        ) : (
+          <p className="text-[12px] italic text-[#8f5c11]">No validation step defined.</p>
+        )}
+
+        <SubHeader tone="amber">Risks & assumptions</SubHeader>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-[#e8cf9c] bg-[#fbf1de] p-5 shadow-sm">
-            <SectionLabel>Risks</SectionLabel>
+          <div>
             {top.risks && top.risks.length > 0 ? (
-              <ul className="mt-2 space-y-2.5">
+              <ul className="space-y-2">
                 {top.risks.slice(0, 3).map((r, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-[12.5px]">
                     <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#B45309]" />
@@ -310,13 +309,12 @@ export function DecisionPackageView({
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-[12.5px] italic text-[#8f5c11]">No risks were surfaced for this decision.</p>
+              <p className="text-[12px] italic text-[#8f5c11]">No risks were surfaced for this decision.</p>
             )}
           </div>
-          <div className="rounded-xl border border-[#e8cf9c] bg-[#fbf1de] p-5 shadow-sm">
-            <SectionLabel>Assumptions</SectionLabel>
+          <div>
             {top.assumptions_detail && top.assumptions_detail.length > 0 ? (
-              <ul className="mt-2 space-y-2.5">
+              <ul className="space-y-2">
                 {top.assumptions_detail.slice(0, 3).map((a, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-[12.5px]">
                     <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#d9932a]" />
@@ -325,176 +323,32 @@ export function DecisionPackageView({
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-[12.5px] italic text-[#8f5c11]">No assumptions were recorded.</p>
+              <p className="text-[12px] italic text-[#8f5c11]">No assumptions were recorded.</p>
             )}
           </div>
         </div>
-      </MemoSection>
 
-      {/* ===== 06 IMPLEMENTATION ROADMAP ===== */}
-      <MemoSection number="06" tone="amber" title="How we get there">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-[#e8cf9c] bg-[#fbf1de] p-5 shadow-sm">
-            <SectionLabel>Execution path</SectionLabel>
-            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {["Internal team", "Selected partner"].map((opt, i) => (
-                <div
-                  key={opt}
-                  className={cn(
-                    "border px-3 py-2 text-[12.5px] font-medium",
-                    i === 0 ? "border-[#d9932a] bg-[#d9932a] text-white" : "border-[#e8cf9c] bg-white/60 text-[#5c5240]"
-                  )}
-                >
-                  {opt}
-                </div>
-              ))}
-            </div>
-            <p className="mt-2 text-[11.5px] leading-[1.5] text-[#5c5240]">
-              Compass does not implement. Your team or a selected partner executes the plan. Partners
-              cannot influence the recommendation.
-            </p>
-            <div className="mt-4 border-t border-[#e8cf9c]/70 pt-4">
-              <SectionLabel>Gate before scale</SectionLabel>
-              {top.next_validation_step ? (
-                <p className="mt-1.5 text-[12.5px] leading-[1.5] text-[#5c5240]">
-                  <span className="font-semibold text-[#8f5c11]">{top.next_validation_step.action}.</span>{" "}
-                  {top.next_validation_step.success_criteria || top.next_validation_step.purpose}
-                </p>
-              ) : (
-                <p className="mt-1.5 text-[12.5px] italic text-[#8f5c11]">No validation step defined.</p>
+        <SubHeader tone="amber">Execution path</SubHeader>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {["Internal team", "Selected partner"].map((opt, i) => (
+            <div
+              key={opt}
+              className={cn(
+                "border px-3 py-2 text-[12.5px] font-medium",
+                i === 0 ? "border-[#d9932a] bg-[#d9932a] text-white" : "border-[#e8cf9c] bg-white/60 text-[#5c5240]"
               )}
+            >
+              {opt}
             </div>
-          </div>
-          <div className="rounded-xl border border-[#e8cf9c] bg-[#fbf1de] p-5 shadow-sm">
-            <SectionLabel>Blueprint phases</SectionLabel>
-            <div className="mt-2">
-              <BlueprintPhases top={top} />
-            </div>
-          </div>
+          ))}
         </div>
-      </MemoSection>
 
-      {/* ===== 07 THE ALTERNATIVES ===== */}
-      <MemoSection number="07" tone="violet" title="The alternatives">
-        <div className="overflow-hidden rounded-xl border border-[#c5bef0] bg-[#eeecfb] shadow-sm">
-          <div className="border-b border-[#c5bef0]/60 bg-white/40 px-5 py-3">
-            <SectionLabel>Why the alternatives lost</SectionLabel>
-          </div>
-          <ul className="divide-y divide-[#c5bef0]/50 px-5">
-            {top.alternatives_considered && top.alternatives_considered.length > 0 ? (
-              top.alternatives_considered.slice(0, 3).map((a) => (
-                <li key={a.family} className="flex items-start gap-3 py-3.5 first:pt-3">
-                  <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#463a9e] text-[10px] font-bold text-white">×</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-semibold text-[#2c2a45]">{a.family}</p>
-                    <p className="text-[11.5px] leading-[1.5] text-[#463a9e]/75">{a.reason}</p>
-                  </div>
-                </li>
-              ))
-            ) : (
-              <li className="py-4 text-[12.5px] italic text-[#463a9e]/70">No alternatives were surfaced by the engine.</li>
-            )}
-          </ul>
-        </div>
-      </MemoSection>
-
-      {/* ===== 08 EVIDENCE ===== */}
-      <MemoSection number="08" tone="teal" title="Evidence behind this">
-        <div className="overflow-hidden rounded-xl border border-[#a9dce2] bg-[#e5f6f8] shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#a9dce2]/60 bg-white/40 px-5 py-3">
-            <SectionLabel>Comparable implementations</SectionLabel>
-            <span className="text-[11px] font-medium text-[#0a6a78]">
-              {library ? `vs ${library} verified implementations` : "vs a growing library"}
-            </span>
-          </div>
-          <div className="p-5">
-            {top.comparable_implementations && top.comparable_implementations.length > 0 ? (
-              <ul className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-                {top.comparable_implementations.slice(0, 3).map((c) => (
-                  <li key={c.record_id || c.organization} className="rounded-lg border border-[#a9dce2] bg-white/50 p-3.5">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="truncate text-[13px] font-bold text-[#0a3a42]">{c.organization || "Verified implementation"}</span>
-                      <span className={cn("shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase", c.evidence_tier === "gold" ? "bg-[#fff6d8] text-[#7a5b00]" : c.evidence_tier === "silver" ? "bg-[#f0f3f6] text-[#3f4a5a]" : "bg-[#fff0e6] text-[#7a3b06]")}>
-                        {c.evidence_tier || "unknown"}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[11.5px] leading-[1.5] text-[#0a6a78]/80">{c.outcome_summary || c.observed_outcome || "Outcome not quantified"}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[12.5px] italic text-[#0a6a78]/70">No comparable implementations were attached by the engine.</p>
-            )}
-          </div>
-        </div>
-      </MemoSection>
-
-      {/* ===== 08 OUTCOMES & MEASUREMENT ===== */}
-      <MemoSection number="08" tone="teal" title="What we measure">
-        <div className="rounded-xl border border-[#a9dce2] bg-[#e5f6f8] shadow-sm">
-          <div className="border-b border-[#a9dce2]/60 bg-white/40 px-5 py-3">
-            <SectionLabel>Expected impact, measured against a baseline</SectionLabel>
-          </div>
-          <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-3">
-            {top.outcome_ranges && top.outcome_ranges.some((r) => r.directly_comparable) ? (
-              top.outcome_ranges.filter((r) => r.directly_comparable).slice(0, 3).map((r) => (
-                <div key={r.metric_label} className="rounded-lg border border-[#a9dce2] bg-white/50 p-3">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{r.metric_label}</p>
-                  <p className="mt-1 text-[20px] font-extrabold text-[#0a3a42]">
-                    {r.median != null ? r.median : r.low != null && r.high != null ? `${r.low}–${r.high}` : "—"}{r.unit === "%" ? "%" : ""}
-                  </p>
-                  <p className="text-[10px] text-[#0a6a78]/80">observed in {r.sample_size || 0} comparable implementations</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-[12.5px] italic text-[#0a6a78]/70">Outcomes were not quantified in the retrieved records.</p>
-            )}
-            <div className="flex flex-col justify-center rounded-lg border border-[#a9dce2] bg-white/50 p-3 sm:col-span-2">
-              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">Success criteria</p>
-              <p className="mt-1 text-[13px] leading-[1.5] text-[#0a3a42]">
-                {top.next_validation_step?.success_criteria || top.next_validation_step?.action || "Define the baseline, then validate against the gate before scale."}
-              </p>
-              <p className="mt-2 text-[11px] leading-[1.5] text-[#0a6a78]/80">
-                Verified outcomes flow back into the evidence base &mdash; every implementation improves the next decision.
-              </p>
-            </div>
-          </div>
-        </div>
-      </MemoSection>
-
-      {/* ===== FINAL DECISION ===== */}
-      <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-6 shadow-sm sm:p-8">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">
-          The decision
+        <SubHeader tone="amber">Measure the outcome</SubHeader>
+        <p className="text-[12.5px] leading-[1.55] text-[#5c5240]">
+          Define the baseline, execute with your team or a selected partner, and report against the
+          success criteria. Compass tracks the outcome and feeds it into future decisions.
         </p>
-        <h3 className="mt-2 font-serif text-[22px] font-semibold leading-snug tracking-[-0.01em] text-[#14402a]">
-          Approve {top.title || "this intervention"} as the recommended path.
-        </h3>
-        <p className="mt-2 max-w-2xl text-[13px] leading-[1.6] text-[#3c5645]">
-          Authorize implementation of the recommended intervention, with the validation step and
-          success criteria above as the gate before full scale. Compass will track the outcome against
-          the baseline and feed the result into future decisions.
-        </p>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-          <button
-            type="button"
-            disabled
-            aria-disabled="true"
-            title="Feature coming soon"
-            className="inline-flex cursor-not-allowed items-center justify-center gap-2 bg-[#d3ccc0] px-6 py-3 text-[14px] font-semibold text-[#6c685f]"
-          >
-            Approve & Implement This Plan
-            <span className="text-[10px] font-bold uppercase tracking-wide text-[#6c685f]">(Feature Coming Soon)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setPrinting(true)}
-            className="inline-flex items-center justify-center gap-2 border border-[#a8d6bd] bg-white/70 px-6 py-3 text-[14px] font-semibold text-[#14663a] transition-colors hover:border-[#1f9d57]"
-          >
-            Download Executive Brief (PDF)
-          </button>
-        </div>
-      </section>
+      </BriefPanel>
 
       <div className="rounded-lg border border-dashed border-line bg-paper px-4 py-3">
         <p className="text-[11px] leading-[1.55] text-muted">
@@ -532,21 +386,53 @@ function ProofChip({ label, tone = "teal" }: { label: string; tone?: "teal" | "v
   );
 }
 
-function MemoSection({ number, title, tone = "neutral", children }: { number: string; title: string; tone?: BriefTone; children: React.ReactNode }) {
-  const t = BRIEF_TONE_STYLES[tone];
+function BriefPanel({ number, title, tone, children }: { number: string; title: string; tone: BriefTone; children: React.ReactNode }) {
   const c = BRIEF_COLORS[tone];
+  const t = BRIEF_TONE_STYLES[tone];
   return (
-    <section>
-      <div className="mb-3 flex items-center gap-3">
-        <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-mono text-[12px] font-bold text-white", t.chip)}>
+    <section className="space-y-4">
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-mono text-[14px] font-bold text-white", t.chip)}
+        >
           {number}
         </span>
-        <h3 className={cn("font-serif text-[19px] font-semibold tracking-[-0.01em]", t.label)}>{title}</h3>
+        <h3 className={cn("font-serif text-[24px] font-semibold tracking-[-0.01em]", t.label)}>{title}</h3>
         <span aria-hidden="true" className="h-px flex-1" style={{ backgroundColor: c.accent + "40" }} />
       </div>
-      {children}
+      <div className={cn("space-y-4 rounded-xl border p-5 shadow-sm sm:p-6", t.card)}>{children}</div>
     </section>
   );
+}
+
+function SubHeader({ tone, children }: { tone: BriefTone; children: React.ReactNode }) {
+  const c = BRIEF_COLORS[tone];
+  return (
+    <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: c.ink }}>
+      <span aria-hidden="true" className="h-1 w-3 rounded-full" style={{ backgroundColor: c.accent }} />
+      {children}
+    </p>
+  );
+}
+
+function buildRecommendationReasons(top: DecisionRec, summary: any): { key: string; text: string }[] {
+  const reasons: { key: string; text: string }[] = [];
+  const problem = summary?.problem_statement || top.rationale;
+  if (problem) {
+    reasons.push({ key: "A1", text: `Why this problem: ${problem}` });
+  }
+  const firstReasons = top.why_ranked_first?.supporting_reasons || top.why_it_ranked_here || [];
+  if (firstReasons.length > 0) {
+    firstReasons.slice(0, 2).forEach((r, i) => {
+      reasons.push({ key: `A${i + 2}`, text: `Why this intervention: ${r}` });
+    });
+  }
+  if (reasons.length === 0) {
+    reasons.push({ key: "A1", text: "This intervention ranks highest on problem fit, evidence strength, implementation depth, and outcome evidence." });
+    reasons.push({ key: "A2", text: "Compass defers when the evidence is insufficient; here the evidence supports moving forward." });
+  }
+  return reasons.slice(0, 3);
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -565,42 +451,6 @@ function MetaCell({ label, value, highlight }: { label: string; value: string; h
 function decisionScope(top: DecisionRec): string {
   return top.category ? top.category.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Operational intervention";
 }
-
-function buildPainPoints(top: DecisionRec, summary: any): { label: string; text: string }[] {
-  const points: { label: string; text: string }[] = [];
-  const ranges = (top.outcome_ranges || []).filter((r) => r.directly_comparable);
-  const riskCount = (top.risks || []).length;
-  const gapCount = (top.information_gaps || []).length;
-
-  if (ranges.length > 0) {
-    const r = ranges[0];
-    const value = r.median != null ? r.median : r.low != null && r.high != null ? `${r.low}–${r.high}` : "";
-    points.push({
-      label: "Gap today",
-      text: `Comparable implementations moved ${r.metric_label || "the metric"} by ${value}${r.unit === "%" ? "%" : ""} — the current process is behind that.`,
-    });
-  }
-  if (gapCount > 0) {
-    points.push({
-      label: "Missing data",
-      text: `${gapCount} material information gap${gapCount > 1 ? "s" : ""} (${top.information_gaps![0].title}) still needs a baseline to close.`,
-    });
-  }
-  if (riskCount > 0) {
-    points.push({
-      label: "What could go wrong",
-      text: `${riskCount} evidence-backed risk${riskCount > 1 ? "s" : ""} to manage — the top one: ${top.risks![0].title}.`,
-    });
-  }
-  if (points.length === 0) {
-    points.push({
-      label: "The decision",
-      text: "This intervention ranks highest on problem fit, evidence strength, and outcome evidence.",
-    });
-  }
-  return points.slice(0, 3);
-}
-
 
 function buildKpis(top: DecisionRec, meta: any): Kpi[] {
   const es = top.evidence_summary || {};
@@ -656,41 +506,6 @@ function executiveSummary(top: DecisionRec, meta: any, library: number | null): 
     return `${base} This rests on ${total} comparable implementation${total > 1 ? "s" : ""} matched from ${libraryLabel}${orgs ? `, across ${orgs} organizations` : ""}.`;
   }
   return base;
-}
-
-function BlueprintPhases({ top }: { top: DecisionRec }) {
-  const tl = top.impact?.implementation_timeline;
-  const weeks = tl?.expected_weeks || tl?.max_weeks || tl?.min_weeks || 6;
-  const phases = [
-    { p: "P1", name: "Baseline and metrics setup", dur: "2 wks", owner: "Ops lead", metric: "Baseline locked" },
-    { p: "P2", name: "Build, configure, and integrate", dur: `${Math.max(2, Math.ceil(weeks * 0.5))} wks`, owner: "Execution team", metric: "Build complete" },
-    { p: "P3", name: "Pilot and validation gate", dur: "3 wks", owner: "Ops + Compass", metric: "Gate: agreed metric met" },
-    { p: "P4", name: "Scale and handover", dur: "ongoing", owner: "Operations", metric: "Adoption > 80%" },
-  ];
-  return (
-    <div>
-      <ul className="divide-y divide-[#e8cf9c]/70">
-        {phases.map((p) => (
-          <li key={p.p} className="flex items-center gap-3 py-3 first:pt-0">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#d9932a] bg-white/40 font-mono text-[9px] font-bold text-[#8f5c11]">
-              {p.p}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-3">
-                <span className="truncate text-[13px] font-medium text-[#5c5240]">{p.name}</span>
-                <span className="font-mono text-[10px] text-[#8f5c11]/70">{p.dur}</span>
-              </div>
-              <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[#8f5c11]/80">
-                <span className="truncate">{p.owner}</span>
-                <span aria-hidden="true" className="text-[#8f5c11]/50">·</span>
-                <span>{p.metric}</span>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
 }
 
 function ImplementationView({ top, recommendationId, onBack }: { top: DecisionRec; recommendationId?: string; onBack: () => void }) {
