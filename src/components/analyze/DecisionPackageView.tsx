@@ -184,7 +184,7 @@ export function DecisionPackageView({
       </section>
 
       {/* ===== 1. WHY THIS RECOMMENDATION ===== */}
-      <BriefPanel number="1" title="Why this recommendation" tone="green">
+      <BriefPanel number="1" title="Why approve this?" tone="green">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {rationale.map((card) => (
             <div key={card.title} className="rounded-lg border border-[#a8d6bd] bg-white/50 p-4">
@@ -196,7 +196,7 @@ export function DecisionPackageView({
       </BriefPanel>
 
       {/* ===== 2. EVIDENCE ===== */}
-      <BriefPanel number="2" title="Evidence" tone="teal">
+      <BriefPanel number="2" title="What gives us confidence?" tone="teal">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {stories.map((s) => (
             <div key={s.organization} className="rounded-lg border border-[#a9dce2] bg-white/60 p-4">
@@ -215,7 +215,7 @@ export function DecisionPackageView({
       </BriefPanel>
 
       {/* ===== 3. CONDITIONS FOR APPROVAL ===== */}
-      <BriefPanel number="3" title="Conditions for approval" tone="amber">
+      <BriefPanel number="3" title="What could prevent success?" tone="amber">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div>
             <SubHeader tone="amber">Known risks</SubHeader>
@@ -265,7 +265,7 @@ export function DecisionPackageView({
       </BriefPanel>
 
       {/* ===== 4. IMPLEMENTATION ===== */}
-      <BriefPanel number="4" title="Implementation" tone="teal">
+      <BriefPanel number="4" title="What happens after approval?" tone="teal">
         <div className="grid grid-cols-1 gap-4">
           {roadmap.map((step, i) => (
             <div key={step.label} className="flex items-start gap-4 rounded-lg border border-[#a9dce2] bg-white/50 p-4">
