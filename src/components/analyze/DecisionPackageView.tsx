@@ -101,7 +101,7 @@ export function DecisionPackageView({
 
   const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   const kpis = executiveKpis(top);
-  const rationale = businessRationale(top, summary);
+  const rationale = businessRationale(top);
   const risks = riskItems(top);
   const unknowns = unknownItems(top);
   const assumptions = assumptionItems(top);
@@ -151,7 +151,7 @@ export function DecisionPackageView({
           </div>
 
           <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-[#4f6280]">
-            {businessSummary(top, meta, library)}
+            {businessSummary(top)}
           </p>
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -272,7 +272,7 @@ export function DecisionPackageView({
           ))}
         </div>
         <p className="mt-4 text-[12px] text-[#0a6a78]/80">
-          Compass does not implement. Your team or a selected partner executes the plan while Computes preserves the rationale and success criteria.
+          Your team or a selected partner executes the plan. The rationale and success criteria are preserved throughout implementation.
         </p>
       </BriefPanel>
 
@@ -334,7 +334,7 @@ export function DecisionPackageView({
           Executive Approval
         </p>
         <p className="mt-2 text-[14px] leading-[1.6] text-[#3c5645]">
-          Compass recommends approving {top.title || "the recommended intervention"}.
+          We recommend approving {top.title || "the recommended intervention"}.
           If approved, the following conditions should be met before full deployment:
         </p>
         <ul className="mt-4 space-y-2.5">
@@ -376,7 +376,7 @@ export function DecisionPackageView({
       <div className="rounded-lg border border-line bg-paper/60 px-4 py-3">
         <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-faint">Decision Notes</p>
         <p className="mt-1 text-[11.5px] leading-[1.55] text-muted">
-          {decisionNotes(g)}
+          {decisionNotes()}
         </p>
       </div>
 
@@ -512,7 +512,7 @@ function InsufficientEvidence({ rec }: { rec: DecisionRec }) {
     <div className="rounded-xl border border-[#B45309] bg-[#FBF0E0] p-6">
       <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#7a3b06]">Insufficient evidence — judgment deferred</p>
       <p className="mt-2 text-[13.5px] leading-[1.6] text-[#101826]/85">
-        Compass found evidence for the general intervention category but not enough similar cases
+        Too few comparable cases were available
         to make a confident recommendation. The next step below shows what would change that.
       </p>
       {rec.next_validation_step && (

@@ -80,7 +80,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
         : { text: "Insufficient evidence", dot: "bg-[#C4382C]", cls: "bg-[#FAE9E7] text-[#7a1f1a]" };
 
   const kpis = executiveKpis(top);
-  const rationale = businessRationale(top, summary);
+  const rationale = businessRationale(top);
   const risks = riskItems(top);
   const unknowns = unknownItems(top);
   const assumptions = assumptionItems(top);
@@ -135,7 +135,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </div>
 
           <p className="mt-4 text-[13px] leading-[1.55] text-[#6c685f]">
-            {businessSummary(top, meta, library ?? null)}
+            {businessSummary(top)}
           </p>
 
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -228,7 +228,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
               </div>
             ))}
             <p className="mt-2 text-[11px] text-[#0a6a78]/80">
-              Compass does not implement. Your team or a selected partner executes the plan.
+              The team or a selected partner executes the plan.
             </p>
           </PrintSection>
 
@@ -288,7 +288,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           <div className="mt-5 border-t border-[#e6e2db] pt-2.5">
             <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#9c968a]">Decision Notes</p>
             <p className="mt-1 text-[10.5px] leading-[1.5] text-[#9c968a]">
-              {decisionNotes(g)}
+              {decisionNotes()}
             </p>
           </div>
         </div>
