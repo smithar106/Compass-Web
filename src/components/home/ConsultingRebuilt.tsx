@@ -3,6 +3,15 @@ import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
+const FLYWHEEL = [
+  "Operational problem",
+  "Executive Decision Brief",
+  "Implementation",
+  "Measured outcome",
+  "Implementation intelligence",
+  "Better decisions",
+];
+
 export function ConsultingRebuilt() {
   const c = marketing.consultingRebuilt;
   return (
@@ -54,16 +63,56 @@ export function ConsultingRebuilt() {
                       </li>
                     ))}
                   </ul>
-                  {isCompass && (
-                    <p className="mt-6 border-t border-lineDark pt-5 font-serif text-[15px] italic leading-relaxed text-accent">
-                      {c.prominent}
-                    </p>
-                  )}
                 </div>
               </Reveal>
             );
           })}
         </div>
+
+        {/* flywheel */}
+        <Reveal delay={200}>
+          <div className="mt-12">
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-3 lg:flex-nowrap">
+              {FLYWHEEL.map((step, i) => (
+                <div key={step} className="flex items-center">
+                  <span
+                    className={cn(
+                      "whitespace-nowrap border px-3.5 py-2.5 text-center text-[13px] font-semibold",
+                      i === FLYWHEEL.length - 1
+                        ? "border-ink bg-ink text-accent"
+                        : "border-line bg-surface text-ink"
+                    )}
+                  >
+                    {step}
+                  </span>
+                  {i < FLYWHEEL.length - 1 && (
+                    <span aria-hidden="true" className="mx-1.5 flex items-center text-faint">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+            {/* return arrow */}
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-accent-deep" aria-hidden="true">
+                <path d="M12.5 2.5v4h-4M3.5 13.5v-4h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M4 7.5A5.5 5.5 0 0 1 12.5 5M12 8.5A5.5 5.5 0 0 1 3.5 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-accent-deep">
+                feeds back into the next decision
+              </p>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={280}>
+          <p className="mt-8 max-w-2xl font-serif text-[17px] italic leading-relaxed text-ink">
+            {c.closing}
+          </p>
+        </Reveal>
       </div>
     </section>
   );

@@ -117,46 +117,39 @@ export const marketing = {
     },
 
     consultingRebuilt: {
-      label: "Consulting, rebuilt",
+      label: "Organizational judgment compounds",
       number: "02",
-      headline: "Consulting, rebuilt as a persistent decision system.",
+      headline: "Every operational decision makes the next one better.",
       supporting:
-        "Consultants help organizations make one decision. Compass builds the system that improves every decision after it.",
-      prominent: "Consultants make recommendations. Compass builds organizational judgment.",
+        "Most organizations make important operational decisions independently. Every consulting engagement, transformation project, and AI initiative begins with new research, new assumptions, and a new team. Compass turns every completed decision into organizational knowledge that improves future decisions.",
       columns: [
         {
           name: "Traditional consulting",
           items: [
-            "Starts from scratch",
+            "Each engagement starts from scratch",
             "Knowledge concentrated in a team",
-            "Static recommendations",
-            "Engagement ends at delivery",
-            "Learning may leave with the consultants",
+            "Learning may leave after the engagement",
           ],
         },
         {
-          name: "Generic AI",
+          name: "Traditional AI tools",
           items: [
-            "Produces fast summaries",
-            "Weak evidence discipline",
-            "Can invent confidence",
-            "No repeatable comparison method",
-            "No institutional memory",
+            "Answer questions in the moment",
+            "No persistent memory across decisions",
+            "Cannot compare across organizations",
           ],
         },
         {
           name: "Compass",
           highlighted: true,
           items: [
-            "Reuses structured implementation intelligence",
-            "Applies a consistent decision methodology",
-            "Preserves evidence, assumptions, and rationale",
-            "Connects the decision to implementation",
-            "Measures outcomes",
-            "Improves future decisions",
+            "Preserves evidence, assumptions, and measured outcomes",
+            "Every completed implementation strengthens the evidence library",
+            "Every decision becomes a foundation for the next",
           ],
         },
       ],
+      closing: "Most organizations improve implementation over time. Compass improves judgment over time.",
     },
 
     pillars: {

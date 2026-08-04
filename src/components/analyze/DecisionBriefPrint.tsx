@@ -12,7 +12,16 @@ import {
   BRIEF_TONE_STYLES,
   type BriefTone,
 } from "@/lib/brief-colors";
-import { buildRecommendationReasons, cleanProblem } from "@/lib/brief-text";
+import {
+  buildExecutiveSummary,
+  buildWhyCards,
+  buildImpactKpis,
+  buildConfidenceExplanation,
+  buildRiskItems,
+  buildUnknownItems,
+  buildAssumptionItems,
+  defensibilitySummary,
+} from "@/lib/brief-text";
 
 interface DecisionBriefPrintProps {
   recs: DecisionRec[];
@@ -25,12 +34,10 @@ interface DecisionBriefPrintProps {
 
 export function DecisionBriefPrint({ recs, meta, summary, status, library, onClose }: DecisionBriefPrintProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
   const top = recs[0];
 
   const handleDownload = useCallback(() => {
-    // Native print of the brief only. The brief lives inside a fixed modal
-    // overlay, so we clone it into a static print container appended to body.
-    // This gives crisp vector text, natural page flow, and no cut-off.
     const source = document.getElementById("compass-brief-print");
     if (!source) return;
 
@@ -57,7 +64,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
 
     document.body.classList.add("printing-brief");
     window.print();
-    // Some engines do not fire afterprint reliably; keep the clone briefly.
     setTimeout(() => {
       if (document.body.contains(holder)) cleanup();
     }, 2000);
@@ -71,14 +77,18 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
 
   const badge =
     g.key === "live"
-      ? { text: "Defensible", dot: "bg-[#1E7B4C]", cls: "bg-[#E5F3EA] text-[#14532d]" }
+      ? { text: "Recommended", dot: "bg-[#1E7B4C]", cls: "bg-[#E5F3EA] text-[#14532d]" }
       : g.key === "partial"
-        ? { text: "Preliminary", dot: "bg-[#B45309]", cls: "bg-[#FBF0E0] text-[#7a3b06]" }
-        : { text: "More evidence required", dot: "bg-[#C4382C]", cls: "bg-[#FAE9E7] text-[#7a1f1a]" };
+        ? { text: "Needs validation", dot: "bg-[#B45309]", cls: "bg-[#FBF0E0] text-[#7a3b06]" }
+        : { text: "Insufficient evidence", dot: "bg-[#C4382C]", cls: "bg-[#FAE9E7] text-[#7a1f1a]" };
 
-  const total = top.evidence_summary?.total_comparables || 0;
-  const orgs = meta?.evidence_count?.unique_organizations || 0;
-  const libraryLabel = library ? `${library.toLocaleString("en-US")} verified implementations` : "a growing library of verified implementations";
+  const whyCards = buildWhyCards(top, summary);
+  const impactKpis = buildImpactKpis(top);
+  const confidenceFactors = buildConfidenceExplanation(top);
+  const risks = buildRiskItems(top);
+  const unknowns = buildUnknownItems(top);
+  const assumptions = buildAssumptionItems(top);
+  const defSummary = defensibilitySummary(dd.checks);
 
   return (
     <div
@@ -112,7 +122,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </div>
         </div>
 
-        {/* ===== print document ===== */}
         <div
           id="compass-brief-print"
           ref={contentRef}
@@ -135,7 +144,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             </span>
           </div>
 
-          {/* decision metadata */}
           <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded border border-[#e6e2db] bg-[#e6e2db] sm:grid-cols-4">
             <PrintMeta label="Prepared for" value="Executive Leadership" />
             <PrintMeta label="Decision" value={top.category ? top.category.replace(/_/g, " ") : "Operational intervention"} />
@@ -143,129 +151,170 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             <PrintMeta label="Date" value={today} />
           </div>
 
-          {/* ============ 1. RECOMMENDATION ============ */}
-          <PrintSection number="1" title="Recommendation" tone="green">
-            <p className="text-[12px] font-semibold text-[#14402a]">A. You should do this</p>
-            <p className="mt-1 font-serif text-[19px] font-medium leading-snug text-[#1c1a17]">
-              {recommendationAction(top, summary)}
-            </p>
-            <div className="mt-3 space-y-2 border-t border-[#a8d6bd]/70 pt-3">
-              {buildRecommendationReasons(top, summary).map((r) => (
-                <p key={r.key} className="flex items-start gap-2 text-[12px] leading-[1.5] text-[#3c5645]">
-                  <span className="mt-0.5 shrink-0 font-mono text-[11px] font-bold text-[#14663a]">{r.key}.</span>
-                  <span>{r.text}</span>
-                </p>
+          <p className="mt-4 text-[13px] leading-[1.55] text-[#6c685f]">
+            {buildExecutiveSummary(top, meta, library ?? null)}
+          </p>
+
+          {/* ===== 1. WHY THIS IS THE BEST DECISION ===== */}
+          <PrintSection number="1" title="Why this is the best decision" tone="green">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              {whyCards.map((card) => (
+                <div key={card.title} className="rounded border border-[#a8d6bd] bg-white/50 p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#14663a]">{card.title}</p>
+                  <ul className="mt-1.5 space-y-1">
+                    {card.bullets.map((b) => (
+                      <li key={b} className="flex items-start gap-1.5 text-[11px] leading-[1.4] text-[#3c5645]">
+                        <span aria-hidden="true" className="mt-[5px] h-1 w-1 shrink-0 rounded-full bg-[#1f9d57]" />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
-              <Kpi tone="green" label="Confidence" value={top.confidence?.label || "—"} sub={top.confidence?.score != null ? `${Math.round(top.confidence.score * 100)}%` : ""} />
-              <Kpi tone="teal" label="Evidence" value={String(total)} sub={`${orgs} organizations`} />
-              <Kpi tone="amber" label="Timeline" value={timelineText(top)} sub="estimate" />
-              <Kpi tone="violet" label="Readiness" value={(top.information_gaps || []).length ? "Needs baseline" : "Ready"} sub={(top.information_gaps || []).length ? `${(top.information_gaps || []).length} gap(s) to close` : "context complete"} />
             </div>
           </PrintSection>
 
-          {/* ============ 2. EVIDENCE ============ */}
-          <PrintSection number="2" title="Evidence" tone="teal">
-            <Sub label="Comparable implementations" tone="teal" />
-            {(top.comparable_implementations || []).slice(0, 3).length > 0 ? (
-              <ul className="mt-1.5 space-y-1.5">
-                {(top.comparable_implementations || []).slice(0, 3).map((c) => (
-                  <li key={c.record_id || c.organization} className="flex items-start justify-between gap-3 rounded border border-[#a9dce2]/70 bg-white/60 px-3 py-2">
-                    <div className="min-w-0">
-                      <p className="text-[12.5px] font-bold text-[#0a3a42]">{c.organization || "Verified implementation"}</p>
-                      <p className="text-[11px] leading-[1.4] text-[#0a6a78]/85">{c.outcome_summary || c.observed_outcome || "Not quantified"}</p>
-                    </div>
-                    <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#0a6a78]">
-                      {c.evidence_tier || "unknown"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[11.5px] italic text-[#0a6a78]/70">No comparable implementations attached.</p>
-            )}
-
-            <Sub label="Defensibility" tone="teal" />
-            <p className="text-[11.5px] text-[#0a6a78]/85">{dd.score} of {dd.total} questions answered from evidence.</p>
-            <div className="mt-1.5 grid grid-cols-2 gap-x-6 gap-y-1.5">
-              {dd.checks.map((c) => (
-                <div key={c.key} className="flex items-start gap-2">
-                  <span className={cn("mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white", c.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
-                    {c.ok ? "✓" : "⚠"}
-                  </span>
-                  <p className="text-[11.5px] font-medium text-[#1c1a17]">{c.label}</p>
+          {/* ===== 2. EXPECTED BUSINESS IMPACT ===== */}
+          <PrintSection number="2" title="Expected business impact" tone="teal">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              {impactKpis.map((k) => (
+                <div key={k.label} className="rounded border border-[#a9dce2] bg-white/50 p-3">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p>
+                  <p className="mt-0.5 text-[18px] font-extrabold tracking-tight text-[#0a3a42]">{k.value}</p>
+                  <p className="text-[10px] text-[#0a6a78]/80">{k.caption}</p>
                 </div>
               ))}
             </div>
 
-            <Sub label="Alternatives considered" tone="teal" />
-            {(top.alternatives_considered || []).slice(0, 3).length > 0 ? (
-              <ul className="mt-1.5 space-y-1.5">
-                {(top.alternatives_considered || []).slice(0, 3).map((a) => (
-                  <li key={a.family} className="flex items-start gap-2 text-[11.5px] leading-[1.45] text-[#1c1a17]/85">
-                    <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-[#0a6a78] text-[8px] font-bold text-white" aria-hidden="true">×</span>
-                    <p><b className="text-[#0a6a78]">{a.family}.</b> {a.reason}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[11.5px] italic text-[#0a6a78]/70">No alternatives surfaced.</p>
-            )}
-
-            <p className="mt-3 border-t border-[#a9dce2]/50 pt-2 text-[10.5px] text-[#0a6a78]/80">
-              Compared against {libraryLabel}. Every material claim traces to a source; Compass defers when evidence is insufficient.
-            </p>
+            <Sub label="Why this confidence level" tone="teal" />
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+              {confidenceFactors.map((f) => (
+                <li key={f.label} className="flex items-start gap-2 text-[11px]">
+                  <span className={cn("mt-[5px] flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white", f.present ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
+                    {f.present ? "✓" : "⚠"}
+                  </span>
+                  <span className={cn("leading-[1.4]", f.present ? "text-[#1c1a17]/85" : "text-[#B45309]")}>{f.label}</span>
+                </li>
+              ))}
+            </ul>
           </PrintSection>
 
-          {/* ============ 3. NEXT STEPS ============ */}
-          <PrintSection number="3" title="Next Steps" tone="amber">
-            <Sub label="Validate before scaling" tone="amber" />
-            {top.next_validation_step ? (
-              <div className="rounded border border-[#e8cf9c] bg-white/60 p-3 print-avoid-break">
-                <p className="text-[12.5px] font-bold text-[#8f5c11]">{top.next_validation_step.action}</p>
-                <p className="mt-0.5 text-[11.5px] leading-[1.5] text-[#5c5240]">{top.next_validation_step.success_criteria || top.next_validation_step.purpose}</p>
-              </div>
-            ) : (
-              <p className="text-[11.5px] italic text-[#8f5c11]">No validation step defined.</p>
-            )}
-
-            <Sub label="Risks & assumptions" tone="amber" />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* ===== 3. WHAT COULD GO WRONG ===== */}
+          <PrintSection number="3" title="What could go wrong" tone="amber">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
-                {(top.risks || []).slice(0, 3).length > 0 ? (
+                <Sub label="Risks" tone="amber" />
+                {risks.length > 0 ? (
                   <ul className="space-y-1.5">
-                    {(top.risks || []).slice(0, 3).map((r, i) => (
-                      <li key={i} className="text-[11.5px] leading-[1.45] text-[#5c5240]">
-                        <b className="text-[#8f5c11]">{r.title}.</b> {r.mitigation ? <span className="text-[#14663a]">Mitigation: {r.mitigation}</span> : r.explanation}
+                    {risks.slice(0, 3).map((r, i) => (
+                      <li key={i} className="text-[11px] leading-[1.4] text-[#5c5240]">
+                        <b className="text-[#8f5c11]">{r.title}.</b> {r.mitigation ? `Mitigation: ${r.mitigation}` : r.explanation}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[11.5px] italic text-[#8f5c11]">No risks surfaced.</p>
+                  <p className="text-[11px] italic text-[#8f5c11]">No implementation risks identified.</p>
                 )}
               </div>
               <div>
-                {(top.assumptions_detail || []).slice(0, 3).length > 0 ? (
+                <Sub label="Unknowns" tone="amber" />
+                {unknowns.length > 0 ? (
                   <ul className="space-y-1.5">
-                    {(top.assumptions_detail || []).slice(0, 3).map((a, i) => (
-                      <li key={i} className="text-[11.5px] leading-[1.45] text-[#5c5240]">
+                    {unknowns.map((u) => (
+                      <li key={u.title} className="text-[11px] leading-[1.4] text-[#5c5240]">
+                        <b className="text-[#8f5c11]">{u.title}.</b> {u.why}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-[11px] italic text-[#8f5c11]">No unknowns to flag.</p>
+                )}
+              </div>
+              <div>
+                <Sub label="Assumptions" tone="amber" />
+                {assumptions.length > 0 ? (
+                  <ul className="space-y-1.5">
+                    {assumptions.map((a) => (
+                      <li key={a.title} className="text-[11px] leading-[1.4] text-[#5c5240]">
                         <b className="text-[#8f5c11]">{a.title}.</b> {a.explanation}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[11.5px] italic text-[#8f5c11]">No assumptions recorded.</p>
+                  <p className="text-[11px] italic text-[#8f5c11]">No material assumptions identified.</p>
                 )}
               </div>
             </div>
+          </PrintSection>
 
-            <Sub label="Measure the outcome" tone="amber" />
-            <p className="text-[11.5px] leading-[1.5] text-[#5c5240]">
-              Define the baseline, execute the plan with your team or a selected partner, and report
-              against the success criteria above. Compass tracks the outcome and feeds it into future
-              decisions.
+          {/* ===== 4. HOW WE EXECUTE ===== */}
+          <PrintSection number="4" title="How we execute" tone="teal">
+            <Sub label="Implementation path" tone="teal" />
+            <div className="grid grid-cols-2 gap-2">
+              {["Internal team", "Selected partner"].map((opt) => (
+                <div key={opt} className="rounded border border-[#a9dce2] bg-white/60 px-3 py-2 text-[12px] font-semibold text-[#0a3a42]">{opt}</div>
+              ))}
+            </div>
+            <p className="mt-2 text-[11px] text-[#0a6a78]/80">
+              Compass does not implement. Your team or a selected partner executes the plan.
             </p>
+
+            <Sub label="Comparable implementations" tone="teal" />
+            {(top.comparable_implementations || []).slice(0, 3).length > 0 ? (
+              <ul className="space-y-1.5">
+                {(top.comparable_implementations || []).slice(0, 3).map((c) => (
+                  <li key={c.record_id || c.organization} className="rounded border border-[#a9dce2]/70 bg-white/60 px-3 py-2">
+                    <p className="text-[12px] font-bold text-[#0a3a42]">{c.organization || "Verified implementation"}</p>
+                    <p className="text-[10.5px] leading-[1.4] text-[#0a6a78]/85">{(c.outcome_summary || c.observed_outcome || "Outcome not quantified").replace(/;/g, " · ")}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[11px] italic text-[#0a6a78]/70">No comparable implementations attached.</p>
+            )}
+
+            {top.next_validation_step && (
+              <>
+                <Sub label="Validation before scaling" tone="teal" />
+                <div className="rounded border border-[#a9dce2] bg-white/60 p-3 print-avoid-break">
+                  <p className="text-[12px] font-bold text-[#0a3a42]">{top.next_validation_step.action}</p>
+                  <p className="mt-0.5 text-[11px] leading-[1.4] text-[#0a6a78]/80">{top.next_validation_step.success_criteria || top.next_validation_step.purpose}</p>
+                </div>
+              </>
+            )}
+          </PrintSection>
+
+          {/* ===== 5. OTHER APPROACHES + DEFENSIBILITY ===== */}
+          <PrintSection number="5" title="Other approaches evaluated" tone="violet">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                {(top.alternatives_considered || []).slice(0, 3).length > 0 ? (
+                  <ul className="space-y-1.5">
+                    {(top.alternatives_considered || []).slice(0, 3).map((a) => (
+                      <li key={a.family} className="rounded border border-[#c5bef0] bg-white/50 p-2">
+                        <p className="text-[12px] font-semibold text-[#2c2a45]">{a.family}</p>
+                        <p className="mt-0.5 text-[10.5px] leading-[1.4] text-[#463a9e]/80">{a.reason}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-[11px] italic text-[#463a9e]/70">No alternatives were surfaced.</p>
+                )}
+              </div>
+              <div>
+                <Sub label="Why we can defend this decision" tone="violet" />
+                <ul className="space-y-1.5">
+                  {defSummary.map((f) => (
+                    <li key={f.label} className="flex items-start gap-2 text-[11px]">
+                      <span className={cn("mt-[5px] flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white", f.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
+                        {f.ok ? "✓" : "⚠"}
+                      </span>
+                      <span className={cn("leading-[1.4]", f.ok ? "text-[#1c1a17]/85" : "text-[#B45309]")}>{f.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </PrintSection>
 
           <p className="mt-5 border-t border-[#e6e2db] pt-2.5 text-[10.5px] leading-[1.5] text-[#9c968a]">
@@ -273,24 +322,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function recommendationAction(top: DecisionRec, summary: any): string {
-  const problem = cleanProblem(summary?.problem_statement);
-  const title = top.title || "the recommended intervention";
-  if (problem && top.title) {
-    return `${title} for ${problem}`;
-  }
-  return title;
-}
-
-function PrintMeta({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className={cn("bg-white px-4 py-3", highlight && "bg-[#e9f6ee]")}>
-      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#6c685f]">{label}</p>
-      <p className={cn("mt-0.5 text-[13px] font-semibold text-[#1c1a17]", highlight && "text-[#14663a]")}>{value}</p>
     </div>
   );
 }
@@ -326,26 +357,11 @@ function Sub({ label, tone }: { label: string; tone: BriefTone }) {
   );
 }
 
-function Kpi({ tone = "neutral", label, value, sub }: { tone?: BriefTone; label: string; value: string; sub?: string }) {
-  const c = BRIEF_COLORS[tone];
-  const t = BRIEF_TONE_STYLES[tone];
+function PrintMeta({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={cn("rounded border p-3 print-avoid-break", t.card)}>
-      <p className={cn("text-[9px] font-bold uppercase tracking-[0.1em]", t.label)}>{label}</p>
-      <p className="mt-0.5 truncate text-[18px] font-extrabold tracking-tight" style={{ color: c.ink }}>{value}</p>
-      {sub && <p className={cn("truncate text-[10px]", t.label)}>{sub}</p>}
+    <div className={cn("bg-white px-4 py-3", highlight && "bg-[#e9f6ee]")}>
+      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#6c685f]">{label}</p>
+      <p className={cn("mt-0.5 text-[13px] font-semibold text-[#1c1a17]", highlight && "text-[#14663a]")}>{value}</p>
     </div>
   );
-}
-
-function timelineText(top: DecisionRec): string {
-  const tl = top.impact?.implementation_timeline;
-  const lo = tl?.min_weeks, hi = tl?.max_weeks;
-  if (!lo && !hi) return "TBD";
-  const weeks = hi || lo || 0;
-  if (weeks > 8) {
-    const mo = Math.max(1, Math.round(weeks / 4.33));
-    return lo && hi ? `${Math.max(1, Math.round(lo / 4.33))}–${Math.round(hi / 4.33)} months` : `~${mo} months`;
-  }
-  return lo && hi ? `${lo}–${hi} weeks` : `${lo || hi} weeks`;
 }

@@ -53,11 +53,11 @@ describe("Homepage content", () => {
 
   it("should frame consulting, rebuilt as a persistent system with a Compass column", () => {
     const c = site.marketing.consultingRebuilt;
-    expect(c.headline).toContain("Consulting, rebuilt");
-    expect(c.columns.map((col) => col.name)).toEqual(["Traditional consulting", "Generic AI", "Compass"]);
+    expect(c.headline).toContain("Every operational decision makes the next one better");
+    expect(c.columns.map((col) => col.name)).toEqual(["Traditional consulting", "Traditional AI tools", "Compass"]);
     expect(c.columns[2].highlighted).toBe(true);
-    expect(c.columns[2].items).toContain("Reuses structured implementation intelligence");
-    expect(c.prominent).toBe("Consultants make recommendations. Compass builds organizational judgment.");
+    expect(c.columns[2].items).toContain("Preserves evidence, assumptions, and measured outcomes");
+    expect(c.closing).toContain("Compass improves judgment over time");
   });
 
   it("should frame the pillars as a repeatable process, in the right order", () => {

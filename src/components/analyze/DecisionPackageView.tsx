@@ -13,14 +13,16 @@ import {
   BRIEF_TONE_STYLES,
   type BriefTone,
 } from "@/lib/brief-colors";
-import { buildExecutiveSummary, buildRecommendationReasons, cleanProblem } from "@/lib/brief-text";
-
-interface Kpi {
-  label: string;
-  value: string;
-  caption: string;
-  tone?: "ok" | "warn" | "muted";
-}
+import {
+  buildExecutiveSummary,
+  buildWhyCards,
+  buildImpactKpis,
+  buildConfidenceExplanation,
+  buildRiskItems,
+  buildUnknownItems,
+  buildAssumptionItems,
+  defensibilitySummary,
+} from "@/lib/brief-text";
 
 export function DecisionPackageView({
   recs,
@@ -70,14 +72,12 @@ export function DecisionPackageView({
     return <InsufficientEvidence rec={top} />;
   }
 
-  const kpis = buildKpis(top, meta);
-
   const badge =
     g.key === "live"
-      ? { text: "Defensible", cls: "bg-[#E5F3EA] text-[#14532d]", dot: "bg-[#1E7B4C]" }
+      ? { text: "Recommended", cls: "bg-[#E5F3EA] text-[#14532d]", dot: "bg-[#1E7B4C]" }
       : g.key === "partial"
-        ? { text: "Preliminary", cls: "bg-[#FBF0E0] text-[#7a3b06]", dot: "bg-[#B45309]" }
-        : { text: "More evidence required", cls: "bg-[#FAE9E7] text-[#7a1f1a]", dot: "bg-[#C4382C]" };
+        ? { text: "Needs validation", cls: "bg-[#FBF0E0] text-[#7a3b06]", dot: "bg-[#B45309]" }
+        : { text: "Insufficient evidence", cls: "bg-[#FAE9E7] text-[#7a1f1a]", dot: "bg-[#C4382C]" };
 
   if (implementing) {
     return <ImplementationView top={top} recommendationId={recommendationId} onBack={() => setImplementing(false)} />;
@@ -97,10 +97,17 @@ export function DecisionPackageView({
   };
 
   const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const whyCards = buildWhyCards(top, summary);
+  const impactKpis = buildImpactKpis(top);
+  const confidenceFactors = buildConfidenceExplanation(top);
+  const risks = buildRiskItems(top);
+  const unknowns = buildUnknownItems(top);
+  const assumptions = buildAssumptionItems(top);
+  const defSummary = defensibilitySummary(dd.checks);
 
   return (
     <div className="space-y-6">
-      {/* ===== MASTHEAD — recommendation first ===== */}
+      {/* ===== MASTHEAD ===== */}
       <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-white shadow-panel">
         <div className="h-1.5 w-full bg-gradient-to-r from-[#1f9d57] via-[#0e9db0] via-[#6a5acd] to-[#d9932a]" aria-hidden="true" />
         <div className="border-b border-[#a8d6bd]/60 bg-[#e9f6ee] px-6 py-3">
@@ -122,6 +129,9 @@ export function DecisionPackageView({
               <h2 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#101826] sm:text-[30px]">
                 Executive Decision Brief
               </h2>
+              <p className="mt-2 font-serif text-[19px] italic leading-snug text-[#3c5645]">
+                {top.title || "Evidence-supported intervention"}
+              </p>
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
               <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", badge.dot)} />
@@ -133,7 +143,6 @@ export function DecisionPackageView({
             {buildExecutiveSummary(top, meta, library)}
           </p>
 
-          {/* decision metadata */}
           <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[#e6eaef] bg-[#e6eaef] sm:grid-cols-4">
             <MetaCell label="Prepared for" value="Executive Leadership" />
             <MetaCell label="Decision" value={decisionScope(top)} />
@@ -141,7 +150,6 @@ export function DecisionPackageView({
             <MetaCell label="Date" value={today} />
           </dl>
 
-          {/* primary actions */}
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
@@ -175,163 +183,196 @@ export function DecisionPackageView({
         </div>
       </section>
 
-      {/* ============ 1. RECOMMENDATION ============ */}
-      <BriefPanel number="1" title="Recommendation" tone="green">
-        <p className="text-[12px] font-semibold text-[#14402a]">A. You should do this</p>
-        <h3 className="mt-1 font-serif text-[22px] font-semibold leading-snug tracking-[-0.01em] text-[#101826]">
-          {recommendationAction(top, summary)}
-        </h3>
-        <div className="mt-3 space-y-2 border-t border-[#a8d6bd]/70 pt-3">
-          {buildRecommendationReasons(top, summary).map((r) => (
-            <p key={r.key} className="flex items-start gap-2.5 text-[13px] leading-[1.55] text-[#3c5645]">
-              <span className="mt-0.5 shrink-0 font-mono text-[12px] font-bold text-[#14663a]">{r.key}.</span>
-              <span>{r.text}</span>
-            </p>
+      {/* ===== 1. WHY THIS IS THE BEST DECISION ===== */}
+      <BriefPanel number="1" title="Why this is the best decision" tone="green">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {whyCards.map((card) => (
+            <div key={card.title} className="rounded-lg border border-[#a8d6bd] bg-white/50 p-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#14663a]">{card.title}</p>
+              <ul className="mt-2 space-y-1.5">
+                {card.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-[12.5px] leading-[1.5] text-[#3c5645]">
+                    <span aria-hidden="true" className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#1f9d57]" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
-          {kpis.map((k) => (
+      </BriefPanel>
+
+      {/* ===== 2. EXPECTED BUSINESS IMPACT ===== */}
+      <BriefPanel number="2" title="Expected business impact" tone="teal">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {impactKpis.map((k) => (
             <div key={k.label} className="rounded-lg border border-[#a9dce2] bg-[#e5f6f8] p-3.5">
               <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p>
-              <p className={cn("mt-1 truncate text-[20px] font-extrabold tracking-tight text-[#0a3a42]", k.tone === "warn" && "text-[#B45309]", k.tone === "muted" && "text-[#4f6280]")}>
+              <p className="mt-1 truncate text-[20px] font-extrabold tracking-tight text-[#0a3a42]">
                 {k.value}
               </p>
               <p className="truncate text-[10.5px] text-[#0a6a78]/80">{k.caption}</p>
             </div>
           ))}
         </div>
-      </BriefPanel>
 
-      {/* ============ 2. EVIDENCE ============ */}
-      <BriefPanel number="2" title="Evidence" tone="teal">
-        <SubHeader tone="teal">Comparable implementations</SubHeader>
-        {top.comparable_implementations && top.comparable_implementations.length > 0 ? (
-          <ul className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-            {top.comparable_implementations.slice(0, 3).map((c) => (
-              <li key={c.record_id || c.organization} className="rounded-lg border border-[#a9dce2] bg-white/50 p-3.5">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="truncate text-[13px] font-bold text-[#0a3a42]">{c.organization || "Verified implementation"}</span>
-                  <span className={cn("shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase", c.evidence_tier === "gold" ? "bg-[#fff6d8] text-[#7a5b00]" : c.evidence_tier === "silver" ? "bg-[#f0f3f6] text-[#3f4a5a]" : "bg-[#fff0e6] text-[#7a3b06]")}>
-                    {c.evidence_tier || "unknown"}
-                  </span>
-                </div>
-                <p className="mt-1 text-[11.5px] leading-[1.5] text-[#0a6a78]/80">{c.outcome_summary || c.observed_outcome || "Outcome not quantified"}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-[12.5px] italic text-[#0a6a78]/70">No comparable implementations were attached by the engine.</p>
-        )}
-
-        <SubHeader tone="teal">Decision Defensibility</SubHeader>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-mono text-[14px] font-bold text-[#463a9e]">
-            {dd.score} <span className="text-[11px] text-[#463a9e]/70">/ {dd.total} checks</span>
-          </span>
-          <span className="text-[11px] text-[#0a6a78]/75">can be answered from the retrieved evidence</span>
-        </div>
-        <ul className="mt-2 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
-          {dd.checks.map((c) => (
-            <li key={c.key} className="flex items-start gap-2.5">
-              <span className={cn("mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white", c.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
-                {c.ok ? "✓" : "⚠"}
+        <SubHeader tone="teal">Why this confidence level</SubHeader>
+        <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {confidenceFactors.map((f) => (
+            <li key={f.label} className="flex items-start gap-2.5 text-[12.5px]">
+              <span className={cn("mt-[6px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white", f.present ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
+                {f.present ? "✓" : "⚠"}
               </span>
-              <div>
-                <p className="text-[12.5px] font-semibold text-[#2c2a45]">{c.label}</p>
-                <p className="text-[11px] leading-[1.45] text-[#463a9e]/75">{c.detail}</p>
-              </div>
+              <span className={cn("leading-[1.5]", f.present ? "text-[#0a3a42]" : "text-[#B45309]")}>
+                {f.label}
+              </span>
             </li>
           ))}
         </ul>
-
-        <SubHeader tone="teal">Alternatives considered</SubHeader>
-        {top.alternatives_considered && top.alternatives_considered.length > 0 ? (
-          <ul className="divide-y divide-[#c5bef0]/50">
-            {top.alternatives_considered.slice(0, 3).map((a) => (
-              <li key={a.family} className="flex items-start gap-3 py-2.5 first:pt-0">
-                <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#463a9e] text-[10px] font-bold text-white">×</span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-[#2c2a45]">{a.family}</p>
-                  <p className="text-[11.5px] leading-[1.5] text-[#463a9e]/75">{a.reason}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-[12.5px] italic text-[#463a9e]/70">No alternatives were surfaced by the engine.</p>
-        )}
-
-        <p className="mt-3 border-t border-[#a9dce2]/50 pt-2.5 text-[11px] text-[#0a6a78]/80">
-          Compared against {library ? `${library} verified implementations` : "a growing library"}. Every material claim traces to a source; Compass defers when evidence is insufficient.
-        </p>
       </BriefPanel>
 
-      {/* ============ 3. NEXT STEPS ============ */}
-      <BriefPanel number="3" title="Next Steps" tone="amber">
-        <SubHeader tone="amber">Validate before scaling</SubHeader>
-        {top.next_validation_step ? (
-          <div className="rounded-lg border border-[#e8cf9c] bg-white/60 p-3.5">
-            <p className="text-[13px] font-bold text-[#8f5c11]">{top.next_validation_step.action}</p>
-            <p className="mt-1 text-[12px] leading-[1.5] text-[#5c5240]">{top.next_validation_step.success_criteria || top.next_validation_step.purpose}</p>
-          </div>
-        ) : (
-          <p className="text-[12px] italic text-[#8f5c11]">No validation step defined.</p>
-        )}
-
-        <SubHeader tone="amber">Risks & assumptions</SubHeader>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {/* ===== 3. WHAT COULD GO WRONG ===== */}
+      <BriefPanel number="3" title="What could go wrong" tone="amber">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <div>
-            {top.risks && top.risks.length > 0 ? (
-              <ul className="space-y-2">
-                {top.risks.slice(0, 3).map((r, i) => (
+            <SubHeader tone="amber">Risks</SubHeader>
+            {risks.length > 0 ? (
+              <ul className="space-y-2.5">
+                {risks.slice(0, 3).map((r, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-[12.5px]">
                     <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#B45309]" />
-                    <p className="leading-[1.5] text-[#5c5240]"><span className="font-semibold text-[#8f5c11]">{r.title}.</span> {r.mitigation ? `Mitigation: ${r.mitigation}` : r.explanation}</p>
+                    <p className="leading-[1.5] text-[#5c5240]">
+                      <span className="font-semibold text-[#8f5c11]">{r.title}.</span>{" "}
+                      {r.mitigation ? `Mitigation: ${r.mitigation}` : r.explanation}
+                    </p>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] italic text-[#8f5c11]">No risks were surfaced for this decision.</p>
+              <p className="text-[12px] italic text-[#8f5c11]">No implementation risks identified.</p>
             )}
           </div>
           <div>
-            {top.assumptions_detail && top.assumptions_detail.length > 0 ? (
-              <ul className="space-y-2">
-                {top.assumptions_detail.slice(0, 3).map((a, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[12.5px]">
+            <SubHeader tone="amber">Unknowns</SubHeader>
+            {unknowns.length > 0 ? (
+              <ul className="space-y-2.5">
+                {unknowns.map((u) => (
+                  <li key={u.title} className="flex items-start gap-2.5 text-[12.5px]">
                     <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#d9932a]" />
-                    <p className="leading-[1.5] text-[#5c5240]"><span className="font-semibold text-[#8f5c11]">{a.title}.</span> {a.explanation}</p>
+                    <p className="leading-[1.5] text-[#5c5240]">
+                      <span className="font-semibold text-[#8f5c11]">{u.title}.</span> {u.why}
+                    </p>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] italic text-[#8f5c11]">No assumptions were recorded.</p>
+              <p className="text-[12px] italic text-[#8f5c11]">No unknowns to flag.</p>
+            )}
+          </div>
+          <div>
+            <SubHeader tone="amber">Assumptions</SubHeader>
+            {assumptions.length > 0 ? (
+              <ul className="space-y-2.5">
+                {assumptions.map((a) => (
+                  <li key={a.title} className="flex items-start gap-2.5 text-[12.5px]">
+                    <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#d9932a]" />
+                    <p className="leading-[1.5] text-[#5c5240]">
+                      <span className="font-semibold text-[#8f5c11]">{a.title}.</span> {a.explanation}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[12px] italic text-[#8f5c11]">No material assumptions identified.</p>
             )}
           </div>
         </div>
-
-        <SubHeader tone="amber">Execution path</SubHeader>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {["Internal team", "Selected partner"].map((opt, i) => (
-            <div
-              key={opt}
-              className={cn(
-                "border px-3 py-2 text-[12.5px] font-medium",
-                i === 0 ? "border-[#d9932a] bg-[#d9932a] text-white" : "border-[#e8cf9c] bg-white/60 text-[#5c5240]"
-              )}
-            >
-              {opt}
-            </div>
-          ))}
-        </div>
-
-        <SubHeader tone="amber">Measure the outcome</SubHeader>
-        <p className="text-[12.5px] leading-[1.55] text-[#5c5240]">
-          Define the baseline, execute with your team or a selected partner, and report against the
-          success criteria. Compass tracks the outcome and feeds it into future decisions.
-        </p>
       </BriefPanel>
 
+      {/* ===== 4. HOW WE EXECUTE ===== */}
+      <BriefPanel number="4" title="How we execute" tone="teal">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div>
+            <SubHeader tone="teal">Implementation path</SubHeader>
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {["Internal team", "Selected partner"].map((opt, i) => (
+                <div
+                  key={opt}
+                  className={cn(
+                    "border px-3 py-2 text-[12.5px] font-medium",
+                    i === 0 ? "border-[#0e9db0] bg-[#0e9db0] text-white" : "border-[#a9dce2] bg-white/60 text-[#0a3a42]"
+                  )}
+                >
+                  {opt}
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-[11.5px] leading-[1.5] text-[#0a6a78]/80">
+              Compass does not implement. Your team or a selected partner executes the plan while
+              Compass preserves the rationale, requirements, and validation criteria.
+            </p>
+          </div>
+          <div>
+            <SubHeader tone="teal">Validation before scaling</SubHeader>
+            {top.next_validation_step ? (
+              <div className="rounded-lg border border-[#a9dce2] bg-white/60 p-3.5">
+                <p className="text-[13px] font-bold text-[#0a3a42]">{top.next_validation_step.action}</p>
+                <p className="mt-1 text-[12px] leading-[1.5] text-[#0a6a78]/80">{top.next_validation_step.success_criteria || top.next_validation_step.purpose}</p>
+              </div>
+            ) : (
+              <p className="text-[12px] italic text-[#0a6a78]/70">No validation step defined.</p>
+            )}
+            <SubHeader tone="teal">Comparable implementations in our evidence base</SubHeader>
+            {top.comparable_implementations && top.comparable_implementations.length > 0 ? (
+              <ul className="mt-1.5 space-y-1.5">
+                {top.comparable_implementations.slice(0, 3).map((c) => (
+                  <li key={c.record_id || c.organization} className="rounded border border-[#a9dce2] bg-white/50 px-3 py-2">
+                    <p className="text-[12.5px] font-bold text-[#0a3a42]">{c.organization || "Verified implementation"}</p>
+                    <p className="text-[11px] leading-[1.4] text-[#0a6a78]/85">{(c.outcome_summary || c.observed_outcome || "Outcome not quantified").replace(/;/g, " · ")}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[12px] italic text-[#0a6a78]/70">No comparable implementations attached.</p>
+            )}
+          </div>
+        </div>
+      </BriefPanel>
+
+      {/* ===== 5. OTHER APPROACHES EVALUATED + WHY WE CAN DEFEND THIS ===== */}
+      <BriefPanel number="5" title="Other approaches evaluated" tone="violet">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div>
+            {top.alternatives_considered && top.alternatives_considered.length > 0 ? (
+              <ul className="space-y-2.5">
+                {top.alternatives_considered.slice(0, 3).map((a) => (
+                  <li key={a.family} className="rounded border border-[#c5bef0] bg-white/50 p-3">
+                    <p className="text-[13px] font-semibold text-[#2c2a45]">{a.family}</p>
+                    <p className="mt-1 text-[11.5px] leading-[1.5] text-[#463a9e]/80">{a.reason}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[12px] italic text-[#463a9e]/70">No alternatives were surfaced.</p>
+            )}
+          </div>
+          <div>
+            <SubHeader tone="violet">Why we can defend this decision</SubHeader>
+            <ul className="space-y-2">
+              {defSummary.map((f) => (
+                <li key={f.label} className="flex items-start gap-2.5 text-[12.5px]">
+                  <span className={cn("mt-[6px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white", f.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
+                    {f.ok ? "✓" : "⚠"}
+                  </span>
+                  <span className={cn("leading-[1.5]", f.ok ? "text-[#463a9e]" : "text-[#B45309]")}>{f.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </BriefPanel>
+
+      {/* ===== GROUNDING NOTE ===== */}
       <div className="rounded-lg border border-dashed border-line bg-paper px-4 py-3">
         <p className="text-[11px] leading-[1.55] text-muted">
           <span className="font-semibold text-ink">Grounding note.</span> {g.note}
@@ -382,15 +423,6 @@ function SubHeader({ tone, children }: { tone: BriefTone; children: React.ReactN
   );
 }
 
-function recommendationAction(top: DecisionRec, summary: any): string {
-  const problem = cleanProblem(summary?.problem_statement);
-  const title = top.title || "the recommended intervention";
-  if (problem && top.title) {
-    return `${title} for ${problem}`;
-  }
-  return title;
-}
-
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#4f6280]">{children}</p>;
 }
@@ -406,57 +438,6 @@ function MetaCell({ label, value, highlight }: { label: string; value: string; h
 
 function decisionScope(top: DecisionRec): string {
   return top.category ? top.category.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Operational intervention";
-}
-
-function buildKpis(top: DecisionRec, meta: any): Kpi[] {
-  const es = top.evidence_summary || {};
-  const ec = meta?.evidence_count || {};
-  const score = Math.round((top.confidence?.score || 0) * 100);
-  const label = top.confidence?.label || "unknown";
-  const total = es.total_comparables || 0;
-  const orgs = ec.unique_organizations || 0;
-
-  const ranges = (top.outcome_ranges || []).filter((r) => r.directly_comparable);
-  let impact: Kpi = { label: "Expected impact", value: "Pending", caption: "outcome evidence", tone: "muted" };
-  if (ranges.length) {
-    const r = ranges[0];
-    const fmt = r.median != null ? String(r.median) : r.low != null && r.high != null ? `${r.low}–${r.high}` : "";
-    const unit =
-      r.unit === "currency" ? " $" : r.unit === "hours" ? " hours" : r.unit === "days" ? " days" : r.unit === "weeks" ? " weeks" : r.unit === "months" ? " months" : r.unit === "%" ? "%" : "";
-    impact = {
-      label: "Expected impact",
-      value: `${fmt}${unit}`.trim() || "—",
-      caption: r.metric_label ? `${r.metric_label} in comparable implementations` : "outcome evidence",
-      tone: "ok",
-    };
-  }
-
-  const tl = top.impact?.implementation_timeline;
-  const lo = tl?.min_weeks, hi = tl?.max_weeks;
-  let timeline: Kpi = { label: "Timeline", value: "TBD", caption: "estimate", tone: "muted" };
-  if (lo || hi) {
-    const weeks = hi || lo || 0;
-    if (weeks > 8) {
-      const mo = Math.max(1, Math.round(weeks / 4.33));
-      timeline = { label: "Timeline", value: lo && hi ? `${Math.max(1, Math.round(lo / 4.33))}–${Math.round(hi / 4.33)} months` : `~${mo} months`, caption: "estimate", tone: "ok" };
-    } else {
-      timeline = { label: "Timeline", value: lo && hi ? `${lo}–${hi} weeks` : `${lo || hi} weeks`, caption: "estimate", tone: "ok" };
-    }
-  }
-
-  const gaps = (top.information_gaps || []).length;
-  const readiness: Kpi =
-    gaps > 0
-      ? { label: "Readiness", value: "Needs baseline", caption: `${gaps} gap${gaps > 1 ? "s" : ""} to close`, tone: "warn" }
-      : { label: "Readiness", value: "Ready", caption: "context complete", tone: "ok" };
-
-  return [
-    { label: "Confidence", value: String(score), caption: label, tone: score >= 70 ? "ok" : score >= 50 ? "warn" : "muted" },
-    { label: "Evidence", value: String(total), caption: total === 1 ? "comparable implementation" : `${orgs ? `${total} comparable implementations · ${orgs} organizations` : "comparable implementations"}`, tone: total >= 5 ? "ok" : "warn" },
-    impact,
-    timeline,
-    readiness,
-  ];
 }
 
 function ImplementationView({ top, recommendationId, onBack }: { top: DecisionRec; recommendationId?: string; onBack: () => void }) {
