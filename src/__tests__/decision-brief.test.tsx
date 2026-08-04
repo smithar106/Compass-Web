@@ -40,15 +40,16 @@ describe("DecisionPackageView executive memo", () => {
     );
     expect(screen.getByText("Prepared by Compass")).toBeTruthy();
     expect(screen.getByText("Executive Decision Brief")).toBeTruthy();
-    expect(screen.getByText("Why this is the best decision")).toBeTruthy();
-    expect(screen.getByText("Expected business impact")).toBeTruthy();
-    expect(screen.getByText("What could go wrong")).toBeTruthy();
-    expect(screen.getByText("How we execute")).toBeTruthy();
-    expect(screen.getByText("Other approaches evaluated")).toBeTruthy();
+    expect(screen.getByText("Why this is the right decision")).toBeTruthy();
+    expect(screen.getByText("Risks and unknowns")).toBeTruthy();
+    expect(screen.getByText("Implementation")).toBeTruthy();
+    expect(screen.getByText("Evidence")).toBeTruthy();
+    expect(screen.getByText("Other options considered")).toBeTruthy();
+    expect(screen.getByText("Executive Decision")).toBeTruthy();
     expect(screen.getByText("Download PDF")).toBeTruthy();
   });
 
-  it("opens the print preview with the Compass memo structure", () => {
+  it("opens the print preview with the McKinsey memo structure", () => {
     render(
       <DecisionPackageView
         recs={[mockRec as any]}
@@ -60,6 +61,6 @@ describe("DecisionPackageView executive memo", () => {
     const buttons = screen.getAllByText("Download PDF");
     fireEvent.click(buttons[0]);
     expect(screen.getAllByText((content) => content.includes("Prepared by Compass")).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("Why we can defend this decision").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Why we can defend this").length).toBeGreaterThanOrEqual(1);
   });
 });

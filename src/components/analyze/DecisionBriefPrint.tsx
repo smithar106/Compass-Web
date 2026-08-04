@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
 import {
   groundingState,
@@ -13,14 +13,17 @@ import {
   type BriefTone,
 } from "@/lib/brief-colors";
 import {
-  buildExecutiveSummary,
-  buildWhyCards,
-  buildImpactKpis,
-  buildConfidenceExplanation,
-  buildRiskItems,
-  buildUnknownItems,
-  buildAssumptionItems,
-  defensibilitySummary,
+  businessSummary,
+  executiveKpis,
+  businessRationale,
+  riskItems,
+  unknownItems,
+  assumptionItems,
+  implementationRoadmap,
+  evidenceStories,
+  evaluatedOptions,
+  decisionNotes,
+  defensibilityItems,
 } from "@/lib/brief-text";
 
 interface DecisionBriefPrintProps {
@@ -34,13 +37,11 @@ interface DecisionBriefPrintProps {
 
 export function DecisionBriefPrint({ recs, meta, summary, status, library, onClose }: DecisionBriefPrintProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [exporting, setExporting] = useState(false);
   const top = recs[0];
 
   const handleDownload = useCallback(() => {
     const source = document.getElementById("compass-brief-print");
     if (!source) return;
-
     const clone = source.cloneNode(true) as HTMLElement;
     clone.id = "compass-brief-print-clone";
     clone.style.position = "static";
@@ -49,7 +50,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
     clone.style.margin = "0";
     clone.style.boxShadow = "none";
     clone.style.borderRadius = "0";
-
     const holder = document.createElement("div");
     holder.id = "compass-brief-print-holder";
     document.body.appendChild(holder);
@@ -61,12 +61,9 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
       window.removeEventListener("afterprint", cleanup);
     };
     window.addEventListener("afterprint", cleanup);
-
     document.body.classList.add("printing-brief");
     window.print();
-    setTimeout(() => {
-      if (document.body.contains(holder)) cleanup();
-    }, 2000);
+    setTimeout(() => { if (document.body.contains(holder)) cleanup(); }, 2000);
   }, []);
 
   if (!top) return null;
@@ -82,20 +79,20 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
         ? { text: "Needs validation", dot: "bg-[#B45309]", cls: "bg-[#FBF0E0] text-[#7a3b06]" }
         : { text: "Insufficient evidence", dot: "bg-[#C4382C]", cls: "bg-[#FAE9E7] text-[#7a1f1a]" };
 
-  const whyCards = buildWhyCards(top, summary);
-  const impactKpis = buildImpactKpis(top);
-  const confidenceFactors = buildConfidenceExplanation(top);
-  const risks = buildRiskItems(top);
-  const unknowns = buildUnknownItems(top);
-  const assumptions = buildAssumptionItems(top);
-  const defSummary = defensibilitySummary(dd.checks);
+  const kpis = executiveKpis(top);
+  const rationale = businessRationale(top, summary);
+  const risks = riskItems(top);
+  const unknowns = unknownItems(top);
+  const assumptions = assumptionItems(top);
+  const roadmap = implementationRoadmap(top);
+  const stories = evidenceStories(top);
+  const options = evaluatedOptions(top);
+  const defItems = defensibilityItems(dd.checks);
 
   return (
     <div
       className="fixed inset-0 z-[100] overflow-y-auto bg-[#101826]/70 p-4 sm:p-8"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Executive Decision Brief preview"
+      role="dialog" aria-modal="true" aria-label="Executive Decision Brief preview"
       onClick={onClose}
     >
       <div className="mx-auto max-w-4xl" onClick={(e) => e.stopPropagation()}>
@@ -105,18 +102,10 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             <p className="text-[12px] font-semibold text-[#101826]">Print preview &middot; Prepared by Compass</p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleDownload}
-              className="inline-flex items-center gap-2 rounded-lg bg-ink px-5 py-2.5 text-[13px] font-semibold text-paper transition-colors hover:bg-ink2"
-            >
+            <button type="button" onClick={handleDownload} className="inline-flex items-center gap-2 rounded-lg bg-ink px-5 py-2.5 text-[13px] font-semibold text-paper transition-colors hover:bg-ink2">
               Download PDF
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-[#dfe5ec] bg-surface px-4 py-2.5 text-[13px] font-semibold text-ink transition-colors hover:border-ink/40"
-            >
+            <button type="button" onClick={onClose} className="rounded-lg border border-[#dfe5ec] bg-surface px-4 py-2.5 text-[13px] font-semibold text-ink transition-colors hover:border-ink/40">
               Close
             </button>
           </div>
@@ -130,18 +119,33 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
         >
           <div className="h-1.5 w-full rounded bg-gradient-to-r from-[#1f9d57] via-[#0e9db0] via-[#6a5acd] to-[#d9932a]" aria-hidden="true" />
 
-          {/* masthead */}
+          {/* ===== SECTION 1: EXECUTIVE SUMMARY ===== */}
           <div className="mt-5 flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#1f9d57] pb-3">
             <div>
-              <h1 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#1c1a17]">
-                Executive Decision Brief
-              </h1>
+              <h1 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#1c1a17]">Executive Decision Brief</h1>
+              <p className="mt-0.5 font-serif text-[17px] font-medium leading-snug text-[#14402a]">
+                Implement {top.title || "the recommended intervention"}{summary?.problem_statement ? ` for ${summary.problem_statement.replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim()}` : ""}.
+              </p>
               <p className="mt-0.5 text-[11.5px] text-[#6c685f]">Prepared by Compass &middot; {today}</p>
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
               <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", badge.dot)} />
               {badge.text}
             </span>
+          </div>
+
+          <p className="mt-4 text-[13px] leading-[1.55] text-[#6c685f]">
+            {businessSummary(top, meta, library ?? null)}
+          </p>
+
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {kpis.map((k) => (
+              <div key={k.label} className="rounded border border-[#a9dce2] bg-[#e5f6f8] p-3">
+                <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p>
+                <p className="mt-0.5 text-[20px] font-extrabold tracking-tight text-[#0a3a42]">{k.value}</p>
+                {k.caption && <p className="text-[10px] text-[#0a6a78]/80">{k.caption}</p>}
+              </div>
+            ))}
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded border border-[#e6e2db] bg-[#e6e2db] sm:grid-cols-4">
@@ -151,73 +155,37 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             <PrintMeta label="Date" value={today} />
           </div>
 
-          <p className="mt-4 text-[13px] leading-[1.55] text-[#6c685f]">
-            {buildExecutiveSummary(top, meta, library ?? null)}
-          </p>
-
-          {/* ===== 1. WHY THIS IS THE BEST DECISION ===== */}
-          <PrintSection number="1" title="Why this is the best decision" tone="green">
+          {/* ===== SECTION 2: WHY THIS IS THE RIGHT DECISION ===== */}
+          <PrintSection number="1" title="Why this is the right decision" tone="green">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              {whyCards.map((card) => (
+              {rationale.map((card) => (
                 <div key={card.title} className="rounded border border-[#a8d6bd] bg-white/50 p-3">
                   <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#14663a]">{card.title}</p>
-                  <ul className="mt-1.5 space-y-1">
-                    {card.bullets.map((b) => (
-                      <li key={b} className="flex items-start gap-1.5 text-[11px] leading-[1.4] text-[#3c5645]">
-                        <span aria-hidden="true" className="mt-[5px] h-1 w-1 shrink-0 rounded-full bg-[#1f9d57]" />
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="mt-1.5 text-[11px] leading-[1.4] text-[#3c5645]">{card.body}</p>
                 </div>
               ))}
             </div>
           </PrintSection>
 
-          {/* ===== 2. EXPECTED BUSINESS IMPACT ===== */}
-          <PrintSection number="2" title="Expected business impact" tone="teal">
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              {impactKpis.map((k) => (
-                <div key={k.label} className="rounded border border-[#a9dce2] bg-white/50 p-3">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p>
-                  <p className="mt-0.5 text-[18px] font-extrabold tracking-tight text-[#0a3a42]">{k.value}</p>
-                  <p className="text-[10px] text-[#0a6a78]/80">{k.caption}</p>
-                </div>
-              ))}
-            </div>
-
-            <Sub label="Why this confidence level" tone="teal" />
-            <ul className="grid grid-cols-2 gap-x-6 gap-y-1.5">
-              {confidenceFactors.map((f) => (
-                <li key={f.label} className="flex items-start gap-2 text-[11px]">
-                  <span className={cn("mt-[5px] flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white", f.present ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
-                    {f.present ? "✓" : "⚠"}
-                  </span>
-                  <span className={cn("leading-[1.4]", f.present ? "text-[#1c1a17]/85" : "text-[#B45309]")}>{f.label}</span>
-                </li>
-              ))}
-            </ul>
-          </PrintSection>
-
-          {/* ===== 3. WHAT COULD GO WRONG ===== */}
-          <PrintSection number="3" title="What could go wrong" tone="amber">
+          {/* ===== SECTION 3: RISKS AND UNKNOWNS ===== */}
+          <PrintSection number="2" title="Risks and unknowns" tone="amber">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
-                <Sub label="Risks" tone="amber" />
+                <Sub label="Known risks" tone="amber" />
                 {risks.length > 0 ? (
                   <ul className="space-y-1.5">
-                    {risks.slice(0, 3).map((r, i) => (
+                    {risks.map((r, i) => (
                       <li key={i} className="text-[11px] leading-[1.4] text-[#5c5240]">
-                        <b className="text-[#8f5c11]">{r.title}.</b> {r.mitigation ? `Mitigation: ${r.mitigation}` : r.explanation}
+                        <b className="text-[#8f5c11]">{r.title}.</b> {r.body}{r.mitigation ? ` Mitigation: ${r.mitigation}` : ""}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[11px] italic text-[#8f5c11]">No implementation risks identified.</p>
+                  <p className="text-[11px] italic text-[#8f5c11]">No material risks identified.</p>
                 )}
               </div>
               <div>
-                <Sub label="Unknowns" tone="amber" />
+                <Sub label="Information needed" tone="amber" />
                 {unknowns.length > 0 ? (
                   <ul className="space-y-1.5">
                     {unknowns.map((u) => (
@@ -227,7 +195,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[11px] italic text-[#8f5c11]">No unknowns to flag.</p>
+                  <p className="text-[11px] italic text-[#8f5c11]">All necessary information is available.</p>
                 )}
               </div>
               <div>
@@ -236,7 +204,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
                   <ul className="space-y-1.5">
                     {assumptions.map((a) => (
                       <li key={a.title} className="text-[11px] leading-[1.4] text-[#5c5240]">
-                        <b className="text-[#8f5c11]">{a.title}.</b> {a.explanation}
+                        <b className="text-[#8f5c11]">{a.title}.</b> {a.body}
                       </li>
                     ))}
                   </ul>
@@ -247,64 +215,63 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             </div>
           </PrintSection>
 
-          {/* ===== 4. HOW WE EXECUTE ===== */}
-          <PrintSection number="4" title="How we execute" tone="teal">
-            <Sub label="Implementation path" tone="teal" />
-            <div className="grid grid-cols-2 gap-2">
-              {["Internal team", "Selected partner"].map((opt) => (
-                <div key={opt} className="rounded border border-[#a9dce2] bg-white/60 px-3 py-2 text-[12px] font-semibold text-[#0a3a42]">{opt}</div>
-              ))}
-            </div>
+          {/* ===== SECTION 4: IMPLEMENTATION ===== */}
+          <PrintSection number="3" title="Implementation" tone="teal">
+            {roadmap.map((step, i) => (
+              <div key={step.label} className="flex items-start gap-3 rounded border border-[#a9dce2] bg-white/50 p-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#0e9db0] font-mono text-[10px] font-bold text-[#0a6a78]">{i + 1}</span>
+                <div>
+                  <p className="text-[12px] font-semibold text-[#0a3a42]">{step.label}</p>
+                  <p className="mt-0.5 text-[11px] leading-[1.4] text-[#0a6a78]/80">{step.detail}</p>
+                  <p className="mt-0.5 text-[10px] font-medium text-[#0a6a78]">Owner: {step.owner}</p>
+                </div>
+              </div>
+            ))}
             <p className="mt-2 text-[11px] text-[#0a6a78]/80">
               Compass does not implement. Your team or a selected partner executes the plan.
             </p>
-
-            <Sub label="Comparable implementations" tone="teal" />
-            {(top.comparable_implementations || []).slice(0, 3).length > 0 ? (
-              <ul className="space-y-1.5">
-                {(top.comparable_implementations || []).slice(0, 3).map((c) => (
-                  <li key={c.record_id || c.organization} className="rounded border border-[#a9dce2]/70 bg-white/60 px-3 py-2">
-                    <p className="text-[12px] font-bold text-[#0a3a42]">{c.organization || "Verified implementation"}</p>
-                    <p className="text-[10.5px] leading-[1.4] text-[#0a6a78]/85">{(c.outcome_summary || c.observed_outcome || "Outcome not quantified").replace(/;/g, " · ")}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[11px] italic text-[#0a6a78]/70">No comparable implementations attached.</p>
-            )}
-
-            {top.next_validation_step && (
-              <>
-                <Sub label="Validation before scaling" tone="teal" />
-                <div className="rounded border border-[#a9dce2] bg-white/60 p-3 print-avoid-break">
-                  <p className="text-[12px] font-bold text-[#0a3a42]">{top.next_validation_step.action}</p>
-                  <p className="mt-0.5 text-[11px] leading-[1.4] text-[#0a6a78]/80">{top.next_validation_step.success_criteria || top.next_validation_step.purpose}</p>
-                </div>
-              </>
-            )}
           </PrintSection>
 
-          {/* ===== 5. OTHER APPROACHES + DEFENSIBILITY ===== */}
-          <PrintSection number="5" title="Other approaches evaluated" tone="violet">
+          {/* ===== SECTION 5: EVIDENCE ===== */}
+          <PrintSection number="4" title="Evidence" tone="teal">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {stories.map((s) => (
+                <div key={s.organization} className="rounded border border-[#a9dce2] bg-white/60 p-3">
+                  <p className="text-[12px] font-bold text-[#0a3a42]">{s.organization}</p>
+                  <p className="mt-1.5 text-[10px] leading-[1.4] text-[#0a6a78]/85">
+                    <b>What they faced:</b> {s.problem}<br />
+                    <b>What they did:</b> {s.solution}<br />
+                    <b>What happened:</b> {s.outcome}
+                  </p>
+                </div>
+              ))}
+              {stories.length === 0 && (
+                <p className="italic text-[#0a6a78]/70 sm:col-span-3">No comparable cases were attached.</p>
+              )}
+            </div>
+          </PrintSection>
+
+          {/* ===== SECTION 6: OTHER OPTIONS CONSIDERED + DEFENSIBILITY ===== */}
+          <PrintSection number="5" title="Other options considered" tone="violet">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                {(top.alternatives_considered || []).slice(0, 3).length > 0 ? (
-                  <ul className="space-y-1.5">
-                    {(top.alternatives_considered || []).slice(0, 3).map((a) => (
-                      <li key={a.family} className="rounded border border-[#c5bef0] bg-white/50 p-2">
-                        <p className="text-[12px] font-semibold text-[#2c2a45]">{a.family}</p>
-                        <p className="mt-0.5 text-[10.5px] leading-[1.4] text-[#463a9e]/80">{a.reason}</p>
+                {options.length > 0 ? (
+                  <ul className="space-y-2">
+                    {options.map((o) => (
+                      <li key={o.title} className="rounded border border-[#c5bef0] bg-white/50 p-2">
+                        <p className="text-[12px] font-semibold text-[#2c2a45]">{o.title}</p>
+                        <p className="mt-0.5 text-[10.5px] leading-[1.4] text-[#463a9e]/80">{o.tradeoff}</p>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[11px] italic text-[#463a9e]/70">No alternatives were surfaced.</p>
+                  <p className="text-[11px] italic text-[#463a9e]/70">No alternatives surfaced.</p>
                 )}
               </div>
               <div>
-                <Sub label="Why we can defend this decision" tone="violet" />
+                <Sub label="Why we can defend this" tone="violet" />
                 <ul className="space-y-1.5">
-                  {defSummary.map((f) => (
+                  {defItems.map((f) => (
                     <li key={f.label} className="flex items-start gap-2 text-[11px]">
                       <span className={cn("mt-[5px] flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white", f.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
                         {f.ok ? "✓" : "⚠"}
@@ -317,9 +284,13 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             </div>
           </PrintSection>
 
-          <p className="mt-5 border-t border-[#e6e2db] pt-2.5 text-[10.5px] leading-[1.5] text-[#9c968a]">
-            Grounding note: {g.note} Figures and ranges shown are derived from retrieved implementation evidence and are not outcome guarantees.
-          </p>
+          {/* ===== DECISION NOTES ===== */}
+          <div className="mt-5 border-t border-[#e6e2db] pt-2.5">
+            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#9c968a]">Decision Notes</p>
+            <p className="mt-1 text-[10.5px] leading-[1.5] text-[#9c968a]">
+              {decisionNotes(g)}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -332,11 +303,7 @@ function PrintSection({ number, title, tone, children }: { number: string; title
   return (
     <section className="mt-6">
       <div className="mb-2.5 flex items-center gap-3">
-        <span
-          aria-hidden="true"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-[12px] font-bold text-white"
-          style={{ backgroundColor: c.accent }}
-        >
+        <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-[12px] font-bold text-white" style={{ backgroundColor: c.accent }}>
           {number}
         </span>
         <h2 className={cn("font-serif text-[20px] font-semibold tracking-[-0.01em]", t.label)}>{title}</h2>

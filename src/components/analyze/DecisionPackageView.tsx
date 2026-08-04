@@ -14,14 +14,17 @@ import {
   type BriefTone,
 } from "@/lib/brief-colors";
 import {
-  buildExecutiveSummary,
-  buildWhyCards,
-  buildImpactKpis,
-  buildConfidenceExplanation,
-  buildRiskItems,
-  buildUnknownItems,
-  buildAssumptionItems,
-  defensibilitySummary,
+  businessSummary,
+  executiveKpis,
+  businessRationale,
+  riskItems,
+  unknownItems,
+  assumptionItems,
+  implementationRoadmap,
+  evidenceStories,
+  evaluatedOptions,
+  decisionNotes,
+  defensibilityItems,
 } from "@/lib/brief-text";
 
 export function DecisionPackageView({
@@ -97,17 +100,19 @@ export function DecisionPackageView({
   };
 
   const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  const whyCards = buildWhyCards(top, summary);
-  const impactKpis = buildImpactKpis(top);
-  const confidenceFactors = buildConfidenceExplanation(top);
-  const risks = buildRiskItems(top);
-  const unknowns = buildUnknownItems(top);
-  const assumptions = buildAssumptionItems(top);
-  const defSummary = defensibilitySummary(dd.checks);
+  const kpis = executiveKpis(top);
+  const rationale = businessRationale(top, summary);
+  const risks = riskItems(top);
+  const unknowns = unknownItems(top);
+  const assumptions = assumptionItems(top);
+  const roadmap = implementationRoadmap(top);
+  const stories = evidenceStories(top);
+  const options = evaluatedOptions(top);
+  const defItems = defensibilityItems(dd.checks);
 
   return (
     <div className="space-y-6">
-      {/* ===== MASTHEAD ===== */}
+      {/* ===== SECTION 1: EXECUTIVE SUMMARY ===== */}
       <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-white shadow-panel">
         <div className="h-1.5 w-full bg-gradient-to-r from-[#1f9d57] via-[#0e9db0] via-[#6a5acd] to-[#d9932a]" aria-hidden="true" />
         <div className="border-b border-[#a8d6bd]/60 bg-[#e9f6ee] px-6 py-3">
@@ -125,12 +130,13 @@ export function DecisionPackageView({
 
         <div className="p-6 sm:p-7">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h2 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#101826] sm:text-[30px]">
                 Executive Decision Brief
               </h2>
-              <p className="mt-2 font-serif text-[19px] italic leading-snug text-[#3c5645]">
-                {top.title || "Evidence-supported intervention"}
+              <p className="mt-2 font-serif text-[20px] font-medium leading-snug text-[#14402a] sm:text-[23px]">
+                Implement {top.title || "the recommended intervention"}
+                {summary?.problem_statement ? ` for ${summary.problem_statement.replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim()}` : ""}.
               </p>
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
@@ -140,8 +146,18 @@ export function DecisionPackageView({
           </div>
 
           <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-[#4f6280]">
-            {buildExecutiveSummary(top, meta, library)}
+            {businessSummary(top, meta, library)}
           </p>
+
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {kpis.map((k) => (
+              <div key={k.label} className="rounded-lg border border-[#a9dce2] bg-[#e5f6f8] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p>
+                <p className="mt-1 text-[22px] font-extrabold tracking-tight text-[#0a3a42]">{k.value}</p>
+                {k.caption && <p className="truncate text-[11px] text-[#0a6a78]/80">{k.caption}</p>}
+              </div>
+            ))}
+          </div>
 
           <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[#e6eaef] bg-[#e6eaef] sm:grid-cols-4">
             <MetaCell label="Prepared for" value="Executive Leadership" />
@@ -151,16 +167,6 @@ export function DecisionPackageView({
           </dl>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              disabled
-              aria-disabled="true"
-              title="Feature coming soon"
-              className="inline-flex cursor-not-allowed items-center justify-center gap-2 bg-line px-6 py-3 text-[14px] font-semibold text-faint"
-            >
-              Implement This Plan
-              <span className="text-[10px] font-bold uppercase tracking-wide text-faint">(Feature Coming Soon)</span>
-            </button>
             <button
               type="button"
               onClick={() => setPrinting(true)}
@@ -183,185 +189,134 @@ export function DecisionPackageView({
         </div>
       </section>
 
-      {/* ===== 1. WHY THIS IS THE BEST DECISION ===== */}
-      <BriefPanel number="1" title="Why this is the best decision" tone="green">
+      {/* ===== SECTION 2: WHY THIS IS THE RIGHT DECISION ===== */}
+      <BriefPanel number="1" title="Why this is the right decision" tone="green">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {whyCards.map((card) => (
+          {rationale.map((card) => (
             <div key={card.title} className="rounded-lg border border-[#a8d6bd] bg-white/50 p-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#14663a]">{card.title}</p>
-              <ul className="mt-2 space-y-1.5">
-                {card.bullets.map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-[12.5px] leading-[1.5] text-[#3c5645]">
-                    <span aria-hidden="true" className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#1f9d57]" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
+              <p className="mt-2 text-[13px] leading-[1.55] text-[#3c5645]">{card.body}</p>
             </div>
           ))}
         </div>
       </BriefPanel>
 
-      {/* ===== 2. EXPECTED BUSINESS IMPACT ===== */}
-      <BriefPanel number="2" title="Expected business impact" tone="teal">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {impactKpis.map((k) => (
-            <div key={k.label} className="rounded-lg border border-[#a9dce2] bg-[#e5f6f8] p-3.5">
-              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p>
-              <p className="mt-1 truncate text-[20px] font-extrabold tracking-tight text-[#0a3a42]">
-                {k.value}
-              </p>
-              <p className="truncate text-[10.5px] text-[#0a6a78]/80">{k.caption}</p>
-            </div>
-          ))}
-        </div>
-
-        <SubHeader tone="teal">Why this confidence level</SubHeader>
-        <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {confidenceFactors.map((f) => (
-            <li key={f.label} className="flex items-start gap-2.5 text-[12.5px]">
-              <span className={cn("mt-[6px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white", f.present ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
-                {f.present ? "✓" : "⚠"}
-              </span>
-              <span className={cn("leading-[1.5]", f.present ? "text-[#0a3a42]" : "text-[#B45309]")}>
-                {f.label}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </BriefPanel>
-
-      {/* ===== 3. WHAT COULD GO WRONG ===== */}
-      <BriefPanel number="3" title="What could go wrong" tone="amber">
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+      {/* ===== SECTION 3: RISKS AND UNKNOWNS ===== */}
+      <BriefPanel number="2" title="Risks and unknowns" tone="amber">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div>
-            <SubHeader tone="amber">Risks</SubHeader>
+            <SubHeader tone="amber">Known risks</SubHeader>
             {risks.length > 0 ? (
-              <ul className="space-y-2.5">
-                {risks.slice(0, 3).map((r, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[12.5px]">
-                    <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#B45309]" />
-                    <p className="leading-[1.5] text-[#5c5240]">
-                      <span className="font-semibold text-[#8f5c11]">{r.title}.</span>{" "}
-                      {r.mitigation ? `Mitigation: ${r.mitigation}` : r.explanation}
-                    </p>
+              <ul className="space-y-3">
+                {risks.map((r, i) => (
+                  <li key={i} className="text-[13px] leading-[1.5] text-[#5c5240]">
+                    <span className="font-semibold text-[#8f5c11]">{r.title}.</span> {r.body}
+                    {r.mitigation && <p className="mt-0.5 text-[#14663a]">Mitigation: {r.mitigation}</p>}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] italic text-[#8f5c11]">No implementation risks identified.</p>
+              <p className="text-[12.5px] italic text-[#8f5c11]">No material risks identified.</p>
             )}
           </div>
           <div>
-            <SubHeader tone="amber">Unknowns</SubHeader>
+            <SubHeader tone="amber">Information needed</SubHeader>
             {unknowns.length > 0 ? (
-              <ul className="space-y-2.5">
+              <ul className="space-y-3">
                 {unknowns.map((u) => (
-                  <li key={u.title} className="flex items-start gap-2.5 text-[12.5px]">
-                    <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#d9932a]" />
-                    <p className="leading-[1.5] text-[#5c5240]">
-                      <span className="font-semibold text-[#8f5c11]">{u.title}.</span> {u.why}
-                    </p>
+                  <li key={u.title} className="text-[13px] leading-[1.5] text-[#5c5240]">
+                    <span className="font-semibold text-[#8f5c11]">{u.title}.</span> {u.why}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] italic text-[#8f5c11]">No unknowns to flag.</p>
+              <p className="text-[12.5px] italic text-[#8f5c11]">All necessary information is available.</p>
             )}
           </div>
           <div>
             <SubHeader tone="amber">Assumptions</SubHeader>
             {assumptions.length > 0 ? (
-              <ul className="space-y-2.5">
+              <ul className="space-y-3">
                 {assumptions.map((a) => (
-                  <li key={a.title} className="flex items-start gap-2.5 text-[12.5px]">
-                    <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#d9932a]" />
-                    <p className="leading-[1.5] text-[#5c5240]">
-                      <span className="font-semibold text-[#8f5c11]">{a.title}.</span> {a.explanation}
-                    </p>
+                  <li key={a.title} className="text-[13px] leading-[1.5] text-[#5c5240]">
+                    <span className="font-semibold text-[#8f5c11]">{a.title}.</span> {a.body}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] italic text-[#8f5c11]">No material assumptions identified.</p>
+              <p className="text-[12.5px] italic text-[#8f5c11]">No material assumptions identified.</p>
             )}
           </div>
         </div>
       </BriefPanel>
 
-      {/* ===== 4. HOW WE EXECUTE ===== */}
-      <BriefPanel number="4" title="How we execute" tone="teal">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div>
-            <SubHeader tone="teal">Implementation path</SubHeader>
-            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {["Internal team", "Selected partner"].map((opt, i) => (
-                <div
-                  key={opt}
-                  className={cn(
-                    "border px-3 py-2 text-[12.5px] font-medium",
-                    i === 0 ? "border-[#0e9db0] bg-[#0e9db0] text-white" : "border-[#a9dce2] bg-white/60 text-[#0a3a42]"
-                  )}
-                >
-                  {opt}
-                </div>
-              ))}
-            </div>
-            <p className="mt-2 text-[11.5px] leading-[1.5] text-[#0a6a78]/80">
-              Compass does not implement. Your team or a selected partner executes the plan while
-              Compass preserves the rationale, requirements, and validation criteria.
-            </p>
-          </div>
-          <div>
-            <SubHeader tone="teal">Validation before scaling</SubHeader>
-            {top.next_validation_step ? (
-              <div className="rounded-lg border border-[#a9dce2] bg-white/60 p-3.5">
-                <p className="text-[13px] font-bold text-[#0a3a42]">{top.next_validation_step.action}</p>
-                <p className="mt-1 text-[12px] leading-[1.5] text-[#0a6a78]/80">{top.next_validation_step.success_criteria || top.next_validation_step.purpose}</p>
+      {/* ===== SECTION 4: IMPLEMENTATION ===== */}
+      <BriefPanel number="3" title="Implementation" tone="teal">
+        <div className="grid grid-cols-1 gap-4">
+          {roadmap.map((step, i) => (
+            <div key={step.label} className="flex items-start gap-4 rounded-lg border border-[#a9dce2] bg-white/50 p-4">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#0e9db0] font-mono text-[12px] font-bold text-[#0a6a78]">
+                {i + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-semibold text-[#0a3a42]">{step.label}</p>
+                <p className="mt-0.5 text-[12.5px] leading-[1.5] text-[#0a6a78]/80">{step.detail}</p>
+                <p className="mt-1 text-[11px] font-medium text-[#0a6a78]">Owner: {step.owner}</p>
               </div>
-            ) : (
-              <p className="text-[12px] italic text-[#0a6a78]/70">No validation step defined.</p>
-            )}
-            <SubHeader tone="teal">Comparable implementations in our evidence base</SubHeader>
-            {top.comparable_implementations && top.comparable_implementations.length > 0 ? (
-              <ul className="mt-1.5 space-y-1.5">
-                {top.comparable_implementations.slice(0, 3).map((c) => (
-                  <li key={c.record_id || c.organization} className="rounded border border-[#a9dce2] bg-white/50 px-3 py-2">
-                    <p className="text-[12.5px] font-bold text-[#0a3a42]">{c.organization || "Verified implementation"}</p>
-                    <p className="text-[11px] leading-[1.4] text-[#0a6a78]/85">{(c.outcome_summary || c.observed_outcome || "Outcome not quantified").replace(/;/g, " · ")}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[12px] italic text-[#0a6a78]/70">No comparable implementations attached.</p>
-            )}
-          </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-[12px] text-[#0a6a78]/80">
+          Compass does not implement. Your team or a selected partner executes the plan while Computes preserves the rationale and success criteria.
+        </p>
+      </BriefPanel>
+
+      {/* ===== SECTION 5: EVIDENCE ===== */}
+      <BriefPanel number="4" title="Evidence" tone="teal">
+        <p className="text-[13px] leading-[1.55] text-[#0a6a78]/85">
+          Organizations facing similar challenges have successfully implemented comparable interventions.
+          Below are three representative cases.
+        </p>
+        <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {stories.map((s) => (
+            <div key={s.organization} className="rounded-lg border border-[#a9dce2] bg-white/60 p-4">
+              <p className="text-[14px] font-bold text-[#0a3a42]">{s.organization}</p>
+              <div className="mt-3 space-y-2 text-[12px] leading-[1.5]">
+                <p><span className="font-semibold text-[#0a6a78]">What they faced:</span> <span className="text-[#0a6a78]/85">{s.problem}</span></p>
+                <p><span className="font-semibold text-[#0a6a78]">What they did:</span> <span className="text-[#0a6a78]/85">{s.solution}</span></p>
+                <p><span className="font-semibold text-[#0a6a78]">What happened:</span> <span className="text-[#0a6a78]/85">{s.outcome}</span></p>
+              </div>
+            </div>
+          ))}
+          {stories.length === 0 && (
+            <p className="italic text-[#0a6a78]/70 md:col-span-3">No comparable cases were attached.</p>
+          )}
         </div>
       </BriefPanel>
 
-      {/* ===== 5. OTHER APPROACHES EVALUATED + WHY WE CAN DEFEND THIS ===== */}
-      <BriefPanel number="5" title="Other approaches evaluated" tone="violet">
+      {/* ===== SECTION 6: OTHER OPTIONS CONSIDERED ===== */}
+      <BriefPanel number="5" title="Other options considered" tone="violet">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
-            {top.alternatives_considered && top.alternatives_considered.length > 0 ? (
-              <ul className="space-y-2.5">
-                {top.alternatives_considered.slice(0, 3).map((a) => (
-                  <li key={a.family} className="rounded border border-[#c5bef0] bg-white/50 p-3">
-                    <p className="text-[13px] font-semibold text-[#2c2a45]">{a.family}</p>
-                    <p className="mt-1 text-[11.5px] leading-[1.5] text-[#463a9e]/80">{a.reason}</p>
+            {options.length > 0 ? (
+              <ul className="space-y-3">
+                {options.map((o) => (
+                  <li key={o.title} className="rounded-lg border border-[#c5bef0] bg-white/50 p-4">
+                    <p className="text-[14px] font-semibold text-[#2c2a45]">{o.title}</p>
+                    <p className="mt-1 text-[12.5px] leading-[1.5] text-[#463a9e]/80">{o.tradeoff}</p>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] italic text-[#463a9e]/70">No alternatives were surfaced.</p>
+              <p className="text-[12.5px] italic text-[#463a9e]/70">No alternatives were surfaced.</p>
             )}
           </div>
           <div>
-            <SubHeader tone="violet">Why we can defend this decision</SubHeader>
-            <ul className="space-y-2">
-              {defSummary.map((f) => (
-                <li key={f.label} className="flex items-start gap-2.5 text-[12.5px]">
-                  <span className={cn("mt-[6px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white", f.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
+            <SubHeader tone="violet">Why we can defend this recommendation</SubHeader>
+            <ul className="space-y-2.5">
+              {defItems.map((f) => (
+                <li key={f.label} className="flex items-start gap-2.5 text-[13px]">
+                  <span className={cn("mt-[5px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white", f.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
                     {f.ok ? "✓" : "⚠"}
                   </span>
                   <span className={cn("leading-[1.5]", f.ok ? "text-[#463a9e]" : "text-[#B45309]")}>{f.label}</span>
@@ -372,10 +327,42 @@ export function DecisionPackageView({
         </div>
       </BriefPanel>
 
-      {/* ===== GROUNDING NOTE ===== */}
-      <div className="rounded-lg border border-dashed border-line bg-paper px-4 py-3">
-        <p className="text-[11px] leading-[1.55] text-muted">
-          <span className="font-semibold text-ink">Grounding note.</span> {g.note}
+      {/* ===== SECTION 7: EXECUTIVE DECISION ===== */}
+      <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-6 shadow-sm sm:p-8">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">
+          Executive Decision
+        </p>
+        <p className="mt-3 text-[14px] leading-[1.6] text-[#3c5645]">
+          Approving this recommendation will initiate {top.title || "the recommended intervention"}.
+          The implementation follows the plan outlined above, with a validation gate before scale.
+          Compass tracks the outcome against the baseline and feeds results back into future recommendations.
+        </p>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            title="Feature coming soon"
+            className="inline-flex cursor-not-allowed items-center justify-center gap-2 bg-[#d3ccc0] px-6 py-3 text-[14px] font-semibold text-[#6c685f]"
+          >
+            Approve & Implement
+            <span className="text-[10px] font-bold uppercase tracking-wide text-[#6c685f]">(Feature Coming Soon)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPrinting(true)}
+            className="inline-flex items-center justify-center gap-2 border border-[#a8d6bd] bg-white/70 px-6 py-3 text-[14px] font-semibold text-[#14663a] transition-colors hover:border-[#1f9d57]"
+          >
+            Download as PDF
+          </button>
+        </div>
+      </section>
+
+      {/* ===== DECISION NOTES ===== */}
+      <div className="rounded-lg border border-line bg-paper/60 px-4 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-faint">Decision Notes</p>
+        <p className="mt-1 text-[11.5px] leading-[1.55] text-muted">
+          {decisionNotes(g)}
         </p>
       </div>
 
@@ -405,7 +392,7 @@ function BriefPanel({ number, title, tone, children }: { number: string; title: 
         >
           {number}
         </span>
-        <h3 className={cn("font-serif text-[24px] font-semibold tracking-[-0.01em]", t.label)}>{title}</h3>
+        <h3 className={cn("font-serif text-[22px] font-semibold tracking-[-0.01em]", t.label)}>{title}</h3>
         <span aria-hidden="true" className="h-px flex-1" style={{ backgroundColor: c.accent + "40" }} />
       </div>
       <div className={cn("space-y-4 rounded-xl border p-5 shadow-sm sm:p-6", t.card)}>{children}</div>
@@ -421,10 +408,6 @@ function SubHeader({ tone, children }: { tone: BriefTone; children: React.ReactN
       {children}
     </p>
   );
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#4f6280]">{children}</p>;
 }
 
 function MetaCell({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
@@ -453,7 +436,7 @@ function ImplementationView({ top, recommendationId, onBack }: { top: DecisionRe
           <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#4f6280]">Implement This Plan</p>
         </div>
         <div className="p-6">
-          <SectionLabel>Recommended implementation path</SectionLabel>
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#4f6280]">Recommended implementation path</p>
           <p className="mt-2 text-[14px] font-semibold text-[#101826]">{top.title}</p>
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {["Internal team", "Implementation partner", "Custom systems integrator"].map((opt, i) => (
@@ -497,7 +480,7 @@ function ImplementationView({ top, recommendationId, onBack }: { top: DecisionRe
       </section>
 
       <div className="rounded-xl border border-[#dfe5ec] bg-white p-5 shadow-sm">
-        <SectionLabel>Required changes</SectionLabel>
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#4f6280]">Required changes</p>
         <ul className="mt-2 space-y-1.5">
           {(top.specific_intervention?.required_changes || ["Define baseline metrics", "Configure the intervention", "Run a pilot against the validation gate"]).map((c, i) => (
             <li key={i} className="flex items-start gap-2 text-[12px] text-[#4f6280]">
@@ -515,8 +498,8 @@ function InsufficientEvidence({ rec }: { rec: DecisionRec }) {
     <div className="rounded-xl border border-[#B45309] bg-[#FBF0E0] p-6">
       <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#7a3b06]">Insufficient evidence — judgment deferred</p>
       <p className="mt-2 text-[13.5px] leading-[1.6] text-[#101826]/85">
-        Compass found evidence for the general intervention category but not enough highly comparable
-        implementations to make a defensible decision. The next validation step below shows what would change that.
+        Compass found evidence for the general intervention category but not enough similar cases
+        to make a confident recommendation. The next step below shows what would change that.
       </p>
       {rec.next_validation_step && (
         <div className="mt-4 rounded-lg border border-[#B45309]/30 bg-white p-4">
