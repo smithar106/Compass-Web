@@ -176,7 +176,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
                   <ul className="space-y-1.5">
                     {risks.map((r, i) => (
                       <li key={i} className="text-[11px] leading-[1.4] text-[#5c5240]">
-                        <b className="text-[#8f5c11]">{r.title}.</b> {r.body}{r.mitigation ? ` Mitigation: ${r.mitigation}` : ""}
+                        <b className="text-[#8f5c11]">{r.title}.</b> {r.mitigation}
                       </li>
                     ))}
                   </ul>
@@ -204,7 +204,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
                   <ul className="space-y-1.5">
                     {assumptions.map((a) => (
                       <li key={a.title} className="text-[11px] leading-[1.4] text-[#5c5240]">
-                        <b className="text-[#8f5c11]">{a.title}.</b> {a.body}
+                        <b className="text-[#8f5c11]">{a.title}</b>
                       </li>
                     ))}
                   </ul>
@@ -239,9 +239,9 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
                 <div key={s.organization} className="rounded border border-[#a9dce2] bg-white/60 p-3">
                   <p className="text-[12px] font-bold text-[#0a3a42]">{s.organization}</p>
                   <p className="mt-1.5 text-[10px] leading-[1.4] text-[#0a6a78]/85">
-                    <b>What they faced:</b> {s.problem}<br />
-                    <b>What they did:</b> {s.solution}<br />
-                    <b>What happened:</b> {s.outcome}
+                    <b>Challenge:</b> {s.challenge}<br />
+                    <b>Solution:</b> {s.solution}<br />
+                    <b>Result:</b> {s.result}
                   </p>
                 </div>
               ))}

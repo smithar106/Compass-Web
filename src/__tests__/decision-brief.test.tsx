@@ -38,14 +38,14 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    expect(screen.getByText("Prepared by Compass")).toBeTruthy();
     expect(screen.getByText("Executive Decision Brief")).toBeTruthy();
+    expect(screen.getAllByText("Evidence").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Why this is the right decision")).toBeTruthy();
     expect(screen.getByText("Risks and unknowns")).toBeTruthy();
     expect(screen.getByText("Implementation")).toBeTruthy();
-    expect(screen.getByText("Evidence")).toBeTruthy();
     expect(screen.getByText("Other options considered")).toBeTruthy();
-    expect(screen.getByText("Executive Decision")).toBeTruthy();
+    expect(screen.getByText("Executive Approval")).toBeTruthy();
+    expect(screen.getByText("Recommended Decision")).toBeTruthy();
     expect(screen.getByText("Download PDF")).toBeTruthy();
   });
 

@@ -134,10 +134,15 @@ export function DecisionPackageView({
               <h2 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#101826] sm:text-[30px]">
                 Executive Decision Brief
               </h2>
-              <p className="mt-2 font-serif text-[20px] font-medium leading-snug text-[#14402a] sm:text-[23px]">
-                Implement {top.title || "the recommended intervention"}
-                {summary?.problem_statement ? ` for ${summary.problem_statement.replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim()}` : ""}.
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#4f6280]">Recommended Decision</p>
+              <p className="mt-2 font-serif text-[22px] font-medium leading-snug text-[#14402a]">
+                Approve {top.title || "the recommended intervention"}
               </p>
+              {summary?.problem_statement && (
+                <p className="mt-1 text-[13px] font-medium text-muted">
+                  Scope: {summary.problem_statement.replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim()}
+                </p>
+              )}
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
               <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", badge.dot)} />
@@ -207,11 +212,11 @@ export function DecisionPackageView({
           <div>
             <SubHeader tone="amber">Known risks</SubHeader>
             {risks.length > 0 ? (
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {risks.map((r, i) => (
-                  <li key={i} className="text-[13px] leading-[1.5] text-[#5c5240]">
-                    <span className="font-semibold text-[#8f5c11]">{r.title}.</span> {r.body}
-                    {r.mitigation && <p className="mt-0.5 text-[#14663a]">Mitigation: {r.mitigation}</p>}
+                  <li key={i} className="rounded border border-[#e8cf9c] bg-white/60 px-3 py-2">
+                    <p className="text-[13px] font-semibold text-[#8f5c11]">{r.title}</p>
+                    {r.mitigation && <p className="mt-0.5 text-[11.5px] leading-[1.4] text-[#5c5240]">{r.mitigation}</p>}
                   </li>
                 ))}
               </ul>
@@ -239,7 +244,7 @@ export function DecisionPackageView({
               <ul className="space-y-3">
                 {assumptions.map((a) => (
                   <li key={a.title} className="text-[13px] leading-[1.5] text-[#5c5240]">
-                    <span className="font-semibold text-[#8f5c11]">{a.title}.</span> {a.body}
+                    <span className="font-semibold text-[#8f5c11]">{a.title}</span>
                   </li>
                 ))}
               </ul>
@@ -273,18 +278,14 @@ export function DecisionPackageView({
 
       {/* ===== SECTION 5: EVIDENCE ===== */}
       <BriefPanel number="4" title="Evidence" tone="teal">
-        <p className="text-[13px] leading-[1.55] text-[#0a6a78]/85">
-          Organizations facing similar challenges have successfully implemented comparable interventions.
-          Below are three representative cases.
-        </p>
-        <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {stories.map((s) => (
             <div key={s.organization} className="rounded-lg border border-[#a9dce2] bg-white/60 p-4">
               <p className="text-[14px] font-bold text-[#0a3a42]">{s.organization}</p>
               <div className="mt-3 space-y-2 text-[12px] leading-[1.5]">
-                <p><span className="font-semibold text-[#0a6a78]">What they faced:</span> <span className="text-[#0a6a78]/85">{s.problem}</span></p>
-                <p><span className="font-semibold text-[#0a6a78]">What they did:</span> <span className="text-[#0a6a78]/85">{s.solution}</span></p>
-                <p><span className="font-semibold text-[#0a6a78]">What happened:</span> <span className="text-[#0a6a78]/85">{s.outcome}</span></p>
+                <p><span className="font-semibold text-[#0a6a78]">Challenge:</span> <span className="text-[#0a6a78]/85">{s.challenge}</span></p>
+                <p><span className="font-semibold text-[#0a6a78]">Solution:</span> <span className="text-[#0a6a78]/85">{s.solution}</span></p>
+                <p><span className="font-semibold text-[#0a6a78]">Result:</span> <span className="text-[#0a6a78]/85">{s.result}</span></p>
               </div>
             </div>
           ))}
@@ -327,17 +328,30 @@ export function DecisionPackageView({
         </div>
       </BriefPanel>
 
-      {/* ===== SECTION 7: EXECUTIVE DECISION ===== */}
+      {/* ===== EXECUTIVE APPROVAL ===== */}
       <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-6 shadow-sm sm:p-8">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">
-          Executive Decision
+          Executive Approval
         </p>
-        <p className="mt-3 text-[14px] leading-[1.6] text-[#3c5645]">
-          Approving this recommendation will initiate {top.title || "the recommended intervention"}.
-          The implementation follows the plan outlined above, with a validation gate before scale.
-          Compass tracks the outcome against the baseline and feeds results back into future recommendations.
+        <p className="mt-2 text-[14px] leading-[1.6] text-[#3c5645]">
+          Compass recommends approving {top.title || "the recommended intervention"}.
+          If approved, the following conditions should be met before full deployment:
         </p>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <ul className="mt-4 space-y-2.5">
+          <li className="flex items-start gap-3 text-[13px] text-[#3c5645]">
+            <span aria-hidden="true" className="mt-[3px] text-[#1f9d57]">✓</span>
+            Complete a four-week operational baseline measurement.
+          </li>
+          <li className="flex items-start gap-3 text-[13px] text-[#3c5645]">
+            <span aria-hidden="true" className="mt-[3px] text-[#1f9d57]">✓</span>
+            {top.next_validation_step?.success_criteria || "Validate results against the agreed baseline before proceeding to full deployment."}
+          </li>
+          <li className="flex items-start gap-3 text-[13px] text-[#3c5645]">
+            <span aria-hidden="true" className="mt-[3px] text-[#1f9d57]">✓</span>
+            Review and select an implementation partner or confirm internal team readiness.
+          </li>
+        </ul>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
             disabled
@@ -345,7 +359,7 @@ export function DecisionPackageView({
             title="Feature coming soon"
             className="inline-flex cursor-not-allowed items-center justify-center gap-2 bg-[#d3ccc0] px-6 py-3 text-[14px] font-semibold text-[#6c685f]"
           >
-            Approve & Implement
+            Approve Implementation
             <span className="text-[10px] font-bold uppercase tracking-wide text-[#6c685f]">(Feature Coming Soon)</span>
           </button>
           <button
