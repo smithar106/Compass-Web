@@ -13,6 +13,7 @@ import {
   BRIEF_TONE_STYLES,
   type BriefTone,
 } from "@/lib/brief-colors";
+import { buildExecutiveSummary, buildRecommendationReasons, cleanProblem } from "@/lib/brief-text";
 
 interface Kpi {
   label: string;
@@ -134,7 +135,7 @@ export function DecisionPackageView({
           </div>
 
           <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-[#4f6280]">
-            {executiveSummary(top, meta, library)}
+            {buildExecutiveSummary(top, meta, library)}
           </p>
 
           {/* proof chips */}
@@ -197,7 +198,7 @@ export function DecisionPackageView({
       <BriefPanel number="1" title="Recommendation" tone="green">
         <p className="text-[12px] font-semibold text-[#14402a]">A. You should do this</p>
         <h3 className="mt-1 font-serif text-[22px] font-semibold leading-snug tracking-[-0.01em] text-[#101826]">
-          {top.title || "Approve the recommended intervention"}
+          {recommendationAction(top, summary)}
         </h3>
         <div className="mt-3 space-y-2 border-t border-[#a8d6bd]/70 pt-3">
           {buildRecommendationReasons(top, summary).map((r) => (
@@ -246,7 +247,7 @@ export function DecisionPackageView({
           <span className="font-mono text-[14px] font-bold text-[#463a9e]">
             {dd.score} <span className="text-[11px] text-[#463a9e]/70">/ {dd.total} checks</span>
           </span>
-          <span className="text-[11px] text-[#0a6a78]/75">questions answered from evidence</span>
+          <span className="text-[11px] text-[#0a6a78]/75">can be answered from the retrieved evidence</span>
         </div>
         <ul className="mt-2 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
           {dd.checks.map((c) => (
@@ -416,23 +417,13 @@ function SubHeader({ tone, children }: { tone: BriefTone; children: React.ReactN
   );
 }
 
-function buildRecommendationReasons(top: DecisionRec, summary: any): { key: string; text: string }[] {
-  const reasons: { key: string; text: string }[] = [];
-  const problem = summary?.problem_statement || top.rationale;
-  if (problem) {
-    reasons.push({ key: "A1", text: `Why this problem: ${problem}` });
+function recommendationAction(top: DecisionRec, summary: any): string {
+  const problem = cleanProblem(summary?.problem_statement);
+  const title = top.title || "the recommended intervention";
+  if (problem && top.title) {
+    return `${title} for ${problem}`;
   }
-  const firstReasons = top.why_ranked_first?.supporting_reasons || top.why_it_ranked_here || [];
-  if (firstReasons.length > 0) {
-    firstReasons.slice(0, 2).forEach((r, i) => {
-      reasons.push({ key: `A${i + 2}`, text: `Why this intervention: ${r}` });
-    });
-  }
-  if (reasons.length === 0) {
-    reasons.push({ key: "A1", text: "This intervention ranks highest on problem fit, evidence strength, implementation depth, and outcome evidence." });
-    reasons.push({ key: "A2", text: "Compass defers when the evidence is insufficient; here the evidence supports moving forward." });
-  }
-  return reasons.slice(0, 3);
+  return title;
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -465,8 +456,14 @@ function buildKpis(top: DecisionRec, meta: any): Kpi[] {
   if (ranges.length) {
     const r = ranges[0];
     const fmt = r.median != null ? String(r.median) : r.low != null && r.high != null ? `${r.low}–${r.high}` : "";
-    const unit = r.unit === "%" ? "%" : r.unit === "currency" ? "$" : "";
-    impact = { label: "Expected impact", value: `${fmt}${unit}` || "—", caption: r.metric_label || "outcome", tone: "ok" };
+    const unit =
+      r.unit === "currency" ? " $" : r.unit === "hours" ? " hours" : r.unit === "days" ? " days" : r.unit === "weeks" ? " weeks" : r.unit === "months" ? " months" : r.unit === "%" ? "%" : "";
+    impact = {
+      label: "Expected impact",
+      value: `${fmt}${unit}`.trim() || "—",
+      caption: r.metric_label ? `${r.metric_label} in comparable implementations` : "outcome evidence",
+      tone: "ok",
+    };
   }
 
   const tl = top.impact?.implementation_timeline;
@@ -476,9 +473,9 @@ function buildKpis(top: DecisionRec, meta: any): Kpi[] {
     const weeks = hi || lo || 0;
     if (weeks > 8) {
       const mo = Math.max(1, Math.round(weeks / 4.33));
-      timeline = { label: "Timeline", value: lo && hi ? `${Math.max(1, Math.round(lo / 4.33))}–${Math.round(hi / 4.33)} mo` : `~${mo} mo`, caption: "estimate", tone: "ok" };
+      timeline = { label: "Timeline", value: lo && hi ? `${Math.max(1, Math.round(lo / 4.33))}–${Math.round(hi / 4.33)} months` : `~${mo} months`, caption: "estimate", tone: "ok" };
     } else {
-      timeline = { label: "Timeline", value: lo && hi ? `${lo}–${hi} wk` : `${lo || hi} wk`, caption: "estimate", tone: "ok" };
+      timeline = { label: "Timeline", value: lo && hi ? `${lo}–${hi} weeks` : `${lo || hi} weeks`, caption: "estimate", tone: "ok" };
     }
   }
 
@@ -490,22 +487,11 @@ function buildKpis(top: DecisionRec, meta: any): Kpi[] {
 
   return [
     { label: "Confidence", value: String(score), caption: label, tone: score >= 70 ? "ok" : score >= 50 ? "warn" : "muted" },
-    { label: "Evidence", value: String(total), caption: `${orgs ? orgs + " organizations" : "implementations"}`, tone: total >= 5 ? "ok" : "warn" },
+    { label: "Evidence", value: String(total), caption: total === 1 ? "comparable implementation" : `${orgs ? `${total} comparable implementations · ${orgs} organizations` : "comparable implementations"}`, tone: total >= 5 ? "ok" : "warn" },
     impact,
     timeline,
     readiness,
   ];
-}
-
-function executiveSummary(top: DecisionRec, meta: any, library: number | null): string {
-  const total = top.evidence_summary?.total_comparables || 0;
-  const orgs = meta?.evidence_count?.unique_organizations || 0;
-  const libraryLabel = library ? `${library} verified implementations` : "a growing library of verified implementations";
-  const base = `Based on organizations similar to yours, Compass recommends ${top.title || "an intervention"} as the highest-confidence option.`;
-  if (total > 0) {
-    return `${base} This rests on ${total} comparable implementation${total > 1 ? "s" : ""} matched from ${libraryLabel}${orgs ? `, across ${orgs} organizations` : ""}.`;
-  }
-  return base;
 }
 
 function ImplementationView({ top, recommendationId, onBack }: { top: DecisionRec; recommendationId?: string; onBack: () => void }) {

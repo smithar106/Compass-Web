@@ -12,6 +12,7 @@ import {
   BRIEF_TONE_STYLES,
   type BriefTone,
 } from "@/lib/brief-colors";
+import { buildRecommendationReasons, cleanProblem } from "@/lib/brief-text";
 
 interface DecisionBriefPrintProps {
   recs: DecisionRec[];
@@ -147,7 +148,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           <PrintSection number="1" title="Recommendation" tone="green">
             <p className="text-[12px] font-semibold text-[#14402a]">A. You should do this</p>
             <p className="mt-1 font-serif text-[19px] font-medium leading-snug text-[#1c1a17]">
-              {top.title || "Approve the recommended intervention"}
+              {recommendationAction(top, summary)}
             </p>
             <div className="mt-3 space-y-2 border-t border-[#a8d6bd]/70 pt-3">
               {buildRecommendationReasons(top, summary).map((r) => (
@@ -277,23 +278,13 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
   );
 }
 
-function buildRecommendationReasons(top: DecisionRec, summary: any): { key: string; text: string }[] {
-  const reasons: { key: string; text: string }[] = [];
-  const problem = summary?.problem_statement || top.rationale;
-  if (problem) {
-    reasons.push({ key: "A1", text: `Why this problem: ${problem}` });
+function recommendationAction(top: DecisionRec, summary: any): string {
+  const problem = cleanProblem(summary?.problem_statement);
+  const title = top.title || "the recommended intervention";
+  if (problem && top.title) {
+    return `${title} for ${problem}`;
   }
-  const firstReasons = top.why_ranked_first?.supporting_reasons || top.why_it_ranked_here || [];
-  if (firstReasons.length > 0) {
-    firstReasons.slice(0, 2).forEach((r, i) => {
-      reasons.push({ key: `A${i + 2}`, text: `Why this intervention: ${r}` });
-    });
-  }
-  if (reasons.length === 0) {
-    reasons.push({ key: "A1", text: "This intervention ranks highest on problem fit, evidence strength, implementation depth, and outcome evidence." });
-    reasons.push({ key: "A2", text: "Compass defers when the evidence is insufficient; here the evidence supports moving forward." });
-  }
-  return reasons.slice(0, 3);
+  return title;
 }
 
 function PrintMeta({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
@@ -355,7 +346,7 @@ function timelineText(top: DecisionRec): string {
   const weeks = hi || lo || 0;
   if (weeks > 8) {
     const mo = Math.max(1, Math.round(weeks / 4.33));
-    return lo && hi ? `${Math.max(1, Math.round(lo / 4.33))}–${Math.round(hi / 4.33)} mo` : `~${mo} mo`;
+    return lo && hi ? `${Math.max(1, Math.round(lo / 4.33))}–${Math.round(hi / 4.33)} months` : `~${mo} months`;
   }
-  return lo && hi ? `${lo}–${hi} wk` : `${lo || hi} wk`;
+  return lo && hi ? `${lo}–${hi} weeks` : `${lo || hi} weeks`;
 }
