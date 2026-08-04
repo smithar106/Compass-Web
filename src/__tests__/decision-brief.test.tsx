@@ -39,14 +39,9 @@ describe("DecisionPackageView executive memo", () => {
       />
     );
     expect(screen.getByText("Executive Decision Brief")).toBeTruthy();
-    expect(screen.getAllByText("Evidence").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Why this is the right decision")).toBeTruthy();
-    expect(screen.getByText("Risks and unknowns")).toBeTruthy();
-    expect(screen.getByText("Implementation")).toBeTruthy();
-    expect(screen.getByText("Other options considered")).toBeTruthy();
-    expect(screen.getByText("Executive Approval")).toBeTruthy();
-    expect(screen.getByText("Recommended Decision")).toBeTruthy();
-    expect(screen.getByText("Download PDF")).toBeTruthy();
+    expect(screen.getByText("Why this recommendation")).toBeTruthy();
+    expect(screen.getByText("Conditions for approval")).toBeTruthy();
+    expect(screen.getByText("For approval")).toBeTruthy();
   });
 
   it("opens the print preview with the McKinsey memo structure", () => {

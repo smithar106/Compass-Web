@@ -122,10 +122,13 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           {/* ===== SECTION 1: EXECUTIVE SUMMARY ===== */}
           <div className="mt-5 flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#1f9d57] pb-3">
             <div>
-              <h1 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#1c1a17]">Executive Decision Brief</h1>
-              <p className="mt-0.5 font-serif text-[17px] font-medium leading-snug text-[#14402a]">
-                Implement {top.title || "the recommended intervention"}{summary?.problem_statement ? ` for ${summary.problem_statement.replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim()}` : ""}.
-              </p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#6c685f]">Executive Decision Brief</p>
+              <h1 className="mt-1 font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#1c1a17]">
+                Approve {top.title || "the recommended intervention"}
+              </h1>
+              {summary?.problem_statement && (
+                <p className="mt-0.5 text-[13px] text-[#6c685f]">{summary.problem_statement.replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim()}</p>
+              )}
               <p className="mt-0.5 text-[11.5px] text-[#6c685f]">Prepared by Compass &middot; {today}</p>
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
@@ -156,7 +159,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </div>
 
           {/* ===== SECTION 2: WHY THIS IS THE RIGHT DECISION ===== */}
-          <PrintSection number="1" title="Why this is the right decision" tone="green">
+          <PrintSection number="1" title="Why this recommendation" tone="green">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               {rationale.map((card) => (
                 <div key={card.title} className="rounded border border-[#a8d6bd] bg-white/50 p-3">
@@ -168,7 +171,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           </PrintSection>
 
           {/* ===== SECTION 3: RISKS AND UNKNOWNS ===== */}
-          <PrintSection number="2" title="Risks and unknowns" tone="amber">
+          <PrintSection number="2" title="Conditions for approval" tone="amber">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
                 <Sub label="Known risks" tone="amber" />
@@ -217,22 +220,22 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
 
           {/* ===== SECTION 4: IMPLEMENTATION ===== */}
           <PrintSection number="3" title="Implementation" tone="teal">
-            {roadmap.map((step, i) => (
-              <div key={step.label} className="flex items-start gap-3 rounded border border-[#a9dce2] bg-white/50 p-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#0e9db0] font-mono text-[10px] font-bold text-[#0a6a78]">{i + 1}</span>
-                <div>
-                  <p className="text-[12px] font-semibold text-[#0a3a42]">{step.label}</p>
-                  <p className="mt-0.5 text-[11px] leading-[1.4] text-[#0a6a78]/80">{step.detail}</p>
-                  <p className="mt-0.5 text-[10px] font-medium text-[#0a6a78]">Owner: {step.owner}</p>
-                </div>
+          {roadmap.map((step, i) => (
+            <div key={step.label} className="flex items-start gap-3 rounded border border-[#a9dce2] bg-white/50 p-3">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#0e9db0] font-mono text-[10px] font-bold text-[#0a6a78]">{i + 1}</span>
+              <div>
+                <p className="text-[12px] font-semibold text-[#0a3a42]">{step.label}</p>
+                <p className="mt-0.5 text-[11px] leading-[1.4] text-[#0a6a78]/80">{step.detail}</p>
+                <p className="mt-0.5 text-[10px] font-medium text-[#0a6a78]">Owner: {step.owner}</p>
               </div>
-            ))}
+            </div>
+          ))}
             <p className="mt-2 text-[11px] text-[#0a6a78]/80">
-              The team or a selected partner executes the plan.
+              Your team or a selected partner executes the plan.
             </p>
           </PrintSection>
 
-          {/* ===== SECTION 5: EVIDENCE ===== */}
+          {/* ===== SECTION 4: EVIDENCE ===== */}
           <PrintSection number="4" title="Evidence" tone="teal">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {stories.map((s) => (
