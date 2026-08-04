@@ -283,39 +283,6 @@ export function DecisionPackageView({
         </p>
       </BriefPanel>
 
-      {/* ===== 5. ALTERNATIVES CONSIDERED ===== */}
-      <BriefPanel number="5" title="Other approaches considered" tone="violet">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div>
-            {options.length > 0 ? (
-              <ul className="space-y-3">
-                {options.map((o) => (
-                  <li key={o.title} className="rounded-lg border border-[#c5bef0] bg-white/50 p-4">
-                    <p className="text-[14px] font-semibold text-[#2c2a45]">{o.title}</p>
-                    <p className="mt-1 text-[12.5px] leading-[1.5] text-[#463a9e]/80">{o.tradeoff}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[12.5px] italic text-[#463a9e]/70">No alternatives surfaced.</p>
-            )}
-          </div>
-          <div>
-            <SubHeader tone="violet">Basis for recommendation</SubHeader>
-            <ul className="space-y-2.5">
-              {defItems.map((f) => (
-                <li key={f.label} className="flex items-start gap-2.5 text-[13px]">
-                  <span className={cn("mt-[5px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white", f.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
-                    {f.ok ? "✓" : "⚠"}
-                  </span>
-                  <span className={cn("leading-[1.5]", f.ok ? "text-[#463a9e]" : "text-[#B45309]")}>{f.label}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </BriefPanel>
-
       {/* ===== APPROVAL ===== */}
       <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-6 shadow-sm sm:p-8">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">For approval</p>

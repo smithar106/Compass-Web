@@ -56,6 +56,5 @@ describe("DecisionPackageView executive memo", () => {
     const buttons = screen.getAllByText("Download PDF");
     fireEvent.click(buttons[0]);
     expect(screen.getAllByText((content) => content.includes("Prepared by Compass")).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("Why we can defend this").length).toBeGreaterThanOrEqual(1);
   });
 });

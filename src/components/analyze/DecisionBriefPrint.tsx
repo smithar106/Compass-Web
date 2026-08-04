@@ -254,39 +254,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             </div>
           </PrintSection>
 
-          {/* ===== SECTION 6: OTHER OPTIONS CONSIDERED + DEFENSIBILITY ===== */}
-          <PrintSection number="5" title="Other options considered" tone="violet">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                {options.length > 0 ? (
-                  <ul className="space-y-2">
-                    {options.map((o) => (
-                      <li key={o.title} className="rounded border border-[#c5bef0] bg-white/50 p-2">
-                        <p className="text-[12px] font-semibold text-[#2c2a45]">{o.title}</p>
-                        <p className="mt-0.5 text-[10.5px] leading-[1.4] text-[#463a9e]/80">{o.tradeoff}</p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-[11px] italic text-[#463a9e]/70">No alternatives surfaced.</p>
-                )}
-              </div>
-              <div>
-                <Sub label="Why we can defend this" tone="violet" />
-                <ul className="space-y-1.5">
-                  {defItems.map((f) => (
-                    <li key={f.label} className="flex items-start gap-2 text-[11px]">
-                      <span className={cn("mt-[5px] flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white", f.ok ? "bg-[#1f9d57]" : "bg-[#B45309]")} aria-hidden="true">
-                        {f.ok ? "✓" : "⚠"}
-                      </span>
-                      <span className={cn("leading-[1.4]", f.ok ? "text-[#1c1a17]/85" : "text-[#B45309]")}>{f.label}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </PrintSection>
-
           {/* ===== DECISION NOTES ===== */}
           <div className="mt-5 border-t border-[#e6e2db] pt-2.5">
             <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#9c968a]">Decision Notes</p>
