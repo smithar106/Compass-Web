@@ -124,9 +124,8 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           {/* masthead */}
           <div className="mt-5 flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#1f9d57] pb-3">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#14663a]">Executive Decision Brief</p>
-              <h1 className="mt-1 font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#1c1a17]">
-                {top.title || "Evidence-supported intervention"}
+              <h1 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#1c1a17]">
+                Executive Decision Brief
               </h1>
               <p className="mt-0.5 text-[11.5px] text-[#6c685f]">Prepared by Compass &middot; {today}</p>
             </div>

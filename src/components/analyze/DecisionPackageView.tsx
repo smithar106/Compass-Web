@@ -104,10 +104,8 @@ export function DecisionPackageView({
       <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-white shadow-panel">
         <div className="h-1.5 w-full bg-gradient-to-r from-[#1f9d57] via-[#0e9db0] via-[#6a5acd] to-[#d9932a]" aria-hidden="true" />
         <div className="border-b border-[#a8d6bd]/60 bg-[#e9f6ee] px-6 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">
-              Executive Decision Brief
-            </p>
+          <div className="flex items-center justify-between gap-3">
+            <span />
             <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#14663a]">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.25" />
@@ -121,11 +119,8 @@ export function DecisionPackageView({
         <div className="p-6 sm:p-7">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#4f6280]">
-                Recommended decision
-              </p>
-              <h2 className="mt-1.5 font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#101826] sm:text-[30px]">
-                {top.title || "Evidence-supported intervention"}
+              <h2 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#101826] sm:text-[30px]">
+                Executive Decision Brief
               </h2>
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
@@ -137,20 +132,6 @@ export function DecisionPackageView({
           <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-[#4f6280]">
             {buildExecutiveSummary(top, meta, library)}
           </p>
-
-          {/* proof chips */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {top.evidence_summary?.total_comparables != null && top.evidence_summary.total_comparables > 0 && (
-              <ProofChip label={`${top.evidence_summary.total_comparables} comparable implementations`} />
-            )}
-            {top.evidence_summary?.overall_tier && (
-              <ProofChip label={`Evidence tier: ${top.evidence_summary.overall_tier}`} tone="violet" />
-            )}
-            {top.evidence_summary && (top.evidence_summary.gold_count ?? 0) > 0 && (
-              <ProofChip label={`${top.evidence_summary.gold_count} independently weighted sources`} tone="amber" />
-            )}
-            {top.category && <ProofChip label={top.category.replace(/_/g, " ")} />}
-          </div>
 
           {/* decision metadata */}
           <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[#e6eaef] bg-[#e6eaef] sm:grid-cols-4">
@@ -368,22 +349,6 @@ export function DecisionPackageView({
         />
       )}
     </div>
-  );
-}
-
-function ProofChip({ label, tone = "teal" }: { label: string; tone?: "teal" | "violet" | "amber" }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-2 rounded border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.05em]",
-        tone === "teal" && "border-[#bfe8ee] bg-[#e5f6f8] text-[#0a6a78]",
-        tone === "violet" && "border-[#d8d4f4] bg-[#eeecfb] text-[#463a9e]",
-        tone === "amber" && "border-[#f3dfb6] bg-[#fbf1de] text-[#8f5c11]"
-      )}
-    >
-      <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", tone === "teal" && "bg-[#0e9db0]", tone === "violet" && "bg-[#6a5acd]", tone === "amber" && "bg-[#d9932a]")} />
-      {label}
-    </span>
   );
 }
 
