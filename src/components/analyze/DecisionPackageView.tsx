@@ -100,13 +100,12 @@ export function DecisionPackageView({
 
   return (
     <div className="space-y-5">
-      {/* ===== 1. EXECUTIVE RECOMMENDATION — Green ===== */}
+      {/* ===== 1. RECOMMENDED PATH FORWARD ===== */}
       <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
-        <div className="h-0.5 bg-[#1f9d57]" aria-hidden="true" />
         <div className="p-6 sm:p-7">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#14663a]">Recommended Path Forward</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#4f6280]">Recommended Path Forward</p>
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
               <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", badge.dot)} />
@@ -117,13 +116,13 @@ export function DecisionPackageView({
             {decisionSummary(top, summary)}
           </p>
 
-          <p className="mt-6 text-[13.5px] leading-[1.6] text-[#3c5645]">
+          <p className="mt-6 text-[13.5px] leading-[1.6] text-muted">
             {closingRecommendation(top)}
           </p>
           <ul className="mt-3 space-y-2">
-            <li className="flex items-start gap-2.5 text-[12.5px] text-[#3c5645]"><span className="mt-px text-[#1f9d57] shrink-0">✓</span>Complete a four-week operational baseline before build.</li>
-            <li className="flex items-start gap-2.5 text-[12.5px] text-[#3c5645]"><span className="mt-px text-[#1f9d57] shrink-0">✓</span>{top.next_validation_step?.success_criteria || "Validate results against the agreed baseline before full deployment."}</li>
-            <li className="flex items-start gap-2.5 text-[12.5px] text-[#3c5645]"><span className="mt-px text-[#1f9d57] shrink-0">✓</span>Confirm implementation partner or internal team readiness.</li>
+            <li className="flex items-start gap-2.5 text-[12.5px] text-muted"><span className="mt-px shrink-0">✓</span>Complete a four-week operational baseline before build.</li>
+            <li className="flex items-start gap-2.5 text-[12.5px] text-muted"><span className="mt-px shrink-0">✓</span>{top.next_validation_step?.success_criteria || "Validate results against the agreed baseline before full deployment."}</li>
+            <li className="flex items-start gap-2.5 text-[12.5px] text-muted"><span className="mt-px shrink-0">✓</span>Confirm implementation partner or internal team readiness.</li>
           </ul>
         </div>
       </section>
@@ -164,19 +163,6 @@ export function DecisionPackageView({
         <div className="p-6 sm:p-7">
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#463a9e]">Supporting Evidence</p>
           <p className="mt-2 text-[12.5px] leading-[1.5] text-muted">Supporting evidence and source material backing this recommendation.</p>
-
-          {stories.length > 0 ? (
-            <div className="mt-4 space-y-3">
-              {stories.map((s) => (
-                <div key={s.organization} className="rounded border border-line bg-white p-4">
-                  <p className="text-[13px] font-semibold text-ink">{s.organization}</p>
-                  <p className="mt-0.5 text-[11.5px] leading-[1.5] text-muted">{s.outcome}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-4 text-[12px] italic text-muted">No implementations catalogued yet.</p>
-          )}
 
           <p className="mt-4 text-[10.5px] italic leading-[1.5] text-muted">{decisionNotes()}</p>
         </div>

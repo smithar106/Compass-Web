@@ -48,8 +48,8 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           <button type="button" onClick={handleDownload} className="rounded-lg bg-ink px-5 py-2.5 text-[13px] font-semibold text-paper hover:bg-ink2">Download PDF</button>
         </div>
         <div id="compass-brief-print" ref={contentRef} className="mx-auto bg-white px-8 py-8 shadow-[0_25px_50px_rgba(0,0,0,0.25)] sm:px-10" style={{ width: 816, maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.5 }}>
-          {/* ===== 1. RECOMMENDED PATH FORWARD — Green ===== */}
-          <PrintSection accent="#1f9d57" label="Recommended Path Forward" badge={badge}>
+          {/* ===== 1. RECOMMENDED PATH FORWARD ===== */}
+          <PrintSection label="Recommended Path Forward" badge={badge}>
             <p className="text-[13px] leading-[1.55] text-[#4f6280]">{decisionSummary(top, summary)}</p>
           </PrintSection>
 
@@ -76,11 +76,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           {/* ===== 3. SUPPORTING EVIDENCE — Purple ===== */}
           <PrintSection accent="#6a5acd" label="Supporting Evidence">
             <p className="text-[12px] text-muted">Supporting evidence and source material backing this recommendation.</p>
-            {stories.length > 0 ? (
-              <div className="mt-3 space-y-2.5">
-                {stories.map((s) => (<div key={s.organization} className="rounded border border-line p-3"><p className="text-[12px] font-semibold text-ink">{s.organization}</p><p className="mt-0.5 text-[10.5px] leading-[1.4] text-muted">{s.outcome}</p></div>))}
-              </div>
-            ) : <p className="mt-3 text-[11px] italic text-muted">No implementations catalogued yet.</p>}
             <p className="mt-3 text-[10px] italic text-muted">{decisionNotes()}</p>
           </PrintSection>
 
@@ -113,10 +108,10 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
   );
 }
 
-function PrintSection({ accent, label, badge, children }: { accent: string; label: string; badge?: { text: string; dot: string; cls: string }; children: React.ReactNode }) {
+function PrintSection({ accent, label, badge, children }: { accent?: string; label: string; badge?: { text: string; dot: string; cls: string }; children: React.ReactNode }) {
   return (
     <div className="mb-5 break-inside-avoid">
-      <div className="h-0.5 w-full mb-3" style={{ backgroundColor: accent }} />
+      {accent && <div className="h-0.5 w-full mb-3" style={{ backgroundColor: accent }} />}
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{label}</p>
