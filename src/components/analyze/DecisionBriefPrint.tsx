@@ -50,7 +50,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           {/* ===== 1. EXECUTIVE RECOMMENDATION — Green ===== */}
           <PrintSection accent="#1f9d57" label="Executive Recommendation" title="What should we do?" badge={badge}>
             <p className="text-[13px] leading-[1.55] text-[#4f6280]">{decisionSummary(top, summary)}</p>
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">{kpis.map((k) => (<div key={k.label} className="rounded border border-line p-3"><p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">{k.label}</p><p className="mt-0.5 text-[20px] font-extrabold tracking-tight text-ink">{k.value}</p>{k.caption && <p className="text-[10px] text-muted">{k.caption}</p>}</div>))}</div>
           </PrintSection>
 
           {/* ===== 2. BUSINESS CASE — Blue ===== */}
@@ -58,10 +57,19 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             <p className="text-[13px] leading-[1.55] text-[#4f6280]">{businessCaseText(top, summary)}</p>
             {stories.length > 0 && (
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {stories.map((s) => (<div key={s.organization} className="rounded border border-line p-3"><p className="text-[13px] font-bold text-ink">{s.organization}</p><p className="mt-1 text-[11px] leading-[1.4] text-muted">{s.outcome}</p></div>))}
+                {stories.map((s) => {
+                  const points = s.outcome.split(/[.;]/).filter(Boolean).map(p => p.trim());
+                  return (
+                    <div key={s.organization} className="rounded border border-line p-4 text-center">
+                      <p className="text-[13px] font-bold text-ink">{s.organization}</p>
+                      <ul className="mt-2 space-y-0.5">
+                        {points.map((pt, j) => <li key={j} className="text-[11px] text-muted">{pt}</li>)}
+                      </ul>
+                    </div>
+                  );
+                })}
               </div>
             )}
-            <p className="mt-3 text-[11.5px] text-muted">{alternativesRejected(top)}</p>
           </PrintSection>
 
           {/* ===== 3. EXECUTION PLAN — Amber ===== */}

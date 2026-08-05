@@ -118,16 +118,6 @@ export function DecisionPackageView({
             {decisionSummary(top, summary)}
           </p>
 
-          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {kpis.map((k) => (
-              <div key={k.label} className="rounded border border-line bg-white p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">{k.label}</p>
-                <p className="mt-1 text-[22px] font-extrabold tracking-tight text-ink">{k.value}</p>
-                {k.caption && <p className="mt-0.5 text-[11px] leading-relaxed text-muted">{k.caption}</p>}
-              </div>
-            ))}
-          </div>
-
           <p className="mt-6 text-[13.5px] leading-[1.6] text-[#3c5645]">
             {closingRecommendation(top)}
           </p>
@@ -162,20 +152,23 @@ export function DecisionPackageView({
           </p>
 
           <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-            {stories.map((s) => (
-              <div key={s.organization} className="rounded border border-line bg-white p-4">
-                <p className="text-[14px] font-semibold text-ink">{s.organization}</p>
-                <p className="mt-1 text-[12px] leading-[1.5] text-muted">{s.outcome}</p>
-              </div>
-            ))}
+            {stories.map((s) => {
+              const points = s.outcome.split(/[.;]/).filter(Boolean).map(p => p.trim());
+              return (
+                <div key={s.organization} className="rounded border border-line bg-white p-5 text-center">
+                  <p className="text-[15px] font-bold text-ink">{s.organization}</p>
+                  <ul className="mt-2.5 space-y-1">
+                    {points.map((pt, j) => (
+                      <li key={j} className="text-[13px] leading-[1.5] text-muted">&#x2022; {pt}</li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
             {stories.length === 0 && (
               <p className="text-[12px] italic text-muted md:col-span-3">No comparable cases were attached.</p>
             )}
           </div>
-
-          <p className="mt-4 text-[12.5px] leading-[1.5] text-muted">
-            {alternativesRejected(top)}
-          </p>
         </div>
       </section>
 
