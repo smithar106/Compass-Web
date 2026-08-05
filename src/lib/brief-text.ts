@@ -2,6 +2,31 @@
 
 import type { DecisionRec } from "@/lib/decision-package";
 
+// ---- Sanitization: strip run-ons, malformed JSON, and stray artifacts ----
+
+function asString(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number") return String(value);
+  return "";
+}
+
+function firstSentence(value: unknown): string {
+  const raw = asString(value);
+  if (!raw) return "";
+  return raw
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/^[.\s]+/, "")
+    .replace(/[`'"]{2,}/g, "")
+    .replace(/\s*,?\s*\.$/, "")
+    .trim()
+    .split(/\s*([.!?]\s*)/)[0]
+    .trim()
+    .replace(/[,;-]+\s*$/, "")
+    .trim();
+}
+
 // ---- Section 1: Decision Recommendation ----
 
 export interface ImpactCard {
@@ -11,25 +36,25 @@ export interface ImpactCard {
 }
 
 export function actionTitle(top: DecisionRec): string {
-  const t = top.title || "the recommended intervention";
+  const t = firstSentence(top.title) || "the recommended intervention";
   return `Approve ${t}`;
 }
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
-  const title = top.title || "this approach";
-  const reasons = top.why_ranked_first?.supporting_reasons || [];
+  const title = firstSentence(top.title) || "this approach";
+  const reasons = (top.why_ranked_first?.supporting_reasons || []).map(firstSentence).filter(Boolean);
   const altCount = (top.alternatives_considered || []).length;
 
-  const one = reasons.length > 0
-    ? `${reasons[0].charAt(0).toUpperCase() + reasons[0].slice(1).toLowerCase().replace(/\.$/, "")}.`
+  const one = reasons[0]
+    ? `${reasons[0].charAt(0).toUpperCase() + reasons[0].slice(1)}.`
     : `${title} is supported by comparable implementations with measurable outcomes.`;
 
   const two = altCount > 0
     ? `${altCount} alternative approach${altCount > 1 ? "s were" : " was"} evaluated and set aside due to lower expected impact.`
     : "Alternative approaches were evaluated against expected impact on the primary outcome.";
 
-  const three = reasons.length > 1
-    ? `${reasons[1].charAt(0).toUpperCase() + reasons[1].slice(1).toLowerCase().replace(/\.$/, "")}.`
+  const three = reasons[1]
+    ? `${reasons[1].charAt(0).toUpperCase() + reasons[1].slice(1)}.`
     : "The evidence supports moving forward now with a controlled implementation.";
 
   return { one, two, three };
@@ -43,7 +68,7 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
 
   if (ranges.length > 0) {
     const r = ranges[0];
-    const metric = (r.metric_label || "processing cost").replace(/_/g, " ").toLowerCase();
+    const metric = (asString(r.metric_label) || "processing cost").replace(/_/g, " ").toLowerCase().trim() || "processing cost";
     const v = r.median != null ? `${r.median}%` : r.low != null && r.high != null ? `${r.low}%–${r.high}%` : "Measurable";
     cards.push({
       metric: v,
@@ -63,7 +88,7 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
 
   if (ranges.length > 1) {
     const r2 = ranges[1];
-    const m2 = (r2.metric_label || "capacity").replace(/_/g, " ").toLowerCase();
+    const m2 = (asString(r2.metric_label) || "capacity").replace(/_/g, " ").toLowerCase().trim() || "capacity";
     const v2 = r2.median != null ? `${r2.median}%` : r2.low != null && r2.high != null ? `${r2.low}%–${r2.high}%` : "Measurable";
     cards.push({ metric: v2, label: `Improved ${m2}`, context: "Measured across implementation cohort" });
   } else {
@@ -95,14 +120,14 @@ export function evidenceCards(top: DecisionRec): EvidenceCard[] {
   const seen = new Set<string>();
   return raw
     .filter((c) => {
-      const key = (c.organization || "").toLowerCase();
+      const key = asString(c.organization).trim().toLowerCase();
       if (!key || seen.has(key)) return false;
       seen.add(key);
       return true;
     })
     .map((c) => {
-      const org = c.organization || "A comparable organization";
-      const outcome = c.outcome_summary || c.observed_outcome || "";
+      const org = asString(c.organization).trim() || "A comparable organization";
+      const outcome = asString(c.outcome_summary || c.observed_outcome);
       const bullets: string[] = [];
       outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s)).forEach((s) => {
         const parts = s.split(/[:=]/).map((p) => p.trim());
@@ -137,7 +162,6 @@ export interface StrategyCard {
 }
 
 export function strategyCards(top: DecisionRec): StrategyCard[] {
-  const title = top.title || "this solution";
   const problem = "manual processing";
   return [
     {
@@ -147,7 +171,7 @@ export function strategyCards(top: DecisionRec): StrategyCard[] {
     },
     {
       heading: "Increase Processing Capacity",
-      description: `Scale volume through automation rather than headcount. ${title} handles higher throughput while maintaining quality.`,
+      description: `Scale volume through automation rather than headcount. The solution handles higher throughput while maintaining quality.`,
       objective: `Improve processing capacity while maintaining service quality.`,
     },
     {
@@ -173,12 +197,12 @@ export interface ImplementationStep {
 }
 
 export function implementationSteps(top: DecisionRec): ImplementationStep[] {
-  const sc = top.next_validation_step?.success_criteria || "At least 90% of workflow instances captured with complete timestamps";
+  const sc = firstSentence(top.next_validation_step?.success_criteria) || "At least 90% of workflow instances captured with complete timestamps";
   return [
     {
       name: "Establish the Baseline",
       timeline: "Weeks 1 to 2",
-      detail: `Measure workflow volume, handling time, labor cost, error rate, and exception frequency. ${sc}.`,
+      detail: `Measure workflow volume, handling time, labor cost, error rate, and exception frequency.${sc ? ` Success requires that ${sc.charAt(0).toLowerCase() + sc.slice(1)}.` : ""}`,
       team: "Operations and Finance",
     },
     {

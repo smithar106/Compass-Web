@@ -124,7 +124,6 @@ export function DecisionPackageView({
       <section className="px-4 py-7 sm:px-8 sm:py-8" style={{ backgroundColor: COLORS.strategy.bg }}>
         <div className="mx-auto max-w-4xl">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.strategy.label }}>Strategy and Objectives</p>
-          <p className="mt-1 text-[13px] font-medium text-ink">How the recommendation creates value and what the plan is designed to accomplish.</p>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {strategies.map((s) => (
               <div key={s.heading} className="rounded-lg bg-white px-5 py-5">

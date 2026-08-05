@@ -111,7 +111,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
           {/* ===== 3. STRATEGY AND OBJECTIVES ===== */}
           <div style={{ backgroundColor: PC.strategy.bg, padding: "16px 32px" }}>
             <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.strategy.label }}>Strategy and Objectives</p>
-            <p className="text-[12px] font-medium text-ink mt-0.5">How the recommendation creates value and what the plan is designed to accomplish.</p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               {strategies.map((s) => (
                 <div key={s.heading} className="rounded bg-white px-4 py-3">
