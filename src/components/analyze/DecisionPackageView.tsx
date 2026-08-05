@@ -144,10 +144,10 @@ export function DecisionPackageView({
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {kpis.map((k) => (
-              <div key={k.label} className="rounded-lg border border-[#a9dce2] bg-[#e5f6f8] p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p>
-                <p className="mt-1 text-[22px] font-extrabold tracking-tight text-[#0a3a42]">{k.value}</p>
-                {k.caption && <p className="text-[11px] leading-relaxed text-[#0a6a78]/80">{k.caption}</p>}
+              <div key={k.label} className="rounded-lg border border-line bg-[#e5f6f8] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">{k.label}</p>
+                <p className="mt-1 text-[22px] font-extrabold tracking-tight text-ink">{k.value}</p>
+                {k.caption && <p className="text-[11px] leading-relaxed text-muted">{k.caption}</p>}
               </div>
             ))}
           </div>
@@ -179,88 +179,91 @@ export function DecisionPackageView({
       </section>
 
       {/* ===== 1. EVIDENCE ===== */}
-      <BriefPanel number="1" title="What gives us confidence?" tone="teal">
+      <section className="space-y-4">
+      <SectionHead title="What gives us confidence?" />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {stories.map((s) => (
-            <div key={s.organization} className="rounded-lg border border-[#a9dce2] bg-white/60 p-4">
-              <p className="text-[17px] font-bold text-[#0a3a42]">{s.organization}</p>
-              <p className="mt-2 text-[13px] leading-[1.55] text-[#0a6a78]/85">{s.outcome}</p>
+            <div key={s.organization} className="rounded-lg border border-line bg-white p-4">
+              <p className="text-[17px] font-bold text-ink">{s.organization}</p>
+              <p className="mt-2 text-[13px] leading-[1.55] text-ink">{s.outcome}</p>
             </div>
           ))}
           {stories.length === 0 && (
-            <p className="italic text-[#0a6a78]/70 md:col-span-3">No comparable cases were attached.</p>
+            <p className="italic text-muted/70 md:col-span-3">No comparable cases were attached.</p>
           )}
         </div>
-      </BriefPanel>
+      </section>
 
       {/* ===== 3. CONDITIONS FOR APPROVAL ===== */}
-      <BriefPanel number="2" title="What could prevent success?" tone="amber">
+      <section className="space-y-4">
+      <SectionHead title="What could prevent success?" />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div>
-            <SubHeader tone="amber">Known risks</SubHeader>
+            <SubHeader>Known risks</SubHeader>
             {risks.length > 0 ? (
               <ul className="space-y-2">
                 {risks.map((r, i) => (
-                  <li key={i} className="rounded border border-[#e8cf9c] bg-white/60 px-3 py-2">
-                    <p className="text-[13px] font-semibold text-[#8f5c11]">{r.title}</p>
-                    {r.mitigation && <p className="mt-0.5 text-[11.5px] leading-[1.4] text-[#5c5240]">{r.mitigation}</p>}
+                  <li key={i} className="rounded border border-line bg-white px-3 py-2">
+                    <p className="text-[13px] font-semibold text-ink">{r.title}</p>
+                    {r.mitigation && <p className="mt-0.5 text-[11.5px] leading-[1.4] text-muted">{r.mitigation}</p>}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12.5px] italic text-[#8f5c11]">None identified.</p>
+              <p className="text-[12.5px] italic text-ink">None identified.</p>
             )}
           </div>
           <div>
-            <SubHeader tone="amber">Information needed</SubHeader>
+            <SubHeader>Information needed</SubHeader>
             {unknowns.length > 0 ? (
               <ul className="space-y-2">
                 {unknowns.map((u) => (
-                  <li key={u.title} className="rounded border border-[#e8cf9c] bg-white/60 px-3 py-2">
-                    <p className="text-[13px] font-semibold text-[#8f5c11]">{u.title}</p>
-                    <p className="mt-0.5 text-[11.5px] leading-[1.4] text-[#5c5240]">{u.why}</p>
+                  <li key={u.title} className="rounded border border-line bg-white px-3 py-2">
+                    <p className="text-[13px] font-semibold text-ink">{u.title}</p>
+                    <p className="mt-0.5 text-[11.5px] leading-[1.4] text-muted">{u.why}</p>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12.5px] italic text-[#8f5c11]">All information available.</p>
+              <p className="text-[12.5px] italic text-ink">All information available.</p>
             )}
           </div>
           <div>
-            <SubHeader tone="amber">Assumptions</SubHeader>
+            <SubHeader>Assumptions</SubHeader>
             {assumptions.length > 0 ? (
               <ul className="space-y-2">
                 {assumptions.map((a) => (
-                  <li key={a.title} className="rounded border border-[#e8cf9c] bg-white/60 px-3 py-2">
-                    <p className="text-[13px] font-semibold text-[#8f5c11]">{a.title}</p>
+                  <li key={a.title} className="rounded border border-line bg-white px-3 py-2">
+                    <p className="text-[13px] font-semibold text-ink">{a.title}</p>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12.5px] italic text-[#8f5c11]">None identified.</p>
+              <p className="text-[12.5px] italic text-ink">None identified.</p>
             )}
           </div>
         </div>
-      </BriefPanel>
+      </section>
 
       {/* ===== 4. IMPLEMENTATION ===== */}
-      <BriefPanel number="3" title="What happens after approval?" tone="teal">
+      <section className="space-y-4">
+      <SectionHead title="What happens after approval?" />
         <div className="grid grid-cols-1 gap-4">
           {roadmap.map((step, i) => (
-            <div key={step.label} className="flex items-start gap-4 rounded-lg border border-[#a9dce2] bg-white/50 p-4">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#0e9db0] font-mono text-[12px] font-bold text-[#0a6a78]">{i + 1}</span>
+            <div key={step.label} className="flex items-start gap-4 rounded-lg border border-line bg-white p-4">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line font-mono text-[12px] font-bold text-muted">{i + 1}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-semibold text-[#0a3a42]">{step.label}</p>
-                <p className="mt-0.5 text-[12.5px] leading-[1.5] text-[#0a6a78]/80">{step.detail}</p>
-                <p className="mt-1 text-[11px] font-medium text-[#0a6a78]">Owner: {step.owner}</p>
+                <p className="text-[14px] font-semibold text-ink">{step.label}</p>
+                <p className="mt-0.5 text-[12.5px] leading-[1.5] text-muted">{step.detail}</p>
+                <p className="mt-1 text-[11px] font-medium text-muted">Owner: {step.owner}</p>
               </div>
             </div>
           ))}
         </div>
-        <p className="mt-4 text-[12px] text-[#0a6a78]/80">
+        <p className="mt-4 text-[12px] text-muted">
           Your team or a selected partner executes the plan. Rationale and success criteria are preserved throughout implementation.
         </p>
-      </BriefPanel>
+      </section>
 
       {/* ===== EXECUTIVE RECOMMENDATION ===== */}
       <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-6 shadow-sm sm:p-8">
@@ -298,24 +301,19 @@ export function DecisionPackageView({
   );
 }
 
-function BriefPanel({ number, title, tone, children }: { number: string; title: string; tone: BriefTone; children: React.ReactNode }) {
-  const c = BRIEF_COLORS[tone];
-  const t = BRIEF_TONE_STYLES[tone];
+// removed BriefPanel({ number, title, tone, children }: { number: string; title: string; tone: BriefTone; children: React.ReactNode }) {
+
+function SectionHead({ title }: { title: string }) {
   return (
-    <section className="space-y-4">
-      <div className="flex items-center gap-3">
-        <span aria-hidden="true" className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-mono text-[14px] font-bold text-white", t.chip)}>{number}</span>
-        <h3 className={cn("font-serif text-[22px] font-semibold tracking-[-0.01em]", t.label)}>{title}</h3>
-        <span aria-hidden="true" className="h-px flex-1" style={{ backgroundColor: c.accent + "40" }} />
-      </div>
-      <div className={cn("space-y-4 rounded-xl border p-5 shadow-sm sm:p-6", t.card)}>{children}</div>
-    </section>
+    <div className="mb-4 flex items-center gap-3">
+      <h2 className="font-serif text-[22px] font-semibold tracking-[-0.01em] text-ink">{title}</h2>
+      <span aria-hidden="true" className="h-px flex-1 bg-[#e6e2db]" />
+    </div>
   );
 }
 
-function SubHeader({ tone, children }: { tone: BriefTone; children: React.ReactNode }) {
-  const c = BRIEF_COLORS[tone];
-  return <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: c.ink }}><span aria-hidden="true" className="h-1 w-3 rounded-full" style={{ backgroundColor: c.accent }} />{children}</p>;
+function SubHeader({ children }: { children: React.ReactNode }) {
+  return <p className="mt-4 mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-muted first:mt-0">{children}</p>;
 }
 
 function MetaCell({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
