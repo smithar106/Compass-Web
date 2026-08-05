@@ -9,14 +9,11 @@ import {
 } from "@/lib/decision-package";
 import { DecisionBriefPrint } from "./DecisionBriefPrint";
 import {
-  BRIEF_COLORS,
-  BRIEF_TONE_STYLES,
-  type BriefTone,
-} from "@/lib/brief-colors";
-import {
   decisionSummary,
   convictionKpis,
   closingRecommendation,
+  businessCaseText,
+  alternativesRejected,
   riskItems,
   unknownItems,
   assumptionItems,
@@ -63,7 +60,6 @@ export function DecisionPackageView({
   }, []);
 
   const g = useMemo(() => groundingState(top, meta), [top, meta]);
-  const dd = useMemo(() => defensibilityChecks(top, summary), [top, summary]);
 
   if (!top) return null;
   if (status === "insufficient_evidence" || top.confidence?.label === "insufficient") {
@@ -91,7 +87,6 @@ export function DecisionPackageView({
     } catch {}
   };
 
-  const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   const kpis = convictionKpis(top);
   const risks = riskItems(top);
   const unknowns = unknownItems(top);
@@ -104,23 +99,28 @@ export function DecisionPackageView({
     : "";
 
   return (
-    <div className="space-y-6">
-      {/* ===== MASTHEAD — recommendation as the document identity ===== */}
-      <section className="overflow-hidden rounded-xl border border-line bg-white shadow-panel">
-        <div className="h-1.5 w-full bg-gradient-to-r from-[#1f9d57] via-[#0e9db0] via-[#6a5acd] to-[#d9932a]" aria-hidden="true" />
-
+    <div className="space-y-5">
+      {/* ===== 1. EXECUTIVE RECOMMENDATION — Green ===== */}
+      <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+        <div className="h-0.5 bg-[#1f9d57]" aria-hidden="true" />
         <div className="p-6 sm:p-7">
-          <h1 className="font-serif text-[28px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">
-            Executive Decision Brief
-          </h1>
-
-          <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-[#4f6280]">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#14663a]">Executive Recommendation</p>
+              <h2 className="mt-0.5 font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink">What should we do?</h2>
+            </div>
+            <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
+              <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", badge.dot)} />
+              {badge.text}
+            </span>
+          </div>
+          <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-muted">
             {decisionSummary(top, summary)}
           </p>
 
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {kpis.map((k) => (
-              <div key={k.label} className="rounded-lg border border-line bg-white p-4">
+              <div key={k.label} className="rounded border border-line bg-white p-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">{k.label}</p>
                 <p className="mt-1 text-[22px] font-extrabold tracking-tight text-ink">{k.value}</p>
                 {k.caption && <p className="mt-0.5 text-[11px] leading-relaxed text-muted">{k.caption}</p>}
@@ -128,147 +128,150 @@ export function DecisionPackageView({
             ))}
           </div>
 
-          <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[#e6eaef] bg-[#e6eaef] sm:grid-cols-4">
-            <MetaCell label="Prepared for" value="Executive Leadership" />
-            <MetaCell label="Decision" value={decisionScope(top)} />
-            <MetaCell label="Status" value={badge.text} highlight />
-            <MetaCell label="Date" value={today} />
-          </dl>
+          <p className="mt-6 text-[13.5px] leading-[1.6] text-[#3c5645]">
+            {closingRecommendation(top)}
+          </p>
+          <ul className="mt-3 space-y-2">
+            <li className="flex items-start gap-2.5 text-[12.5px] text-[#3c5645]"><span className="mt-px text-[#1f9d57] shrink-0">✓</span>Complete a four-week operational baseline before build.</li>
+            <li className="flex items-start gap-2.5 text-[12.5px] text-[#3c5645]"><span className="mt-px text-[#1f9d57] shrink-0">✓</span>{top.next_validation_step?.success_criteria || "Validate results against the agreed baseline before full deployment."}</li>
+            <li className="flex items-start gap-2.5 text-[12.5px] text-[#3c5645]"><span className="mt-px text-[#1f9d57] shrink-0">✓</span>Confirm implementation partner or internal team readiness.</li>
+          </ul>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button type="button" disabled aria-disabled="true" title="Feature coming soon"
+              className="inline-flex cursor-not-allowed items-center gap-2 bg-[#d3ccc0] px-6 py-3 text-[14px] font-semibold text-[#6c685f]"
+            >
+              Approve & Implement
+              <span className="text-[10px] font-bold uppercase tracking-wide">(Feature Coming Soon)</span>
+            </button>
             <button type="button" onClick={() => setPrinting(true)}
-              className="inline-flex items-center justify-center gap-2 border border-[#dfe5ec] bg-surface px-6 py-3 text-[14px] font-semibold text-ink transition-colors hover:border-ink/40"
-            >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M4 5V2h8v3M4 11H2.5A1.5 1.5 0 0 1 1 9.5v-3A1.5 1.5 0 0 1 2.5 5h11A1.5 1.5 0 0 1 15 6.5v3A1.5 1.5 0 0 1 13.5 11H12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                <rect x="4" y="10" width="8" height="4" rx="1" stroke="currentColor" strokeWidth="1.3" />
-              </svg>
-              Download PDF
-            </button>
-            <button type="button" onClick={saveDecision}
-              className="inline-flex items-center justify-center gap-2 border border-[#dfe5ec] bg-surface px-6 py-3 text-[14px] font-semibold text-ink transition-colors hover:border-ink/40"
-            >
-              Save Decision
-            </button>
+              className="inline-flex items-center gap-2 border border-line bg-white px-6 py-3 text-[14px] font-semibold text-ink transition-colors hover:border-ink/40"
+            >Download PDF</button>
           </div>
         </div>
       </section>
 
-      {/* ===== 1. EVIDENCE ===== */}
-      <section className="space-y-4">
-      <SectionHead title="What gives us confidence?" />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {stories.map((s) => (
-            <div key={s.organization} className="rounded-lg border border-line bg-white p-4">
-              <p className="text-[17px] font-bold text-ink">{s.organization}</p>
-              <p className="mt-2 text-[13px] leading-[1.55] text-ink">{s.outcome}</p>
-            </div>
-          ))}
-          {stories.length === 0 && (
-            <p className="italic text-muted/70 md:col-span-3">No comparable cases were attached.</p>
-          )}
-        </div>
-      </section>
+      {/* ===== 2. BUSINESS CASE — Blue ===== */}
+      <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+        <div className="h-0.5 bg-[#2563eb]" aria-hidden="true" />
+        <div className="p-6 sm:p-7">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1e40af]">Business Case</p>
+          <h2 className="mt-0.5 font-serif text-[24px] font-semibold tracking-[-0.01em] text-ink">Why should we do it?</h2>
+          <p className="mt-3 max-w-3xl text-[13.5px] leading-[1.65] text-muted">
+            {businessCaseText(top, summary)}
+          </p>
 
-      {/* ===== 3. CONDITIONS FOR APPROVAL ===== */}
-      <section className="space-y-4">
-      <SectionHead title="What could prevent success?" />
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div>
-            <SubHeader>Known risks</SubHeader>
-            {risks.length > 0 ? (
-              <ul className="space-y-2">
-                {risks.map((r, i) => (
-                  <li key={i} className="rounded border border-line bg-white px-3 py-2">
-                    <p className="text-[13px] font-semibold text-ink">{r.title}</p>
-                    {r.mitigation && <p className="mt-0.5 text-[11.5px] leading-[1.4] text-muted">{r.mitigation}</p>}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[12.5px] italic text-ink">None identified.</p>
-            )}
-          </div>
-          <div>
-            <SubHeader>Information needed</SubHeader>
-            {unknowns.length > 0 ? (
-              <ul className="space-y-2">
-                {unknowns.map((u) => (
-                  <li key={u.title} className="rounded border border-line bg-white px-3 py-2">
-                    <p className="text-[13px] font-semibold text-ink">{u.title}</p>
-                    <p className="mt-0.5 text-[11.5px] leading-[1.4] text-muted">{u.why}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[12.5px] italic text-ink">All information available.</p>
-            )}
-          </div>
-          <div>
-            <SubHeader>Assumptions</SubHeader>
-            {assumptions.length > 0 ? (
-              <ul className="space-y-2">
-                {assumptions.map((a) => (
-                  <li key={a.title} className="rounded border border-line bg-white px-3 py-2">
-                    <p className="text-[13px] font-semibold text-ink">{a.title}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[12.5px] italic text-ink">None identified.</p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 4. IMPLEMENTATION ===== */}
-      <section className="space-y-4">
-      <SectionHead title="What happens after approval?" />
-        <div className="grid grid-cols-1 gap-4">
-          {roadmap.map((step, i) => (
-            <div key={step.label} className="flex items-start gap-4 rounded-lg border border-line bg-white p-4">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line font-mono text-[12px] font-bold text-muted">{i + 1}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-semibold text-ink">{step.label}</p>
-                <p className="mt-0.5 text-[12.5px] leading-[1.5] text-muted">{step.detail}</p>
-                <p className="mt-1 text-[11px] font-medium text-muted">Owner: {step.owner}</p>
+          <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+            {stories.map((s) => (
+              <div key={s.organization} className="rounded border border-line bg-white p-4">
+                <p className="text-[14px] font-semibold text-ink">{s.organization}</p>
+                <p className="mt-1 text-[12px] leading-[1.5] text-muted">{s.outcome}</p>
               </div>
+            ))}
+            {stories.length === 0 && (
+              <p className="text-[12px] italic text-muted md:col-span-3">No comparable cases were attached.</p>
+            )}
+          </div>
+
+          <p className="mt-4 text-[12.5px] leading-[1.5] text-muted">
+            {alternativesRejected(top)}
+          </p>
+        </div>
+      </section>
+
+      {/* ===== 3. EXECUTION PLAN — Amber ===== */}
+      <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+        <div className="h-0.5 bg-[#d9932a]" aria-hidden="true" />
+        <div className="p-6 sm:p-7">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#8f5c11]">Execution Plan</p>
+          <h2 className="mt-0.5 font-serif text-[24px] font-semibold tracking-[-0.01em] text-ink">How will we do it?</h2>
+
+          <div className="mt-5 space-y-3">
+            {roadmap.map((step, i) => (
+              <div key={step.label} className="flex items-start gap-4 rounded border border-line bg-white p-4">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line font-mono text-[11px] font-bold text-muted">{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-ink">{step.label}</p>
+                  <p className="mt-0.5 text-[12px] leading-[1.5] text-muted">{step.detail}</p>
+                  <p className="mt-1 text-[10.5px] font-medium text-muted">Owner: {step.owner}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+              <SubHeader>Risks</SubHeader>
+              {risks.length > 0 ? (
+                <ul className="space-y-1.5">
+                  {risks.map((r, i) => (
+                    <li key={i} className="rounded border border-line bg-white px-3 py-2">
+                      <p className="text-[12px] font-semibold text-ink">{r.title}</p>
+                      {r.mitigation && <p className="mt-0.5 text-[11px] leading-[1.4] text-muted">{r.mitigation}</p>}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[12px] italic text-muted">None identified.</p>
+              )}
             </div>
-          ))}
+            <div>
+              <SubHeader>Information needed</SubHeader>
+              {unknowns.length > 0 ? (
+                <ul className="space-y-1.5">
+                  {unknowns.map((u) => (
+                    <li key={u.title} className="rounded border border-line bg-white px-3 py-2">
+                      <p className="text-[12px] font-semibold text-ink">{u.title}</p>
+                      <p className="mt-0.5 text-[11px] leading-[1.4] text-muted">{u.why}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[12px] italic text-muted">All information available.</p>
+              )}
+            </div>
+            <div>
+              <SubHeader>Assumptions</SubHeader>
+              {assumptions.length > 0 ? (
+                <ul className="space-y-1.5">
+                  {assumptions.map((a) => (
+                    <li key={a.title} className="rounded border border-line bg-white px-3 py-2">
+                      <p className="text-[12px] font-semibold text-ink">{a.title}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[12px] italic text-muted">None identified.</p>
+              )}
+            </div>
+          </div>
         </div>
-        <p className="mt-4 text-[12px] text-muted">
-          Your team or a selected partner executes the plan. Rationale and success criteria are preserved throughout implementation.
-        </p>
       </section>
 
-      {/* ===== EXECUTIVE RECOMMENDATION ===== */}
-      <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-6 shadow-sm sm:p-8">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">Executive Recommendation</p>
-        <p className="mt-2 text-[14px] leading-[1.6] text-[#3c5645]">
-          {closingRecommendation(top)}
-        </p>
-        <ul className="mt-4 space-y-2.5">
-          <li className="flex items-start gap-3 text-[13px] text-[#3c5645]"><span className="mt-[3px] text-[#1f9d57]">✓</span>Complete a four-week operational baseline before build.</li>
-          <li className="flex items-start gap-3 text-[13px] text-[#3c5645]"><span className="mt-[3px] text-[#1f9d57]">✓</span>{top.next_validation_step?.success_criteria || "Validate results against the agreed baseline before full deployment."}</li>
-          <li className="flex items-start gap-3 text-[13px] text-[#3c5645]"><span className="mt-[3px] text-[#1f9d57]">✓</span>Confirm implementation partner or internal team readiness.</li>
-        </ul>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <button type="button" disabled aria-disabled="true" title="Feature coming soon"
-            className="inline-flex cursor-not-allowed items-center justify-center gap-2 bg-[#d3ccc0] px-6 py-3 text-[14px] font-semibold text-[#6c685f]"
-          >
-            Approve & Implement
-            <span className="text-[10px] font-bold uppercase tracking-wide text-[#6c685f]">(Feature Coming Soon)</span>
-          </button>
-          <button type="button" onClick={() => setPrinting(true)}
-            className="inline-flex items-center justify-center gap-2 border border-[#a8d6bd] bg-white/70 px-6 py-3 text-[14px] font-semibold text-[#14663a] transition-colors hover:border-[#1f9d57]"
-          >Download as PDF</button>
+      {/* ===== 4. EVIDENCE LIBRARY — Purple ===== */}
+      <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+        <div className="h-0.5 bg-[#6a5acd]" aria-hidden="true" />
+        <div className="p-6 sm:p-7">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#463a9e]">Evidence Library</p>
+          <h2 className="mt-0.5 font-serif text-[24px] font-semibold tracking-[-0.01em] text-ink">How do we know this?</h2>
+          <p className="mt-2 text-[12.5px] leading-[1.5] text-muted">Supporting evidence and source material backing this recommendation.</p>
+
+          {stories.length > 0 ? (
+            <div className="mt-4 space-y-3">
+              {stories.map((s) => (
+                <div key={s.organization} className="rounded border border-line bg-white p-4">
+                  <p className="text-[13px] font-semibold text-ink">{s.organization}</p>
+                  <p className="mt-0.5 text-[11.5px] leading-[1.5] text-muted">{s.outcome}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-[12px] italic text-muted">No implementations catalogued yet.</p>
+          )}
+
+          <p className="mt-4 text-[10.5px] italic leading-[1.5] text-muted">{decisionNotes()}</p>
         </div>
       </section>
-
-      <div className="rounded-lg border border-line bg-paper/60 px-4 py-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-faint">Decision Notes</p>
-        <p className="mt-1 text-[11.5px] leading-[1.55] text-muted">{decisionNotes()}</p>
-      </div>
 
       {printing && (
         <DecisionBriefPrint recs={recs} meta={meta} summary={summary} status={status} library={library} onClose={() => setPrinting(false)} />
@@ -276,8 +279,6 @@ export function DecisionPackageView({
     </div>
   );
 }
-
-// removed BriefPanel({ number, title, tone, children }: { number: string; title: string; tone: BriefTone; children: React.ReactNode }) {
 
 function SectionHead({ title }: { title: string }) {
   return (
@@ -289,15 +290,7 @@ function SectionHead({ title }: { title: string }) {
 }
 
 function SubHeader({ children }: { children: React.ReactNode }) {
-  return <p className="mt-4 mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-muted first:mt-0">{children}</p>;
-}
-
-function MetaCell({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return <div className={cn("bg-white px-4 py-3", highlight && "bg-[#E5F3EA]")}><dt className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#4f6280]">{label}</dt><dd className={cn("mt-0.5 text-[13.5px] font-semibold text-[#101826]", highlight && "text-[#14532d]")}>{value}</dd></div>;
-}
-
-function decisionScope(top: DecisionRec): string {
-  return top.category ? top.category.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Operational intervention";
+  return <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">{children}</p>;
 }
 
 function ImplementationView({ top, recommendationId, onBack }: { top: DecisionRec; recommendationId?: string; onBack: () => void }) {

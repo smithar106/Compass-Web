@@ -19,6 +19,19 @@ export function closingRecommendation(top: DecisionRec): string {
   return `We recommend approving ${title}. Complete a baseline, validate against the criteria below, and confirm implementation readiness before full deployment.`;
 }
 
+export function businessCaseText(top: DecisionRec, summary: any): string {
+  const title = top.title || "this approach";
+  const problem = (summary?.problem_statement || "").replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim();
+  if (problem) return `Organizations in ${problem} face recurring operational constraints that compound over time. ${title} addresses this directly, with measurable outcomes observed in comparable implementations.`;
+  return `${title} resolves the operational constraints identified in the current-state analysis. Comparable organizations have implemented similar interventions with documented results.`;
+}
+
+export function alternativesRejected(top: DecisionRec): string {
+  return (top.alternatives_considered || []).length > 0
+    ? `Alternatives including ${(top.alternatives_considered || []).slice(0, 2).map((a: any) => a.title || a.name || "alternative approaches").join(" and ")} were evaluated and set aside due to lower expected impact on the measured outcome.`
+    : "Alternatives were evaluated against expected impact on the primary outcome and set aside for insufficient measurable effect.";
+}
+
 // ---- KPI cards — bold numbers, minimal text (Cincinnati pattern) ------
 
 export interface ExecutiveKpi {

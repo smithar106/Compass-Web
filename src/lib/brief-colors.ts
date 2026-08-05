@@ -9,6 +9,11 @@ export const BRIEF_COLORS = {
     bg: "#e9f6ee",
     ink: "#14663a",
   },
+  blue: {
+    accent: "#2563eb",
+    bg: "#eff6ff",
+    ink: "#1e40af",
+  },
   red: {
     accent: "#c14a3c",
     bg: "#faeae7",
@@ -47,6 +52,12 @@ export const BRIEF_TONE_STYLES: Record<
     card: "bg-[#e9f6ee] border-[#a8d6bd]",
     topBorder: "border-t-[#1f9d57]",
     label: "text-[#14663a]",
+  },
+  blue: {
+    chip: "bg-[#2563eb]",
+    card: "bg-[#eff6ff] border-[#bdd0f5]",
+    topBorder: "border-t-[#2563eb]",
+    label: "text-[#1e40af]",
   },
   red: {
     chip: "bg-[#c14a3c]",

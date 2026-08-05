@@ -25,7 +25,7 @@ const mockRec = {
 };
 
 describe("DecisionPackageView executive memo", () => {
-  it("renders the Prepared by Compass masthead and memo sections", () => {
+  it("renders the Executive Decision Brief with four-lens memo structure", () => {
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: false,
       json: async () => ({}),
@@ -38,13 +38,12 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    expect(screen.getByText("Executive Decision Brief")).toBeTruthy();
-    expect(screen.getByText("What gives us confidence?")).toBeTruthy();
-    expect(screen.getByText("What could prevent success?")).toBeTruthy();
-    expect(screen.getByText("Executive Recommendation")).toBeTruthy();
+    expect(screen.getByText("What should we do?")).toBeTruthy();
+    expect(screen.getByText("Why should we do it?")).toBeTruthy();
+    expect(screen.getByText("How will we do it?")).toBeTruthy();
   });
 
-  it("opens the print preview with the McKinsey memo structure", () => {
+  it("opens the print preview with the four-section memo structure", () => {
     render(
       <DecisionPackageView
         recs={[mockRec as any]}
