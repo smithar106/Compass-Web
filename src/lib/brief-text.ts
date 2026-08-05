@@ -1,20 +1,29 @@
-// Executive Decision Brief text helpers.
-// Every sentence builds the executive's confidence to approve.
-// Not information display. Conviction building.
+// Executive Decision Brief — conviction-driven text helpers.
+// Every sentence reads like someone who studied the evidence
+// and is now prepared to make a recommendation.
 
-import type { DecisionRec, DefensibilityCheck } from "@/lib/decision-package";
+import type { DecisionRec } from "@/lib/decision-package";
 
-// ---- Masthead summary ----------------------------------------------------
+// ---- Opening paragraph — why change, why now ---------------------------
 
-export function businessSummary(top: DecisionRec): string {
+export function decisionSummary(top: DecisionRec, summary: any): string {
   const title = top.title || "this approach";
+  const problem = (summary?.problem_statement || "").replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim();
   const alts = (top.alternatives_considered || []).length;
-  return alts > 0
-    ? `${title} is the recommended approach. Organizations with similar operational constraints achieved better outcomes at lower complexity than the ${alts} alternative${alts > 1 ? "s" : ""} considered.`
-    : `${title} is the recommended approach, based on implementation evidence from organizations with comparable operational constraints.`;
+  const total = top.evidence_summary?.total_comparables || 0;
+
+  const problemContext = problem
+    ? `${problem} creates unnecessary manual effort and limits the team's ability to scale.`
+    : `The current workflow limits operational capacity.`;
+
+  const evidenceContext = total > 0
+    ? `Evidence from similar implementations suggests ${title} can materially improve processing efficiency${alts > 0 ? ` while managing implementation risk better than the ${alts} alternative${alts > 1 ? "s" : ""} evaluated` : ""}.`
+    : `${title} offers the strongest balance of expected business value and implementation readiness.`;
+
+  return `We recommend approving ${title}${problem ? ` for ${problem}` : ""}. ${problemContext} ${evidenceContext}`;
 }
 
-// ---- KPI cards — reasons to approve, not metrics ------------------------
+// ---- KPI cards — business conviction, not metrics --------------------
 
 export interface ExecutiveKpi {
   label: string;
@@ -22,92 +31,70 @@ export interface ExecutiveKpi {
   caption: string;
 }
 
-export function executiveKpis(top: DecisionRec): ExecutiveKpi[] {
+export function convictionKpis(top: DecisionRec): ExecutiveKpi[] {
   const kpis: ExecutiveKpi[] = [];
   const ranges = (top.outcome_ranges || []).filter((r) => r.directly_comparable);
-  const total = top.evidence_summary?.total_comparables || 0;
   const gaps = (top.information_gaps || []).length;
   const risks = (top.risks || []).length;
   const tl = top.impact?.implementation_timeline;
 
-  // Business impact — the reason to approve
   if (ranges.length > 0) {
     const r = ranges[0];
+    const metric = (r.metric_label || "").replace(/Call Volume/i, "manual processing effort").replace(/Processing time/i, "processing time").replace(/processing cost/i, "processing cost").toLowerCase();
     const v = r.median != null ? `~${r.median}%` : r.low != null && r.high != null ? `${r.low}%–${r.high}%` : "";
-    const improvement = (r.metric_label || "")
-      .replace(/Call Volume/i, "manual processing effort")
-      .replace(/Processing time/i, "processing time")
-      .replace(/processing cost/i, "processing cost")
-      .toLowerCase();
     kpis.push({
       label: "Expected business impact",
       value: v || "—",
-      caption: `Reduce ${improvement} by ${v || "a measurable margin"}, freeing staff for higher-value work.`,
+      caption: `${v || "Measurable"} improvement in ${metric}, freeing the team for higher-value work.`,
     });
   } else {
-    kpis.push({
-      label: "Expected business impact",
-      value: "—",
-      caption: "Impact will be measured against a baseline established before build.",
-    });
+    kpis.push({ label: "Expected business impact", value: "—", caption: "Impact will be measured against a baseline before build." });
   }
 
-  // Time to value — when they see results
   if (tl?.min_weeks && tl?.max_weeks) {
     const fmt = (w: number) => (w > 8 ? `${Math.round(w / 4.33)} months` : `${w} weeks`);
-    kpis.push({
-      label: "Time to value",
-      value: `${fmt(tl.min_weeks)}–${fmt(tl.max_weeks)}`,
-      caption: "Organizations with similar implementations reached measurable results within this window.",
-    });
+    kpis.push({ label: "Time to impact", value: `${fmt(tl.min_weeks)}–${fmt(tl.max_weeks)}`, caption: "Similar implementations reached measurable results within this window." });
   } else {
-    kpis.push({ label: "Time to value", value: "TBD", caption: "" });
+    kpis.push({ label: "Time to impact", value: "TBD", caption: "" });
   }
 
-  // Implementation risk — what they need to know
   kpis.push({
-    label: "Implementation risk",
-    value: gaps > 0 || risks > 0 || total < 3 ? "Moderate" : "Low to moderate",
-    caption: gaps > 0
-      ? "Additional data is needed before deployment. The technology is well understood."
-      : risks > 0
-        ? "Known risks are manageable with the mitigations listed below."
-        : "The approach is established. Success depends on execution discipline.",
+    label: "Implementation confidence",
+    value: gaps > 0 || risks > 0 ? "Moderate" : "High",
+    caption: gaps > 0 ? "Additional data requested before full deployment. The technology is proven." : risks > 0 ? "Risks are understood and manageable." : "The approach is well-established in comparable organizations.",
   });
 
   return kpis;
 }
 
-// ---- Why approve — three confidence cards ---------------------------------
+// ---- Why this decision — conviction cards --------------------------------
 
-export interface RationaleCard {
+export interface ConvictionCard {
   title: string;
   body: string;
 }
 
-export function businessRationale(top: DecisionRec): RationaleCard[] {
-  const cards: RationaleCard[] = [];
+export function convictionCards(top: DecisionRec): ConvictionCard[] {
+  const cards: ConvictionCard[] = [];
   const total = top.evidence_summary?.total_comparables || 0;
+  const comps = top.comparable_implementations || [];
 
   if (total > 0) {
-    const orgs = (top.comparable_implementations || [])
-      .slice(0, 2)
-      .map((c) => c.organization)
-      .filter(Boolean);
+    const orgNames = comps.slice(0, 2).map((c) => c.organization).filter(Boolean);
     cards.push({
       title: "Who has done this",
-      body: orgs.length > 0
-        ? `${orgs.join(" and ")} implemented this approach and saw measurable improvement. It has been validated across different operating environments.`
-        : "Several organizations with similar workflows have implemented this approach and achieved measurable outcomes.",
+      body: orgNames.length > 0
+        ? `${orgNames.join(" and ")} each implemented this approach and saw meaningful improvement.`
+        : `${total} organizations with similar constraints implemented this successfully.`,
     });
   }
 
   const alts = (top.alternatives_considered || []).length;
   cards.push({
-    title: "Why it was selected",
+    title: "Why this option",
     body: alts > 0
-      ? `This approach balances expected business value, implementation effort, and operational risk better than the ${alts} alternatives evaluated.`
-      : `This approach best balances business value, implementation effort, and organizational readiness.`,
+      ? `Balances expected business value, implementation effort, and operational risk better than the ${alts} alternatives evaluated.`
+      : `Best balance of business value, implementation effort, and organizational readiness.`,
   });
 
   const ranges = (top.outcome_ranges || []).filter((r) => r.directly_comparable);
@@ -115,15 +102,29 @@ export function businessRationale(top: DecisionRec): RationaleCard[] {
     const r = ranges[0];
     const metric = (r.metric_label || "").replace(/Call Volume/i, "manual workload").toLowerCase();
     const v = r.median != null ? `~${r.median}%` : r.low != null && r.high != null ? `${r.low}%–${r.high}%` : "";
-    cards.push({
-      title: "Observed outcomes",
-      body: v ? `${v} improvement in ${metric} across similar implementations.` : "Measurable operational improvements were reported.",
-    });
-  } else {
-    cards.push({ title: "Observed outcomes", body: "Organizations implementing this approach reported measurable improvements." });
+    cards.push({ title: "Expected outcome", body: v ? `${v} improvement in ${metric} across comparable implementations.` : "Measurable improvement across comparable implementations." });
   }
 
-  return cards;
+  return cards.length > 0 ? cards : [{ title: "Recommendation basis", body: "Ranks highest against the evidence criteria applied." }];
+}
+
+// ---- Evidence — narrative stories, not database rows ----------------------
+
+export interface EvidenceStory {
+  organization: string;
+  whatHappened: string;
+  outcome: string;
+  whyItMatters: string;
+}
+
+export function evidenceStories(top: DecisionRec): EvidenceStory[] {
+  const cat = (top.category || "").replace(/_/g, " ");
+  return (top.comparable_implementations || []).slice(0, 3).map((c) => ({
+    organization: c.organization || "A comparable organization",
+    whatHappened: `${c.organization || "This organization"} deployed ${c.intervention || top.title || "a comparable intervention"}.`,
+    outcome: (c.outcome_summary || c.observed_outcome || "Measurable operational improvements observed.").replace(/;/g, ". "),
+    whyItMatters: `Demonstrates that ${(top.category || "this approach").replace(/_/g, " ")} can materially improve outcomes in similar operating environments.`,
+  }));
 }
 
 // ---- Risks, unknowns, assumptions -----------------------------------------
@@ -132,7 +133,7 @@ export interface RiskItem { title: string; mitigation?: string; }
 export function riskItems(top: DecisionRec): RiskItem[] { return (top.risks || []).slice(0, 3).map(r => ({ title: r.title || "Risk", mitigation: r.mitigation || r.explanation })); }
 
 export interface UnknownItem { title: string; why: string; }
-export function unknownItems(top: DecisionRec): UnknownItem[] { return (top.information_gaps || []).slice(0, 3).map(g => ({ title: g.title || "Missing information", why: g.explanation || "Required to validate the estimate before deployment." })); }
+export function unknownItems(top: DecisionRec): UnknownItem[] { return (top.information_gaps || []).slice(0, 3).map(g => ({ title: g.title || "Missing information", why: g.explanation || "Required to validate the estimate." })); }
 
 export interface AssumptionItem { title: string; }
 export function assumptionItems(top: DecisionRec): AssumptionItem[] { return (top.assumptions_detail || []).slice(0, 3).map(a => ({ title: a.title || "Assumption" })); }
@@ -149,54 +150,6 @@ export function implementationRoadmap(top: DecisionRec): RoadmapStep[] {
   ];
 }
 
-// ---- Evidence: organization stories ----------------------------------------
-
-export interface EvidenceStory { organization: string; challenge: string; solution: string; result: string; }
-
-export function evidenceStories(top: DecisionRec): EvidenceStory[] {
-  const cat = (top.category || "").replace(/_/g, " ");
-  return (top.comparable_implementations || []).slice(0, 3).map((c) => ({
-    organization: c.organization || "A comparable organization",
-    challenge: categoryToChallenge(cat),
-    solution: c.intervention || top.title || "A comparable intervention",
-    result: (c.outcome_summary || c.observed_outcome || "Measurable improvements observed").replace(/;/g, ". "),
-  }));
-}
-
-function categoryToChallenge(category: string): string {
-  const challenges: Record<string, string> = {
-    workflow_automation: "Manual processing at scale with inconsistent quality",
-    ticketing: "High support ticket volume with manual triage and routing",
-    invoice_processing: "High manual claims processing",
-    onboarding: "Slow, manual customer onboarding with multiple handoffs",
-    contract_review: "Contract review bottleneck with manual clause extraction",
-    lead_qualification: "Manual lead qualification with inconsistent scoring",
-    marketing_automation: "Manual campaign assembly and execution",
-    ci_cd: "Slow build, test, and deployment cycles",
-    process_automation: "Manual, repetitive operational workflows",
-    manufacturing: "Manual quality checks and inconsistent throughput",
-    supply_chain: "Manual inventory and logistics coordination",
-  };
-  return challenges[category.toLowerCase()] || `A ${category} challenge at scale`;
-}
-
-// ---- Evaluated options ----------------------------------------------------
-
-export interface EvaluatedOption { title: string; tradeoff: string; }
-export function evaluatedOptions(top: DecisionRec): EvaluatedOption[] { return (top.alternatives_considered || []).slice(0, 3).map(a => ({ title: a.family || "An alternative", tradeoff: a.reason || "Does not offer the same combination of evidence and operational fit." })); }
-
 // ---- Notes ----------------------------------------------------------------
 
 export function decisionNotes(): string { return "Outcomes shown are observed in comparable organizations and are not guarantees. Estimates will be refined as additional implementation data is collected."; }
-
-// ---- Basis ----------------------------------------------------------------
-
-export function defensibilityItems(checks: DefensibilityCheck[]): { label: string; ok: boolean }[] {
-  const map: Record<string, string> = {
-    problem: "Similar organizations identified", intervention: "Alternative approaches evaluated",
-    comparables: "Implementation evidence available", implementation: "Implementation patterns identified",
-    outcomes: "Measured outcomes available", risk: "Known risks identified",
-    measurement: "Success criteria defined", gaps: "Key assumptions identified",
-  };
-  return checks.map(c => ({ label: map[c.key] || c.label, ok: c.ok }));
-}

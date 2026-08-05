@@ -41,7 +41,7 @@ describe("DecisionPackageView executive memo", () => {
     expect(screen.getByText("Executive Decision Brief")).toBeTruthy();
     expect(screen.getByText("Why approve this?")).toBeTruthy();
     expect(screen.getByText("What could prevent success?")).toBeTruthy();
-    expect(screen.getByText("For approval")).toBeTruthy();
+    expect(screen.getByText("Executive Recommendation")).toBeTruthy();
   });
 
   it("opens the print preview with the McKinsey memo structure", () => {

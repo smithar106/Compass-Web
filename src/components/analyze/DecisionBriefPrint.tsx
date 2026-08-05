@@ -13,9 +13,9 @@ import {
   type BriefTone,
 } from "@/lib/brief-colors";
 import {
-  businessSummary,
-  executiveKpis,
-  businessRationale,
+  decisionSummary,
+  convictionKpis,
+  convictionCards,
   riskItems,
   unknownItems,
   assumptionItems,
@@ -75,8 +75,8 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
         ? { text: "Needs validation", dot: "bg-[#B45309]", cls: "bg-[#FBF0E0] text-[#7a3b06]" }
         : { text: "Insufficient evidence", dot: "bg-[#C4382C]", cls: "bg-[#FAE9E7] text-[#7a1f1a]" };
 
-  const kpis = executiveKpis(top);
-  const rationale = businessRationale(top);
+  const kpis = convictionKpis(top);
+  const cards = convictionCards(top);
   const risks = riskItems(top);
   const unknowns = unknownItems(top);
   const assumptions = assumptionItems(top);
@@ -107,7 +107,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}><span aria-hidden="true" className={cn("h-2 w-2 rounded-full", badge.dot)} />{badge.text}</span>
           </div>
 
-          <p className="mt-4 text-[13px] leading-[1.55] text-[#6c685f]">{businessSummary(top)}</p>
+          <p className="mt-4 text-[13px] leading-[1.55] text-[#6c685f]">{decisionSummary(top, summary)}</p>
 
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {kpis.map((k) => (<div key={k.label} className="rounded border border-[#a9dce2] bg-[#e5f6f8] p-3"><p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#0a6a78]">{k.label}</p><p className="mt-0.5 text-[20px] font-extrabold tracking-tight text-[#0a3a42]">{k.value}</p>{k.caption && <p className="text-[10px] leading-relaxed text-[#0a6a78]/80">{k.caption}</p>}</div>))}
@@ -119,13 +119,13 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
 
           <PrintSection number="1" title="Why approve this?" tone="green">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              {rationale.map((card) => (<div key={card.title} className="rounded border border-[#a8d6bd] bg-white/50 p-3"><p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#14663a]">{card.title}</p><p className="mt-1.5 text-[11px] leading-[1.4] text-[#3c5645]">{card.body}</p></div>))}
+              {cards.map((card) => (<div key={card.title} className="rounded border border-[#a8d6bd] bg-white/50 p-3"><p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#14663a]">{card.title}</p><p className="mt-1.5 text-[11px] leading-[1.4] text-[#3c5645]">{card.body}</p></div>))}
             </div>
           </PrintSection>
 
           <PrintSection number="2" title="What gives us confidence?" tone="teal">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {stories.map((s) => (<div key={s.organization} className="rounded border border-[#a9dce2] bg-white/60 p-3"><p className="text-[12px] font-bold text-[#0a3a42]">{s.organization}</p><p className="mt-1.5 text-[10px] leading-[1.4] text-[#0a6a78]/85"><b>Challenge:</b> {s.challenge}<br /><b>Solution:</b> {s.solution}<br /><b>Result:</b> {s.result}</p></div>))}
+              {stories.map((s) => (<div key={s.organization} className="rounded border border-[#a9dce2] bg-white/60 p-3"><p className="text-[12px] font-bold text-[#0a3a42]">{s.organization}</p><p className="mt-1.5 text-[10px] leading-[1.4] text-[#0a6a78]/85"><b>What happened:</b> {s.whatHappened}<br /><b>Solution:</b> {s.whatHappened}<br /><b>Result:</b> {s.outcome}</p></div>))}
               {stories.length === 0 && <p className="italic text-[#0a6a78]/70 sm:col-span-3">No comparable cases attached.</p>}
             </div>
           </PrintSection>

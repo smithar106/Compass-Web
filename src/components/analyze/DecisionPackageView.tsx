@@ -14,17 +14,15 @@ import {
   type BriefTone,
 } from "@/lib/brief-colors";
 import {
-  businessSummary,
-  executiveKpis,
-  businessRationale,
+  decisionSummary,
+  convictionKpis,
+  convictionCards,
   riskItems,
   unknownItems,
   assumptionItems,
   implementationRoadmap,
   evidenceStories,
-  evaluatedOptions,
   decisionNotes,
-  defensibilityItems,
 } from "@/lib/brief-text";
 
 export function DecisionPackageView({
@@ -94,15 +92,14 @@ export function DecisionPackageView({
   };
 
   const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  const kpis = executiveKpis(top);
-  const rationale = businessRationale(top);
+  const kpis = convictionKpis(top);
+  const cards = convictionCards(top);
   const risks = riskItems(top);
   const unknowns = unknownItems(top);
   const assumptions = assumptionItems(top);
   const roadmap = implementationRoadmap(top);
   const stories = evidenceStories(top);
-  const options = evaluatedOptions(top);
-  const defItems = defensibilityItems(dd.checks);
+  const defItems = []
 
   const cleanScope = summary?.problem_statement
     ? summary.problem_statement.replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim()
@@ -144,7 +141,7 @@ export function DecisionPackageView({
           </div>
 
           <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-[#4f6280]">
-            {businessSummary(top)}
+            {decisionSummary(top, summary)}
           </p>
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -186,7 +183,7 @@ export function DecisionPackageView({
       {/* ===== 1. WHY THIS RECOMMENDATION ===== */}
       <BriefPanel number="1" title="Why approve this?" tone="green">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {rationale.map((card) => (
+          {cards.map((card) => (
             <div key={card.title} className="rounded-lg border border-[#a8d6bd] bg-white/50 p-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#14663a]">{card.title}</p>
               <p className="mt-2 text-[13px] leading-[1.55] text-[#3c5645]">{card.body}</p>
@@ -202,9 +199,9 @@ export function DecisionPackageView({
             <div key={s.organization} className="rounded-lg border border-[#a9dce2] bg-white/60 p-4">
               <p className="text-[14px] font-bold text-[#0a3a42]">{s.organization}</p>
               <div className="mt-3 space-y-2 text-[12px] leading-[1.5]">
-                <p><span className="font-semibold text-[#0a6a78]">Challenge:</span> <span className="text-[#0a6a78]/85">{s.challenge}</span></p>
-                <p><span className="font-semibold text-[#0a6a78]">Solution:</span> <span className="text-[#0a6a78]/85">{s.solution}</span></p>
-                <p><span className="font-semibold text-[#0a6a78]">Result:</span> <span className="text-[#0a6a78]/85">{s.result}</span></p>
+                <p className="text-[#0a6a78]/85">{s.whatHappened}</p>
+                <p className="text-[#0a6a78]/85"><span className="font-semibold text-[#0a6a78]">Outcome:</span> {s.outcome}</p>
+                <p className="text-[#0a6a78]/80 italic">{s.whyItMatters}</p>
               </div>
             </div>
           ))}
@@ -285,27 +282,31 @@ export function DecisionPackageView({
 
       {/* ===== APPROVAL ===== */}
       <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-6 shadow-sm sm:p-8">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">For approval</p>
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">Executive Recommendation</p>
         <p className="mt-1 font-serif text-[22px] font-semibold leading-snug tracking-[-0.01em] text-[#14402a]">
-          Approve {top.title || "this recommendation"} for {cleanScope || "implementation"}.
+          We recommend approving {top.title || "this recommendation"}{cleanScope ? ` for ${cleanScope}` : ""}.
+        </p>
+        <p className="mt-3 text-[13.5px] leading-[1.6] text-[#3c5645]">
+          The current workflow limits operational capacity. Evidence from comparable implementations
+          suggests this approach can materially improve outcomes while managing implementation risk.
+          A phased rollout with the validation gates below allows the organization to confirm the
+          expected impact before full deployment.
         </p>
         <ul className="mt-4 space-y-2.5">
           <li className="flex items-start gap-3 text-[13px] text-[#3c5645]"><span className="mt-[3px] text-[#1f9d57]">✓</span>Complete a four-week operational baseline before build.</li>
           <li className="flex items-start gap-3 text-[13px] text-[#3c5645]"><span className="mt-[3px] text-[#1f9d57]">✓</span>{top.next_validation_step?.success_criteria || "Validate results against the agreed baseline before full deployment."}</li>
-          <li className="flex items-start gap-3 text-[13px] text-[#3c5645]"><span className="mt-[3px] text-[#1f9d57]">✓</span>Select an implementation partner or confirm internal team readiness.</li>
+          <li className="flex items-start gap-3 text-[13px] text-[#3c5645]"><span className="mt-[3px] text-[#1f9d57]">✓</span>Confirm implementation partner or internal team readiness.</li>
         </ul>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <button type="button" disabled aria-disabled="true" title="Feature coming soon"
             className="inline-flex cursor-not-allowed items-center justify-center gap-2 bg-[#d3ccc0] px-6 py-3 text-[14px] font-semibold text-[#6c685f]"
           >
-            Approve Implementation
+            Approve & Implement
             <span className="text-[10px] font-bold uppercase tracking-wide text-[#6c685f]">(Feature Coming Soon)</span>
           </button>
           <button type="button" onClick={() => setPrinting(true)}
             className="inline-flex items-center justify-center gap-2 border border-[#a8d6bd] bg-white/70 px-6 py-3 text-[14px] font-semibold text-[#14663a] transition-colors hover:border-[#1f9d57]"
-          >
-            Download as PDF
-          </button>
+          >Download as PDF</button>
         </div>
       </section>
 
