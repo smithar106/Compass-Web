@@ -144,10 +144,10 @@ export function DecisionPackageView({
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {kpis.map((k) => (
-              <div key={k.label} className="rounded-lg border border-line bg-[#e5f6f8] p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">{k.label}</p>
+              <div key={k.label} className="rounded-lg border border-line bg-white p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#4f6280]">{k.label}</p>
                 <p className="mt-1 text-[22px] font-extrabold tracking-tight text-ink">{k.value}</p>
-                {k.caption && <p className="text-[11px] leading-relaxed text-muted">{k.caption}</p>}
+                {k.caption && <p className="mt-0.5 text-[11px] leading-relaxed text-muted">{k.caption}</p>}
               </div>
             ))}
           </div>
