@@ -80,7 +80,14 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
 
 export interface EvidenceCard {
   company: string;
-  impact: string;
+  bullets: string[];
+}
+
+function cleanMetric(metricRaw: string, val: string): string {
+  const lc = metricRaw.toLowerCase();
+  if (/cost|error|manual|effort|time|processing|handle|turnaround|expense/i.test(lc)) return `${val} lower ${lc}`;
+  if (/capacity|throughput|fraud|detection|accuracy|satisfaction|automation|rate|volume|invoices|quality/i.test(lc)) return `${val} improvement in ${lc}`;
+  return `${val} ${lc}`;
 }
 
 export function evidenceCards(top: DecisionRec): EvidenceCard[] {
@@ -88,33 +95,30 @@ export function evidenceCards(top: DecisionRec): EvidenceCard[] {
   const seen = new Set<string>();
   return raw
     .filter((c) => {
-      const key = (c.organization || "") + "|" + (c.outcome_summary || "");
-      if (seen.has(key)) return false;
+      const key = (c.organization || "").toLowerCase();
+      if (!key || seen.has(key)) return false;
       seen.add(key);
       return true;
     })
     .map((c) => {
       const org = c.organization || "A comparable organization";
-      const impl = c.intervention_description || c.intervention || "the implemented solution";
       const outcome = c.outcome_summary || c.observed_outcome || "";
-      const metrics = outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s));
-      let impact = "Reported measurable operational improvement from an implemented solution.";
-      if (metrics.length > 0) {
-        const parts = metrics[0].split(/:/).map((p) => p.trim());
+      const bullets: string[] = [];
+      outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s)).forEach((s) => {
+        const parts = s.split(/[:=]/).map((p) => p.trim());
         if (parts.length >= 2) {
-          const metric = parts[0].replace(/\b\w/g, (ch) => ch.toUpperCase());
-          const val = parts[parts.length - 1];
-          const lc = metric.toLowerCase();
-          const phrasing = /cost|error|manual|effort|time|processing|handle|turnaround/i.test(lc)
-            ? `${val} lower ${lc}`
-            : `${val} improvement in ${lc}`;
-          impact = `${phrasing} via ${impl.replace(/\.$/, "")}`;
+          const metricRaw = parts[0].replace(/\b\w/g, (ch) => ch.toUpperCase());
+          const val = parts[parts.length - 1].replace(/^(\d+\.?\d*)\s*%?.*$/, "$1%");
+          bullets.push(cleanMetric(metricRaw, val));
         } else {
-          impact = `${metrics[0].replace(/\.$/, "")} via ${impl.replace(/\.$/, "")}`;
+          const dash = s.match(/^([^0-9]+)\s*[:=]?\s*(\d+\.?\d*)%?/i);
+          if (dash) bullets.push(cleanMetric(dash[1], `${dash[2]}%`));
         }
-      }
-      impact = impact.charAt(0).toUpperCase() + impact.slice(1) + ".";
-      return { company: org, impact };
+      });
+      // De-dupe identical bullets and collapse to the strongest 3.
+      const unique = [...new Set(bullets)];
+      if (unique.length === 0) unique.push("Reported measurable operational improvement.");
+      return { company: org, bullets: unique.slice(0, 3) };
     });
 }
 

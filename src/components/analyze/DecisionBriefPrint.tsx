@@ -89,7 +89,14 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
               {evidences.slice(0, 3).map((e) => (
                 <div key={e.company} className="rounded bg-white px-4 py-3">
                   <p className="text-[14px] font-bold">{e.company}</p>
-                  <p className="mt-1.5 text-[11.5px] leading-[1.45] text-ink">{e.impact}</p>
+                  <ul className="mt-1.5 space-y-1">
+                    {e.bullets.map((b) => (
+                      <li key={b} className="flex items-start gap-2 text-[11.5px] leading-[1.45] text-ink">
+                        <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-ink/40" />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               ))}
               {evidences.length === 0 && <div className="rounded bg-white px-4 py-3 sm:col-span-3"><p className="text-[11px] italic text-[#6c685f]">Evidence is being catalogued.</p></div>}

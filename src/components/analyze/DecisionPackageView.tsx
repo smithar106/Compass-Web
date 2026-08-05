@@ -96,7 +96,14 @@ export function DecisionPackageView({
             {evidences.slice(0, 3).map((e) => (
               <div key={e.company} className="rounded-lg bg-white px-5 py-5">
                 <p className="text-[15px] font-bold text-ink">{e.company}</p>
-                <p className="mt-2 text-[13px] leading-[1.5] text-ink">{e.impact}</p>
+                <ul className="mt-2 space-y-1.5">
+                  {e.bullets.map((b) => (
+                    <li key={b} className="flex items-start gap-2 text-[13px] leading-[1.5] text-ink">
+                      <span aria-hidden="true" className="mt-[8px] h-1.5 w-1.5 shrink-0 rounded-full bg-ink/40" />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
             {evidences.length === 0 && (

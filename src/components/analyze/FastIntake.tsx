@@ -127,20 +127,7 @@ export function FastIntake() {
         </Link>
 
         <div className="mb-6">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent-deep">Decision Report and Implementation Plan</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {[
-              selection.department,
-              selection.problem,
-              selection.people,
-              selection.outcome,
-              selection.timeline,
-            ].filter(Boolean).map((v) => (
-              <span key={v} className="rounded bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-ink">
-                {v}
-              </span>
-            ))}
-          </div>
+          <h1 className="text-[24px] font-bold leading-tight tracking-[-0.01em] text-ink sm:text-[28px]">Decision Report and Implementation Plan</h1>
         </div>
 
         <DecisionPackageView
