@@ -38,9 +38,9 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    expect(screen.getByText("What should we do?")).toBeTruthy();
-    expect(screen.getByText("Why should we do it?")).toBeTruthy();
-    expect(screen.getByText("How will we do it?")).toBeTruthy();
+    expect(screen.getByText("Recommended Path Forward")).toBeTruthy();
+    expect(screen.getByText("Strategy and Objectives")).toBeTruthy();
+    expect(screen.getByText("Implementation Plan")).toBeTruthy();
   });
 
   it("opens the print preview with the four-section memo structure", () => {
@@ -52,7 +52,7 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    const buttons = screen.getAllByText("Download PDF");
+    const buttons = screen.getAllByText("Download Brief as PDF");
     fireEvent.click(buttons[0]);
     expect(screen.getAllByText((content) => content.includes("Prepared by Compass")).length).toBeGreaterThanOrEqual(2);
   });

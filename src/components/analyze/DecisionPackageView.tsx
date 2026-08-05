@@ -106,8 +106,7 @@ export function DecisionPackageView({
         <div className="p-6 sm:p-7">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#14663a]">Executive Recommendation</p>
-              <h2 className="mt-0.5 font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink">What should we do?</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#14663a]">Recommended Path Forward</p>
             </div>
             <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-bold", badge.cls)}>
               <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", badge.dot)} />
@@ -126,18 +125,6 @@ export function DecisionPackageView({
             <li className="flex items-start gap-2.5 text-[12.5px] text-[#3c5645]"><span className="mt-px text-[#1f9d57] shrink-0">✓</span>{top.next_validation_step?.success_criteria || "Validate results against the agreed baseline before full deployment."}</li>
             <li className="flex items-start gap-2.5 text-[12.5px] text-[#3c5645]"><span className="mt-px text-[#1f9d57] shrink-0">✓</span>Confirm implementation partner or internal team readiness.</li>
           </ul>
-
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button type="button" disabled aria-disabled="true" title="Feature coming soon"
-              className="inline-flex cursor-not-allowed items-center gap-2 bg-[#d3ccc0] px-6 py-3 text-[14px] font-semibold text-[#6c685f]"
-            >
-              Approve & Implement
-              <span className="text-[10px] font-bold uppercase tracking-wide">(Feature Coming Soon)</span>
-            </button>
-            <button type="button" onClick={() => setPrinting(true)}
-              className="inline-flex items-center gap-2 border border-line bg-white px-6 py-3 text-[14px] font-semibold text-ink transition-colors hover:border-ink/40"
-            >Download PDF</button>
-          </div>
         </div>
       </section>
 
@@ -145,8 +132,7 @@ export function DecisionPackageView({
       <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
         <div className="h-0.5 bg-[#2563eb]" aria-hidden="true" />
         <div className="p-6 sm:p-7">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1e40af]">Business Case</p>
-          <h2 className="mt-0.5 font-serif text-[24px] font-semibold tracking-[-0.01em] text-ink">Why should we do it?</h2>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1e40af]">Strategy and Objectives</p>
           <p className="mt-3 max-w-3xl text-[13.5px] leading-[1.65] text-muted">
             {businessCaseText(top, summary)}
           </p>
@@ -172,12 +158,35 @@ export function DecisionPackageView({
         </div>
       </section>
 
-      {/* ===== 3. EXECUTION PLAN — Amber ===== */}
+      {/* ===== 3. SUPPORTING EVIDENCE — Purple ===== */}
+      <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+        <div className="h-0.5 bg-[#6a5acd]" aria-hidden="true" />
+        <div className="p-6 sm:p-7">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#463a9e]">Supporting Evidence</p>
+          <p className="mt-2 text-[12.5px] leading-[1.5] text-muted">Supporting evidence and source material backing this recommendation.</p>
+
+          {stories.length > 0 ? (
+            <div className="mt-4 space-y-3">
+              {stories.map((s) => (
+                <div key={s.organization} className="rounded border border-line bg-white p-4">
+                  <p className="text-[13px] font-semibold text-ink">{s.organization}</p>
+                  <p className="mt-0.5 text-[11.5px] leading-[1.5] text-muted">{s.outcome}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-[12px] italic text-muted">No implementations catalogued yet.</p>
+          )}
+
+          <p className="mt-4 text-[10.5px] italic leading-[1.5] text-muted">{decisionNotes()}</p>
+        </div>
+      </section>
+
+      {/* ===== 4. IMPLEMENTATION PLAN — Amber ===== */}
       <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
         <div className="h-0.5 bg-[#d9932a]" aria-hidden="true" />
         <div className="p-6 sm:p-7">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#8f5c11]">Execution Plan</p>
-          <h2 className="mt-0.5 font-serif text-[24px] font-semibold tracking-[-0.01em] text-ink">How will we do it?</h2>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#8f5c11]">Implementation Plan</p>
 
           <div className="mt-5 space-y-3">
             {roadmap.map((step, i) => (
@@ -208,31 +217,15 @@ export function DecisionPackageView({
               <p className="text-[12px] italic text-muted">All information available for the steps above.</p>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* ===== 4. EVIDENCE LIBRARY — Purple ===== */}
-      <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
-        <div className="h-0.5 bg-[#6a5acd]" aria-hidden="true" />
-        <div className="p-6 sm:p-7">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#463a9e]">Evidence Library</p>
-          <h2 className="mt-0.5 font-serif text-[24px] font-semibold tracking-[-0.01em] text-ink">How do we know this?</h2>
-          <p className="mt-2 text-[12.5px] leading-[1.5] text-muted">Supporting evidence and source material backing this recommendation.</p>
-
-          {stories.length > 0 ? (
-            <div className="mt-4 space-y-3">
-              {stories.map((s) => (
-                <div key={s.organization} className="rounded border border-line bg-white p-4">
-                  <p className="text-[13px] font-semibold text-ink">{s.organization}</p>
-                  <p className="mt-0.5 text-[11.5px] leading-[1.5] text-muted">{s.outcome}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-4 text-[12px] italic text-muted">No implementations catalogued yet.</p>
-          )}
-
-          <p className="mt-4 text-[10.5px] italic leading-[1.5] text-muted">{decisionNotes()}</p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={() => setPrinting(true)}
+              className="inline-flex items-center gap-2 border border-line bg-white px-6 py-3 text-[14px] font-semibold text-ink transition-colors hover:border-ink/40"
+            >Download Brief as PDF</button>
+            <button type="button" disabled aria-disabled="true" title="Feature coming soon"
+              className="inline-flex cursor-not-allowed items-center gap-2 bg-[#d3ccc0] px-6 py-3 text-[14px] font-semibold text-[#6c685f]"
+            >Select Implementation Partner</button>
+          </div>
         </div>
       </section>
 
