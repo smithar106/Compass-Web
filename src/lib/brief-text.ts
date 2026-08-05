@@ -61,7 +61,7 @@ export function convictionKpis(top: DecisionRec): ExecutiveKpi[] {
   kpis.push({
     label: "Implementation confidence",
     value: gaps > 0 || risks > 0 ? "Moderate" : "High",
-    caption: gaps > 0 ? "Additional data requested before full deployment. The technology is proven." : risks > 0 ? "Risks are understood and manageable." : "The approach is well-established in comparable organizations.",
+    caption: gaps > 0 ? "The technology is proven. Additional operational data is requested to finalize the impact estimate." : risks > 0 ? "Risks are understood and manageable." : "The approach is well-established in comparable organizations.",
   });
 
   return kpis;
@@ -119,12 +119,20 @@ export interface EvidenceStory {
 
 export function evidenceStories(top: DecisionRec): EvidenceStory[] {
   const cat = (top.category || "").replace(/_/g, " ");
-  return (top.comparable_implementations || []).slice(0, 3).map((c) => ({
-    organization: c.organization || "A comparable organization",
-    whatHappened: `${c.organization || "This organization"} deployed ${c.intervention || top.title || "a comparable intervention"}.`,
-    outcome: (c.outcome_summary || c.observed_outcome || "Measurable operational improvements observed.").replace(/;/g, ". "),
-    whyItMatters: `Demonstrates that ${(top.category || "this approach").replace(/_/g, " ")} can materially improve outcomes in similar operating environments.`,
-  }));
+  return (top.comparable_implementations || []).slice(0, 3).map((c) => {
+    const outcome = (c.outcome_summary || c.observed_outcome || "Measurable operational improvements observed.").replace(/;/g, ". ");
+    // Build a unique takeaway from this organization's actual outcome.
+    const metrics = outcome.match(/(\d+%|\d+)[\s\w]*/g) || [];
+    const takeaway = metrics.length > 0
+      ? `Achieved ${metrics.slice(0, 2).join(" and ")} in measurable outcomes.`
+      : `Achieved measurable operational improvements.`;
+    return {
+      organization: c.organization || "A comparable organization",
+      whatHappened: `${c.organization || "This organization"} deployed ${c.intervention || top.title || "a comparable intervention"}.`,
+      outcome,
+      whyItMatters: takeaway,
+    };
+  });
 }
 
 // ---- Risks, unknowns, assumptions -----------------------------------------
@@ -145,7 +153,7 @@ export function implementationRoadmap(top: DecisionRec): RoadmapStep[] {
   return [
     { label: "Baseline measurement", detail: top.next_validation_step?.success_criteria || "Establish current performance metrics.", owner: "Operations lead" },
     { label: "Configuration and build", detail: "Configure the solution and integrate with existing systems.", owner: "Implementation team" },
-    { label: "Pilot and validation", detail: top.next_validation_step?.action || "Validate against the agreed baseline before full deployment.", owner: "Operations lead" },
+    { label: "Pilot and validation", detail: "Run a controlled pilot. Compare results against the baseline before proceeding to full deployment.", owner: "Operations lead" },
     { label: "Full deployment", detail: "Roll out once validation criteria are met.", owner: "Implementation partner or internal team" },
   ];
 }
