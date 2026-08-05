@@ -89,8 +89,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
               {evidences.slice(0, 3).map((e) => (
                 <div key={e.company} className="rounded bg-white px-4 py-3">
                   <p className="text-[14px] font-bold">{e.company}</p>
-                  <p className="mt-1.5 text-[11.5px] leading-[1.45] text-ink">{e.implementation}</p>
-                  <p className="mt-2 text-[13px] font-bold leading-snug">{e.result}</p>
+                  <p className="mt-1.5 text-[11.5px] leading-[1.45] text-ink">{e.impact}</p>
                 </div>
               ))}
               {evidences.length === 0 && <div className="rounded bg-white px-4 py-3 sm:col-span-3"><p className="text-[11px] italic text-[#6c685f]">Evidence is being catalogued.</p></div>}

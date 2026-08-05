@@ -96,8 +96,7 @@ export function DecisionPackageView({
             {evidences.slice(0, 3).map((e) => (
               <div key={e.company} className="rounded-lg bg-white px-5 py-5">
                 <p className="text-[15px] font-bold text-ink">{e.company}</p>
-                <p className="mt-2 text-[13px] leading-[1.5] text-ink">{e.implementation}</p>
-                <p className="mt-3 text-[14px] font-bold leading-snug text-ink">{e.result}</p>
+                <p className="mt-2 text-[13px] leading-[1.5] text-ink">{e.impact}</p>
               </div>
             ))}
             {evidences.length === 0 && (

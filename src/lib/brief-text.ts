@@ -80,8 +80,7 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
 
 export interface EvidenceCard {
   company: string;
-  implementation: string;
-  result: string;
+  impact: string;
 }
 
 export function evidenceCards(top: DecisionRec): EvidenceCard[] {
@@ -96,24 +95,26 @@ export function evidenceCards(top: DecisionRec): EvidenceCard[] {
     })
     .map((c) => {
       const org = c.organization || "A comparable organization";
-      const impl = c.intervention_description || c.intervention || "Implemented a closely related solution across their operational workflow.";
+      const impl = c.intervention_description || c.intervention || "the implemented solution";
       const outcome = c.outcome_summary || c.observed_outcome || "";
       const metrics = outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s));
-      const cleanResult = metrics.length > 0
-        ? metrics.map((m) => {
-            const parts = m.split(/:/).map((p) => p.trim());
-            if (parts.length >= 2) {
-              const metric = parts[0].replace(/\b\w/g, (ch) => ch.toUpperCase());
-              const val = parts[parts.length - 1];
-              const lc = metric.toLowerCase();
-              if (/cost|error|manual|effort|time|processing|handle|turnaround/i.test(lc)) return `${val} lower ${lc}`;
-              if (/capacity|throughput|fraud|detection|accuracy|satisfaction|automation|rate|volume|invoices/i.test(lc)) return `${val} improvement in ${lc}`;
-              return `${val} improvement in ${lc}`;
-            }
-            return m.replace(/\b(Cost down|Throughput up|Processing time|Error rate)\b/g, (mm) => mm.charAt(0).toUpperCase() + mm.slice(1));
-          }).join(". ") + "."
-        : "Measurable operational improvement observed.";
-      return { company: org, implementation: impl, result: cleanResult };
+      let impact = "Reported measurable operational improvement from an implemented solution.";
+      if (metrics.length > 0) {
+        const parts = metrics[0].split(/:/).map((p) => p.trim());
+        if (parts.length >= 2) {
+          const metric = parts[0].replace(/\b\w/g, (ch) => ch.toUpperCase());
+          const val = parts[parts.length - 1];
+          const lc = metric.toLowerCase();
+          const phrasing = /cost|error|manual|effort|time|processing|handle|turnaround/i.test(lc)
+            ? `${val} lower ${lc}`
+            : `${val} improvement in ${lc}`;
+          impact = `${phrasing} via ${impl.replace(/\.$/, "")}`;
+        } else {
+          impact = `${metrics[0].replace(/\.$/, "")} via ${impl.replace(/\.$/, "")}`;
+        }
+      }
+      impact = impact.charAt(0).toUpperCase() + impact.slice(1) + ".";
+      return { company: org, impact };
     });
 }
 
