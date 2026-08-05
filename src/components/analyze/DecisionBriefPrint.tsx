@@ -75,12 +75,22 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
           {/* ===== 3. EXECUTION PLAN — Amber ===== */}
           <PrintSection accent="#d9932a" label="Execution Plan" title="How will we do it?">
             <div className="space-y-3">
-              {roadmap.map((step, i) => (<div key={step.label} className="flex items-start gap-3 rounded border border-line p-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line font-mono text-[10px] font-bold text-muted">{i + 1}</span><div><p className="text-[12px] font-semibold text-ink">{step.label}</p><p className="mt-0.5 text-[11px] leading-[1.4] text-muted">{step.detail}</p><p className="mt-0.5 text-[10px] font-medium text-muted">Owner: {step.owner}</p></div></div>))}
+              {roadmap.map((step, i) => (<div key={step.label} className="flex items-start gap-3 rounded border border-line p-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line font-mono text-[10px] font-bold text-muted">{i + 1}</span><div><p className="text-[12px] font-semibold text-ink">Objective: {step.label}</p><p className="mt-0.5 text-[10px] font-medium text-muted">Owner: {step.owner}</p><p className="mt-0.5 text-[11px] leading-[1.4] text-muted">Detail: {step.detail}</p></div></div>))}
             </div>
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div><PrintSub>Risks</PrintSub>{risks.length > 0 ? <ul className="space-y-1.5">{risks.map((r,i) => <li key={i} className="text-[11px] leading-[1.4] text-muted"><b className="text-ink">{r.title}.</b> {r.mitigation}</li>)}</ul> : <p className="text-[11px] italic text-muted">None identified.</p>}</div>
-              <div><PrintSub>Information needed</PrintSub>{unknowns.length > 0 ? <ul className="space-y-1.5">{unknowns.map((u) => <li key={u.title} className="text-[11px] leading-[1.4] text-muted"><b className="text-ink">{u.title}.</b> {u.why}</li>)}</ul> : <p className="text-[11px] italic text-muted">All available.</p>}</div>
-              <div><PrintSub>Assumptions</PrintSub>{assumptions.length > 0 ? <ul className="space-y-1.5">{assumptions.map((a) => <li key={a.title} className="text-[11px] leading-[1.4] text-muted"><b className="text-ink">{a.title}</b></li>)}</ul> : <p className="text-[11px] italic text-muted">None identified.</p>}</div>
+            <div className="mt-4">
+              <PrintSub>Information needed</PrintSub>
+              {unknowns.length > 0 ? (
+                <ul className="space-y-1.5">
+                  {unknowns.map((u, i) => (
+                    <li key={u.title} className="text-[11px] leading-[1.4] text-muted">
+                      <b className="text-ink">{u.title}.</b> {u.why}
+                      <span className="block text-[9px] text-[#8f5c11]">Relevant to step {Math.min(i + 1, 4)} above</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[11px] italic text-muted">All information available for the steps above.</p>
+              )}
             </div>
           </PrintSection>
 

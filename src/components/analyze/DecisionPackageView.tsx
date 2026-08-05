@@ -184,59 +184,29 @@ export function DecisionPackageView({
               <div key={step.label} className="flex items-start gap-4 rounded border border-line bg-white p-4">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line font-mono text-[11px] font-bold text-muted">{i + 1}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-ink">{step.label}</p>
-                  <p className="mt-0.5 text-[12px] leading-[1.5] text-muted">{step.detail}</p>
-                  <p className="mt-1 text-[10.5px] font-medium text-muted">Owner: {step.owner}</p>
+                  <p className="text-[13px] font-semibold text-ink">Objective: {step.label}</p>
+                  <p className="mt-0.5 text-[10.5px] font-medium text-muted">Owner: {step.owner}</p>
+                  <p className="mt-1 text-[12px] leading-[1.5] text-muted">Detail: {step.detail}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div>
-              <SubHeader>Risks</SubHeader>
-              {risks.length > 0 ? (
-                <ul className="space-y-1.5">
-                  {risks.map((r, i) => (
-                    <li key={i} className="rounded border border-line bg-white px-3 py-2">
-                      <p className="text-[12px] font-semibold text-ink">{r.title}</p>
-                      {r.mitigation && <p className="mt-0.5 text-[11px] leading-[1.4] text-muted">{r.mitigation}</p>}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-[12px] italic text-muted">None identified.</p>
-              )}
-            </div>
-            <div>
-              <SubHeader>Information needed</SubHeader>
-              {unknowns.length > 0 ? (
-                <ul className="space-y-1.5">
-                  {unknowns.map((u) => (
-                    <li key={u.title} className="rounded border border-line bg-white px-3 py-2">
-                      <p className="text-[12px] font-semibold text-ink">{u.title}</p>
-                      <p className="mt-0.5 text-[11px] leading-[1.4] text-muted">{u.why}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-[12px] italic text-muted">All information available.</p>
-              )}
-            </div>
-            <div>
-              <SubHeader>Assumptions</SubHeader>
-              {assumptions.length > 0 ? (
-                <ul className="space-y-1.5">
-                  {assumptions.map((a) => (
-                    <li key={a.title} className="rounded border border-line bg-white px-3 py-2">
-                      <p className="text-[12px] font-semibold text-ink">{a.title}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-[12px] italic text-muted">None identified.</p>
-              )}
-            </div>
+          <div className="mt-6">
+            <SubHeader>Information needed</SubHeader>
+            {unknowns.length > 0 ? (
+              <ul className="space-y-2">
+                {unknowns.map((u, i) => (
+                  <li key={u.title} className="rounded border border-line bg-white px-4 py-3">
+                    <p className="text-[12px] font-semibold text-ink">{u.title}</p>
+                    <p className="mt-0.5 text-[11px] leading-[1.4] text-muted">{u.why}</p>
+                    <p className="mt-1.5 text-[10px] font-medium text-[#8f5c11]">Relevant to step {Math.min(i + 1, 4)} above</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[12px] italic text-muted">All information available for the steps above.</p>
+            )}
           </div>
         </div>
       </section>

@@ -106,10 +106,10 @@ export function assumptionItems(top: DecisionRec): AssumptionItem[] { return (to
 export interface RoadmapStep { label: string; detail: string; owner: string; }
 export function implementationRoadmap(top: DecisionRec): RoadmapStep[] {
   return [
-    { label: "Baseline measurement", detail: top.next_validation_step?.success_criteria || "Establish current performance metrics.", owner: "Operations lead" },
-    { label: "Configuration and build", detail: "Configure the solution and integrate with existing systems.", owner: "Implementation team" },
-    { label: "Pilot and validation", detail: "Run a controlled pilot. Compare results against the baseline before full deployment.", owner: "Operations lead" },
-    { label: "Full deployment", detail: "Roll out once validation criteria are met.", owner: "Implementation partner or internal team" },
+    { label: "Baseline measurement of current operational metrics", detail: top.next_validation_step?.success_criteria || "At least 90% of workflow instances captured with complete timestamps.", owner: "Operations lead" },
+    { label: "Configuration and build of the production solution", detail: "Configure the solution and integrate with existing systems before any pilot is run.", owner: "Implementation team" },
+    { label: "Controlled pilot and validation against baseline", detail: "Run a controlled pilot. Compare results against the baseline before full deployment.", owner: "Operations lead" },
+    { label: "Full deployment with success criteria gates", detail: "Roll out only once validation criteria are met against the baseline.", owner: "Implementation partner or internal team" },
   ];
 }
 
