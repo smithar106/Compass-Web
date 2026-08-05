@@ -1,29 +1,25 @@
 // Executive Decision Brief — conviction-driven text helpers.
-// Every sentence reads like someone who studied the evidence
-// and is now prepared to make a recommendation.
+// Cincinnati pattern: bold cards with numbers, short text, no repetition.
 
 import type { DecisionRec } from "@/lib/decision-package";
 
-// ---- Opening paragraph — why change, why now ---------------------------
+// ---- Opening and closing — 2-3 sentences each -------------------------
 
 export function decisionSummary(top: DecisionRec, summary: any): string {
   const title = top.title || "this approach";
   const problem = (summary?.problem_statement || "").replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim();
-  const alts = (top.alternatives_considered || []).length;
-  const total = top.evidence_summary?.total_comparables || 0;
-
   const problemContext = problem
     ? `${problem} creates unnecessary manual effort and limits the team's ability to scale.`
     : `The current workflow limits operational capacity.`;
-
-  const evidenceContext = total > 0
-    ? `Evidence from similar implementations suggests ${title} can materially improve processing efficiency${alts > 0 ? ` while managing implementation risk better than the ${alts} alternative${alts > 1 ? "s" : ""} evaluated` : ""}.`
-    : `${title} offers the strongest balance of expected business value and implementation readiness.`;
-
-  return `We recommend approving ${title}${problem ? ` for ${problem}` : ""}. ${problemContext} ${evidenceContext}`;
+  return `We recommend approving ${title}${problem ? ` for ${problem}` : ""}. ${problemContext}`;
 }
 
-// ---- KPI cards — business conviction, not metrics --------------------
+export function closingRecommendation(top: DecisionRec): string {
+  const title = top.title || "this recommendation";
+  return `We recommend approving ${title}. Complete a baseline, validate against the criteria below, and confirm implementation readiness before full deployment.`;
+}
+
+// ---- KPI cards — bold numbers, minimal text (Cincinnati pattern) ------
 
 export interface ExecutiveKpi {
   label: string;
@@ -45,10 +41,10 @@ export function convictionKpis(top: DecisionRec): ExecutiveKpi[] {
     kpis.push({
       label: "Expected business impact",
       value: v || "—",
-      caption: `${v || "Measurable"} improvement in ${metric}, freeing the team for higher-value work.`,
+      caption: `${v || "Measurable"} improvement in ${metric}.`,
     });
   } else {
-    kpis.push({ label: "Expected business impact", value: "—", caption: "Impact will be measured against a baseline before build." });
+    kpis.push({ label: "Expected business impact", value: "—", caption: "Impact will be measured against a baseline." });
   }
 
   if (tl?.min_weeks && tl?.max_weeks) {
@@ -61,81 +57,27 @@ export function convictionKpis(top: DecisionRec): ExecutiveKpi[] {
   kpis.push({
     label: "Implementation confidence",
     value: gaps > 0 || risks > 0 ? "Moderate" : "High",
-    caption: gaps > 0 ? "The technology is proven. Additional operational data is requested to finalize the impact estimate." : risks > 0 ? "Risks are understood and manageable." : "The approach is well-established in comparable organizations.",
+    caption: gaps > 0 ? "Additional operational data requested to finalize the estimate." : risks > 0 ? "Risks are understood and manageable." : "Established in comparable organizations.",
   });
 
   return kpis;
 }
 
-// ---- Why this decision — conviction cards --------------------------------
-
-export interface ConvictionCard {
-  title: string;
-  body: string;
-}
-
-export function convictionCards(top: DecisionRec): ConvictionCard[] {
-  const cards: ConvictionCard[] = [];
-  const total = top.evidence_summary?.total_comparables || 0;
-  const comps = top.comparable_implementations || [];
-
-  if (total > 0) {
-    const orgNames = comps.slice(0, 2).map((c) => c.organization).filter(Boolean);
-    cards.push({
-      title: "Who has done this",
-      body: orgNames.length > 0
-        ? `${orgNames.join(" and ")} each implemented this approach and saw meaningful improvement.`
-        : `${total} organizations with similar constraints implemented this successfully.`,
-    });
-  }
-
-  const alts = (top.alternatives_considered || []).length;
-  cards.push({
-    title: "Why this option",
-    body: alts > 0
-      ? `Balances expected business value, implementation effort, and operational risk better than the ${alts} alternatives evaluated.`
-      : `Best balance of business value, implementation effort, and organizational readiness.`,
-  });
-
-  const ranges = (top.outcome_ranges || []).filter((r) => r.directly_comparable);
-  if (ranges.length > 0) {
-    const r = ranges[0];
-    const metric = (r.metric_label || "").replace(/Call Volume/i, "manual workload").toLowerCase();
-    const v = r.median != null ? `~${r.median}%` : r.low != null && r.high != null ? `${r.low}%–${r.high}%` : "";
-    cards.push({ title: "Expected outcome", body: v ? `${v} improvement in ${metric} across comparable implementations.` : "Measurable improvement across comparable implementations." });
-  }
-
-  return cards.length > 0 ? cards : [{ title: "Recommendation basis", body: "Ranks highest against the evidence criteria applied." }];
-}
-
-// ---- Evidence — narrative stories, not database rows ----------------------
+// ---- Evidence — bold org name + short outcome line ----------------------
 
 export interface EvidenceStory {
   organization: string;
-  whatHappened: string;
   outcome: string;
-  whyItMatters: string;
 }
 
 export function evidenceStories(top: DecisionRec): EvidenceStory[] {
-  const cat = (top.category || "").replace(/_/g, " ");
-  return (top.comparable_implementations || []).slice(0, 3).map((c) => {
-    const outcome = (c.outcome_summary || c.observed_outcome || "Measurable operational improvements observed.").replace(/;/g, ". ");
-    // Build a unique takeaway from this organization's actual outcome.
-    const metrics = outcome.match(/(\d+%|\d+)[\s\w]*/g) || [];
-    const takeaway = metrics.length > 0
-      ? `Achieved ${metrics.slice(0, 2).join(" and ")} in measurable outcomes.`
-      : `Achieved measurable operational improvements.`;
-    return {
-      organization: c.organization || "A comparable organization",
-      whatHappened: `${c.organization || "This organization"} deployed ${c.intervention || top.title || "a comparable intervention"}.`,
-      outcome,
-      whyItMatters: takeaway,
-    };
-  });
+  return (top.comparable_implementations || []).slice(0, 3).map((c) => ({
+    organization: c.organization || "A comparable organization",
+    outcome: (c.outcome_summary || c.observed_outcome || "Measurable operational improvements observed.").replace(/;/g, ". "),
+  }));
 }
 
-// ---- Risks, unknowns, assumptions -----------------------------------------
+// ---- Risks, unknowns, assumptions ----------------------------------------
 
 export interface RiskItem { title: string; mitigation?: string; }
 export function riskItems(top: DecisionRec): RiskItem[] { return (top.risks || []).slice(0, 3).map(r => ({ title: r.title || "Risk", mitigation: r.mitigation || r.explanation })); }
@@ -146,14 +88,14 @@ export function unknownItems(top: DecisionRec): UnknownItem[] { return (top.info
 export interface AssumptionItem { title: string; }
 export function assumptionItems(top: DecisionRec): AssumptionItem[] { return (top.assumptions_detail || []).slice(0, 3).map(a => ({ title: a.title || "Assumption" })); }
 
-// ---- Implementation -------------------------------------------------------
+// ---- Implementation (4-step roadmap) --------------------------------------
 
 export interface RoadmapStep { label: string; detail: string; owner: string; }
 export function implementationRoadmap(top: DecisionRec): RoadmapStep[] {
   return [
     { label: "Baseline measurement", detail: top.next_validation_step?.success_criteria || "Establish current performance metrics.", owner: "Operations lead" },
     { label: "Configuration and build", detail: "Configure the solution and integrate with existing systems.", owner: "Implementation team" },
-    { label: "Pilot and validation", detail: "Run a controlled pilot. Compare results against the baseline before proceeding to full deployment.", owner: "Operations lead" },
+    { label: "Pilot and validation", detail: "Run a controlled pilot. Compare results against the baseline before full deployment.", owner: "Operations lead" },
     { label: "Full deployment", detail: "Roll out once validation criteria are met.", owner: "Implementation partner or internal team" },
   ];
 }

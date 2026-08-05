@@ -39,7 +39,7 @@ describe("DecisionPackageView executive memo", () => {
       />
     );
     expect(screen.getByText("Executive Decision Brief")).toBeTruthy();
-    expect(screen.getByText("Why approve this?")).toBeTruthy();
+    expect(screen.getByText("What gives us confidence?")).toBeTruthy();
     expect(screen.getByText("What could prevent success?")).toBeTruthy();
     expect(screen.getByText("Executive Recommendation")).toBeTruthy();
   });

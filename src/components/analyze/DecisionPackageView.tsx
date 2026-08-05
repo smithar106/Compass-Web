@@ -16,7 +16,7 @@ import {
 import {
   decisionSummary,
   convictionKpis,
-  convictionCards,
+  closingRecommendation,
   riskItems,
   unknownItems,
   assumptionItems,
@@ -93,13 +93,11 @@ export function DecisionPackageView({
 
   const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   const kpis = convictionKpis(top);
-  const cards = convictionCards(top);
   const risks = riskItems(top);
   const unknowns = unknownItems(top);
   const assumptions = assumptionItems(top);
   const roadmap = implementationRoadmap(top);
   const stories = evidenceStories(top);
-  const defItems = []
 
   const cleanScope = summary?.problem_statement
     ? summary.problem_statement.replace(/^[A-Za-z][A-Za-z0-9 &-]{0,30}:\s+/, "").trim()
@@ -180,29 +178,13 @@ export function DecisionPackageView({
         </div>
       </section>
 
-      {/* ===== 1. WHY THIS RECOMMENDATION ===== */}
-      <BriefPanel number="1" title="Why approve this?" tone="green">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {cards.map((card) => (
-            <div key={card.title} className="rounded-lg border border-[#a8d6bd] bg-white/50 p-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#14663a]">{card.title}</p>
-              <p className="mt-2 text-[13px] leading-[1.55] text-[#3c5645]">{card.body}</p>
-            </div>
-          ))}
-        </div>
-      </BriefPanel>
-
-      {/* ===== 2. EVIDENCE ===== */}
-      <BriefPanel number="2" title="What gives us confidence?" tone="teal">
+      {/* ===== 1. EVIDENCE ===== */}
+      <BriefPanel number="1" title="What gives us confidence?" tone="teal">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {stories.map((s) => (
             <div key={s.organization} className="rounded-lg border border-[#a9dce2] bg-white/60 p-4">
-              <p className="text-[14px] font-bold text-[#0a3a42]">{s.organization}</p>
-              <div className="mt-3 space-y-2 text-[12px] leading-[1.5]">
-                <p className="text-[#0a6a78]/85">{s.whatHappened}</p>
-                <p className="text-[#0a6a78]/85"><span className="font-semibold text-[#0a6a78]">Outcome:</span> {s.outcome}</p>
-                <p className="text-[#0a6a78]/80 italic">{s.whyItMatters}</p>
-              </div>
+              <p className="text-[17px] font-bold text-[#0a3a42]">{s.organization}</p>
+              <p className="mt-2 text-[13px] leading-[1.55] text-[#0a6a78]/85">{s.outcome}</p>
             </div>
           ))}
           {stories.length === 0 && (
@@ -212,7 +194,7 @@ export function DecisionPackageView({
       </BriefPanel>
 
       {/* ===== 3. CONDITIONS FOR APPROVAL ===== */}
-      <BriefPanel number="3" title="What could prevent success?" tone="amber">
+      <BriefPanel number="2" title="What could prevent success?" tone="amber">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div>
             <SubHeader tone="amber">Known risks</SubHeader>
@@ -262,7 +244,7 @@ export function DecisionPackageView({
       </BriefPanel>
 
       {/* ===== 4. IMPLEMENTATION ===== */}
-      <BriefPanel number="4" title="What happens after approval?" tone="teal">
+      <BriefPanel number="3" title="What happens after approval?" tone="teal">
         <div className="grid grid-cols-1 gap-4">
           {roadmap.map((step, i) => (
             <div key={step.label} className="flex items-start gap-4 rounded-lg border border-[#a9dce2] bg-white/50 p-4">
@@ -280,17 +262,11 @@ export function DecisionPackageView({
         </p>
       </BriefPanel>
 
-      {/* ===== APPROVAL ===== */}
+      {/* ===== EXECUTIVE RECOMMENDATION ===== */}
       <section className="overflow-hidden rounded-xl border border-[#a8d6bd] bg-[#e9f6ee] p-6 shadow-sm sm:p-8">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#14663a]">Executive Recommendation</p>
-        <p className="mt-1 font-serif text-[22px] font-semibold leading-snug tracking-[-0.01em] text-[#14402a]">
-          We recommend approving {top.title || "this recommendation"}{cleanScope ? ` for ${cleanScope}` : ""}.
-        </p>
-        <p className="mt-3 text-[13.5px] leading-[1.6] text-[#3c5645]">
-          The current workflow limits operational capacity. Evidence from comparable implementations
-          suggests this approach can materially improve outcomes while managing implementation risk.
-          A phased rollout with the validation gates below allows the organization to confirm the
-          expected impact before full deployment.
+        <p className="mt-2 text-[14px] leading-[1.6] text-[#3c5645]">
+          {closingRecommendation(top)}
         </p>
         <ul className="mt-4 space-y-2.5">
           <li className="flex items-start gap-3 text-[13px] text-[#3c5645]"><span className="mt-[3px] text-[#1f9d57]">✓</span>Complete a four-week operational baseline before build.</li>
