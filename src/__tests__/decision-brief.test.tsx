@@ -25,7 +25,7 @@ const mockRec = {
 };
 
 describe("DecisionPackageView executive memo", () => {
-  it("renders the Executive Decision Brief with four-lens memo structure", () => {
+  it("renders the four-section Decision Report structure", () => {
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: false,
       json: async () => ({}),
@@ -38,12 +38,13 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    expect(screen.getByText("Recommended Path Forward")).toBeTruthy();
+    expect(screen.getByText("Decision Recommendation")).toBeTruthy();
+    expect(screen.getByText("Evidence")).toBeTruthy();
     expect(screen.getByText("Strategy and Objectives")).toBeTruthy();
-    expect(screen.getByText("Implementation Plan")).toBeTruthy();
+    expect(screen.getByText("Implementation")).toBeTruthy();
   });
 
-  it("opens the print preview with the four-section memo structure", () => {
+  it("opens the print preview with four-section layout", () => {
     render(
       <DecisionPackageView
         recs={[mockRec as any]}
@@ -54,6 +55,6 @@ describe("DecisionPackageView executive memo", () => {
     );
     const buttons = screen.getAllByText("Download Brief as PDF");
     fireEvent.click(buttons[0]);
-    expect(screen.getAllByText((content) => content.includes("Prepared by Compass")).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText((content) => content.includes("Prepared by Compass")).length).toBeGreaterThanOrEqual(1);
   });
 });

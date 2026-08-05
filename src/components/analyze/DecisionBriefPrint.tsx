@@ -4,15 +4,25 @@ import { useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { groundingState, type DecisionRec } from "@/lib/decision-package";
 import {
-  decisionSummary, businessCaseText,
-  unknownItems,
-  implementationRoadmap, evidenceStories, decisionNotes,
+  actionTitle,
+  recommendationExplanation,
+  impactCards,
+  evidenceCards,
+  evidenceIntro,
+  strategyCards,
+  implementationSteps,
 } from "@/lib/brief-text";
 
-interface DecisionBriefPrintProps { recs: DecisionRec[]; meta: any; summary: any; status?: string; library?: number | null; onClose: () => void; }
+interface DecisionBriefPrintProps { recs: DecisionRec[]; meta: any; summary: any; status?: string; onClose: () => void; }
 
-export function DecisionBriefPrint({ recs, meta, summary, status, library, onClose }: DecisionBriefPrintProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
+const PC = {
+  decision: { bg: "#e9f5ec" },
+  evidence: { bg: "#e8f0fe" },
+  strategy: { bg: "#fdf3e0" },
+  implementation: { bg: "#f0ebfa" },
+} as const;
+
+export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: DecisionBriefPrintProps) {
   const top = recs[0];
 
   const handleDownload = useCallback(() => {
@@ -34,95 +44,104 @@ export function DecisionBriefPrint({ recs, meta, summary, status, library, onClo
 
   if (!top) return null;
   const g = groundingState(top, meta);
-  const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  const badge = g.key === "live" ? { text: "Recommended", dot: "bg-[#1E7B4C]", cls: "bg-[#E5F3EA] text-[#14532d]" } : g.key === "partial" ? { text: "Needs validation", dot: "bg-[#B45309]", cls: "bg-[#FBF0E0] text-[#7a3b06]" } : { text: "Insufficient evidence", dot: "bg-[#C4382C]", cls: "bg-[#FAE9E7] text-[#7a1f1a]" };
-  const unknowns = unknownItems(top);
-  const roadmap = implementationRoadmap(top);
-  const stories = evidenceStories(top);
+  const badge = g.key === "live" ? { text: "Recommended", dot: "bg-[#1E7B4C]", cls: "bg-[#E5F3EA] text-[#14532d]" }
+    : g.key === "partial" ? { text: "Needs validation", dot: "bg-[#B45309]", cls: "bg-[#FBF0E0] text-[#7a3b06]" }
+    : { text: "Insufficient evidence", dot: "bg-[#C4382C]", cls: "bg-[#FAE9E7] text-[#7a1f1a]" };
+
+  const explanation = recommendationExplanation(top, summary);
+  const impacts = impactCards(top);
+  const evidences = evidenceCards(top);
+  const strategies = strategyCards(top);
+  const steps = implementationSteps(top);
 
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto bg-[#101826]/70 p-4 sm:p-8" role="dialog" aria-modal="true" onClick={onClose}>
-      <div className="mx-auto max-w-4xl" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-white px-5 py-3">
-          <div><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#4f6280]">Executive Decision Brief</p><p className="text-[12px] font-semibold text-ink">Print preview &middot; Prepared by Compass</p></div>
+      <div className="mx-auto max-w-6xl" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-line bg-white px-5 py-3">
+          <p className="text-[12px] font-semibold text-ink">Print preview &middot; Prepared by Compass</p>
           <button type="button" onClick={handleDownload} className="rounded-lg bg-ink px-5 py-2.5 text-[13px] font-semibold text-paper hover:bg-ink2">Download PDF</button>
         </div>
-        <div id="compass-brief-print" ref={contentRef} className="mx-auto bg-white px-8 py-8 shadow-[0_25px_50px_rgba(0,0,0,0.25)] sm:px-10" style={{ width: 816, maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.5 }}>
-          {/* ===== 1. RECOMMENDED PATH FORWARD ===== */}
-          <PrintSection label="Recommended Path Forward" badge={badge}>
-            <p className="text-[13px] leading-[1.55] text-[#4f6280]">{decisionSummary(top, summary)}</p>
-          </PrintSection>
-
-          {/* ===== 2. STRATEGY AND OBJECTIVES — Blue ===== */}
-          <PrintSection accent="#2563eb" label="Strategy and Objectives">
-            <p className="text-[13px] leading-[1.55] text-[#4f6280]">{businessCaseText(top, summary)}</p>
-            {stories.length > 0 && (
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {stories.map((s) => {
-                  const points = s.outcome.split(/[.;]/).filter(Boolean).map(p => p.trim());
-                  return (
-                    <div key={s.organization} className="rounded border border-line p-4 text-center">
-                      <p className="text-[13px] font-bold text-ink">{s.organization}</p>
-                      <ul className="mt-2 space-y-0.5">
-                        {points.map((pt, j) => <li key={j} className="text-[11px] text-muted">{pt}</li>)}
-                      </ul>
-                    </div>
-                  );
-                })}
+        <div id="compass-brief-print" ref={useRef<HTMLDivElement>(null)} className="mx-auto bg-white shadow-[0_25px_50px_rgba(0,0,0,0.25)]" style={{ width: "100%", maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.4 }}>
+          {/* ===== 1. DECISION RECOMMENDATION ===== */}
+          <div style={{ backgroundColor: PC.decision.bg, padding: "18px 32px" }}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Decision Recommendation</p>
+                <h1 className="font-serif text-[26px] font-semibold tracking-[-0.02em]">{actionTitle(top)}</h1>
               </div>
-            )}
-          </PrintSection>
-
-          {/* ===== 3. SUPPORTING EVIDENCE — Purple ===== */}
-          <PrintSection accent="#6a5acd" label="Supporting Evidence">
-            <p className="text-[12px] text-muted">Supporting evidence and source material backing this recommendation.</p>
-            <p className="mt-3 text-[10px] italic text-muted">{decisionNotes()}</p>
-          </PrintSection>
-
-          {/* ===== 4. IMPLEMENTATION PLAN — Amber ===== */}
-          <PrintSection accent="#d9932a" label="Implementation Plan">
-            <div className="space-y-3">
-              {roadmap.map((step, i) => (<div key={step.label} className="flex items-start gap-3 rounded border border-line p-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line font-mono text-[10px] font-bold text-muted">{i + 1}</span><div><p className="text-[12px] font-semibold text-ink">Objective: {step.label}</p><p className="mt-0.5 text-[10px] font-medium text-muted">Owner: {step.owner}</p><p className="mt-0.5 text-[11px] leading-[1.4] text-muted">Detail: {step.detail}</p></div></div>))}
+              {badge && <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-[11px] font-bold", badge.cls)}><span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", badge.dot)} />{badge.text}</span>}
             </div>
-            <div className="mt-4">
-              <PrintSub>Information needed</PrintSub>
-              {unknowns.length > 0 ? (
-                <ul className="space-y-1.5">
-                  {unknowns.map((u, i) => (
-                    <li key={u.title} className="text-[11px] leading-[1.4] text-muted">
-                      <b className="text-ink">{u.title}.</b> {u.why}
-                      <span className="block text-[9px] text-[#8f5c11]">Relevant to step {Math.min(i + 1, 4)} above</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-[11px] italic text-muted">All information available for the steps above.</p>
+            <p className="mt-3 text-[12px] leading-[1.55] text-[#4f6280]">{explanation.one} {explanation.two} {explanation.three}</p>
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              {impacts.map((c) => (
+                <div key={c.label} className="rounded border border-[#c8dacb] bg-white px-4 py-3">
+                  <p className="text-[22px] font-extrabold leading-none tracking-tight">{c.metric}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#4f6280]">{c.label}</p>
+                  <p className="mt-0.5 text-[10px] text-[#6c685f]">{c.context}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ===== 2. EVIDENCE ===== */}
+          <div style={{ backgroundColor: PC.evidence.bg, padding: "14px 32px" }}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Evidence</p>
+            <p className="text-[11px] text-[#4f6280]">{evidenceIntro(top)}</p>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              {evidences.slice(0, 3).map((e) => (
+                <div key={e.company} className="rounded bg-white px-4 py-3">
+                  <p className="text-[13px] font-bold">{e.company}</p>
+                  <p className="mt-1 text-[10.5px] leading-[1.4] text-[#4f6280]">{e.implementation}</p>
+                  <p className="mt-2 text-[12px] font-bold leading-snug">{e.result}</p>
+                </div>
+              ))}
+              {evidences.length === 0 && <div className="rounded bg-white px-4 py-3 sm:col-span-3"><p className="text-[11px] italic text-[#6c685f]">Evidence is being catalogued.</p></div>}
+              {evidences.length > 0 && evidences.length < 3 && (
+                <div className="rounded border border-dashed border-[#bdd0f5] bg-white/50 px-4 py-3 flex items-center justify-center">
+                  <p className="text-[10px] italic text-[#6c685f]">Insufficient evidence</p>
+                </div>
               )}
             </div>
-          </PrintSection>
+          </div>
 
-          <div className="mt-4 text-[10px] text-[#9c968a]">Prepared by Compass &middot; {today}</div>
+          {/* ===== 3. STRATEGY AND OBJECTIVES ===== */}
+          <div style={{ backgroundColor: PC.strategy.bg, padding: "14px 32px" }}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Strategy and Objectives</p>
+            <p className="text-[11px] text-[#4f6280]">How the recommendation creates value and what the plan is designed to accomplish.</p>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              {strategies.map((s) => (
+                <div key={s.heading} className="rounded bg-white px-4 py-3">
+                  <p className="text-[13px] font-bold">{s.heading}</p>
+                  <p className="mt-1 text-[10.5px] leading-[1.4] text-[#4f6280]">{s.description}</p>
+                  <p className="mt-2 text-[10.5px] font-semibold leading-snug">Objective: {s.objective}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ===== 4. IMPLEMENTATION ===== */}
+          <div style={{ backgroundColor: PC.implementation.bg, padding: "14px 32px" }}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Implementation</p>
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              {steps.map((s) => (
+                <div key={s.name} className="rounded bg-white px-4 py-3">
+                  <p className="text-[12px] font-bold">{s.name}</p>
+                  <p className="text-[10px] text-[#4f6280]">{s.timeline}</p>
+                  <p className="mt-1 text-[10.5px] leading-[1.45] text-[#4f6280]">{s.detail}</p>
+                  <p className="mt-1 text-[10px] font-semibold text-[#6c685f]">{s.team}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex gap-3">
+              <span className="inline-flex rounded bg-[#1c1a17] px-4 py-2 text-[11px] font-semibold text-white">Download Brief as PDF</span>
+              <span className="inline-flex flex-col rounded bg-[#d3ccc0] px-4 py-2">
+                <span className="text-[11px] font-semibold text-[#6c685f]">Select Your Implementation Partner</span>
+                <span className="text-[8px] font-bold uppercase tracking-wide text-[#6c685f]">Coming Soon</span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-}
-
-function PrintSection({ accent, label, badge, children }: { accent?: string; label: string; badge?: { text: string; dot: string; cls: string }; children: React.ReactNode }) {
-  return (
-    <div className="mb-5 break-inside-avoid">
-      {accent && <div className="h-0.5 w-full mb-3" style={{ backgroundColor: accent }} />}
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{label}</p>
-        </div>
-        {badge && <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold", badge.cls)}><span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", badge.dot)} />{badge.text}</span>}
-      </div>
-      <div className="mt-3">{children}</div>
-    </div>
-  );
-}
-
-function PrintSub({ children }: { children: React.ReactNode }) {
-  return <p className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">{children}</p>;
 }
