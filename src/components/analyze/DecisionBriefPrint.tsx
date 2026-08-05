@@ -16,10 +16,10 @@ import {
 interface DecisionBriefPrintProps { recs: DecisionRec[]; meta: any; summary: any; status?: string; onClose: () => void; }
 
 const PC = {
-  decision: { bg: "#e9f5ec" },
-  evidence: { bg: "#e8f0fe" },
-  strategy: { bg: "#fdf3e0" },
-  implementation: { bg: "#f0ebfa" },
+  decision: { bg: "#e9f5ec", label: "#14663a" },
+  evidence: { bg: "#e8f0fe", label: "#1e40af" },
+  strategy: { bg: "#fdf3e0", label: "#8f5c11" },
+  implementation: { bg: "#f0ebfa", label: "#463a9e" },
 } as const;
 
 export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: DecisionBriefPrintProps) {
@@ -61,38 +61,36 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
           <p className="text-[12px] font-semibold text-ink">Print preview &middot; Prepared by Compass</p>
           <button type="button" onClick={handleDownload} className="rounded-lg bg-ink px-5 py-2.5 text-[13px] font-semibold text-paper hover:bg-ink2">Download PDF</button>
         </div>
-        <div id="compass-brief-print" ref={useRef<HTMLDivElement>(null)} className="mx-auto bg-white shadow-[0_25px_50px_rgba(0,0,0,0.25)]" style={{ width: "100%", maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.4 }}>
+        <div id="compass-brief-print" ref={useRef<HTMLDivElement>(null)} className="mx-auto bg-white shadow-[0_25px_50px_rgba(0,0,0,0.25)]" style={{ width: "100%", maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.45 }}>
           {/* ===== 1. DECISION RECOMMENDATION ===== */}
-          <div style={{ backgroundColor: PC.decision.bg, padding: "18px 32px" }}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Decision Recommendation</p>
-                <h1 className="font-serif text-[26px] font-semibold tracking-[-0.02em]">{actionTitle(top)}</h1>
-              </div>
-              {badge && <span className={cn("inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-[11px] font-bold", badge.cls)}><span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", badge.dot)} />{badge.text}</span>}
+          <div style={{ backgroundColor: PC.decision.bg, padding: "20px 32px" }}>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.decision.label }}>Decision Recommendation</p>
+            <div className="flex flex-wrap items-start justify-between gap-3 mt-1">
+              <h1 className="font-serif text-[28px] font-semibold tracking-[-0.02em]">{actionTitle(top)}</h1>
+              {badge && <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold", badge.cls)}><span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", badge.dot)} />{badge.text}</span>}
             </div>
-            <p className="mt-3 text-[12px] leading-[1.55] text-[#4f6280]">{explanation.one} {explanation.two} {explanation.three}</p>
+            <p className="mt-3 text-[13px] leading-[1.6] text-ink">{explanation.one} {explanation.two} {explanation.three}</p>
             <div className="mt-4 grid grid-cols-3 gap-3">
               {impacts.map((c) => (
                 <div key={c.label} className="rounded border border-[#c8dacb] bg-white px-4 py-3">
-                  <p className="text-[22px] font-extrabold leading-none tracking-tight">{c.metric}</p>
-                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#4f6280]">{c.label}</p>
-                  <p className="mt-0.5 text-[10px] text-[#6c685f]">{c.context}</p>
+                  <p className="text-[24px] font-extrabold leading-none tracking-tight">{c.metric}</p>
+                  <p className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.08em]">{c.label}</p>
+                  <p className="mt-0.5 text-[10px] leading-[1.4] text-[#4f6280]">{c.context}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* ===== 2. EVIDENCE ===== */}
-          <div style={{ backgroundColor: PC.evidence.bg, padding: "14px 32px" }}>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Evidence</p>
-            <p className="text-[11px] text-[#4f6280]">{evidenceIntro(top)}</p>
+          <div style={{ backgroundColor: PC.evidence.bg, padding: "16px 32px" }}>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.evidence.label }}>Evidence</p>
+            <p className="text-[12px] font-medium text-ink mt-0.5">{evidenceIntro(top)}</p>
             <div className="mt-3 grid grid-cols-3 gap-3">
               {evidences.slice(0, 3).map((e) => (
                 <div key={e.company} className="rounded bg-white px-4 py-3">
-                  <p className="text-[13px] font-bold">{e.company}</p>
-                  <p className="mt-1 text-[10.5px] leading-[1.4] text-[#4f6280]">{e.implementation}</p>
-                  <p className="mt-2 text-[12px] font-bold leading-snug">{e.result}</p>
+                  <p className="text-[14px] font-bold">{e.company}</p>
+                  <p className="mt-1.5 text-[11.5px] leading-[1.45] text-ink">{e.implementation}</p>
+                  <p className="mt-2 text-[13px] font-bold leading-snug">{e.result}</p>
                 </div>
               ))}
               {evidences.length === 0 && <div className="rounded bg-white px-4 py-3 sm:col-span-3"><p className="text-[11px] italic text-[#6c685f]">Evidence is being catalogued.</p></div>}
@@ -105,29 +103,29 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
           </div>
 
           {/* ===== 3. STRATEGY AND OBJECTIVES ===== */}
-          <div style={{ backgroundColor: PC.strategy.bg, padding: "14px 32px" }}>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Strategy and Objectives</p>
-            <p className="text-[11px] text-[#4f6280]">How the recommendation creates value and what the plan is designed to accomplish.</p>
-            <div className="mt-3 grid grid-cols-3 gap-3">
+          <div style={{ backgroundColor: PC.strategy.bg, padding: "16px 32px" }}>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.strategy.label }}>Strategy and Objectives</p>
+            <p className="text-[12px] font-medium text-ink mt-0.5">How the recommendation creates value and what the plan is designed to accomplish.</p>
+            <div className="mt-3 grid grid-cols-2 gap-3">
               {strategies.map((s) => (
                 <div key={s.heading} className="rounded bg-white px-4 py-3">
-                  <p className="text-[13px] font-bold">{s.heading}</p>
-                  <p className="mt-1 text-[10.5px] leading-[1.4] text-[#4f6280]">{s.description}</p>
-                  <p className="mt-2 text-[10.5px] font-semibold leading-snug">Objective: {s.objective}</p>
+                  <p className="text-[14px] font-bold">{s.heading}</p>
+                  <p className="mt-1.5 text-[11.5px] leading-[1.45] text-ink">{s.description}</p>
+                  <p className="mt-2 text-[11px] font-semibold leading-snug">Objective: {s.objective}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* ===== 4. IMPLEMENTATION ===== */}
-          <div style={{ backgroundColor: PC.implementation.bg, padding: "14px 32px" }}>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">Implementation</p>
+          <div style={{ backgroundColor: PC.implementation.bg, padding: "16px 32px" }}>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.implementation.label }}>Implementation</p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               {steps.map((s) => (
                 <div key={s.name} className="rounded bg-white px-4 py-3">
-                  <p className="text-[12px] font-bold">{s.name}</p>
-                  <p className="text-[10px] text-[#4f6280]">{s.timeline}</p>
-                  <p className="mt-1 text-[10.5px] leading-[1.45] text-[#4f6280]">{s.detail}</p>
+                  <p className="text-[14px] font-bold">{s.name}</p>
+                  <p className="text-[11px] text-[#4f6280]">{s.timeline}</p>
+                  <p className="mt-1 text-[11.5px] leading-[1.45] text-ink">{s.detail}</p>
                   <p className="mt-1 text-[10px] font-semibold text-[#6c685f]">{s.team}</p>
                 </div>
               ))}

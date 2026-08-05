@@ -85,14 +85,36 @@ export interface EvidenceCard {
 }
 
 export function evidenceCards(top: DecisionRec): EvidenceCard[] {
-  return (top.comparable_implementations || []).slice(0, 3).map((c) => {
-    const org = c.organization || "A comparable organization";
-    const impl = c.intervention_description || c.intervention || "Implemented a closely related solution across their operational workflow.";
-    const outcome = (c.outcome_summary || c.observed_outcome || "Measurable operational improvement observed.")
-      .replace(/;/g, ". ")
-      .replace(/\b(Cost down|Throughput up|Processing time|Error rate)/g, (m) => m.charAt(0).toUpperCase() + m.slice(1));
-    return { company: org, implementation: impl, result: outcome };
-  });
+  const raw = (top.comparable_implementations || []).slice(0, 3);
+  const seen = new Set<string>();
+  return raw
+    .filter((c) => {
+      const key = (c.organization || "") + "|" + (c.outcome_summary || "");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map((c) => {
+      const org = c.organization || "A comparable organization";
+      const impl = c.intervention_description || c.intervention || "Implemented a closely related solution across their operational workflow.";
+      const outcome = c.outcome_summary || c.observed_outcome || "";
+      const metrics = outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s));
+      const cleanResult = metrics.length > 0
+        ? metrics.map((m) => {
+            const parts = m.split(/:/).map((p) => p.trim());
+            if (parts.length >= 2) {
+              const metric = parts[0].replace(/\b\w/g, (ch) => ch.toUpperCase());
+              const val = parts[parts.length - 1];
+              const lc = metric.toLowerCase();
+              if (/cost|error|manual|effort|time|processing|handle|turnaround/i.test(lc)) return `${val} lower ${lc}`;
+              if (/capacity|throughput|fraud|detection|accuracy|satisfaction|automation|rate|volume|invoices/i.test(lc)) return `${val} improvement in ${lc}`;
+              return `${val} improvement in ${lc}`;
+            }
+            return m.replace(/\b(Cost down|Throughput up|Processing time|Error rate)\b/g, (mm) => mm.charAt(0).toUpperCase() + mm.slice(1));
+          }).join(". ") + "."
+        : "Measurable operational improvement observed.";
+      return { company: org, implementation: impl, result: cleanResult };
+    });
 }
 
 export function evidenceIntro(top: DecisionRec): string {
@@ -111,21 +133,27 @@ export interface StrategyCard {
 
 export function strategyCards(top: DecisionRec): StrategyCard[] {
   const title = top.title || "this solution";
+  const problem = "manual processing";
   return [
     {
-      heading: "Reduce Manual Work",
-      description: `Automate repeatable steps while routing exceptions through a controlled human review process. ${title} targets the highest-volume, highest-effort segments of the workflow first.`,
-      objective: "Reduce manual processing effort without weakening controls.",
+      heading: "Reduce Manual Effort",
+      description: `Automate repeatable ${problem} steps while routing exceptions through a controlled human review process.`,
+      objective: `Reduce manual processing effort without weakening controls.`,
     },
     {
-      heading: "Scale Without Adding Headcount",
-      description: `Increase processing capacity through automation rather than hiring. ${title} allows the existing team to handle higher volume while maintaining service quality.`,
-      objective: "Improve processing capacity while maintaining service quality.",
+      heading: "Increase Processing Capacity",
+      description: `Scale volume through automation rather than headcount. ${title} handles higher throughput while maintaining quality.`,
+      objective: `Improve processing capacity while maintaining service quality.`,
+    },
+    {
+      heading: "Strengthen Compliance",
+      description: `Standardize processing rules and create a consistent, auditable record for every transaction.`,
+      objective: `Improve compliance and reduce audit risk.`,
     },
     {
       heading: "Validate Before Scaling",
-      description: `Begin with a bounded pilot measured against a clear baseline. Expand only after the workflow meets defined performance and control thresholds.`,
-      objective: "Confirm value before committing to full deployment.",
+      description: `Begin with a bounded pilot measured against a clear baseline before committing to full deployment.`,
+      objective: `Confirm value before committing to full deployment.`,
     },
   ];
 }

@@ -58,12 +58,12 @@ export function DecisionPackageView({
   return (
     <div className="space-y-0">
       {/* ===== 1. DECISION RECOMMENDATION ===== */}
-      <section className="px-4 py-7 sm:px-8 sm:py-8" style={{ backgroundColor: COLORS.decision.bg }}>
+      <section className="px-4 py-8 sm:px-8 sm:py-10" style={{ backgroundColor: COLORS.decision.bg }}>
         <div className="mx-auto max-w-4xl">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Decision Recommendation</p>
-              <h1 className="mt-1 font-serif text-[28px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.decision.label }}>Decision Recommendation</p>
+              <h1 className="mt-2 font-serif text-[30px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[36px]">
                 {actionTitle(top)}
               </h1>
             </div>
@@ -72,15 +72,15 @@ export function DecisionPackageView({
               {badge.text}
             </span>
           </div>
-          <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-muted">
+          <p className="mt-4 max-w-3xl text-[14px] leading-[1.65] text-ink">
             {explanation.one} {explanation.two} {explanation.three}
           </p>
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {impacts.map((c) => (
               <div key={c.label} className="rounded-lg border border-line bg-white px-5 py-5">
                 <p className="text-[28px] font-extrabold leading-none tracking-tight text-ink">{c.metric}</p>
-                <p className="mt-2 text-[12px] font-bold uppercase tracking-[0.08em] text-muted">{c.label}</p>
-                <p className="mt-1 text-[11.5px] leading-[1.4] text-muted">{c.context}</p>
+                <p className="mt-2 text-[12px] font-bold uppercase tracking-[0.08em] text-ink">{c.label}</p>
+                <p className="mt-1 text-[12px] leading-[1.4] text-ink">{c.context}</p>
               </div>
             ))}
           </div>
@@ -88,26 +88,26 @@ export function DecisionPackageView({
       </section>
 
       {/* ===== 2. EVIDENCE ===== */}
-      <section className="px-4 py-6 sm:px-8 sm:py-7" style={{ backgroundColor: COLORS.evidence.bg }}>
+      <section className="px-4 py-7 sm:px-8 sm:py-8" style={{ backgroundColor: COLORS.evidence.bg }}>
         <div className="mx-auto max-w-4xl">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Evidence</p>
-          <p className="mt-1 text-[13px] text-muted">{evidenceIntro(top)}</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.evidence.label }}>Evidence</p>
+          <p className="mt-1 text-[13px] font-medium text-ink">{evidenceIntro(top)}</p>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {evidences.slice(0, 3).map((e) => (
               <div key={e.company} className="rounded-lg bg-white px-5 py-5">
                 <p className="text-[15px] font-bold text-ink">{e.company}</p>
-                <p className="mt-2 text-[12.5px] leading-[1.5] text-muted">{e.implementation}</p>
+                <p className="mt-2 text-[13px] leading-[1.5] text-ink">{e.implementation}</p>
                 <p className="mt-3 text-[14px] font-bold leading-snug text-ink">{e.result}</p>
               </div>
             ))}
             {evidences.length === 0 && (
               <div className="rounded-lg bg-white px-5 py-5 sm:col-span-3">
-                <p className="text-[13px] italic text-muted">Evidence is being catalogued. Check back soon.</p>
+                <p className="text-[13px] italic text-ink">Evidence is being catalogued.</p>
               </div>
             )}
             {evidences.length > 0 && evidences.length < 3 && (
               <div className="rounded-lg border border-dashed border-line bg-white/50 px-5 py-5 flex items-center justify-center">
-                <p className="text-[12px] italic text-muted">Insufficient evidence — additional data requested</p>
+                <p className="text-[12px] italic text-ink">Insufficient evidence</p>
               </div>
             )}
           </div>
@@ -115,15 +115,15 @@ export function DecisionPackageView({
       </section>
 
       {/* ===== 3. STRATEGY AND OBJECTIVES ===== */}
-      <section className="px-4 py-6 sm:px-8 sm:py-7" style={{ backgroundColor: COLORS.strategy.bg }}>
+      <section className="px-4 py-7 sm:px-8 sm:py-8" style={{ backgroundColor: COLORS.strategy.bg }}>
         <div className="mx-auto max-w-4xl">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Strategy and Objectives</p>
-          <p className="mt-1 text-[13px] text-muted">How the recommendation creates value and what the plan is designed to accomplish.</p>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.strategy.label }}>Strategy and Objectives</p>
+          <p className="mt-1 text-[13px] font-medium text-ink">How the recommendation creates value and what the plan is designed to accomplish.</p>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {strategies.map((s) => (
               <div key={s.heading} className="rounded-lg bg-white px-5 py-5">
-                <p className="text-[15px] font-bold text-ink">{s.heading}</p>
-                <p className="mt-2 text-[12.5px] leading-[1.5] text-muted">{s.description}</p>
+                <p className="text-[16px] font-bold text-ink">{s.heading}</p>
+                <p className="mt-2 text-[13px] leading-[1.5] text-ink">{s.description}</p>
                 <p className="mt-3 text-[12px] font-semibold leading-snug text-ink">Objective: {s.objective}</p>
               </div>
             ))}
@@ -132,16 +132,16 @@ export function DecisionPackageView({
       </section>
 
       {/* ===== 4. IMPLEMENTATION ===== */}
-      <section className="px-4 py-6 sm:px-8 sm:py-7" style={{ backgroundColor: COLORS.implementation.bg }}>
+      <section className="px-4 py-7 sm:px-8 sm:py-8" style={{ backgroundColor: COLORS.implementation.bg }}>
         <div className="mx-auto max-w-4xl">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Implementation</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.implementation.label }}>Implementation</p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {steps.map((s) => (
               <div key={s.name} className="rounded-lg bg-white px-5 py-4">
-                <p className="text-[14px] font-bold text-ink">{s.name}</p>
-                <p className="mt-0.5 text-[11px] font-medium text-muted">{s.timeline}</p>
-                <p className="mt-2 text-[12px] leading-[1.5] text-muted">{s.detail}</p>
-                <p className="mt-2 text-[10.5px] font-semibold text-muted">{s.team}</p>
+                <p className="text-[16px] font-bold text-ink">{s.name}</p>
+                <p className="mt-0.5 text-[12px] font-medium text-ink">{s.timeline}</p>
+                <p className="mt-2 text-[13px] leading-[1.5] text-ink">{s.detail}</p>
+                <p className="mt-2 text-[12px] font-semibold text-ink">{s.team}</p>
               </div>
             ))}
           </div>
