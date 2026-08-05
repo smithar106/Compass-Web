@@ -127,8 +127,7 @@ export function FastIntake() {
         </Link>
 
         <div className="mb-6">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent-deep">Your Executive Decision Brief</p>
-          <h1 className="mt-2 text-title font-semibold tracking-tight text-ink">Make the right decision, defensibly.</h1>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent-deep">Decision Report and Implementation Plan</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {[
               selection.department,
