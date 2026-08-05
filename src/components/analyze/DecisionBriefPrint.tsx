@@ -122,10 +122,10 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
             <div className="mt-3 grid grid-cols-2 gap-3">
               {steps.map((s) => (
                 <div key={s.name} className="rounded bg-white px-4 py-3">
-                  <p className="text-[14px] font-bold">{s.name}</p>
-                  <p className="text-[11px] text-[#4f6280]">{s.timeline}</p>
+                  <p className="text-[14px] font-bold">Step: {s.name}</p>
+                  <p className="mt-1 text-[10.5px] text-[#6c685f]">Team Responsible: {s.team}</p>
+                  <p className="text-[10.5px] text-[#6c685f]">Duration: {s.timeline}</p>
                   <p className="mt-1 text-[11.5px] leading-[1.45] text-ink">{s.detail}</p>
-                  <p className="mt-1 text-[10px] font-semibold text-[#6c685f]">{s.team}</p>
                 </div>
               ))}
             </div>

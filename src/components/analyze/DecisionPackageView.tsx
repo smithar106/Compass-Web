@@ -123,7 +123,6 @@ export function DecisionPackageView({
               <div key={s.heading} className="rounded-lg bg-white px-5 py-5">
                 <p className="text-[16px] font-bold text-ink">{s.heading}</p>
                 <p className="mt-2 text-[13px] leading-[1.5] text-ink">{s.description}</p>
-                <p className="mt-3 text-[12px] font-semibold leading-snug text-ink">Objective: {s.objective}</p>
               </div>
             ))}
           </div>
@@ -137,10 +136,10 @@ export function DecisionPackageView({
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {steps.map((s) => (
               <div key={s.name} className="rounded-lg bg-white px-5 py-4">
-                <p className="text-[16px] font-bold text-ink">{s.name}</p>
-                <p className="mt-0.5 text-[12px] font-medium text-ink">{s.timeline}</p>
+                <p className="text-[16px] font-bold text-ink">Step: {s.name}</p>
+                <p className="mt-2 text-[12px] font-semibold text-ink">Team Responsible: <span className="font-medium text-ink">{s.team}</span></p>
+                <p className="mt-0.5 text-[12px] font-semibold text-ink">Duration: <span className="font-medium text-ink">{s.timeline}</span></p>
                 <p className="mt-2 text-[13px] leading-[1.5] text-ink">{s.detail}</p>
-                <p className="mt-2 text-[12px] font-semibold text-ink">{s.team}</p>
               </div>
             ))}
           </div>
