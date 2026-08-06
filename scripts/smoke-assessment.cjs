@@ -76,6 +76,11 @@ async function runJourney() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
   const page = await context.newPage();
+  // Neutralize window.print() so the PDF print-clone state can be captured
+  // deterministically (the app's own print flow still runs).
+  await page.addInitScript(() => {
+    window.print = () => {};
+  });
   await collectErrors(page);
 
   // 1. Open /assessment
@@ -138,20 +143,26 @@ async function runJourney() {
     };
   });
 
-  // 9. PDF: open overlay, trigger print clone, capture via page.pdf().
+  // 9. PDF: neutralize window.print(), open the overlay, trigger the print
+  // clone, and capture it while the print isolation class is applied.
   try {
     await page.emulateMedia({ media: "print" });
     await page.click('[data-testid="download-pdf"]');
     await page.waitForSelector('[data-testid="print-download-pdf"]', { timeout: 10000 });
     await page.click('[data-testid="print-download-pdf"]');
-    await page.waitForTimeout(1200); // allow clone + holder mount
+    await page.waitForTimeout(400); // holder + class applied, cleanup at 2s
     const holderReady = await page.evaluate(() => ({
       printingClass: document.body.classList.contains("printing-brief"),
       holderExists: !!document.getElementById("compass-brief-print-holder"),
     }));
     report.pdf = { ...holderReady };
     const pdfPath = "/tmp/compass-decision-smoke.pdf";
-    await page.pdf({ path: pdfPath, format: "Letter", printBackground: true });
+    await page.pdf({
+      path: pdfPath,
+      format: "Letter",
+      margin: { top: "0.4in", bottom: "0.4in", left: "0.45in", right: "0.45in" },
+      printBackground: true,
+    });
     report.pdf.path = pdfPath;
   } catch (e) {
     report.pdf = { error: String(e) };
