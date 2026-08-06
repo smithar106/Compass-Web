@@ -32,6 +32,9 @@ export async function POST(request: NextRequest) {
       process_stability: body.process_stability || "",
       previous_attempts: body.previous_attempts || "",
       desired_outcome: body.desired_outcome || "",
+      annual_workflow_volume: body.annual_workflow_volume || "",
+      current_handling_time: body.current_handling_time || "",
+      loaded_labor_cost: body.loaded_labor_cost || "",
     };
 
     const controller = new AbortController();
