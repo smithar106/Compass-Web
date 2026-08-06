@@ -6,6 +6,7 @@ import { standaloneQuestions, PROGRESS_STEPS } from "@/data/assessment-flow";
 import { buildProfile } from "@/lib/assessment-profile";
 import { ensureAuthenticated } from "@/lib/supabase";
 import { trackAssessmentStarted, trackAssessmentCompleted } from "@/lib/analytics";
+import { recordDecision } from "@/lib/workspace";
 import { ArrowIcon } from "@/components/home/primitives";
 import type { Answer } from "@/types";
 import { cn } from "@/lib/utils";
@@ -121,6 +122,7 @@ export default function AssessmentPage() {
           throw new Error("No recommendation was generated. Please try again.");
         }
         clearSession();
+        recordDecision(data.recommendation_id, typeof data.generated_at === "string" ? data.generated_at : undefined);
         trackAssessmentCompleted();
         router.push(`/decisions/${encodeURIComponent(data.recommendation_id)}`);
       } catch (err) {

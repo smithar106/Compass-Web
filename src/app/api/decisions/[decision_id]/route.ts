@@ -27,6 +27,7 @@ export async function GET(_req: NextRequest, { params }: { params: { decision_id
       analysis: {
         analysis_id: rec.recommendation_id || id,
         status: "decision_ready",
+        created_at: typeof rec.generated_at === "string" ? rec.generated_at : null,
         decision: {
           recommendation_id: rec.recommendation_id || id,
           recommendations: rec.recommendations || [],
