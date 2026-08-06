@@ -44,9 +44,9 @@ export default function DecisionPage() {
       <div className="mx-auto max-w-2xl px-6 py-24 text-center">
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-deep">Permanent decision link</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink">Decision not found</h1>
-        <p className="mt-3 text-sm text-muted">This link is invalid or the decision was never saved. Run a new analysis to create one.</p>
-        <Link href="/analyze" className="mt-6 inline-flex items-center justify-center gap-2 bg-ink px-6 py-3 text-sm font-semibold text-paper hover:bg-ink2">
-          Start an analysis →
+        <p className="mt-3 text-sm text-muted">This link is invalid or the decision was never saved. Run a new assessment to create one.</p>
+        <Link href="/assessment" className="mt-6 inline-flex items-center justify-center gap-2 bg-ink px-6 py-3 text-sm font-semibold text-paper hover:bg-ink2">
+          Start Assessment →
         </Link>
       </div>
     );
@@ -100,16 +100,21 @@ export default function DecisionPage() {
       />
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-        <Link href="/analyze" className="text-[13px] font-semibold text-muted transition-colors hover:text-ink">
-          Start a new analysis
+        <Link href="/workspace" className="text-[13px] font-semibold text-muted transition-colors hover:text-ink">
+          Return to Workspace
         </Link>
-        <button
-          type="button"
-          onClick={saveDecision}
-          className="border border-line bg-surface px-5 py-2.5 text-[13px] font-semibold text-ink transition-colors hover:border-ink/40"
-        >
-          Save This Decision
-        </button>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link href="/assessment" className="text-[13px] font-semibold text-ink transition-colors hover:text-muted">
+            New Decision
+          </Link>
+          <button
+            type="button"
+            onClick={saveDecision}
+            className="border border-line bg-surface px-5 py-2.5 text-[13px] font-semibold text-ink transition-colors hover:border-ink/40"
+          >
+            Save This Decision
+          </button>
+        </div>
       </div>
 
       {showSave && !saved && (

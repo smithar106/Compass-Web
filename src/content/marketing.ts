@@ -564,7 +564,7 @@ export const marketing = {
     headline: "Before you implement anything, make sure it is the right thing.",
     subtitle:
       "Bring Compass an operational problem. Get an evidence-backed decision, a clear implementation path, and a framework for measuring what happens next.",
-    ctaPrimary: "Analyze a Problem",
+    ctaPrimary: "Start Assessment",
     ctaSecondary: "Talk to Us",
   },
 };
@@ -607,7 +607,7 @@ export const footer = {
     {
       title: "Get Started",
       links: [
-        { label: "Analyze a Problem", href: "/analyze" },
+        { label: "Start Assessment", href: "/assessment" },
         { label: "Design Partners", href: "/design-partners" },
       ],
     },

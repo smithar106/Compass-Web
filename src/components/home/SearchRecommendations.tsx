@@ -73,7 +73,7 @@ export function SearchRecommendations() {
                 href="/assessment"
                 className="group mt-4 inline-flex items-center gap-2 text-[13.5px] font-semibold text-accent-deep transition-colors hover:text-ink"
               >
-                Analyze your own problem
+                Start Assessment
                 <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
@@ -82,7 +82,7 @@ export function SearchRecommendations() {
 
         <Reveal delay={120}>
           <p className="mt-6 text-[11.5px] leading-relaxed text-muted">
-            Illustrative decisions for demonstration. Run your own analysis for one specific to your operations.
+            Illustrative decisions for demonstration. Run your own assessment for one specific to your operations.
           </p>
         </Reveal>
       </div>

@@ -44,8 +44,6 @@ export const APP_NAV_CTA: NavItem = {
 export const VALID_ROUTES = [
   "/",
   "/about",
-  "/analyze",
-  "/analyze/advanced",
   "/assessment",
   "/demo",
   "/demo/decisions",

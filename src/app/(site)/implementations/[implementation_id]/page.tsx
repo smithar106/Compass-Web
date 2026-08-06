@@ -113,8 +113,8 @@ export default function ImplementationPage() {
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-deep">Implementation plan</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink">Plan not found</h1>
         <p className="mt-3 text-sm text-muted">This implementation link is invalid. Start from a decision brief to create a plan.</p>
-        <Link href="/analyze" className="mt-6 inline-flex items-center gap-2 bg-ink px-6 py-3 text-sm font-semibold text-paper hover:bg-ink2">
-          Start an analysis →
+        <Link href="/assessment" className="mt-6 inline-flex items-center gap-2 bg-ink px-6 py-3 text-sm font-semibold text-paper hover:bg-ink2">
+          Start Assessment →
         </Link>
       </div>
     );

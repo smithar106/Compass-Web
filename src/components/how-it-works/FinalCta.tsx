@@ -23,10 +23,10 @@ export function FinalCta() {
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3.5 sm:flex-row">
             <Link
-              href="/analyze"
+              href="/assessment"
               className="group inline-flex items-center justify-center gap-2 bg-accent px-7 py-3.5 text-[15px] font-semibold text-accent-ink transition-colors hover:bg-paper"
             >
-              Analyze a Problem
+              Start Assessment
               <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
