@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { DecisionPackageView } from "@/components/analyze/DecisionPackageView";
+import { actionTitle } from "@/lib/brief-text";
 
 const mockRec = {
   category: "Workflow_Automation",
@@ -24,6 +25,21 @@ const mockRec = {
   impact: { implementation_timeline: { min_weeks: 8, max_weeks: 12, expected_weeks: 10 } },
 };
 
+describe("actionTitle", () => {
+  it("formats titles as 'Approve {solution} Solution for {problem}'", () => {
+    expect(actionTitle({ title: "AI-powered Finance: Manual invoice processing" } as any)).toBe(
+      "Approve AI-powered Finance Solution for Manual invoice processing"
+    );
+    expect(actionTitle({ title: "Software solution for Sales: Lead qualification" } as any)).toBe(
+      "Approve Software solution for Sales Solution for Lead qualification"
+    );
+  });
+
+  it("falls back to 'Approve {title}' when there is no colon split", () => {
+    expect(actionTitle({ title: "Automated Invoice Matching" } as any)).toBe("Approve Automated Invoice Matching");
+  });
+});
+
 describe("DecisionPackageView executive memo", () => {
   it("renders the four-section Decision Report structure", () => {
     vi.spyOn(global, "fetch").mockResolvedValue({
@@ -38,7 +54,7 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    expect(screen.getByText("Decision Recommendation")).toBeTruthy();
+    expect(screen.getByText("Approve Automated Invoice Matching")).toBeTruthy();
     expect(screen.getByText("Evidence")).toBeTruthy();
     expect(screen.getByText("Strategy and Objectives")).toBeTruthy();
     expect(screen.getByText("Implementation")).toBeTruthy();

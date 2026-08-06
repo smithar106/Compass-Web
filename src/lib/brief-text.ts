@@ -37,6 +37,12 @@ export interface ImpactCard {
 
 export function actionTitle(top: DecisionRec): string {
   const t = firstSentence(top.title) || "the recommended intervention";
+  const idx = t.indexOf(":");
+  if (idx > 0) {
+    const solution = t.slice(0, idx).trim();
+    const problem = t.slice(idx + 1).trim();
+    if (solution && problem) return `Approve ${solution} Solution for ${problem}`;
+  }
   return `Approve ${t}`;
 }
 

@@ -62,8 +62,7 @@ export function DecisionPackageView({
         <div className="mx-auto max-w-4xl">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.decision.label }}>Decision Recommendation</p>
-              <h1 data-testid="decision-title" className="mt-2 font-serif text-[30px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[36px]">
+              <h1 data-testid="decision-title" className="font-serif text-[30px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[36px]">
                 {actionTitle(top)}
               </h1>
             </div>

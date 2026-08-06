@@ -64,7 +64,6 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
         <div id="compass-brief-print" data-testid="brief-print" className="mx-auto bg-white shadow-[0_25px_50px_rgba(0,0,0,0.25)]" style={{ width: "100%", maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.45 }}>
           {/* ===== 1. DECISION RECOMMENDATION ===== */}
           <div style={{ backgroundColor: PC.decision.bg, padding: "20px 32px" }}>
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.decision.label }}>Decision Recommendation</p>
             <div className="flex flex-wrap items-start justify-between gap-3 mt-1">
               <h1 className="font-serif text-[28px] font-semibold tracking-[-0.02em]">{actionTitle(top)}</h1>
               {badge && <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold", badge.cls)}><span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", badge.dot)} />{badge.text}</span>}
