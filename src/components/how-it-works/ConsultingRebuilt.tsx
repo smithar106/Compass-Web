@@ -12,7 +12,7 @@ const ROWS = [
   },
   {
     consulting: "Static report",
-    compass: "Live Decision Brief and implementation plan",
+    compass: "Executive Recommendation and implementation plan",
   },
   {
     consulting: "Engagement ends at delivery",
