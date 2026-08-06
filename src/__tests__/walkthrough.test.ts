@@ -110,6 +110,34 @@ describe("walkthrough: decision permanent link + save", () => {
     expect(res.status).toBe(404);
   });
 
+  it("loads a recommendation-created decision via the fallback store", async () => {
+    (globalThis as any).fetch = async (input: any) => {
+      const url = String(input);
+      if (url.includes("/api/analyze/")) {
+        return { ok: false, status: 404, json: async () => ({ detail: "Analysis session not found" }) };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          recommendation_id: "rec-abc",
+          recommendations: [{ rank: 1, title: "Workflow Automation", confidence: { label: "high" } }],
+          methodology: { engine_version: "3.1.0" },
+          assessment_summary: { problem_statement: "Manual invoice processing" },
+        }),
+      };
+    };
+
+    const res = await getDecision(new NextRequest("http://localhost/api/decisions/rec-abc"), { params: { decision_id: "rec-abc" } });
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.analysis.analysis_id).toBe("rec-abc");
+    expect(data.analysis.status).toBe("decision_ready");
+    expect(data.analysis.decision.recommendations[0].title).toBe("Workflow Automation");
+    expect(data.analysis.decision.methodology.engine_version).toBe("3.1.0");
+    expect(data.analysis.decision.assessment_summary.problem_statement).toBe("Manual invoice processing");
+  });
+
   it("saves a decision with an email and returns a permanent resume link", async () => {
     const res = await saveDecision(
       new NextRequest("http://localhost/api/decisions/sess-1/save", { method: "POST", body: JSON.stringify({ email: "ceo@acme.com" }) }),
