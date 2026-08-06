@@ -137,4 +137,47 @@
   #compass-brief-print-clone br {
     display: none;
   }
+
+  /* Compact the executive brief to fit a single Letter page.
+     The brief renders with inline styles, so these rules override them. */
+  #compass-brief-print-clone {
+    font-size: 9px !important;
+    line-height: 1.25 !important;
+  }
+  #compass-brief-print-clone h1 {
+    font-size: 16px !important;
+    margin: 0 !important;
+  }
+  #compass-brief-print-clone p {
+    margin: 1px 0 !important;
+  }
+  #compass-brief-print-clone > div {
+    padding: 2px 12px !important;
+  }
+  #compass-brief-print-clone .grid {
+    gap: 3px !important;
+  }
+  #compass-brief-print-clone .rounded {
+    padding: 4px 7px !important;
+  }
+  #compass-brief-print-clone .mt-4 {
+    margin-top: 3px !important;
+  }
+  #compass-brief-print-clone .mt-3 {
+    margin-top: 2px !important;
+  }
+  #compass-brief-print-clone .mt-2 {
+    margin-top: 2px !important;
+  }
+  #compass-brief-print-clone .mt-1,
+  #compass-brief-print-clone .mt-1\.5 {
+    margin-top: 1px !important;
+  }
+  #compass-brief-print-clone .space-y-1 > * + * {
+    margin-top: 1px !important;
+  }
+  /* Interactive app controls have no place in the printed brief. */
+  #compass-brief-print-clone div.mt-4.flex {
+    display: none !important;
+  }
 }
