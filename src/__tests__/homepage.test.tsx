@@ -2,7 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { site } from "@/content/site";
 import HomePage from "@/app/(site)/page";
-import DemoPage from "@/app/(site)/demo/page";
+import DemoPage from "@/app/demo/page";
+import DemoLayout from "@/app/demo/layout";
+
+const { pathnameMock } = vi.hoisted(() => ({ pathnameMock: vi.fn(() => "/demo") }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathnameMock(),
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 function mockMatchMedia() {
   Object.defineProperty(window, "matchMedia", {
@@ -163,12 +170,14 @@ describe("Homepage CTA routing", () => {
     expect(screen.queryByText(/gold evidence|silver evidence|bronze evidence/i)).toBeNull();
   });
 
-  it("should render the demo page and link to the real assessment", () => {
-    render(<DemoPage />);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
-      "See a Compass decision, end to end."
+  it("should render the demo portal and link to the real assessment", () => {
+    render(
+      <DemoLayout>
+        <DemoPage />
+      </DemoLayout>
     );
-    const links = screen.getAllByRole("link", { name: /start assessment/i });
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Executive overview");
+    const links = screen.getAllByRole("link", { name: /new decision/i });
     expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) {
       expect(link.getAttribute("href")).toBe("/assessment");
