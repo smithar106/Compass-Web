@@ -53,6 +53,10 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
   const evidences = evidenceCards(top, summary);
   const strategies = strategyCards(top);
   const steps = implementationSteps(top);
+  const totalComparables =
+    typeof top.evidence_summary?.total_comparables === "number" && top.evidence_summary.total_comparables > 0
+      ? top.evidence_summary.total_comparables
+      : null;
 
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto bg-[#101826]/70 p-4 sm:p-8" data-testid="print-overlay" role="dialog" aria-modal="true" onClick={onClose}>
@@ -85,7 +89,9 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
 
           {/* ===== 2. EVIDENCE ===== */}
           <div style={{ backgroundColor: PC.evidence.bg, padding: "16px 32px" }}>
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.evidence.label }}>Evidence</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.evidence.label }}>
+              Evidence{totalComparables != null ? ` \u00b7 ${totalComparables} comparable implementations` : ""}
+            </p>
             <p className="text-[12px] font-medium text-ink mt-0.5">{evidenceIntro(top)}</p>
             <div className="mt-3 grid grid-cols-3 gap-3">
               {evidences.slice(0, 3).map((e) => (

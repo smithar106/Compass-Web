@@ -55,6 +55,10 @@ export function DecisionPackageView({
   const evidences = evidenceCards(top, summary);
   const strategies = strategyCards(top);
   const steps = implementationSteps(top);
+  const totalComparables =
+    typeof top.evidence_summary?.total_comparables === "number" && top.evidence_summary.total_comparables > 0
+      ? top.evidence_summary.total_comparables
+      : null;
 
   return (
     <div className="space-y-0">
@@ -90,7 +94,15 @@ export function DecisionPackageView({
       {/* ===== 2. EVIDENCE ===== */}
       <section data-testid="section-evidence" className="px-4 py-7 sm:px-8 sm:py-8" style={{ backgroundColor: COLORS.evidence.bg }}>
         <div className="mx-auto max-w-4xl">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.evidence.label }}>Evidence</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.evidence.label }}>Evidence</p>
+            {totalComparables != null && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-[#1e40af]">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#1e40af]" />
+                Grounded in {totalComparables} comparable implementations
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-[13px] font-medium text-ink">{evidenceIntro(top)}</p>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {evidences.slice(0, 3).map((e) => (

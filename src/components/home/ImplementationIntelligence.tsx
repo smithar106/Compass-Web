@@ -1,6 +1,7 @@
 import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
+import { LibraryStats } from "./LibraryStats";
 
 export function ImplementationIntelligence() {
   const i = marketing.home.intelligence;
@@ -13,6 +14,10 @@ export function ImplementationIntelligence() {
       />
       <div className="relative mx-auto max-w-7xl px-5 py-section sm:px-8 lg:px-10 lg:py-section">
         <SectionHeader eyebrow={i.eyebrow} headline={i.headline} subtitle={i.supporting} align="center" />
+
+        <div className="mt-14">
+          <LibraryStats size="lg" />
+        </div>
 
         <ul className="mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-3">
           {i.points.map((point, idx) => (

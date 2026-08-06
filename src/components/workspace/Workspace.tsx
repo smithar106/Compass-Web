@@ -190,7 +190,15 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
       {showPortfolio && (
         <>
           <section aria-label="Decision status summary">
-            <h2 className="mb-4 text-[17px] font-semibold tracking-tight text-ink">Portfolio status</h2>
+            <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
+              <h2 className="text-[17px] font-semibold tracking-tight text-ink">Portfolio status</h2>
+              {liveRows.length > 0 && (
+                <p className="text-[12.5px] font-medium text-muted">
+                  {counts.approved + counts.pilot + counts.implementing + counts.completed} of{" "}
+                  {liveRows.length} decisions in active lifecycle
+                </p>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {WORKSPACE_STATUSES.map((s) => (
                 <button

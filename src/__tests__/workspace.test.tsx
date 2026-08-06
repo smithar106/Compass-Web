@@ -98,6 +98,8 @@ describe("Workspace", () => {
 
     expect((await screen.findAllByText("Problem rec-a")).length).toBeGreaterThanOrEqual(1);
     expect((await screen.findAllByText("Problem rec-b")).length).toBeGreaterThanOrEqual(1);
+    // Lifecycle summary line reflects the real portfolio (all under review here).
+    expect(await screen.findByText(/0 of 2 decisions in active lifecycle/)).toBeTruthy();
     expect(screen.getAllByText("AI Implementation").length).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText("Under Review").length).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText("Processing Cost: 40–60%").length).toBeGreaterThanOrEqual(2);

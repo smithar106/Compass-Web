@@ -56,6 +56,7 @@ describe("DecisionPackageView executive memo", () => {
     );
     expect(screen.getByText("Approve Automated Invoice Matching")).toBeTruthy();
     expect(screen.getByText("Evidence")).toBeTruthy();
+    expect(screen.getByText("Grounded in 24 comparable implementations")).toBeTruthy();
     expect(screen.getByText("Strategy and Objectives")).toBeTruthy();
     expect(screen.getByText("Implementation")).toBeTruthy();
   });

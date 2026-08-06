@@ -2,6 +2,7 @@ import Link from "next/link";
 import { marketing } from "@/content/marketing";
 import { ArrowIcon } from "./primitives";
 import { Reveal } from "./Reveal";
+import { LibraryStats } from "./LibraryStats";
 
 export function HomeHero() {
   const h = marketing.home.hero;
@@ -50,6 +51,14 @@ export function HomeHero() {
             >
               {h.ctaSecondary}
             </Link>
+          </div>
+        </Reveal>
+
+        <Reveal delay={280}>
+          <div className="mt-14 border-t border-line pt-8">
+            <LibraryStats
+              extraCells={[{ value: "8", label: "questions · under 60 seconds" }]}
+            />
           </div>
         </Reveal>
       </div>
