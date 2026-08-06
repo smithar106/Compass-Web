@@ -1,11 +1,11 @@
 export default function AssessmentLoading() {
   return (
-    <div className="pt-32 pb-20 px-4 flex flex-col items-center justify-center min-h-[50vh]">
-      <div className="relative w-10 h-10 mb-4">
-        <div className="absolute inset-0 border-2 border-border rounded-full" />
-        <div className="absolute inset-0 border-2 border-forest rounded-full border-t-transparent animate-spin" />
+    <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+      <div className="relative h-9 w-9">
+        <div className="absolute inset-0 rounded-full border-2 border-line" />
+        <div className="absolute inset-0 animate-spin rounded-full border-2 border-accent-deep border-t-transparent" />
       </div>
-      <p className="text-sm text-stone">Loading investigation...</p>
+      <p className="mt-4 text-sm text-muted">Loading assessment...</p>
     </div>
   );
 }

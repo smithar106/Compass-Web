@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { site } from "@/content/site";
-import HomePage from "@/app/page";
-import DemoPage from "@/app/demo/page";
+import HomePage from "@/app/(site)/page";
+import DemoPage from "@/app/(site)/demo/page";
 
 function mockMatchMedia() {
   Object.defineProperty(window, "matchMedia", {

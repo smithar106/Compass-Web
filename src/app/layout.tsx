@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { name, metadata as siteMetadata } from "@/content/marketing";
 import "./globals.css";
 
@@ -46,11 +44,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230E1722'/><polygon points='16,4 20,14 30,14 22,20 25,30 16,24 7,30 10,20 2,14 12,14' fill='%23C7F246' opacity='0.95'/><circle cx='16' cy='16' r='3' fill='%230E1722'/></svg>" />
       </head>
-      <body className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </body>
+      <body className="min-h-screen flex flex-col">{children}</body>
     </html>
   );
 }
