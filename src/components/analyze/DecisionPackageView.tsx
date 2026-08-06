@@ -51,7 +51,7 @@ export function DecisionPackageView({
 
   const explanation = recommendationExplanation(top, summary);
   const impacts = impactCards(top);
-  const evidences = evidenceCards(top);
+  const evidences = evidenceCards(top, summary);
   const strategies = strategyCards(top);
   const steps = implementationSteps(top);
 
@@ -95,6 +95,7 @@ export function DecisionPackageView({
             {evidences.slice(0, 3).map((e) => (
               <div key={e.company} data-testid="evidence-card" className="rounded-lg bg-white px-5 py-5">
                 <p className="text-[15px] font-bold text-ink">{e.company}</p>
+                {e.context && <p className="mt-1 text-[12px] leading-[1.45] text-ink/75">{e.context}</p>}
                 <ul className="mt-2 space-y-1.5">
                   {e.bullets.map((b) => (
                     <li key={b} className="flex items-start gap-2 text-[13px] leading-[1.5] text-ink">
@@ -139,9 +140,9 @@ export function DecisionPackageView({
         <div className="mx-auto max-w-4xl">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: COLORS.implementation.label }}>Implementation</p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {steps.map((s) => (
+            {steps.map((s, i) => (
               <div key={s.name} data-testid="implementation-step" className="rounded-lg bg-white px-5 py-4">
-                <p className="text-[16px] font-bold text-ink">Step: {s.name}</p>
+                <p className="text-[16px] font-bold text-ink">Phase {i + 1}: {s.name}</p>
                 <p className="mt-2 text-[12px] font-semibold text-ink">Team Responsible: <span className="font-medium text-ink">{s.team}</span></p>
                 <p className="mt-0.5 text-[12px] font-semibold text-ink">Duration: <span className="font-medium text-ink">{s.timeline}</span></p>
                 <p className="mt-2 text-[13px] leading-[1.5] text-ink">{s.detail}</p>

@@ -27,6 +27,55 @@ function firstSentence(value: unknown): string {
     .trim();
 }
 
+// ---- Copy helpers: turn raw engine titles into natural executive language ----
+
+// Generic domain words that clutter an executive title (e.g. "Finance" in "AI-powered Finance").
+const DOMAIN_NOISE = /\b(finance|financial|solution|solutions|department|departments|function|functions|tool|tools|system|systems|platform|platforms|initiative|program)\b/gi;
+
+// Intervention family names that stand alone as noun phrases (no problem noun needed).
+const NOUN_PHRASE = /(automation|software|platform|system|solution|redesign|staffing|hybrid|implementation|workflow)/i;
+
+function titleCasePhrase(value: string): string {
+  const small = new Set(["a", "an", "the", "and", "or", "of", "for", "in", "on", "with", "to", "vs"]);
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word, i) => {
+      if (i > 0 && small.has(word.toLowerCase())) return word.toLowerCase();
+      return word
+        .split("-")
+        .map((part, j) => (j === 0 || part.length > 1 ? part[0].toUpperCase() + part.slice(1) : part))
+        .join("-");
+    })
+    .join(" ");
+}
+
+function cleanModifier(value: string): string {
+  return value
+    .replace(DOMAIN_NOISE, "")
+    .replace(/\s+/g, " ")
+    .replace(/\s+$/g, "")
+    .trim();
+}
+
+function stripManual(value: string): string {
+  return value.replace(/^(manual|the)\s+/i, "").trim();
+}
+
+interface TitleParts {
+  solution: string; // e.g. "AI-powered Finance"
+  problem: string; // e.g. "Manual invoice processing"
+}
+
+function titleParts(top: DecisionRec, summary?: any): TitleParts {
+  const t = firstSentence(top.title) || "";
+  const idx = t.indexOf(":");
+  if (idx > 0) {
+    return { solution: t.slice(0, idx).trim(), problem: t.slice(idx + 1).trim() };
+  }
+  return { solution: t, problem: firstSentence(summary?.problem_statement) || "" };
+}
+
 // ---- Section 1: Decision Recommendation ----
 
 export interface ImpactCard {
@@ -41,19 +90,36 @@ export function actionTitle(top: DecisionRec): string {
   if (idx > 0) {
     const solution = t.slice(0, idx).trim();
     const problem = t.slice(idx + 1).trim();
-    if (solution && problem) return `Approve ${solution} Solution for ${problem}`;
+    if (solution && problem) {
+      const modifier = cleanModifier(solution);
+      const focus = stripManual(problem);
+      if (modifier && focus) return `Approve ${titleCasePhrase(modifier)} ${titleCasePhrase(focus)}`;
+      if (focus) return `Approve ${titleCasePhrase(focus)}`;
+    }
   }
-  return `Approve ${t}`;
+  return `Approve ${titleCasePhrase(t)}`;
 }
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
-  const title = firstSentence(top.title) || "this approach";
+  const { solution, problem } = titleParts(top, summary);
 
-  const one = "This approach is recommended because it will save time and money, and best fits your organization's profile, goals, and operational strategy.";
+  const problemPhrase = problem || "The current process";
+  const modifier = cleanModifier(solution);
+  const focus = stripManual(problemPhrase);
+  const solutionPhrase =
+    !problem
+      ? modifier || focus || "This solution"
+      : modifier && focus && !NOUN_PHRASE.test(modifier)
+        ? `${modifier} ${focus}`
+        : modifier
+          ? modifier
+          : focus || "This solution";
+
+  const one = `${problemPhrase} is consuming valuable finance capacity and creating unnecessary operational friction. ${solutionPhrase} offers the strongest opportunity to reduce manual effort, accelerate processing, and improve financial controls while limiting implementation risk through a phased rollout.`;
 
   const two = "Approval authorizes a bounded pilot measured against a clear baseline, with a go/no-go decision before any wider deployment.";
 
-  const three = `We recommend approving ${title} now and beginning with a controlled, measurable first phase.`;
+  const three = "We recommend approving a controlled pilot, with expansion contingent on achieving predefined operational and financial success criteria.";
 
   return { one, two, three };
 }
@@ -65,12 +131,20 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
 
   const metricFor = (r: any, fallback: string) => (asString(r.metric_label) || fallback).replace(/_/g, " ").toLowerCase().trim() || fallback;
   const valueFor = (r: any) => (r.median != null ? `${r.median}%` : r.low != null && r.high != null ? `${r.low}%–${r.high}%` : "Measurable");
+  // Direction-aware labels: cost/effort metrics go down, capability metrics go up.
+  // e.g. "fraud detection rate" → "Improved fraud detection", "processing cost" → "Lower processing cost".
+  const labelFor = (r: any, fallback: string) => {
+    const m = metricFor(r, fallback);
+    if (/cost|error|manual|effort|time|turnaround|expense|cycle|delay|backlog/i.test(m)) return `Lower ${m}`;
+    const clean = m.replace(/\s*rate\s*$/, "").trim();
+    return `Improved ${clean || m}`;
+  };
 
   if (ranges.length > 0) {
     const r = ranges[0];
     cards.push({
       metric: valueFor(r),
-      label: `Lower ${metricFor(r, "processing cost")}`,
+      label: labelFor(r, "processing cost"),
       context: "Primary outcome of this initiative.",
     });
   } else {
@@ -81,7 +155,7 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
     const r2 = ranges[1];
     cards.push({
       metric: valueFor(r2),
-      label: `Improved ${metricFor(r2, "capacity")}`,
+      label: labelFor(r2, "capacity"),
       context: "Secondary outcome tracked alongside the primary goal.",
     });
   } else {
@@ -102,6 +176,7 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
 
 export interface EvidenceCard {
   company: string;
+  context?: string;
   bullets: string[];
 }
 
@@ -112,9 +187,10 @@ function cleanMetric(metricRaw: string, val: string): string {
   return `${val} ${lc}`;
 }
 
-export function evidenceCards(top: DecisionRec): EvidenceCard[] {
+export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
   const raw = (top.comparable_implementations || []).slice(0, 3);
   const seen = new Set<string>();
+  const focus = stripManual(titleParts(top, summary).problem) || "operations";
   return raw
     .filter((c) => {
       const key = asString(c.organization).trim().toLowerCase();
@@ -125,6 +201,11 @@ export function evidenceCards(top: DecisionRec): EvidenceCard[] {
     .map((c) => {
       const org = asString(c.organization).trim() || "A comparable organization";
       const outcome = asString(c.outcome_summary || c.observed_outcome);
+      // One context sentence so each card explains what the comparable actually did.
+      const intervention = asString(c.intervention || c.intervention_description);
+      const context = intervention
+        ? `Implemented ${intervention.toLowerCase()} to streamline ${focus}.`
+        : "Deployed a comparable solution to address the same operational challenge.";
       const bullets: string[] = [];
       outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s)).forEach((s) => {
         const parts = s.split(/[:=]/).map((p) => p.trim());
@@ -140,12 +221,12 @@ export function evidenceCards(top: DecisionRec): EvidenceCard[] {
       // De-dupe identical bullets and collapse to the strongest 3.
       const unique = [...new Set(bullets)];
       if (unique.length === 0) unique.push("Reported measurable operational improvement.");
-      return { company: org, bullets: unique.slice(0, 3) };
+      return { company: org, context, bullets: unique.slice(0, 3) };
     });
 }
 
 export function evidenceIntro(top: DecisionRec): string {
-  return "Over 5,000 solutions analyzed across more than 500 industries. This is the best solution for the problem that you are trying to solve. The companies shown below demonstrates positive results with this solution.";
+  return "Comparable organizations have successfully implemented similar solutions and reported measurable improvements in cost, processing speed, and operational performance. Compass recommends this approach because organizations facing similar operational challenges consistently achieved the strongest business outcomes with this implementation strategy.";
 }
 
 // ---- Section 3: Strategy and Objectives ----

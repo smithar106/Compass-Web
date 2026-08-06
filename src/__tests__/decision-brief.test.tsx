@@ -26,12 +26,12 @@ const mockRec = {
 };
 
 describe("actionTitle", () => {
-  it("formats titles as 'Approve {solution} Solution for {problem}'", () => {
+  it("formats titles as natural executive initiatives", () => {
     expect(actionTitle({ title: "AI-powered Finance: Manual invoice processing" } as any)).toBe(
-      "Approve AI-powered Finance Solution for Manual invoice processing"
+      "Approve AI-Powered Invoice Processing"
     );
     expect(actionTitle({ title: "Software solution for Sales: Lead qualification" } as any)).toBe(
-      "Approve Software solution for Sales Solution for Lead qualification"
+      "Approve Software for Sales Lead Qualification"
     );
   });
 
@@ -58,6 +58,34 @@ describe("DecisionPackageView executive memo", () => {
     expect(screen.getByText("Evidence")).toBeTruthy();
     expect(screen.getByText("Strategy and Objectives")).toBeTruthy();
     expect(screen.getByText("Implementation")).toBeTruthy();
+  });
+
+  it("renders the refreshed executive copy", () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: false,
+      json: async () => ({}),
+    } as any);
+    render(
+      <DecisionPackageView
+        recs={[mockRec as any]}
+        meta={{ evidence_count: { unique_organizations: 18 } }}
+        summary={{ problem_statement: "Manual invoice processing" }}
+        status="decision_ready"
+      />
+    );
+    // Authored recommendation paragraph + controlled-pilot close.
+    expect(screen.getByText(/is consuming valuable finance capacity and creating unnecessary operational friction/i)).toBeTruthy();
+    expect(
+      screen.getByText(/We recommend approving a controlled pilot, with expansion contingent on achieving predefined operational and financial success criteria/i)
+    ).toBeTruthy();
+    // Evidence intro no longer advertises the engine.
+    expect(screen.queryByText(/Over 5,000 solutions analyzed/)).toBeNull();
+    expect(screen.getByText(/Comparable organizations have successfully implemented similar solutions/i)).toBeTruthy();
+    // Evidence cards carry a one-sentence context.
+    expect(screen.getByText("Implemented automated matching to streamline invoice processing.")).toBeTruthy();
+    // Implementation steps read as phases.
+    expect(screen.getByText("Phase 1: Establish the Baseline")).toBeTruthy();
+    expect(screen.getByText("Phase 4: Scale Deployment")).toBeTruthy();
   });
 
   it("opens the print preview with four-section layout", () => {

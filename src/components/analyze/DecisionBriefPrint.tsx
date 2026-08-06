@@ -50,7 +50,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
 
   const explanation = recommendationExplanation(top, summary);
   const impacts = impactCards(top);
-  const evidences = evidenceCards(top);
+  const evidences = evidenceCards(top, summary);
   const strategies = strategyCards(top);
   const steps = implementationSteps(top);
 
@@ -88,6 +88,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
               {evidences.slice(0, 3).map((e) => (
                 <div key={e.company} className="rounded bg-white px-4 py-3">
                   <p className="text-[14px] font-bold">{e.company}</p>
+                  {e.context && <p className="mt-1 text-[11px] leading-[1.4] text-ink/75">{e.context}</p>}
                   <ul className="mt-1.5 space-y-1">
                     {e.bullets.map((b) => (
                       <li key={b} className="flex items-start gap-2 text-[11.5px] leading-[1.45] text-ink">
@@ -125,9 +126,9 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
           <div style={{ backgroundColor: PC.implementation.bg, padding: "16px 32px" }}>
             <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.implementation.label }}>Implementation</p>
             <div className="mt-3 grid grid-cols-2 gap-3">
-              {steps.map((s) => (
+              {steps.map((s, i) => (
                 <div key={s.name} className="rounded bg-white px-4 py-3">
-                  <p className="text-[14px] font-bold">Step: {s.name}</p>
+                  <p className="text-[14px] font-bold">Phase {i + 1}: {s.name}</p>
                   <p className="mt-1 text-[10.5px] text-[#6c685f]">Team Responsible: {s.team}</p>
                   <p className="text-[10.5px] text-[#6c685f]">Duration: {s.timeline}</p>
                   <p className="mt-1 text-[11.5px] leading-[1.45] text-ink">{s.detail}</p>
