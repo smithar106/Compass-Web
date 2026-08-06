@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { groundingState, type DecisionRec } from "@/lib/decision-package";
 import {
@@ -61,7 +61,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
           <p className="text-[12px] font-semibold text-ink">Print preview &middot; Prepared by Compass</p>
           <button type="button" onClick={handleDownload} data-testid="print-download-pdf" className="rounded-lg bg-ink px-5 py-2.5 text-[13px] font-semibold text-paper hover:bg-ink2">Download PDF</button>
         </div>
-        <div id="compass-brief-print" data-testid="brief-print" ref={useRef<HTMLDivElement>(null)} className="mx-auto bg-white shadow-[0_25px_50px_rgba(0,0,0,0.25)]" style={{ width: "100%", maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.45 }}>
+        <div id="compass-brief-print" data-testid="brief-print" className="mx-auto bg-white shadow-[0_25px_50px_rgba(0,0,0,0.25)]" style={{ width: "100%", maxWidth: "100%", color: "#1c1a17", fontFamily: "ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif", lineHeight: 1.45 }}>
           {/* ===== 1. DECISION RECOMMENDATION ===== */}
           <div style={{ backgroundColor: PC.decision.bg, padding: "20px 32px" }}>
             <p className="text-[11px] font-extrabold uppercase tracking-[0.16em]" style={{ color: PC.decision.label }}>Decision Recommendation</p>

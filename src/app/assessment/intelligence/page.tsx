@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { OrgIntelligenceView } from "@/components/assessment/org-intelligence";
+import { CoverageDashboard } from "@/components/assessment/coverage-dashboard";
 import { site } from "@/content/site";
 import type { OrganizationalProfile } from "@/types/pipeline";
 
@@ -91,6 +92,10 @@ export default function IntelligencePage() {
         )}
 
         <OrgIntelligenceView profile={profile ?? undefined} />
+
+        <div className="mt-14 border-t border-border pt-10">
+          <CoverageDashboard />
+        </div>
       </div>
     </div>
   );
