@@ -6,7 +6,8 @@ export const name = "Compass";
 
 export const tagline = "Implementation is becoming abundant. Judgment remains scarce.";
 
-export const description = "Compass helps organizations determine the right operational intervention before committing people, capital, and implementation effort \u2014 with evidence-backed executive recommendations.";
+export const description =
+  "Compass helps leadership make the right operational decision before implementation begins \u2014 comparing AI, software, automation, and process redesign on evidence from real implementations.";
 
 export const nav = [
   { label: "Product", href: "/product" },
@@ -23,82 +24,79 @@ export const headerCta = {
 export const marketing = {
     home: {
       hero: {
-        eyebrow: "Decision intelligence for operations",
         headline: "Implementation is becoming abundant. Judgment remains scarce.",
         supporting:
-          "Compass helps organizations determine the right operational intervention before committing people, capital, and implementation effort.",
+          "Organizations spend millions implementing AI, software, automation, and transformation initiatives before determining whether they are actually the right operational decision.",
+        supporting2: "Compass helps leadership make the right decision before implementation begins.",
         ctaPrimary: "Start Assessment",
         ctaPrimaryHref: "/assessment",
         ctaSecondary: "View Demo",
         ctaSecondaryHref: "/demo",
-        trustLine: "Grounded in thousands of real-world enterprise implementations.",
       },
       problem: {
         eyebrow: "The problem",
-        headline: "Implementation begins before the comparison.",
-        supporting:
-          "Organizations often commit people and capital to an intervention before comparing the available paths \u2014 so the wrong option gets built, bought, or staffed.",
-        optionsLabel: "Compass compares every viable path",
-        options: [
-          "AI implementation",
-          "Workflow automation",
-          "Process redesign",
-          "Software",
-          "Staffing",
-          "Hybrid approaches",
-          "No action",
+        headline: "Implementation begins before the decision.",
+        stats: [
+          {
+            value: "50%",
+            title: "of generative AI projects are abandoned after proof of concept.",
+            detail:
+              "Poor data quality, unclear business value, escalating costs, and governance issues remain the biggest barriers.",
+            source: "Gartner",
+          },
+          {
+            value: "~2 in 3",
+            title: "organizations have not yet scaled AI across the enterprise.",
+            detail:
+              "Most companies remain stuck in pilots rather than achieving enterprise-wide transformation.",
+            source: "McKinsey",
+          },
+          {
+            value: "39%",
+            title: "of organizations report enterprise-level financial impact from AI.",
+            detail:
+              "Many organizations achieve isolated productivity gains but fail to create measurable business value.",
+            source: "McKinsey",
+          },
         ],
-        closing: "Only after the comparison does the right intervention become clear.",
+        closing:
+          "The challenge isn\u2019t building AI. It\u2019s deciding what should be built in the first place. Most organizations choose an implementation before comparing alternative approaches. That is the problem Compass solves.",
       },
       howItWorks: {
-        eyebrow: "How Compass works",
-        headline: "From business problem to better future decisions.",
+        eyebrow: "Why Compass",
+        headline: "Every operational decision makes the next one better.",
         supporting:
-          "A disciplined lifecycle: define the problem, make the call with evidence, implement with a plan, and measure what happened \u2014 so the next decision is better.",
+          "Compass compares AI, workflow automation, software implementation, process redesign, staffing, and hybrid approaches before implementation begins. Every completed implementation improves future recommendations.",
         steps: [
-          { number: "01", name: "Business Problem", detail: "You describe the operational problem \u2014 manual invoice processing, slow onboarding, costly support." },
-          { number: "02", name: "Assessment", detail: "Compass investigates the workflow, context, and constraints behind the decision you\u2019re really making." },
-          { number: "03", name: "Executive Recommendation", detail: "A one-page brief: the recommended path, expected outcomes, evidence, and strategy." },
-          { number: "04", name: "Approval", detail: "Leadership reviews and approves the recommendation before people or capital are committed." },
-          { number: "05", name: "Implementation", detail: "A phased plan with success criteria defined before work begins." },
-          { number: "06", name: "Measured Outcomes", detail: "Actual timeline, cost, and results are captured against the baseline." },
-          { number: "07", name: "Better Future Decisions", detail: "Every completed implementation sharpens the evidence behind the next recommendation." },
-        ],
-      },
-      intelligence: {
-        eyebrow: "Implementation intelligence",
-        headline: "Every recommendation is grounded in real implementations.",
-        supporting:
-          "Compass recommendations are supported by a continuously growing library of real implementation evidence \u2014 what organizations did, in what context, and what actually happened.",
-        features: [
-          { name: "Real implementation evidence", detail: "Recommendations are built on documented implementations with measured outcomes \u2014 not opinion." },
-          { name: "Continuously growing", detail: "The evidence library grows with every implementation, so recommendations keep improving." },
-          { name: "Matched to your context", detail: "Evidence is compared against your industry, process, and operating constraints." },
-          { name: "Executive-ready", detail: "One-page decision briefs written for the people who approve the budget." },
+          { number: "01", name: "Business Problem" },
+          { number: "02", name: "Assessment" },
+          { number: "03", name: "Executive Recommendation" },
+          { number: "04", name: "Implementation" },
+          { number: "05", name: "Measured Outcomes" },
+          { number: "06", name: "Better Future Decisions" },
         ],
       },
       brief: {
-        eyebrow: "The executive recommendation",
-        headline: "A one-page recommendation you can act on.",
+        eyebrow: "The Executive Recommendation",
+        headline: "A board-ready recommendation.",
         supporting:
-          "Every assessment produces an executive-ready recommendation covering the decision, expected outcomes, supporting evidence, strategy and objectives, and an implementation plan.",
+          "The decision, the expected business impact, the supporting evidence, and an implementation plan \u2014 written for the people who approve the budget.",
+        callout: "Executive-ready in under 60 seconds.",
       },
-      compounding: {
-        eyebrow: "Compounding value",
-        headline: "Every operational decision makes the next one better.",
+      intelligence: {
+        eyebrow: "Implementation Intelligence",
+        headline: "The world\u2019s growing implementation intelligence library.",
         supporting:
-          "Compass preserves the decision, the implementation, the outcomes, and the lessons \u2014 so every future recommendation starts from what your organization has already learned.",
+          "Compass continuously learns from real enterprise implementations across industries. Every implementation strengthens future recommendations.",
         points: [
-          { title: "Decisions are preserved", detail: "The reasoning, alternatives, and assumptions behind each call are kept and revisited." },
-          { title: "Outcomes are measured", detail: "What actually happened is captured against what was projected." },
-          { title: "Lessons are kept", detail: "What worked \u2014 and what didn\u2019t \u2014 feeds every future recommendation." },
+          "Built on real enterprise implementations, not vendor claims",
+          "Every completed implementation sharpens the next recommendation",
+          "The library grows with each outcome \u2014 so Compass gets better with use",
         ],
       },
       cta: {
-        eyebrow: "Start with the right decision",
-        headline: "Make the right decision before implementation begins.",
-        supporting:
-          "Run a Compass assessment on your highest-stakes operational problem. It takes minutes \u2014 and it could save you millions.",
+        headline: "Before spending millions implementing the wrong solution\u2026",
+        emphasis: "Make the right decision first.",
         ctaPrimary: "Start Assessment",
         ctaPrimaryHref: "/assessment",
         ctaSecondary: "View Demo",

@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { metadata as siteMetadata } from "@/content/marketing";
 import { HomeHero } from "@/components/home/HomeHero";
 import { Problem } from "@/components/home/Problem";
-import { HowCompassWorks } from "@/components/home/HowCompassWorks";
+import { WhyCompass } from "@/components/home/WhyCompass";
 import { ExecutiveBrief } from "@/components/home/ExecutiveBrief";
 import { ImplementationIntelligence } from "@/components/home/ImplementationIntelligence";
-import { CompoundingValue } from "@/components/home/CompoundingValue";
 import { HomeCta } from "@/components/home/HomeCta";
 
 export const metadata: Metadata = {
@@ -24,10 +23,9 @@ export default function HomePage() {
     <>
       <HomeHero />
       <Problem />
-      <HowCompassWorks />
+      <WhyCompass />
       <ExecutiveBrief />
       <ImplementationIntelligence />
-      <CompoundingValue />
       <HomeCta />
     </>
   );
