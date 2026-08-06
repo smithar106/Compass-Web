@@ -16,9 +16,20 @@ export interface ComparableEvidence {
 
 export interface DecisionRec {
   category?: string;
+  pathway_label?: string;
   title?: string;
   description?: string;
   rationale?: string;
+  quality?: {
+    pathway_score: number;
+    evidence_relevance_score: number;
+    evidence_quality_score: number;
+    metric_quality_score: number;
+    title_quality_score: number;
+    overall_recommendation_quality: number;
+    status: string;
+    weak_dimensions: string[];
+  };
   confidence?: { score: number; label: string; explanation: string };
   evidence_summary?: {
     overall_tier?: string;

@@ -11,6 +11,7 @@ import {
   OUTCOMES,
   type IntakeProblem,
 } from "@/data/intake-taxonomy";
+import { applyReconciliation } from "@/lib/reconcile";
 
 function getCompassApiUrl(): string | null {
   return (
@@ -229,6 +230,18 @@ async function localIntake(body: any): Promise<NextResponse> {
     );
   }
 
+  // Reconcile every recommendation: canonicalize pathway, refine evidence,
+  // synthesize weak titles, and emit quality diagnostics.
+  const recs = engineResult?.recommendations || [];
+  const reconciled = recs.map((r: any) =>
+    applyReconciliation(r, {
+      department: normalization.businessFunction,
+      problem: normalization.problemStatement,
+      objective: normalization.desiredOutcome,
+    }).recommendation
+  );
+  engineResult.recommendations = reconciled;
+  engineResult.reconciliation = { applied: true, version: 1 };
   const top = engineResult?.recommendations?.[0] || null;
   const label = top?.confidence?.label;
   const tier = top?.evidence_summary?.overall_tier;

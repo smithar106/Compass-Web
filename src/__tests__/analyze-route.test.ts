@@ -28,7 +28,17 @@ const engineResponse = {
       confidence: { score: 0.65, label: "moderate", explanation: "" },
       evidence_summary: { overall_tier: "silver", total_comparables: 3, gold_count: 0, silver_count: 3, bronze_count: 0, average_evidence_score: 47 },
       outcome_ranges: [{ metric_label: "cycle time", directly_comparable: true, low: 25, high: 40, sample_size: 3 }],
-      comparable_implementations: [],
+      comparable_implementations: [
+        {
+          organization: "Nord Avoidance Group",
+          evidence_tier: "silver",
+          intervention: "AP invoice automation",
+          intervention_description: "Automated invoice capture and two-way matching for accounts payable",
+          outcome_summary: "Reduced processing time by 40% and saved $1.2M annually",
+          source_url: "https://example.com/nord-ap",
+          workflow: "invoice_processing",
+        },
+      ],
       risks: [],
       alternatives_considered: [],
       information_gaps: [{ title: "Annual workflow volume and handling time", explanation: "", effect_on_confidence: "" }],

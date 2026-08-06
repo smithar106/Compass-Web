@@ -127,7 +127,7 @@ export function FastIntake() {
         </Link>
 
         <div className="mb-6">
-          <h1 className="text-[24px] font-bold leading-tight tracking-[-0.01em] text-ink sm:text-[28px]">Decision Report and Implementation Plan</h1>
+          <h1 data-testid="decision-page-heading" className="text-[24px] font-bold leading-tight tracking-[-0.01em] text-ink sm:text-[28px]">Decision Report and Implementation Plan</h1>
         </div>
 
         <DecisionPackageView
@@ -149,6 +149,7 @@ export function FastIntake() {
         {decision.analysis_id && (
           <div className="mt-3">
             <Link
+              data-testid="decision-permalink"
               href={`/decisions/${decision.analysis_id}`}
               className="text-[12px] font-semibold text-accent-deep underline underline-offset-2 transition-colors hover:text-ink"
             >
@@ -214,6 +215,7 @@ export function FastIntake() {
                 {DEPARTMENTS.map((d) => (
                   <ChoiceButton
                     key={d.label}
+                    testid={`dept-${d.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                     active={selection.department === d.label}
                     onClick={() => choose("department", d.label)}
                   >
@@ -236,6 +238,7 @@ export function FastIntake() {
                   {activeProblems.map((p) => (
                     <ChoiceButton
                       key={p.label}
+                      testid={`problem-${p.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                       active={selection.problem === p.label}
                       onClick={() => choose("problem", p.label)}
                       alignLeft
@@ -262,6 +265,7 @@ export function FastIntake() {
                 {PEOPLE_RANGES.map((r) => (
                   <ChoiceButton
                     key={r}
+                    testid={`people-${r.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                     active={selection.people === r}
                     onClick={() => choose("people", r)}
                     alignLeft
@@ -283,6 +287,7 @@ export function FastIntake() {
                 {OUTCOMES.map((o) => (
                   <ChoiceButton
                     key={o.label}
+                    testid={`outcome-${o.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                     active={selection.outcome === o.label}
                     onClick={() => choose("outcome", o.label)}
                     alignLeft
@@ -304,6 +309,7 @@ export function FastIntake() {
                 {TIMELINES.map((t) => (
                   <ChoiceButton
                     key={t}
+                    testid={`timeline-${t.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                     active={selection.timeline === t}
                     onClick={() => choose("timeline", t)}
                     alignLeft
@@ -335,6 +341,7 @@ export function FastIntake() {
               </p>
               <button
                 type="button"
+                data-testid="intake-submit"
                 onClick={submit}
                 disabled={!complete}
                 className={cn(
@@ -416,15 +423,18 @@ function ChoiceButton({
   onClick,
   children,
   alignLeft,
+  testid,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
   alignLeft?: boolean;
+  testid?: string;
 }) {
   return (
     <button
       type="button"
+      data-testid={testid}
       onClick={onClick}
       aria-pressed={active}
       className={cn(
