@@ -12,27 +12,21 @@ export function ImplementationIntelligence() {
           <div>
             <SectionHeader eyebrow={i.eyebrow} headline={i.headline} subtitle={i.supporting} />
             <Reveal delay={200}>
-              <div className="mt-10 space-y-2.5">
-                {["Gold", "Silver", "Bronze"].map((tier, idx) => (
-                  <div
-                    key={tier}
-                    className="flex items-center justify-between gap-4 border border-line bg-paper px-5 py-3.5"
-                  >
-                    <span className="flex items-center gap-3 text-[13px] font-semibold text-ink">
-                      <span
-                        aria-hidden="true"
-                        className={`h-2.5 w-2.5 rounded-full ${
-                          idx === 0 ? "bg-accent-deep" : idx === 1 ? "bg-muted" : "bg-faint"
-                        }`}
-                      />
-                      {tier} evidence
-                    </span>
-                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted">
-                      {idx === 0 ? "Independently verified" : idx === 1 ? "Strong documentation" : "Directional"}
-                    </span>
-                  </div>
+              <ul className="mt-10 space-y-3">
+                {[
+                  "Real-world implementations, not vendor claims",
+                  "Measured outcomes captured against a baseline",
+                  "The library grows with every completed implementation",
+                ].map((point) => (
+                  <li key={point} className="flex items-start gap-3 text-[14px] leading-relaxed text-ink">
+                    <span
+                      aria-hidden="true"
+                      className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-deep"
+                    />
+                    {point}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </Reveal>
           </div>
 

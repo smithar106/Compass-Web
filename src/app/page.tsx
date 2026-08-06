@@ -1,10 +1,23 @@
+import type { Metadata } from "next";
+import { metadata as siteMetadata } from "@/content/marketing";
 import { HomeHero } from "@/components/home/HomeHero";
 import { Problem } from "@/components/home/Problem";
 import { HowCompassWorks } from "@/components/home/HowCompassWorks";
-import { ImplementationIntelligence } from "@/components/home/ImplementationIntelligence";
 import { ExecutiveBrief } from "@/components/home/ExecutiveBrief";
-import { HomeScreenshots } from "@/components/home/HomeScreenshots";
+import { ImplementationIntelligence } from "@/components/home/ImplementationIntelligence";
+import { CompoundingValue } from "@/components/home/CompoundingValue";
 import { HomeCta } from "@/components/home/HomeCta";
+
+export const metadata: Metadata = {
+  title: siteMetadata.title,
+  description: siteMetadata.description,
+  openGraph: {
+    title: siteMetadata.title,
+    description: siteMetadata.description,
+    type: "website",
+    siteName: "Compass",
+  },
+};
 
 export default function HomePage() {
   return (
@@ -12,9 +25,9 @@ export default function HomePage() {
       <HomeHero />
       <Problem />
       <HowCompassWorks />
-      <ImplementationIntelligence />
       <ExecutiveBrief />
-      <HomeScreenshots />
+      <ImplementationIntelligence />
+      <CompoundingValue />
       <HomeCta />
     </>
   );

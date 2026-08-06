@@ -67,6 +67,16 @@ export function ExecutiveBrief() {
                 </div>
               </div>
 
+              {/* strategy and objectives */}
+              <div className="border-t border-[#c8dacb] bg-[#fbfdf7] px-6 py-6 sm:px-10">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#1E7B4C]">Strategy and Objectives</p>
+                <p className="mt-2 text-[12.5px] leading-[1.65] text-ink">
+                  Deploy in a controlled pilot on the highest-volume invoice exceptions, then scale to full
+                  processing once agreed success criteria are met. Objectives: reduce processing cost{" "}
+                  40{"\u2013"}60%, cut cycle time, and hold accuracy at or above today&rsquo;s levels.
+                </p>
+              </div>
+
               {/* evidence */}
               <div className="bg-[#e8f0fe] px-6 py-6 sm:px-10">
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#1e40af]">Evidence</p>

@@ -4,9 +4,9 @@
 
 export const name = "Compass";
 
-export const tagline = "Make operational decisions with confidence.";
+export const tagline = "Implementation is becoming abundant. Judgment remains scarce.";
 
-export const description = "Compass helps organizations identify the right operational intervention, execute it through the right partner, measure what happened, and continuously improve future decisions.";
+export const description = "Compass helps organizations determine the right operational intervention before committing people, capital, and implementation effort \u2014 with evidence-backed executive recommendations.";
 
 export const nav = [
   { label: "Product", href: "/product" },
@@ -90,76 +90,86 @@ export const marketing = {
 
     home: {
       hero: {
-        eyebrow: "Enterprise decision platform",
-        headline: "The enterprise decision platform.",
-        headlineAccent: "decision platform",
+        eyebrow: "Decision intelligence for operations",
+        headline: "Implementation is becoming abundant. Judgment remains scarce.",
         supporting:
-          "Organizations spend millions implementing projects before determining whether they are actually the right solution. Compass changes that \u2014 with evidence-backed recommendations executives can act on.",
+          "Compass helps organizations determine the right operational intervention before committing people, capital, and implementation effort.",
         ctaPrimary: "Start Assessment",
         ctaPrimaryHref: "/assessment",
-        ctaSecondary: "Watch Demo",
-        ctaSecondaryHref: "/how-it-works",
+        ctaSecondary: "View Demo",
+        ctaSecondaryHref: "/demo",
         trustLine: "Grounded in thousands of real-world enterprise implementations.",
       },
       problem: {
         eyebrow: "The problem",
-        headline: "Implementation is abundant. Judgment is scarce.",
+        headline: "Implementation begins before the comparison.",
         supporting:
-          "Organizations can buy software, hire consultants, and deploy AI faster than ever. The scarce resource is deciding what to implement in the first place \u2014 and a wrong call on a large operational decision can cost more than the project itself.",
-        cards: [
-          { stat: "Millions", label: "spent on implementations that begin without a validated decision" },
-          { stat: "Most", label: "operational projects are selected by opinion rather than evidence" },
-          { stat: "Few", label: "organizations measure outcomes after go-live \u2014 so mistakes repeat" },
+          "Organizations often commit people and capital to an intervention before comparing the available paths \u2014 so the wrong option gets built, bought, or staffed.",
+        optionsLabel: "Compass compares every viable path",
+        options: [
+          "AI implementation",
+          "Workflow automation",
+          "Process redesign",
+          "Software",
+          "Staffing",
+          "Hybrid approaches",
+          "No action",
         ],
-        thesis: "Compass exists to make judgment as abundant as implementation.",
+        closing: "Only after the comparison does the right intervention become clear.",
       },
       howItWorks: {
         eyebrow: "How Compass works",
-        headline: "From business problem to measurable outcome.",
+        headline: "From business problem to better future decisions.",
         supporting:
-          "Compass turns a business problem into an evidence-backed decision, then into a measured implementation \u2014 and every completed implementation makes the next recommendation better.",
+          "A disciplined lifecycle: define the problem, make the call with evidence, implement with a plan, and measure what happened \u2014 so the next decision is better.",
         steps: [
           { number: "01", name: "Business Problem", detail: "You describe the operational problem \u2014 manual invoice processing, slow onboarding, costly support." },
           { number: "02", name: "Assessment", detail: "Compass investigates the workflow, context, and constraints behind the decision you\u2019re really making." },
-          { number: "03", name: "Executive Recommendation", detail: "A one-page brief: the recommended strategy, alternatives, expected impact, and risks." },
-          { number: "04", name: "Implementation", detail: "A phased plan with success criteria defined before you commit capital." },
-          { number: "05", name: "Measured Outcomes", detail: "Actual timeline, cost, and results are captured against the baseline." },
-          { number: "06", name: "Future Recommendations Improve", detail: "Every completed implementation joins the library and sharpens the next decision." },
+          { number: "03", name: "Executive Recommendation", detail: "A one-page brief: the recommended path, expected outcomes, evidence, and strategy." },
+          { number: "04", name: "Approval", detail: "Leadership reviews and approves the recommendation before people or capital are committed." },
+          { number: "05", name: "Implementation", detail: "A phased plan with success criteria defined before work begins." },
+          { number: "06", name: "Measured Outcomes", detail: "Actual timeline, cost, and results are captured against the baseline." },
+          { number: "07", name: "Better Future Decisions", detail: "Every completed implementation sharpens the evidence behind the next recommendation." },
         ],
       },
       intelligence: {
-        eyebrow: "Why trust Compass",
+        eyebrow: "Implementation intelligence",
         headline: "Every recommendation is grounded in real implementations.",
         supporting:
-          "The Implementation Intelligence Library captures thousands of enterprise implementations \u2014 what was done, in what context, and what actually happened. Compass recommends from evidence, not opinion.",
+          "Compass recommendations are supported by a continuously growing library of real implementation evidence \u2014 what organizations did, in what context, and what actually happened.",
         features: [
-          { name: "Thousands of implementations", detail: "A continuously growing library of real-world implementations with measured outcomes." },
-          { name: "Continuous learning", detail: "Every completed implementation improves every future recommendation." },
-          { name: "Evidence-backed", detail: "Recommendations cite comparable organizations \u2014 with outcomes, risks, and context." },
+          { name: "Real implementation evidence", detail: "Recommendations are built on documented implementations with measured outcomes \u2014 not opinion." },
+          { name: "Continuously growing", detail: "The evidence library grows with every implementation, so recommendations keep improving." },
+          { name: "Matched to your context", detail: "Evidence is compared against your industry, process, and operating constraints." },
           { name: "Executive-ready", detail: "One-page decision briefs written for the people who approve the budget." },
         ],
       },
       brief: {
-        eyebrow: "The executive decision brief",
-        headline: "A one-page brief you can take to the board.",
+        eyebrow: "The executive recommendation",
+        headline: "A one-page recommendation you can act on.",
         supporting:
-          "Every assessment produces a decision brief: the recommendation, the evidence, the strategy, and the implementation plan \u2014 written for an executive making an investment decision.",
+          "Every assessment produces an executive-ready recommendation covering the decision, expected outcomes, supporting evidence, strategy and objectives, and an implementation plan.",
       },
-      screenshots: {
-        eyebrow: "Inside Compass",
-        headline: "Built for decisions, not reports.",
+      compounding: {
+        eyebrow: "Compounding value",
+        headline: "Every operational decision makes the next one better.",
         supporting:
-          "From assessment to decision brief to measured outcome \u2014 one place for the operational decisions that move your organization.",
+          "Compass preserves the decision, the implementation, the outcomes, and the lessons \u2014 so every future recommendation starts from what your organization has already learned.",
+        points: [
+          { title: "Decisions are preserved", detail: "The reasoning, alternatives, and assumptions behind each call are kept and revisited." },
+          { title: "Outcomes are measured", detail: "What actually happened is captured against what was projected." },
+          { title: "Lessons are kept", detail: "What worked \u2014 and what didn\u2019t \u2014 feeds every future recommendation." },
+        ],
       },
       cta: {
-        eyebrow: "Start with a decision",
-        headline: "Before you implement anything, make sure it\u2019s the right thing.",
+        eyebrow: "Start with the right decision",
+        headline: "Make the right decision before implementation begins.",
         supporting:
           "Run a Compass assessment on your highest-stakes operational problem. It takes minutes \u2014 and it could save you millions.",
         ctaPrimary: "Start Assessment",
         ctaPrimaryHref: "/assessment",
-        ctaSecondary: "Watch Demo",
-        ctaSecondaryHref: "/how-it-works",
+        ctaSecondary: "View Demo",
+        ctaSecondaryHref: "/demo",
       },
     },
 
@@ -846,7 +856,7 @@ export const footer = {
 };
 
 export const metadata = {
-  title: "Compass \u2014 Make Operational Decisions with Confidence",
+  title: "Compass \u2014 Implementation Is Abundant. Judgment Is Scarce.",
   description:
-    "Compass helps organizations identify the right operational intervention, execute it through the right partner, measure what happened, and continuously improve future decisions.",
+    "Compass helps organizations determine the right operational intervention before committing people, capital, and implementation effort \u2014 with evidence-backed executive recommendations.",
 };

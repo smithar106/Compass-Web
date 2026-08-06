@@ -5,6 +5,7 @@ import { Reveal } from "./Reveal";
 
 export function HomeHero() {
   const h = marketing.home.hero;
+  const [headlineLead, headlineAccent] = h.headline.split(". ");
 
   return (
     <section className="relative overflow-hidden border-b border-line bg-paper">
@@ -28,9 +29,8 @@ export function HomeHero() {
 
         <Reveal delay={80}>
           <h1 className="mt-7 text-display font-semibold tracking-tight text-ink">
-            The enterprise{" "}
-            <em className="font-serif italic font-medium text-accent-deep">decision platform</em>
-            .
+            {headlineLead}.{" "}
+            <em className="font-serif italic font-medium text-accent-deep">{headlineAccent}.</em>
           </h1>
         </Reveal>
 
