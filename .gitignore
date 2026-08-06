@@ -10,5 +10,6 @@ __pycache__/
 output/
 simulation/
 .firecrawl/
+.playwright-cli/
 
 .railway/

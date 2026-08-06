@@ -1,23 +1,21 @@
-import { DecisionEntry } from "@/components/home/DecisionEntry";
-import { Category } from "@/components/home/Category";
-import { ConsultingRebuilt } from "@/components/home/ConsultingRebuilt";
-import { Pillars } from "@/components/home/Pillars";
-import { LiveRecommendation } from "@/components/home/LiveRecommendation";
-import { CompoundingMoat } from "@/components/home/CompoundingMoat";
-import { Founder } from "@/components/home/Founder";
-import { FinalCta } from "@/components/home/FinalCta";
+import { HomeHero } from "@/components/home/HomeHero";
+import { Problem } from "@/components/home/Problem";
+import { HowCompassWorks } from "@/components/home/HowCompassWorks";
+import { ImplementationIntelligence } from "@/components/home/ImplementationIntelligence";
+import { ExecutiveBrief } from "@/components/home/ExecutiveBrief";
+import { HomeScreenshots } from "@/components/home/HomeScreenshots";
+import { HomeCta } from "@/components/home/HomeCta";
 
 export default function HomePage() {
   return (
     <>
-      <DecisionEntry />
-      <Category />
-      <ConsultingRebuilt />
-      <Pillars />
-      <LiveRecommendation />
-      <CompoundingMoat />
-      <Founder />
-      <FinalCta />
+      <HomeHero />
+      <Problem />
+      <HowCompassWorks />
+      <ImplementationIntelligence />
+      <ExecutiveBrief />
+      <HomeScreenshots />
+      <HomeCta />
     </>
   );
 }

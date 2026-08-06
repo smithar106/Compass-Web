@@ -16,8 +16,8 @@ export const nav = [
 ];
 
 export const headerCta = {
-  label: "Analyze a Problem",
-  href: "/analyze",
+  label: "Start Assessment",
+  href: "/assessment",
 };
 
 export const marketing = {
@@ -86,6 +86,81 @@ export const marketing = {
       },
       privacy:
         "Private. Secure. Your assessment data is stored encrypted and is not used to train AI models.",
+    },
+
+    home: {
+      hero: {
+        eyebrow: "Enterprise decision platform",
+        headline: "The enterprise decision platform.",
+        headlineAccent: "decision platform",
+        supporting:
+          "Organizations spend millions implementing projects before determining whether they are actually the right solution. Compass changes that \u2014 with evidence-backed recommendations executives can act on.",
+        ctaPrimary: "Start Assessment",
+        ctaPrimaryHref: "/assessment",
+        ctaSecondary: "Watch Demo",
+        ctaSecondaryHref: "/how-it-works",
+        trustLine: "Grounded in thousands of real-world enterprise implementations.",
+      },
+      problem: {
+        eyebrow: "The problem",
+        headline: "Implementation is abundant. Judgment is scarce.",
+        supporting:
+          "Organizations can buy software, hire consultants, and deploy AI faster than ever. The scarce resource is deciding what to implement in the first place \u2014 and a wrong call on a large operational decision can cost more than the project itself.",
+        cards: [
+          { stat: "Millions", label: "spent on implementations that begin without a validated decision" },
+          { stat: "Most", label: "operational projects are selected by opinion rather than evidence" },
+          { stat: "Few", label: "organizations measure outcomes after go-live \u2014 so mistakes repeat" },
+        ],
+        thesis: "Compass exists to make judgment as abundant as implementation.",
+      },
+      howItWorks: {
+        eyebrow: "How Compass works",
+        headline: "From business problem to measurable outcome.",
+        supporting:
+          "Compass turns a business problem into an evidence-backed decision, then into a measured implementation \u2014 and every completed implementation makes the next recommendation better.",
+        steps: [
+          { number: "01", name: "Business Problem", detail: "You describe the operational problem \u2014 manual invoice processing, slow onboarding, costly support." },
+          { number: "02", name: "Assessment", detail: "Compass investigates the workflow, context, and constraints behind the decision you\u2019re really making." },
+          { number: "03", name: "Executive Recommendation", detail: "A one-page brief: the recommended strategy, alternatives, expected impact, and risks." },
+          { number: "04", name: "Implementation", detail: "A phased plan with success criteria defined before you commit capital." },
+          { number: "05", name: "Measured Outcomes", detail: "Actual timeline, cost, and results are captured against the baseline." },
+          { number: "06", name: "Future Recommendations Improve", detail: "Every completed implementation joins the library and sharpens the next decision." },
+        ],
+      },
+      intelligence: {
+        eyebrow: "Why trust Compass",
+        headline: "Every recommendation is grounded in real implementations.",
+        supporting:
+          "The Implementation Intelligence Library captures thousands of enterprise implementations \u2014 what was done, in what context, and what actually happened. Compass recommends from evidence, not opinion.",
+        features: [
+          { name: "Thousands of implementations", detail: "A continuously growing library of real-world implementations with measured outcomes." },
+          { name: "Continuous learning", detail: "Every completed implementation improves every future recommendation." },
+          { name: "Evidence-backed", detail: "Recommendations cite comparable organizations \u2014 with outcomes, risks, and context." },
+          { name: "Executive-ready", detail: "One-page decision briefs written for the people who approve the budget." },
+        ],
+      },
+      brief: {
+        eyebrow: "The executive decision brief",
+        headline: "A one-page brief you can take to the board.",
+        supporting:
+          "Every assessment produces a decision brief: the recommendation, the evidence, the strategy, and the implementation plan \u2014 written for an executive making an investment decision.",
+      },
+      screenshots: {
+        eyebrow: "Inside Compass",
+        headline: "Built for decisions, not reports.",
+        supporting:
+          "From assessment to decision brief to measured outcome \u2014 one place for the operational decisions that move your organization.",
+      },
+      cta: {
+        eyebrow: "Start with a decision",
+        headline: "Before you implement anything, make sure it\u2019s the right thing.",
+        supporting:
+          "Run a Compass assessment on your highest-stakes operational problem. It takes minutes \u2014 and it could save you millions.",
+        ctaPrimary: "Start Assessment",
+        ctaPrimaryHref: "/assessment",
+        ctaSecondary: "Watch Demo",
+        ctaSecondaryHref: "/how-it-works",
+      },
     },
 
     category: {
