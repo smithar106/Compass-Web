@@ -19,8 +19,20 @@ export function Problem() {
                 </p>
                 <p className="mt-6 text-[15.5px] font-semibold leading-snug text-ink">{s.title}</p>
                 <p className="mt-3 text-[13.5px] leading-relaxed text-muted">{s.detail}</p>
-                <p className="mt-auto pt-8 text-[11px] font-bold uppercase tracking-eyebrow text-faint">
-                  Source: {s.source}
+                <p className="mt-auto border-t border-line pt-5 text-[12px] font-bold uppercase tracking-eyebrow text-muted">
+                  Source:{" "}
+                  {s.sourceUrl ? (
+                    <a
+                      href={s.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-accent-deep transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
+                    >
+                      {s.source}
+                    </a>
+                  ) : (
+                    s.source
+                  )}
                 </p>
               </div>
             </Reveal>

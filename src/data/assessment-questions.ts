@@ -26,6 +26,24 @@ export const questions: AssessmentQuestion[] = [
   { id: "frequency", section: "Workflow", category: "frequency", question: "How often does this workflow run?", type: "multi-choice", chip: true, options: [
     "Multiple times per hour", "Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Annually",
   ]},
+  {
+    id: "volume",
+    section: "Workflow",
+    category: "volume",
+    question: "How many items does your team process per month?",
+    type: "multi-choice",
+    chip: true,
+    options: ["Under 1,000", "1,000–5,000", "5,000–20,000", "20,000–100,000", "Over 100,000"],
+  },
+  {
+    id: "handling-time",
+    section: "Workflow",
+    category: "handling-time",
+    question: "How long does one item take to handle?",
+    type: "multi-choice",
+    chip: true,
+    options: ["Under 15 minutes", "15–30 minutes", "30–60 minutes", "1–2 hours", "Over 2 hours"],
+  },
   { id: "people", section: "Workflow", category: "people", question: "How many people are involved?", type: "multi-choice", chip: true, options: [
     "1", "2–3", "4–10", "11–25", "26–50", "51–100", "100+",
   ]},
@@ -45,6 +63,15 @@ export const questions: AssessmentQuestion[] = [
     "Almost no exceptions", "Some exceptions (<10%)", "Many exceptions (10–30%)",
     "Highly variable (30%+)", "The entire process is exceptions",
   ]},
+  {
+    id: "loaded-cost",
+    section: "Constraints",
+    category: "loaded-cost",
+    question: "What is the fully loaded cost of the team\u2019s time per hour?",
+    type: "multi-choice",
+    chip: true,
+    options: ["Under $25", "$25\u2013$50", "$50\u2013$100", "$100\u2013$200", "Over $200"],
+  },
   { id: "budget", section: "Constraints", category: "budget", question: "Do you have a budget for addressing this?", type: "multi-choice", chip: true, options: [
     "Under $10k", "$10k–25k", "$25k–50k", "$50k–100k", "$100k–250k", "$250k+",
   ]},

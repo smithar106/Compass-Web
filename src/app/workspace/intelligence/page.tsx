@@ -13,8 +13,8 @@ export default function WorkspaceIntelligencePage() {
         Implementation Intelligence
       </h1>
       <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-        How Compass grounds recommendations in a continuously growing library of real
-        implementation evidence.
+        How the evidence library grounds each of your decisions — and how every measured outcome
+        sharpens the next recommendation.
       </p>
       <div className="mt-8">
         <Workspace view="intelligence" />

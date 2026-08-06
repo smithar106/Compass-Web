@@ -29,13 +29,21 @@ export function ExecutiveHeader() {
             </p>
           </div>
         </div>
-        <Link
-          href="/assessment"
-          className="group inline-flex items-center gap-2 bg-ink px-5 py-2.5 text-[13.5px] font-semibold text-paper transition-colors hover:bg-ink2"
-        >
-          New Decision
-          <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/assessment"
+            className="text-[12.5px] font-semibold text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
+          >
+            Real assessment
+          </Link>
+          <Link
+            href="/demo/assessment"
+            className="group inline-flex items-center gap-2 bg-ink px-5 py-2.5 text-[13.5px] font-semibold text-paper transition-colors hover:bg-ink2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
+          >
+            New Decision
+            <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
       </div>
     </header>
   );

@@ -10,6 +10,14 @@ interface Analysis {
   normalization?: any;
   decision?: any;
   status?: string;
+  created_at?: string | null;
+}
+
+function formatDecisionDate(iso?: string | null): string {
+  if (!iso) return "recently";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "recently";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 export default function DecisionPage() {
@@ -99,7 +107,11 @@ export default function DecisionPage() {
         onSave={saveDecision}
       />
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+      <p className="mt-6 text-[11.5px] text-faint">
+        Prepared by Compass &middot; {formatDecisionDate(analysis.created_at)}
+      </p>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
         <Link href="/workspace" className="text-[13px] font-semibold text-muted transition-colors hover:text-ink">
           Return to Workspace
         </Link>

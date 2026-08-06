@@ -27,6 +27,7 @@ export function DecisionPackageView({
   summary,
   status,
   recommendationId,
+  onImplement,
 }: {
   recs: DecisionRec[];
   meta: any;
@@ -153,11 +154,13 @@ export function DecisionPackageView({
             <button type="button" data-testid="download-pdf" onClick={() => setPrinting(true)}
               className="inline-flex items-center gap-2 rounded-lg bg-ink px-6 py-3 text-[14px] font-semibold text-paper transition-colors hover:bg-ink2"
             >Download Brief as PDF</button>
-            <button type="button" disabled aria-disabled="true"
-              className="inline-flex cursor-not-allowed flex-col items-start rounded-lg bg-[#d3ccc0] px-6 py-3 text-left"
+            <button
+              type="button"
+              data-testid="view-implementation-plan"
+              onClick={() => onImplement?.()}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-ink/25 bg-white px-6 py-3 text-[14px] font-semibold text-ink transition-colors hover:border-ink"
             >
-              <span className="text-[14px] font-semibold text-[#6c685f]">Select Your Implementation Partner</span>
-              <span className="text-[10px] font-bold uppercase tracking-wide text-[#6c685f]">Coming Soon</span>
+              View Implementation Plan
             </button>
           </div>
         </div>

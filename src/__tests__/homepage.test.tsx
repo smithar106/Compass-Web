@@ -43,12 +43,16 @@ describe("Homepage content", () => {
     expect(h.supporting2).toContain("make the right decision before implementation begins");
   });
 
-  it("should establish urgency with verified industry statistics", () => {
+  it("should establish urgency with verified, citable industry statistics", () => {
     const p = site.marketing.home.problem;
     expect(p.stats).toHaveLength(3);
-    expect(p.stats.map((s) => s.value)).toEqual(["50%", "~2 in 3", "39%"]);
+    expect(p.stats.map((s) => s.value)).toEqual(["30%", "39%", "6%"]);
     expect(p.stats.map((s) => s.source)).toEqual(["Gartner", "McKinsey", "McKinsey"]);
     expect(p.stats[0].detail).toContain("Poor data quality");
+    // Every figure carries a source and a link to the underlying report.
+    for (const s of p.stats) {
+      expect(s.sourceUrl).toMatch(/^https:\/\//);
+    }
     expect(p.closing).toContain("deciding what should be built");
   });
 
@@ -162,10 +166,16 @@ describe("Homepage CTA routing", () => {
       </DemoLayout>
     );
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Executive overview");
+    // The demo's New Decision stays sandboxed; the real assessment is explicit.
     const links = screen.getAllByRole("link", { name: /new decision/i });
     expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) {
-      expect(link.getAttribute("href")).toBe("/assessment");
+      expect(link.getAttribute("href")).toBe("/demo/assessment");
+    }
+    const real = screen.getAllByRole("link", { name: /real assessment/i });
+    expect(real.length).toBeGreaterThanOrEqual(1);
+    for (const r of real) {
+      expect(r.getAttribute("href")).toBe("/assessment");
     }
   });
 });

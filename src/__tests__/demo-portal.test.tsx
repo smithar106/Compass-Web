@@ -36,6 +36,7 @@ function allLinks(): string[] {
 
 const DEMO_ROUTES = new Set([
   "/demo",
+  "/demo/assessment",
   "/demo/decisions",
   "/demo/intelligence",
   "/demo/outcomes",
@@ -128,12 +129,19 @@ describe("Demo portal", () => {
     expect(back.getAttribute("href")).toBe("/demo/decisions");
   });
 
-  it("routes New Decision to /assessment", () => {
+  it("keeps the demo sandboxed and routes to the real assessment explicitly", () => {
     renderPortal(<DemoPage />);
+    // New Decision stays inside the demo (sandboxed assessment).
     const buttons = screen.getAllByRole("link", { name: /new decision/i });
     expect(buttons.length).toBeGreaterThanOrEqual(1);
     for (const b of buttons) {
-      expect(b.getAttribute("href")).toBe("/assessment");
+      expect(b.getAttribute("href")).toBe("/demo/assessment");
+    }
+    // The production path is labeled explicitly.
+    const real = screen.getAllByRole("link", { name: /real assessment/i });
+    expect(real.length).toBeGreaterThanOrEqual(1);
+    for (const r of real) {
+      expect(r.getAttribute("href")).toBe("/assessment");
     }
   });
 

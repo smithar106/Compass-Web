@@ -38,25 +38,29 @@ export const marketing = {
         headline: "Implementation begins before the decision.",
         stats: [
           {
-            value: "50%",
-            title: "of generative AI projects are abandoned after proof of concept.",
+            value: "30%",
+            title: "of generative AI projects will be abandoned after proof of concept.",
             detail:
               "Poor data quality, unclear business value, escalating costs, and governance issues remain the biggest barriers.",
             source: "Gartner",
-          },
-          {
-            value: "~2 in 3",
-            title: "organizations have not yet scaled AI across the enterprise.",
-            detail:
-              "Most companies remain stuck in pilots rather than achieving enterprise-wide transformation.",
-            source: "McKinsey",
+            sourceUrl:
+              "https://www.gartner.com/en/newsroom/press-releases/2024-07-29-gartner-predicts-30-percent-of-generative-ai-projects-will-be-abandoned-after-proof-of-concept-by-end-of-2025",
           },
           {
             value: "39%",
-            title: "of organizations report enterprise-level financial impact from AI.",
+            title: "of organizations report enterprise-level EBIT impact from AI.",
             detail:
-              "Many organizations achieve isolated productivity gains but fail to create measurable business value.",
+              "Most companies capture value in isolated pockets but never translate it to the enterprise P&L.",
             source: "McKinsey",
+            sourceUrl: "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai",
+          },
+          {
+            value: "6%",
+            title: "of organizations qualify as AI high performers.",
+            detail:
+              "Just 6% achieve 5% or more EBIT impact from AI \u2014 enterprise scale remains the exception, not the norm.",
+            source: "McKinsey",
+            sourceUrl: "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai",
           },
         ],
         closing:

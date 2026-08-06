@@ -22,6 +22,9 @@ const ANSWERS = [
   "Finance",
   "Our finance team manually reconciles invoices",
   "26–50", // scenario "25–50 employees"
+  "5,000–20,000", // monthly volume
+  "30–60 minutes", // handling time
+  "$50–$100", // loaded labor cost
   "Cost reduction",
   "1–3 months", // scenario "90 days"
 ];
@@ -105,7 +108,7 @@ async function runJourney() {
     } else {
       await page.click('button:has-text("Continue")');
       await page.waitForSelector(
-        `[data-testid="assessment-question-label"]:has-text("Question ${i + 2} of 5")`,
+        `[data-testid="assessment-question-label"]:has-text("Question ${i + 2} of 8")`,
         { timeout: 10000 }
       );
     }

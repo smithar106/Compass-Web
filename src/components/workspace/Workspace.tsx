@@ -9,10 +9,12 @@ import {
   WORKSPACE_STATUSES,
   WORKSPACE_STATUS_LABELS,
   statusDotClass,
+  statusWithWorkflow,
   formatDate,
   relativeTime,
   type WorkspaceDecisionRow,
   type WorkspaceStatus,
+  type WorkflowState,
 } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
 import { ArrowIcon } from "@/components/home/primitives";
@@ -39,6 +41,12 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
   const [functionFilter, setFunctionFilter] = useState("all");
   const [search, setSearch] = useState("");
 
+  const [workflow, setWorkflow] = useState<Record<string, WorkflowState>>({});
+  const [acting, setActing] = useState<Record<string, "approve" | "outcome" | "">>({});
+  const [outcomeOpen, setOutcomeOpen] = useState<Record<string, boolean>>({});
+  const [outcomeDraft, setOutcomeDraft] = useState<Record<string, string>>({});
+  const [actionError, setActionError] = useState<string | null>(null);
+
   useEffect(() => {
     let alive = true;
 
@@ -59,6 +67,22 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
           result.status === "fulfilled" ? rowFromDecision(entries[i].id, result.value) : fallbackRow(entries[i])
         );
         next.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+
+        // Lifecycle state (approved / completed) comes from the engine.
+        const wfSettled = await Promise.allSettled(
+          entries.slice(0, 25).map((entry) =>
+            fetch(`/api/decisions/${encodeURIComponent(entry.id)}/workflow`).then((res) =>
+              res.ok ? res.json() : Promise.resolve(null)
+            )
+          )
+        );
+        if (!alive) return;
+        const wfMap: Record<string, WorkflowState> = {};
+        wfSettled.forEach((result, i) => {
+          if (result.status === "fulfilled" && result.value) wfMap[entries[i].id] = result.value;
+        });
+        setWorkflow(wfMap);
+
         setRows(next);
         setLoadError(null);
         setLoading(false);
@@ -83,29 +107,71 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
     };
   }, []);
 
+  /** Rows with engine lifecycle state folded into the status. */
+  const liveRows = useMemo(
+    () => rows.map((r) => ({ ...r, status: statusWithWorkflow(r.status, workflow[r.id]) })),
+    [rows, workflow]
+  );
+
   const functions = useMemo(
-    () => Array.from(new Set(rows.map((r) => r.businessFunction).filter((f) => f !== "—"))).sort(),
-    [rows]
+    () => Array.from(new Set(liveRows.map((r) => r.businessFunction).filter((f) => f !== "—"))).sort(),
+    [liveRows]
   );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return rows.filter((r) => {
+    return liveRows.filter((r) => {
       if (statusFilter !== "all" && r.status !== statusFilter) return false;
       if (functionFilter !== "all" && r.businessFunction !== functionFilter) return false;
       if (q && ![r.title, r.recommendation, r.businessFunction].join(" ").toLowerCase().includes(q))
         return false;
       return true;
     });
-  }, [rows, statusFilter, functionFilter, search]);
+  }, [liveRows, statusFilter, functionFilter, search]);
 
   const counts = useMemo(() => {
     const c = Object.fromEntries(WORKSPACE_STATUSES.map((s) => [s, 0])) as Record<WorkspaceStatus, number>;
-    for (const r of rows) c[r.status] += 1;
+    for (const r of liveRows) c[r.status] += 1;
     return c;
-  }, [rows]);
+  }, [liveRows]);
 
   const latestId = useMemo(() => rows[0]?.id ?? null, [rows]);
+
+  const approve = useCallback(async (id: string) => {
+    setActionError(null);
+    setActing((a) => ({ ...a, [id]: "approve" }));
+    try {
+      const res = await fetch(`/api/decisions/${encodeURIComponent(id)}/approve`, { method: "POST" });
+      if (!res.ok) throw new Error("Approval failed");
+      setWorkflow((w) => ({ ...w, [id]: { selected: true, outcome: w[id]?.outcome ?? false } }));
+    } catch {
+      setActionError("Could not approve this decision. Please try again.");
+    } finally {
+      setActing((a) => ({ ...a, [id]: "" }));
+    }
+  }, []);
+
+  const reportOutcome = useCallback(async (id: string) => {
+    const measuredResult = (outcomeDraft[id] ?? "").trim();
+    if (!measuredResult) return;
+    setActionError(null);
+    setActing((a) => ({ ...a, [id]: "outcome" }));
+    try {
+      const res = await fetch(`/api/decisions/${encodeURIComponent(id)}/outcome`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ measured_result: measuredResult }),
+      });
+      if (!res.ok) throw new Error("Outcome failed");
+      setWorkflow((w) => ({ ...w, [id]: { selected: w[id]?.selected ?? false, outcome: true } }));
+      setOutcomeOpen((o) => ({ ...o, [id]: false }));
+      setOutcomeDraft((d) => ({ ...d, [id]: "" }));
+    } catch {
+      setActionError("Could not record this outcome. Please try again.");
+    } finally {
+      setActing((a) => ({ ...a, [id]: "" }));
+    }
+  }, [outcomeDraft]);
 
   const clearFilters = useCallback(() => {
     setStatusFilter("all");
@@ -209,6 +275,11 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
                 {loadError}
               </p>
             )}
+            {actionError && (
+              <p role="alert" className="text-[12.5px] text-[#7a1f1a]">
+                {actionError}
+              </p>
+            )}
 
             <section aria-label="Filters" className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -291,6 +362,7 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
                         <th className="px-5 py-3 font-bold">Date</th>
                         <th className="px-5 py-3 font-bold">Expected impact</th>
                         <th className="px-5 py-3 font-bold">Next action</th>
+                        <th className="px-5 py-3 font-bold">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -316,6 +388,52 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
                           <td className="whitespace-nowrap px-5 py-4 text-muted">{formatDate(r.createdAt)}</td>
                           <td className="px-5 py-4 text-ink">{r.expectedImpact}</td>
                           <td className="px-5 py-4 text-muted">{r.nextAction}</td>
+                          <td className="px-5 py-4">
+                            {r.status === "completed" ? (
+                              <span className="text-[11.5px] font-bold text-ok">✓ Measured</span>
+                            ) : r.status === "approved" ? (
+                              outcomeOpen[r.id] ? (
+                                <span className="flex items-center gap-2">
+                                  <input
+                                    aria-label="Measured result"
+                                    value={outcomeDraft[r.id] ?? ""}
+                                    onChange={(e) =>
+                                      setOutcomeDraft((d) => ({ ...d, [r.id]: e.target.value }))
+                                    }
+                                    placeholder="e.g. Cost down 42% in 90 days"
+                                    className="w-44 border border-line bg-surface px-2 py-1.5 text-[12px] text-ink placeholder:text-faint focus:border-ink focus:outline-none"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => reportOutcome(r.id)}
+                                    disabled={!outcomeDraft[r.id]?.trim() || acting[r.id] === "outcome"}
+                                    className="border border-ink bg-ink px-2.5 py-1.5 text-[11.5px] font-semibold text-paper transition-colors hover:bg-ink2 disabled:cursor-not-allowed disabled:opacity-40"
+                                  >
+                                    {acting[r.id] === "outcome" ? "Saving…" : "Save"}
+                                  </button>
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setOutcomeOpen((o) => ({ ...o, [r.id]: true }))}
+                                  className="border border-line bg-surface px-2.5 py-1.5 text-[11.5px] font-semibold text-ink transition-colors hover:border-ink/40"
+                                >
+                                  Report outcome
+                                </button>
+                              )
+                            ) : r.status === "under_review" ? (
+                              <button
+                                type="button"
+                                onClick={() => approve(r.id)}
+                                disabled={acting[r.id] === "approve"}
+                                className="border border-ink bg-ink px-2.5 py-1.5 text-[11.5px] font-semibold text-paper transition-colors hover:bg-ink2 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                {acting[r.id] === "approve" ? "Approving…" : "Approve"}
+                              </button>
+                            ) : (
+                              <span className="text-[11.5px] text-faint">—</span>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -330,7 +448,7 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
         <section aria-label="Recent activity">
           <h2 className="mb-4 text-[17px] font-semibold tracking-tight text-ink">Recent activity</h2>
           <ol className="border border-line bg-surface">
-            {rows.slice(0, 6).map((r) => (
+            {liveRows.slice(0, 6).map((r) => (
               <li
                 key={r.id}
                 className="flex items-start gap-3 border-b border-line px-5 py-3.5 last:border-b-0"
@@ -388,29 +506,40 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
             </div>
           )}
 
-          {view === "intelligence" && (
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {[
-                {
-                  title: "Real implementation evidence",
-                  body: "Recommendations are built on documented implementations with measured outcomes — not opinion.",
-                },
-                {
-                  title: "Matched to your context",
-                  body: "Evidence is compared against your industry, process, and operating constraints.",
-                },
-                {
-                  title: "Keeps getting better",
-                  body: "Every completed decision and measured outcome sharpens the next recommendation.",
-                },
-              ].map((f) => (
-                <div key={f.title} className="border border-line bg-surface px-5 py-5">
-                  <p className="text-[14px] font-semibold tracking-tight text-ink">{f.title}</p>
-                  <p className="mt-2 text-[12.5px] leading-relaxed text-muted">{f.body}</p>
-                </div>
-              ))}
-            </div>
-          )}
+        </section>
+      )}
+
+      {view === "intelligence" && (
+        <section aria-label="Implementation Intelligence">
+          <h2 className="mb-4 text-[17px] font-semibold tracking-tight text-ink">
+            How evidence grounds your decisions
+          </h2>
+          <p className="mb-6 max-w-2xl text-[13.5px] leading-relaxed text-muted">
+            Every recommendation in your workspace is built on documented enterprise implementations
+            with measured outcomes — then matched to your industry, process, and operating
+            constraints. When the evidence is thin, Compass says so.
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[
+              {
+                title: "Real implementation evidence",
+                body: "Recommendations are built on documented implementations with measured outcomes — not opinion.",
+              },
+              {
+                title: "Matched to your context",
+                body: "Evidence is compared against your industry, process, and operating constraints.",
+              },
+              {
+                title: "Keeps getting better",
+                body: "Every completed decision and measured outcome sharpens the next recommendation.",
+              },
+            ].map((f) => (
+              <div key={f.title} className="border border-line bg-surface px-5 py-5">
+                <p className="text-[14px] font-semibold tracking-tight text-ink">{f.title}</p>
+                <p className="mt-2 text-[12.5px] leading-relaxed text-muted">{f.body}</p>
+              </div>
+            ))}
+          </div>
         </section>
       )}
     </div>

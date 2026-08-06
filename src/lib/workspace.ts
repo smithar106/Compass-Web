@@ -88,6 +88,19 @@ export function workspaceStatusFromAnalysis(analysis: unknown): WorkspaceStatus 
   return "under_review";
 }
 
+export interface WorkflowState {
+  selected: boolean;
+  outcome: boolean;
+}
+
+/** Combine engine lifecycle state (selection/outcome) with the base status. */
+export function statusWithWorkflow(base: WorkspaceStatus, wf?: WorkflowState | null): WorkspaceStatus {
+  if (!wf) return base;
+  if (wf.outcome) return "completed";
+  if (wf.selected) return "approved";
+  return base;
+}
+
 export interface WorkspaceDecisionRow {
   id: string;
   title: string;

@@ -26,6 +26,12 @@ export interface AssessmentProfile {
   process_stability: string;
   previous_attempts: string;
   desired_outcome: string;
+  /** Annualized workflow volume (items/year) — enables dollar impact estimates. */
+  annual_workflow_volume: string;
+  /** Average handling time per item (hours) — enables dollar impact estimates. */
+  current_handling_time: string;
+  /** Fully loaded cost of the team's time ($/hour) — enables dollar impact estimates. */
+  loaded_labor_cost: string;
 }
 
 const DEPARTMENT_WORKFLOWS: Record<string, string> = {
@@ -60,6 +66,53 @@ function toIndustry(businessFunction: string): string {
   if (businessFunction === "finance") return "financial_services";
   if (businessFunction === "hr") return "human_resources";
   return "professional_services";
+}
+
+/** Parse a range option label to its midpoint value (pure, unit-tested). */
+function parseRangeMidpoint(
+  label: unknown,
+  lowerBound: (n: number) => number,
+  upperBound: (n: number) => number
+): string {
+  const s = String(label ?? "").trim();
+  if (!s) return "";
+  const nums = s.replace(/,/g, "").match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  if (s.startsWith("Under")) return String(lowerBound(nums[0] ?? 0));
+  if (s.startsWith("Over")) return String(upperBound(nums[0] ?? 0));
+  if (nums.length >= 2) return String((nums[0] + nums[1]) / 2);
+  return "";
+}
+
+/** Monthly-volume option -> annualized items/year. */
+export function annualVolumeFromLabel(label: unknown): string {
+  const s = String(label ?? "").trim();
+  if (!s) return "";
+  const nums = s.replace(/,/g, "").match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  if (s.startsWith("Under")) return String(Math.round((nums[0] ?? 1000) / 2) * 12);
+  if (s.startsWith("Over")) return String(Math.round((nums[0] ?? 100000) * 1.5) * 12);
+  if (nums.length >= 2) return String(Math.round((nums[0] + nums[1]) / 2) * 12);
+  return "";
+}
+
+/** Handling-time option -> hours per item. */
+export function handlingHoursFromLabel(label: unknown): string {
+  const s = String(label ?? "").trim();
+  const isHours = s.includes("hour");
+  const nums = s.replace(/,/g, "").match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  const toHours = (n: number) => (isHours ? n : n / 60);
+  if (s.startsWith("Under")) return String(toHours(nums[0] ?? (isHours ? 1 : 15)) / 2);
+  if (s.startsWith("Over")) return String(toHours(nums[0] ?? (isHours ? 2 : 60)) * 1.5);
+  if (nums.length >= 2) return String(toHours((nums[0] + nums[1]) / 2));
+  return "";
+}
+
+/** Loaded-cost option -> $/hour midpoint. */
+export function loadedCostFromLabel(label: unknown): string {
+  return parseRangeMidpoint(
+    label,
+    (n) => n / 2, // Under $X -> X/2
+    (n) => n * 1.25 // Over $X -> 1.25X
+  );
 }
 
 function toOutcomeKey(raw: unknown): string {
@@ -106,5 +159,8 @@ export function buildProfile(answers: AssessmentAnswerInput[]): AssessmentProfil
     process_stability: (m.get("stability") as string) || "",
     previous_attempts: (m.get("prior-attempts") as string) || "",
     desired_outcome: toOutcomeKey(m.get("desired-outcome")),
+    annual_workflow_volume: annualVolumeFromLabel(m.get("volume")),
+    current_handling_time: handlingHoursFromLabel(m.get("handling-time")),
+    loaded_labor_cost: loadedCostFromLabel(m.get("loaded-cost")),
   };
 }

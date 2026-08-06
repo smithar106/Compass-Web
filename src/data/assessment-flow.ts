@@ -11,6 +11,9 @@ export const STANDALONE_QUESTION_IDS = [
   "dept",
   "situation",
   "people",
+  "volume",
+  "handling-time",
+  "loaded-cost",
   "desired-outcome",
   "timeline",
 ] as const;

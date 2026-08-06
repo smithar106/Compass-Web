@@ -11,8 +11,8 @@ export default function WorkspaceCoveragePage() {
     <div>
       <h1 className="text-[22px] font-semibold tracking-tight text-ink sm:text-[24px]">Coverage</h1>
       <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-        Executive-level view of where Compass can ground a recommendation in comparable
-        implementations today.
+        The global evidence library — how many real implementations, organizations, and industries
+        Compass can draw on today.
       </p>
       <div className="mt-8">
         <Workspace view="coverage" />

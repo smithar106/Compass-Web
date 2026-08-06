@@ -12,10 +12,19 @@ const PROVENANCE = [
   { name: "Vendor implementation record", note: "Context and limitations declared; weighted accordingly and never treated as independent.", tone: "low" },
 ];
 
-const TIERS = [
-  { name: "Gold", note: "Independently validated or corroborated outcomes", className: "bg-accent text-accent-ink" },
-  { name: "Silver", note: "Strong documentation with reasonable limitations", className: "bg-line text-ink" },
-  { name: "Bronze", note: "Directional evidence, clearly labeled as such", className: "bg-line text-muted" },
+const VERIFICATION = [
+  {
+    title: "Weighted by independence",
+    note: "Government audits and academic evaluations carry more weight than vendor records — and vendor claims are never treated as independent.",
+  },
+  {
+    title: "Attributable to a source",
+    note: "Every material claim traces to a document you can read: an audit, an evaluation, a disclosure, or a first-party record.",
+  },
+  {
+    title: "Gaps are disclosed",
+    note: "When the evidence for a decision is thin or missing, Compass says so instead of forcing a confident answer.",
+  },
 ];
 
 const GRAPH = [
@@ -181,7 +190,7 @@ export default function EvidencePage() {
         </div>
       </section>
 
-      {/* Quality tiers + citation */}
+      {/* Evidence verification + cited claim */}
       <section className="border-b border-line bg-paper">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
@@ -191,15 +200,19 @@ export default function EvidencePage() {
                   Evidence quality
                 </p>
                 <h2 className="mt-5 text-section font-semibold tracking-tight text-ink">
-                  Every claim is tiered and cited.
+                  Every claim carries its source. Every gap is disclosed.
                 </h2>
-                <div className="mt-7 space-y-3">
-                  {TIERS.map((t) => (
-                    <div key={t.name} className="flex items-start gap-3 border-b border-line pb-3 last:border-b-0">
-                      <span className={cn("shrink-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide", t.className)}>
-                        {t.name}
-                      </span>
-                      <p className="text-[13px] leading-snug text-muted">{t.note}</p>
+                <div className="mt-7 space-y-5">
+                  {VERIFICATION.map((v) => (
+                    <div key={v.title} className="flex items-start gap-3.5 border-b border-line pb-4 last:border-b-0">
+                      <span
+                        aria-hidden="true"
+                        className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-deep"
+                      />
+                      <div>
+                        <p className="text-[14px] font-semibold tracking-tight text-ink">{v.title}</p>
+                        <p className="mt-1 text-[13px] leading-snug text-muted">{v.note}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -208,8 +221,11 @@ export default function EvidencePage() {
 
             <Reveal delay={120}>
               <div className="border border-line bg-surface">
-                <div className="border-b border-line bg-paper/60 px-4 py-2.5">
-                  <span className="text-[11px] font-semibold tracking-wide text-ink">A cited claim</span>
+                <div className="flex items-center justify-between border-b border-line bg-paper/60 px-4 py-2.5">
+                  <span className="text-[11px] font-semibold tracking-wide text-ink">How a claim is presented</span>
+                  <span className="border border-line bg-surface px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-faint">
+                    Illustrative
+                  </span>
                 </div>
                 <div className="p-5">
                   <p className="text-[13.5px] leading-relaxed text-ink">
@@ -217,13 +233,16 @@ export default function EvidencePage() {
                     resolution time by 25&ndash;40% within the first quarter.&rdquo;
                   </p>
                   <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <span className="bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-ink">Gold</span>
-                    <span className="border border-line bg-paper px-2 py-0.5 text-[10px] font-medium text-muted">Government audit</span>
-                    <span className="border border-line bg-paper px-2 py-0.5 text-[10px] font-medium text-muted">38 comparable implementations</span>
+                    <span className="border border-line bg-paper px-2 py-0.5 text-[10px] font-medium text-muted">
+                      Public-company disclosure
+                    </span>
+                    <span className="border border-line bg-paper px-2 py-0.5 text-[10px] font-medium text-muted">
+                      38 comparable implementations
+                    </span>
                   </div>
                   <div className="mt-4 border-t border-line pt-3">
                     <p className="font-mono text-[10.5px] leading-relaxed text-faint">
-                      Source: <span className="text-muted">Demo audit report, FY2025, p. 14</span> · Excerpt shown inline
+                      Source: [document type], [year], p. [page] &middot; Excerpt shown inline
                     </p>
                   </div>
                 </div>

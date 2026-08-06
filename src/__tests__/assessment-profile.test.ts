@@ -40,4 +40,33 @@ describe("buildProfile", () => {
     expect(p.business_risk).toContain("High");
     expect(p.people_involved).toBe("4–10");
   });
+
+  it("should derive dollar-impact inputs from volume, handling time, and cost", () => {
+    const p = buildProfile([
+      { questionId: "volume", value: "5,000–20,000" },
+      { questionId: "handling-time", value: "30–60 minutes" },
+      { questionId: "loaded-cost", value: "$50–$100" },
+    ]);
+    expect(p.annual_workflow_volume).toBe("150000"); // 12,500/mo midpoint × 12
+    expect(p.current_handling_time).toBe("0.75"); // 45 min midpoint in hours
+    expect(p.loaded_labor_cost).toBe("75"); // $75/hr midpoint
+  });
+
+  it("should leave dollar-impact inputs empty when not collected", () => {
+    const p = buildProfile([{ questionId: "dept", value: "Finance" }]);
+    expect(p.annual_workflow_volume).toBe("");
+    expect(p.current_handling_time).toBe("");
+    expect(p.loaded_labor_cost).toBe("");
+  });
+
+  it("should parse boundary volume and cost options", () => {
+    const p = buildProfile([
+      { questionId: "volume", value: "Under 1,000" },
+      { questionId: "handling-time", value: "1–2 hours" },
+      { questionId: "loaded-cost", value: "Over $200" },
+    ]);
+    expect(p.annual_workflow_volume).toBe("6000"); // 500/mo × 12
+    expect(p.current_handling_time).toBe("1.5"); // hours handled directly
+    expect(p.loaded_labor_cost).toBe("250"); // 1.25 × $200
+  });
 });

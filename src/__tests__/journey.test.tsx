@@ -108,6 +108,9 @@ const ANSWERS = [
   "Finance",
   "Our finance team manually reconciles invoices",
   "26–50",
+  "5,000–20,000",
+  "30–60 minutes",
+  "$50–$100",
   "Cost reduction",
   "1–3 months",
 ];

@@ -62,7 +62,14 @@ function mockDecisions(ids: string[]) {
     if (url.includes("/api/coverage")) {
       return Promise.resolve({ ok: true, json: async () => COVERAGE_OK });
     }
-    const id = url.split("/api/decisions/")[1]?.split("?")[0];
+          if (url.includes("/workflow")) {
+        const wfId = url.split("/api/decisions/")[1]?.split("/")[0];
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ decision_id: wfId, selected: false, outcome: false }),
+        });
+      }
+      const id = url.split("/api/decisions/")[1]?.split("?")[0];
     return Promise.resolve({ ok: true, json: async () => decisionPayload(id) });
   });
 }
@@ -126,6 +133,13 @@ describe("Workspace", () => {
       if (url.includes("/api/coverage")) {
         return Promise.resolve({ ok: true, json: async () => COVERAGE_OK });
       }
+            if (url.includes("/workflow")) {
+        const wfId = url.split("/api/decisions/")[1]?.split("/")[0];
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ decision_id: wfId, selected: false, outcome: false }),
+        });
+      }
       const id = url.split("/api/decisions/")[1]?.split("?")[0];
       const payload =
         id === "rec-draft"
@@ -155,6 +169,13 @@ describe("Workspace", () => {
       const url = String(input);
       if (url.includes("/api/coverage")) {
         return Promise.resolve({ ok: true, json: async () => COVERAGE_OK });
+      }
+            if (url.includes("/workflow")) {
+        const wfId = url.split("/api/decisions/")[1]?.split("/")[0];
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ decision_id: wfId, selected: false, outcome: false }),
+        });
       }
       const id = url.split("/api/decisions/")[1]?.split("?")[0];
       return Promise.resolve({
@@ -196,6 +217,13 @@ describe("Workspace", () => {
       const url = String(input);
       if (url.includes("/api/coverage")) {
         return Promise.resolve({ ok: true, json: async () => COVERAGE_OK });
+      }
+            if (url.includes("/workflow")) {
+        const wfId = url.split("/api/decisions/")[1]?.split("/")[0];
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ decision_id: wfId, selected: false, outcome: false }),
+        });
       }
       const id = url.split("/api/decisions/")[1]?.split("?")[0];
       return Promise.resolve({
@@ -253,7 +281,82 @@ describe("Workspace", () => {
 
     const calls = fetchMock.mock.calls.map((c) => String(c[0]));
     expect(calls.every((u) => !/POST|PUT|PATCH|DELETE/.test(u))).toBe(true);
-    expect(calls.filter((u) => u.includes("/api/decisions/")).length).toBe(1);
+    // One decision fetch + one lifecycle check per decision, plus coverage.
+    expect(calls.filter((u) => u.includes("/api/decisions/") && !u.includes("/workflow")).length).toBe(1);
+    expect(calls.filter((u) => u.includes("/workflow")).length).toBe(1);
     expect(calls.filter((u) => u.includes("/api/coverage")).length).toBe(1);
+  });
+});
+
+describe("Workspace lifecycle actions", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    fetchMock.mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
+  it("approves a decision via the engine and moves it to Approved", async () => {
+    seedRegistry([{ id: "rec-a", createdAt: "2026-08-01T12:00:00Z" }]);
+    fetchMock.mockImplementation((input: unknown) => {
+      const url = String(input);
+      if (url.includes("/api/coverage")) {
+        return Promise.resolve({ ok: true, json: async () => COVERAGE_OK });
+      }
+      if (url.includes("/approve")) {
+        return Promise.resolve({ ok: true, json: async () => ({ ok: true }) });
+      }
+      if (url.includes("/workflow")) {
+        return Promise.resolve({ ok: true, json: async () => ({ selected: false, outcome: false }) });
+      }
+      return Promise.resolve({ ok: true, json: async () => decisionPayload("rec-a") });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Workspace />);
+    await screen.findAllByText("Problem rec-a");
+
+    fireEvent.click(screen.getByRole("button", { name: "Approve" }));
+
+    const list = screen.getByRole("region", { name: "Decisions" });
+    expect(await within(list).findAllByText("Approved")).toBeTruthy();
+    expect(fetchMock.mock.calls.some((c) => String(c[0]).includes("/approve"))).toBe(true);
+  });
+
+  it("records a measured outcome and moves the decision to Completed", async () => {
+    seedRegistry([{ id: "rec-a", createdAt: "2026-08-01T12:00:00Z" }]);
+    fetchMock.mockImplementation((input: unknown) => {
+      const url = String(input);
+      if (url.includes("/api/coverage")) {
+        return Promise.resolve({ ok: true, json: async () => COVERAGE_OK });
+      }
+      if (url.includes("/outcome")) {
+        return Promise.resolve({ ok: true, json: async () => ({ ok: true }) });
+      }
+      if (url.includes("/workflow")) {
+        // Pre-approved so the Report outcome action is available.
+        return Promise.resolve({ ok: true, json: async () => ({ selected: true, outcome: false }) });
+      }
+      return Promise.resolve({ ok: true, json: async () => decisionPayload("rec-a") });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Workspace />);
+    await screen.findAllByText("Problem rec-a");
+
+    fireEvent.click(screen.getByRole("button", { name: /report outcome/i }));
+    fireEvent.change(screen.getByRole("textbox", { name: /measured result/i }), {
+      target: { value: "Cost down 42% in 90 days" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /save/i }));
+
+    const list = screen.getByRole("region", { name: "Decisions" });
+    expect(await within(list).findByText("✓ Measured")).toBeTruthy();
+    const outcomeCall = fetchMock.mock.calls.find((c) => String(c[0]).includes("/outcome"));
+    expect(outcomeCall).toBeTruthy();
+    expect(String(outcomeCall![1]?.body)).toContain("Cost down 42% in 90 days");
   });
 });
