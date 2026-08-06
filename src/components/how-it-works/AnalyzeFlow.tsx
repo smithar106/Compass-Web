@@ -22,7 +22,7 @@ const FLOW = [
     detail: "Eight questions decide whether the recommendation can be defended. When evidence is insufficient, Compass defers judgment instead of inventing an answer.",
   },
   {
-    name: "Produce the Executive Decision Brief",
+    name: "Produce the Executive Recommendation",
     detail: "The winning intervention, why it won, why each alternative lost, the evidence behind it, the risks, and the measurement plan — in one defensible brief.",
   },
 ];

@@ -4,9 +4,9 @@ import { fetchEvidenceMeta, formatCount } from "@/lib/evidence-meta";
 const PIPELINE = [
   { name: "Source document", note: "Audit, evaluation, disclosure, or operating record" },
   { name: "Evidence claims", note: "Extracted, attributable statements" },
-  { name: "Implementation record", note: "Structured: intervention, context, outcomes" },
-  { name: "Evidence role", note: "Problem, intervention, implementation, outcome, or risk" },
-  { name: "Recommendation", note: "Ranked and cited in the Decision Brief" },
+  { name: "Implementation evidence", note: "Intervention, context, outcomes, and risks" },
+  { name: "How it applies", note: "Which part of the decision the evidence informs" },
+  { name: "Recommendation", note: "Ranked and cited in the Executive Recommendation" },
 ];
 
 const RECORD_FIELDS = [
@@ -71,7 +71,7 @@ export async function EvidenceAdvantage() {
                   </>
                 ) : (
                   <p className="text-[13px] leading-relaxed text-muted">
-                    Compass is built on a growing library of published
+                    Compass is built on a library of published
                     implementation records.
                   </p>
                 )}

@@ -17,7 +17,7 @@ export function CompoundingLoop() {
       id="loop"
       number="04"
       eyebrow="The compounding loop"
-      headline="Every implementation improves the next decision."
+      headline="Each outcome feeds the next decision."
       subtitle="The decision process and the evidence system are one loop. Each measured implementation becomes evidence for the next decision — so judgment compounds inside the organization."
     >
       <Reveal>

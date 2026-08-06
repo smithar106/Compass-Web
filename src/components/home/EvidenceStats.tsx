@@ -26,7 +26,7 @@ async function fetchMeta(): Promise<EvidenceMeta | null> {
   }
 }
 
-const FALLBACK_PHRASE = "Compass is built on a growing library of verified implementation evidence.";
+const FALLBACK_PHRASE = "Compass is built on verified implementation evidence.";
 
 export async function EvidenceStats({
   variant = "full",
@@ -93,7 +93,7 @@ export async function EvidenceStats({
         </div>
       )}
       <p className="px-5 py-2 text-[10.5px] text-faint">
-        A growing library of verified implementation evidence · {growth || "updated continuously"}
+        Verified implementation evidence · {growth || "updated continuously"}
       </p>
     </div>
   );

@@ -22,7 +22,7 @@ const DEPENDENCIES = ["Ticketing API", "CRM sync", "Approval flow", "Reporting a
 export function ImplementVisual() {
   return (
     <VisualShell
-      title="Implementation Blueprint"
+      title="Implementation Plan"
       meta="P0 · draft for review"
       footnote="Compass does not implement. Your team or a partner you select executes the plan while Compass preserves the rationale, requirements, and validation criteria."
     >

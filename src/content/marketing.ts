@@ -70,7 +70,7 @@ export const marketing = {
         eyebrow: "Why Compass",
         headline: "Every operational decision makes the next one better.",
         supporting:
-          "Compass compares AI, workflow automation, software implementation, process redesign, staffing, and hybrid approaches before implementation begins. Every completed implementation improves future recommendations.",
+          "Compass compares AI, workflow automation, software implementation, process redesign, staffing, and hybrid approaches on the evidence \u2014 before people or capital are committed.",
         steps: [
           { number: "01", name: "Business Problem" },
           { number: "02", name: "Assessment" },
@@ -305,11 +305,11 @@ export const marketing = {
         index: "02",
         name: "Implement",
         question: "How should we execute?",
-        output: "Decision Blueprint and execution path",
+        output: "Executive Recommendation and execution path",
         status: "Available now",
         capabilityLead: "Turn the decision into a plan your team or a trusted partner can execute\u2014without Compass doing the implementation itself.",
         capabilities: [
-          "Generate an Implementation Blueprint",
+          "Generate an Implementation Plan",
           "Define systems, data, ownership, dependencies, and risks",
           "Choose internal implementation or a trusted partner",
           "Preserve the independence of the original decision",
@@ -423,7 +423,7 @@ export const marketing = {
         id: "implementation",
         question: "How should it be implemented?",
         answer:
-          "The decision carries an Implementation Blueprint: phases, owners, dependencies, and validation criteria. Compass does not implement\u2014your team or a partner you select executes the plan.",
+          "The decision carries an Implementation Plan: phases, owners, dependencies, and validation criteria. Compass does not implement\u2014your team or a partner you select executes the plan.",
         technical:
           "Blueprint includes required systems, data contracts, human roles, security and privacy controls, rollout plan, and a validation gate before scale.",
       },
@@ -433,10 +433,10 @@ export const marketing = {
     differentiation: {
       label: "Why Compass gets better",
       number: "05",
-      headline: "Every decision makes the next one better.",
+      headline: "Judgment that stays in the building.",
       subtitle:
         "One project. One decision. Then the knowledge leaves. Compass turns every decision into organizational knowledge\u2014so judgment compounds inside your organization.",
-      moatLine: "The moat is memory, not models.",
+      moatLine: "The moat is institutional memory.",
       decisionSteps: [
         { text: "Decision #17", tone: "start" },
         { text: "Implemented", tone: "step" },
@@ -477,9 +477,9 @@ export const marketing = {
           highlighted: true,
           items: [
             "Every decision becomes organizational knowledge",
-            "Every implementation improves the next decision",
+            "Every outcome feeds the next decision",
             "Institutional judgment compounds",
-            "The moat is memory, not models",
+            "A compounding evidence library",
           ],
         },
       ],

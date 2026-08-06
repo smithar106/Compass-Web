@@ -13,7 +13,7 @@ export default function DemoIntelligencePage() {
         Implementation Intelligence
       </h1>
       <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-        Compass recommendations are grounded in a continuously growing library of real
+        Every recommendation in this portfolio is grounded in a library of real
         implementation evidence — what organizations did, in what context, and what actually
         happened. This view shows where that evidence is strongest for this organization&apos;s
         operating functions.
@@ -26,16 +26,16 @@ export default function DemoIntelligencePage() {
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           {
-            title: "Real implementation evidence",
-            body: "Recommendations are built on documented implementations with measured outcomes — not opinion.",
+            title: "Decisions trace to real implementations",
+            body: "Every recommendation in this portfolio is built on documented implementations with measured outcomes.",
           },
           {
-            title: "Matched to your context",
-            body: "Evidence is compared against your industry, process, and operating constraints.",
+            title: "Matched to Northwind&apos;s functions",
+            body: "Evidence is compared against this organization&apos;s operating functions and constraints.",
           },
           {
-            title: "Keeps getting better",
-            body: "Every completed decision and measured outcome sharpens the next recommendation.",
+            title: "The portfolio sharpens the library",
+            body: "Every completed decision here strengthens the evidence behind the next one.",
           },
         ].map((f) => (
           <div key={f.title} className="border border-line bg-surface px-5 py-5">

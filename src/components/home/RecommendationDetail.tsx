@@ -282,7 +282,7 @@ function ImplementationPanel({ e }: { e: ExampleRecommendation }) {
       </p>
 
       <div className="mt-5 border-t border-line pt-5">
-        <DetailLabel>Blueprint</DetailLabel>
+        <DetailLabel>Implementation Plan</DetailLabel>
         <BlueprintPhases effort={e.effort} partner={e.partner} />
       </div>
     </div>

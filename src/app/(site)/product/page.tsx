@@ -13,7 +13,7 @@ const OWNED = [
   "Intervention comparison",
   "Decision records",
   "Decision rationale",
-  "Implementation Blueprints",
+  "Implementation Plans",
   "Success metrics",
   "Assumptions and risks",
   "Monitoring frameworks",
