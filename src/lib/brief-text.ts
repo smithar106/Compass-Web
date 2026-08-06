@@ -124,10 +124,31 @@ export function recommendationExplanation(top: DecisionRec, summary: any): { one
   return { one, two, three };
 }
 
+function compactCurrency(n: number | null | undefined, currency?: string): string {
+  if (typeof n !== "number" || !isFinite(n)) return "—";
+  const sym = currency === "USD" || !currency ? "$" : "";
+  if (Math.abs(n) >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(n) >= 1_000) return `${sym}${Math.round(n / 1_000)}K`;
+  return `${sym}${Math.round(n)}`;
+}
+
 export function impactCards(top: DecisionRec): ImpactCard[] {
   const cards: ImpactCard[] = [];
   const ranges = top.outcome_ranges || [];
   const tl = top.impact?.implementation_timeline;
+
+  // Organization-specific dollar impact leads the board summary when the
+  // assessment collected volume / handling time / loaded labor cost.
+  const savings = top.impact?.annual_savings;
+  if (savings?.status === "estimated" && typeof savings.expected === "number" && savings.expected > 0) {
+    const low = compactCurrency(savings.low, savings.currency);
+    const high = compactCurrency(savings.high, savings.currency);
+    cards.push({
+      metric: compactCurrency(savings.expected, savings.currency),
+      label: "Expected annual savings",
+      context: low !== high ? `Range ${low}–${high} across comparable implementations` : "Estimated from your volume, cost, and evidence",
+    });
+  }
 
   const metricFor = (r: any, fallback: string) => (asString(r.metric_label) || fallback).replace(/_/g, " ").toLowerCase().trim() || fallback;
   const valueFor = (r: any) => (r.median != null ? `${r.median}%` : r.low != null && r.high != null ? `${r.low}%–${r.high}%` : "Measurable");

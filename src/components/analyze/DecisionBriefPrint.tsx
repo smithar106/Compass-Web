@@ -72,7 +72,7 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
               {badge && <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold", badge.cls)}><span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", badge.dot)} />{badge.text}</span>}
             </div>
             <p className="mt-3 text-[13px] leading-[1.6] text-ink">{explanation.one} {explanation.two} {explanation.three}</p>
-            <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="mt-4 grid grid-cols-3 gap-3 print:grid-cols-4">
               {impacts.map((c) => (
                 <div key={c.label} className="rounded border border-[#c8dacb] bg-white px-4 py-3">
                   <p className="text-[24px] font-extrabold leading-none tracking-tight">{c.metric}</p>

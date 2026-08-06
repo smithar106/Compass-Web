@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { DecisionPackageView } from "@/components/analyze/DecisionPackageView";
-import { actionTitle } from "@/lib/brief-text";
+import { actionTitle, impactCards } from "@/lib/brief-text";
 
 const mockRec = {
   category: "Workflow_Automation",
@@ -100,5 +100,28 @@ describe("DecisionPackageView executive memo", () => {
     const buttons = screen.getAllByText("Download Brief as PDF");
     fireEvent.click(buttons[0]);
     expect(screen.getAllByText((content) => content.includes("Prepared by Compass")).length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("impactCards dollar estimates", () => {
+  it("leads with expected annual savings when the engine estimates them", () => {
+    const cards = impactCards({
+      title: "AI Implementation",
+      outcome_ranges: [{ metric_label: "processing cost", low: 40, high: 60, median: 50, unit: "%" }],
+      impact: {
+        annual_savings: { status: "estimated", low: 5062500, expected: 7045312, high: 8015625, currency: "USD" },
+      },
+    } as any);
+    expect(cards[0]).toMatchObject({ metric: "$7.0M", label: "Expected annual savings" });
+    expect(cards[0].context).toContain("$5.1M–$8.0M");
+  });
+
+  it("does not add a savings card when the engine could not estimate", () => {
+    const cards = impactCards({
+      title: "AI Implementation",
+      outcome_ranges: [{ metric_label: "processing cost", low: 40, high: 60, median: 50, unit: "%" }],
+      impact: { annual_savings: { status: "insufficient_input" } },
+    } as any);
+    expect(cards[0].label).not.toBe("Expected annual savings");
   });
 });
