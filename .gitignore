@@ -6,4 +6,7 @@ next-env.d.ts
 .env.local
 node_modules/@compass
 *.py
+__pycache__/
+output/
+simulation/
 .firecrawl/

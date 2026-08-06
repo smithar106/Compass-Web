@@ -7,6 +7,11 @@ import {
   businessFunctionOf,
   headlineFromMetadata,
   uncoveredWorkflows,
+  priorityFor,
+  priorityPlan,
+  workflowPriority,
+  decisionConfidence,
+  coverageGain,
   type CoverageRecord,
 } from "@/lib/coverage";
 
@@ -76,7 +81,7 @@ describe("computeDecisionCoverage", () => {
     expect(invoice.status).toBe("strong");
     const ticket = rows.find((r) => r.workflow === "ticketing")!;
     expect(ticket.high_quality).toBe(0);
-    expect(ticket.status).toBe("none");
+    expect(ticket.status).toBe("thin");
   });
 });
 
@@ -119,5 +124,85 @@ describe("headlineFromMetadata", () => {
     expect(h.bronze).toBe(50);
     expect(h.rejected).toBe(20);
     expect(h.high_quality_percent).toBe(30);
+  });
+});
+
+describe("demand-driven priority", () => {
+  it("maps coverage status to crawl priority", () => {
+    expect(priorityFor("none", 0, 0)).toBe("Critical");
+    expect(priorityFor("thin", 0, 1)).toBe("High");
+    expect(priorityFor("moderate", 0, 3)).toBe("High");
+    expect(priorityFor("moderate", 1, 2)).toBe("Medium");
+    expect(priorityFor("strong", 2, 2)).toBe("Low");
+  });
+
+  it("computes a workflow priority from its records", () => {
+    const recs = [mk({ workflow: "contract_review", evidence_tier: "bronze" })];
+    const p = workflowPriority(recs, "contract_review");
+    expect(p.priority).toBe("High");
+    expect(p.coverage_status).toBe("thin");
+  });
+
+  it("sorts the priority plan with weakest coverage first", () => {
+    const plan = priorityPlan([
+      mk({ workflow: "invoice_processing", evidence_tier: "gold", organization: "Acme" }),
+      mk({ workflow: "invoice_processing", evidence_tier: "gold", organization: "Beta", record_id: "r2" }),
+      mk({ workflow: "contract_review", evidence_tier: "bronze", organization: "Gamma", record_id: "r3" }),
+    ]);
+    expect(plan[0].priority).toBe("High");
+    expect(plan[0].workflow).toBe("contract_review");
+    expect(plan[1].workflow).toBe("invoice_processing");
+  });
+});
+
+describe("decision confidence", () => {
+  it("weights coverage, evidence quality, diversity, freshness, outcome quality", () => {
+    const high = decisionConfidence({
+      coverage: 1,
+      evidence_quality: 1,
+      diversity: 1,
+      freshness: 1,
+      outcome_quality: 1,
+    });
+    expect(high).toBe(1);
+    const low = decisionConfidence({
+      coverage: 0,
+      evidence_quality: 0,
+      diversity: 0,
+      freshness: 0,
+      outcome_quality: 0,
+    });
+    expect(low).toBe(0);
+  });
+
+  it("prefers diverse, fresh, measured evidence", () => {
+    const fresh = mk({ workflow: "ticketing", evidence_tier: "gold", published_at: new Date().toISOString() });
+    const plan = workflowPriority([fresh], "ticketing");
+    expect(plan.confidence).toBeGreaterThan(0.2);
+    expect(plan.evidence_freshness).toBe(1);
+  });
+});
+
+describe("coverage gain", () => {
+  it("measures how much promotions improve decision coverage", () => {
+    const existing = [mk({ workflow: "permit_review", evidence_tier: "bronze", organization: "Alpha" })];
+    const promoted = [
+      mk({ workflow: "permit_review", evidence_tier: "gold", organization: "Beta", record_id: "p1" }),
+      mk({ workflow: "permit_review", evidence_tier: "silver", organization: "Gamma", record_id: "p2" }),
+    ];
+    const gain = coverageGain(existing, promoted, "permit_review");
+    expect(gain.previous_status).toBe("thin");
+    expect(gain.new_status).toBe("strong");
+    expect(gain.previously_covered).toBe(true);
+    expect(gain.now_covered).toBe(true);
+    expect(gain.coverage_gain).toBeGreaterThan(0);
+    expect(gain.promoted_records).toBe(2);
+  });
+
+  it("reports a workflow moving from no coverage to covered", () => {
+    const gain = coverageGain([], [mk({ workflow: "onboarding", evidence_tier: "silver" })], "onboarding");
+    expect(gain.previous_status).toBe("none");
+    expect(gain.now_covered).toBe(true);
+    expect(gain.coverage_gain).toBeGreaterThan(0);
   });
 });

@@ -159,6 +159,35 @@ export function CoverageDashboard({ liveOnly = false }: CoverageDashboardProps) 
         )}
       </section>
 
+      {report && (report as any).priority_plan && (report as any).priority_plan.length > 0 && (
+        <section>
+          <h3 className="text-sm font-semibold text-ink">Demand-Driven Discovery Priority</h3>
+          <p className="mt-1 text-xs text-stone">
+            Where Compass is weakest gets the most crawl budget and the most promotion attention.
+          </p>
+          <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+            {(report as any).priority_plan.map((p: { workflow: string; label: string; coverage_status: string; priority: string; gold: number; silver: number; confidence: number }) => {
+              const prCls =
+                p.priority === "Critical" ? "bg-[#C4382C] text-white"
+                : p.priority === "High" ? "bg-amber-500 text-white"
+                : p.priority === "Medium" ? "bg-warn text-ink"
+                : "bg-line text-muted";
+              return (
+                <div key={p.workflow} className="flex items-center justify-between rounded-lg border border-line bg-white px-4 py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-ink">{p.label}</p>
+                    <p className="text-[11px] text-stone">
+                      {p.gold} gold · {p.silver} silver · confidence {p.confidence.toFixed(2)}
+                    </p>
+                  </div>
+                  <span className={cn("inline-flex rounded px-2 py-0.5 text-[11px] font-bold", prCls)}>{p.priority}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {report && (
         <section>
           <h3 className="text-sm font-semibold text-ink">Coverage by Business Function</h3>

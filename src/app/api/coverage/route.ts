@@ -3,7 +3,11 @@ import { compassApiBase } from "@/lib/engine-proxy";
 import {
   computeCoverageReport,
   headlineFromMetadata,
+  priorityPlan,
+  coverageGain,
+  uncoveredWorkflows,
   type CoverageRecord,
+  type CoverageGain,
 } from "@/lib/coverage";
 
 export const dynamic = "force-dynamic";
@@ -67,12 +71,38 @@ export async function POST(request: NextRequest) {
 
   const report = computeCoverageReport(records, "record_feed");
   if (Array.isArray(body.workflows) && body.workflows.length) {
-    const { uncoveredWorkflows } = await import("@/lib/coverage");
     report.uncovered_workflows = uncoveredWorkflows(report, body.workflows as string[]);
   }
 
-  return NextResponse.json(report, {
-    status: 200,
-    headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=600" },
+  // Demand-driven discovery: where to crawl next + how much a promotion helps.
+  const priorities = priorityPlan(records);
+
+  // Coverage Gain: simulate promoting every gold+silver record that is currently
+  // bronze/rejected in each workflow, and report the decision-coverage delta.
+  const existing = records.filter((r) => {
+    const t = (r.evidence_tier || "").toLowerCase();
+    return t === "gold" || t === "silver";
   });
+  const candidates = records.filter((r) => {
+    const t = (r.evidence_tier || "").toLowerCase();
+    return t !== "gold" && t !== "silver";
+  });
+  const gainsByWorkflow = new Map<string, CoverageGain>();
+  for (const wf of new Set(records.map((r) => r.workflow || "unknown"))) {
+    const wfExisting = existing.filter((r) => (r.workflow || "unknown") === wf);
+    const wfCandidates = candidates.filter((r) => (r.workflow || "unknown") === wf);
+    if (wfCandidates.length) {
+      gainsByWorkflow.set(wf, coverageGain(wfExisting, wfCandidates, wf));
+    }
+  }
+  const gains = Array.from(gainsByWorkflow.values())
+    .sort((a, b) => b.coverage_gain - a.coverage_gain);
+
+  return NextResponse.json(
+    { ...report, priority_plan: priorities, coverage_gain: gains },
+    {
+      status: 200,
+      headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=600" },
+    }
+  );
 }

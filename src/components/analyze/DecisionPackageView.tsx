@@ -45,8 +45,8 @@ export function DecisionPackageView({
   }
 
   const g = groundingState(top, meta);
-  const badge = g.key === "live" ? { text: "Recommended", cls: "bg-[#E5F3EA] text-[#14532d]", dot: "bg-[#1E7B4C]" }
-    : g.key === "partial" ? { text: "Needs validation", cls: "bg-[#FBF0E0] text-[#7a3b06]", dot: "bg-[#B45309]" }
+  const badge = g.key === "live" ? { text: "Recommended for Pilot Approval", cls: "bg-[#E5F3EA] text-[#14532d]", dot: "bg-[#1E7B4C]" }
+    : g.key === "partial" ? { text: "Recommended – Pilot Before Scale", cls: "bg-[#FBF0E0] text-[#7a3b06]", dot: "bg-[#B45309]" }
     : { text: "Insufficient evidence", cls: "bg-[#FAE9E7] text-[#7a1f1a]", dot: "bg-[#C4382C]" };
 
   const explanation = recommendationExplanation(top, summary);

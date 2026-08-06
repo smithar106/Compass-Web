@@ -30,6 +30,7 @@ export interface CoverageRecord {
   source_url?: string;
   quality_score?: number;
   pathway?: CanonicalPathway;
+  published_at?: string;
 }
 
 export type CoverageStatus = "strong" | "moderate" | "thin" | "none";
@@ -124,11 +125,10 @@ function averageQuality(records: CoverageRecord[]): number {
 }
 
 function statusOf(highQuality: number, total: number): CoverageStatus {
-  if (highQuality === 0) return "none";
+  if (total === 0) return "none";
   if (highQuality >= 2) return "strong";
   if (highQuality >= 1) return "moderate";
-  if (total > 0) return "thin";
-  return "none";
+  return "thin";
 }
 
 export function sliceCoverage(records: CoverageRecord[], keyFn: (r: CoverageRecord) => string): CoverageSlice[] {
@@ -247,5 +247,169 @@ export function headlineFromMetadata(meta: {
     rejected,
     high_quality,
     high_quality_percent: total ? Math.round((high_quality / total) * 1000) / 10 : 0,
+  };
+}
+
+// -----------------------------------------------------------------------------
+// Demand-driven discovery: coverage priority, Coverage Gain, Decision Confidence
+// -----------------------------------------------------------------------------
+
+export type CoveragePriority = "Critical" | "High" | "Medium" | "Low";
+
+export const PRIORITY_ORDER: Record<CoveragePriority, number> = { Critical: 3, High: 2, Medium: 1, Low: 0 };
+
+export function priorityFor(status: CoverageStatus, gold: number, silver: number): CoveragePriority {
+  if (status === "none") return "Critical";
+  if (status === "thin") return "High";
+  if (status === "moderate" && gold === 0) return "High";
+  if (status === "moderate") return "Medium";
+  return "Low";
+}
+
+export interface WorkflowPriority {
+  workflow: string;
+  label: string;
+  business_function: string;
+  coverage_status: CoverageStatus;
+  gold: number;
+  silver: number;
+  implementations: number;
+  high_quality: number;
+  evidence_freshness: number; // 0..1 share of records published in last 365 days
+  recommendation_quality: number; // 0..1
+  confidence: number; // 0..1 decision confidence
+  priority: CoveragePriority;
+}
+
+const FRESHNESS_DAYS = 365;
+
+function evidenceFreshness(records: CoverageRecord[]): number {
+  if (!records.length) return 0;
+  const cutoff = Date.now() - FRESHNESS_DAYS * 24 * 60 * 60 * 1000;
+  const fresh = records.filter((r) => {
+    const ts = typeof r.published_at === "string" ? Date.parse(r.published_at) : NaN;
+    return Number.isFinite(ts) && ts >= cutoff;
+  }).length;
+  return Math.round((fresh / records.length) * 100) / 100;
+}
+
+function outcomeQuality(records: CoverageRecord[]): number {
+  if (!records.length) return 0;
+  const measured = records.filter((r) => /%|\$|\d|reduc|improv|sav|faster/i.test(r.outcome_summary || "")).length;
+  return Math.round((measured / records.length) * 100) / 100;
+}
+
+function implementationDiversity(records: CoverageRecord[]): number {
+  if (!records.length) return 0;
+  const orgCount = new Set(records.map((r) => normalizeOrg(r.organization || "")).filter(Boolean)).size;
+  return Math.min(1, orgCount / 3);
+}
+
+export interface DecisionConfidenceInputs {
+  coverage: number; // 0..1 fraction of high-quality implementations in this workflow
+  evidence_quality: number; // 0..1 average tier/quality
+  diversity: number; // 0..1 distinct organizations (avoids single-source)
+  freshness: number; // 0..1 share recent
+  outcome_quality: number; // 0..1 share with measured outcome
+}
+
+export function decisionConfidence(inputs: DecisionConfidenceInputs): number {
+  return Math.round(
+    (0.3 * inputs.coverage
+      + 0.25 * inputs.evidence_quality
+      + 0.2 * inputs.diversity
+      + 0.15 * inputs.freshness
+      + 0.1 * inputs.outcome_quality) * 1000
+  ) / 1000;
+}
+
+export function workflowPriority(records: CoverageRecord[], workflow?: string): WorkflowPriority {
+  const wf = workflow || (records[0]?.workflow as string) || "unknown";
+  const grouped = computeDecisionCoverage(records);
+  const row = grouped.find((g) => g.workflow === wf) || {
+    workflow: wf,
+    label: wf.replace(/_/g, " "),
+    business_function: businessFunctionOf(records[0] || ({} as CoverageRecord)),
+    interventions: 0,
+    implementations: 0,
+    high_quality: 0,
+    average_quality: 0,
+    status: "none" as CoverageStatus,
+  };
+  const gold = records.filter((r) => tierOf(r) === "gold").length;
+  const silver = records.filter((r) => tierOf(r) === "silver").length;
+  const coverage = row.implementations ? row.high_quality / row.implementations : 0;
+  const confidence = decisionConfidence({
+    coverage,
+    evidence_quality: row.average_quality,
+    diversity: implementationDiversity(records),
+    freshness: evidenceFreshness(records),
+    outcome_quality: outcomeQuality(records),
+  });
+  return {
+    workflow: wf,
+    label: row.label,
+    business_function: row.business_function,
+    coverage_status: row.status,
+    gold,
+    silver,
+    implementations: row.implementations,
+    high_quality: row.high_quality,
+    evidence_freshness: evidenceFreshness(records),
+    recommendation_quality: row.average_quality,
+    confidence,
+    priority: priorityFor(row.status, gold, silver),
+  };
+}
+
+export function priorityPlan(records: CoverageRecord[]): WorkflowPriority[] {
+  const groups = new Map<string, CoverageRecord[]>();
+  for (const r of records) {
+    const wf = r.workflow || "unknown";
+    const list = groups.get(wf);
+    if (list) list.push(r);
+    else groups.set(wf, [r]);
+  }
+  return Array.from(groups.entries())
+    .map(([wf, recs]) => workflowPriority(recs, wf))
+    .sort((a, b) => PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority] || b.high_quality - a.high_quality);
+}
+
+export interface CoverageGain {
+  workflow: string;
+  previous_status: CoverageStatus;
+  new_status: CoverageStatus;
+  previous_high_quality: number;
+  new_high_quality: number;
+  previously_covered: boolean;
+  now_covered: boolean;
+  coverage_gain: number; // 0..1 fractional improvement in decision coverage
+  promoted_records: number;
+}
+
+/**
+ * Coverage Gain: how much a set of promoted records improves Compass's ability
+ * to make recommendations for a workflow. The optimization target is measured
+ * in decision coverage, not raw record count.
+ */
+export function coverageGain(
+  existing: CoverageRecord[],
+  promoted: CoverageRecord[],
+  workflow?: string,
+): CoverageGain {
+  const wf = workflow || promoted[0]?.workflow || "unknown";
+  const previous = workflowPriority(existing, wf);
+  const combined = [...existing, ...promoted];
+  const latest = workflowPriority(combined, wf);
+  return {
+    workflow: wf,
+    previous_status: previous.coverage_status,
+    new_status: latest.coverage_status,
+    previous_high_quality: previous.high_quality,
+    new_high_quality: latest.high_quality,
+    previously_covered: previous.coverage_status !== "none",
+    now_covered: latest.coverage_status !== "none",
+    coverage_gain: latest.confidence - previous.confidence,
+    promoted_records: promoted.length,
   };
 }

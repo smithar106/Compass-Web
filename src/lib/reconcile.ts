@@ -435,6 +435,7 @@ export interface ReconciledRecommendation {
   evidence: NormalizedEvidence[];
   quality: RecommendationQuality;
   title: string;
+  decision_confidence: number;
 }
 
 export interface ReconcileOptions {
@@ -508,15 +509,37 @@ export function applyReconciliation(
     metricsOk: metricsHealthy(rec),
   });
 
+  // Internal decision-confidence score (not rendered to users yet). Built from
+  // coverage, evidence quality, implementation diversity, and outcome quality;
+  // freshness is not available at recommendation time so it stays neutral.
+  const decision_confidence = internalDecisionConfidence(evidence);
+
   // If overall quality is below threshold, surface that in status for testing.
   if (quality.status === "Needs validation") {
-    rec.confidence = { ...((rec.confidence as object) || {}), label: "needs_validation", quality } as object;
+    rec.confidence = { ...((rec.confidence as object) || {}), label: "needs_validation", quality, decision_confidence } as object;
     rec.quality = quality;
   } else {
     rec.quality = quality;
   }
+  rec.decision_confidence = decision_confidence;
 
-  return { recommendation: rec, pathway, evidence, quality, title };
+  return { recommendation: rec, pathway, evidence, quality, title, decision_confidence };
+}
+
+function internalDecisionConfidence(evidence: NormalizedEvidence[]): number {
+  if (!evidence.length) return 0;
+  const coverage = Math.min(1, evidence.length / 3);
+  const evidence_quality = evidence.reduce((s, e) => s + e.quality_score, 0) / evidence.length;
+  const diversity = Math.min(
+    1,
+    new Set(evidence.map((e) => normalizeOrg(e.organization)).filter(Boolean)).size / 2
+  );
+  const outcome_quality =
+    evidence.filter((e) => /%|\$|\d|reduc|improv|sav|faster/i.test(e.outcome)).length / evidence.length;
+  const score = Math.round(
+    (0.3 * coverage + 0.25 * evidence_quality + 0.2 * diversity + 0.1 * outcome_quality + 0.15 * 0.5) * 1000
+  ) / 1000;
+  return Math.min(1, Math.max(0, score));
 }
 
 function metricsHealthy(rec: Record<string, unknown>): boolean {

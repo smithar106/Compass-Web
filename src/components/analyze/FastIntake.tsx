@@ -127,7 +127,7 @@ export function FastIntake() {
         </Link>
 
         <div className="mb-6">
-          <h1 data-testid="decision-page-heading" className="text-[24px] font-bold leading-tight tracking-[-0.01em] text-ink sm:text-[28px]">Decision Report and Implementation Plan</h1>
+          <h1 data-testid="decision-page-heading" className="text-[24px] font-bold leading-tight tracking-[-0.01em] text-ink sm:text-[28px]">Executive Recommendation</h1>
         </div>
 
         <DecisionPackageView

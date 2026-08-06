@@ -44,8 +44,8 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
 
   if (!top) return null;
   const g = groundingState(top, meta);
-  const badge = g.key === "live" ? { text: "Recommended", dot: "bg-[#1E7B4C]", cls: "bg-[#E5F3EA] text-[#14532d]" }
-    : g.key === "partial" ? { text: "Needs validation", dot: "bg-[#B45309]", cls: "bg-[#FBF0E0] text-[#7a3b06]" }
+  const badge = g.key === "live" ? { text: "Recommended for Pilot Approval", dot: "bg-[#1E7B4C]", cls: "bg-[#E5F3EA] text-[#14532d]" }
+    : g.key === "partial" ? { text: "Recommended – Pilot Before Scale", dot: "bg-[#B45309]", cls: "bg-[#FBF0E0] text-[#7a3b06]" }
     : { text: "Insufficient evidence", dot: "bg-[#C4382C]", cls: "bg-[#FAE9E7] text-[#7a1f1a]" };
 
   const explanation = recommendationExplanation(top, summary);

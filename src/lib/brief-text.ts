@@ -42,20 +42,21 @@ export function actionTitle(top: DecisionRec): string {
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
   const title = firstSentence(top.title) || "this approach";
-  const reasons = (top.why_ranked_first?.supporting_reasons || []).map(firstSentence).filter(Boolean);
-  const altCount = (top.alternatives_considered || []).length;
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  const reasons = (top.why_ranked_first?.supporting_reasons || [])
+    .map(firstSentence)
+    .filter(Boolean)
+    .filter((r) => !/\b(confiden|similar|comparable|evidence|alternative|retriev|database|count|corpus|score)\b/i.test(r));
 
   const one = reasons[0]
-    ? `${reasons[0].charAt(0).toUpperCase() + reasons[0].slice(1)}.`
-    : `${title} is supported by comparable implementations with measurable outcomes.`;
+    ? `Why: ${cap(reasons[0])}.`
+    : `Why: ${title} targets the largest source of avoidable cost and manual effort in this workflow.`;
 
-  const two = altCount > 0
-    ? `${altCount} alternative approach${altCount > 1 ? "s were" : " was"} evaluated and set aside due to lower expected impact.`
-    : "Alternative approaches were evaluated against expected impact on the primary outcome.";
+  const two = "What this approval covers: a bounded pilot measured against a clear baseline, with a go/no-go decision before any wider deployment.";
 
   const three = reasons[1]
-    ? `${reasons[1].charAt(0).toUpperCase() + reasons[1].slice(1)}.`
-    : "The evidence supports moving forward now with a controlled implementation.";
+    ? `${cap(reasons[1])}.`
+    : "Recommendation: proceed now with a controlled, measurable first phase.";
 
   return { one, two, three };
 }
@@ -64,40 +65,39 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
   const cards: ImpactCard[] = [];
   const ranges = top.outcome_ranges || [];
   const tl = top.impact?.implementation_timeline;
-  const evidence = top.evidence_summary;
+
+  const metricFor = (r: any, fallback: string) => (asString(r.metric_label) || fallback).replace(/_/g, " ").toLowerCase().trim() || fallback;
+  const valueFor = (r: any) => (r.median != null ? `${r.median}%` : r.low != null && r.high != null ? `${r.low}%–${r.high}%` : "Measurable");
 
   if (ranges.length > 0) {
     const r = ranges[0];
-    const metric = (asString(r.metric_label) || "processing cost").replace(/_/g, " ").toLowerCase().trim() || "processing cost";
-    const v = r.median != null ? `${r.median}%` : r.low != null && r.high != null ? `${r.low}%–${r.high}%` : "Measurable";
     cards.push({
-      metric: v,
-      label: `Lower ${metric}`,
-      context: r.sample_size ? `Observed across ${r.sample_size} comparable implementations` : "Observed in comparable implementations",
+      metric: valueFor(r),
+      label: `Lower ${metricFor(r, "processing cost")}`,
+      context: "Primary outcome of this initiative.",
     });
   } else {
-    cards.push({ metric: "Measurable", label: "Cost reduction", context: "Outcome verified in comparable implementations" });
-  }
-
-  if (tl?.min_weeks && tl?.max_weeks) {
-    const fmt = (w: number) => w >= 12 ? `${Math.round(w / 4.33)} months` : `${w} weeks`;
-    cards.push({ metric: `${fmt(tl.min_weeks)} to ${fmt(tl.max_weeks)}`, label: "Time to full value", context: "Based on similar enterprise rollouts" });
-  } else {
-    cards.push({ metric: "8 to 16 weeks", label: "Time to impact", context: "Based on comparable implementations" });
+    cards.push({ metric: "Measurable", label: "Reduced processing cost", context: "Primary outcome of this initiative." });
   }
 
   if (ranges.length > 1) {
     const r2 = ranges[1];
-    const m2 = (asString(r2.metric_label) || "capacity").replace(/_/g, " ").toLowerCase().trim() || "capacity";
-    const v2 = r2.median != null ? `${r2.median}%` : r2.low != null && r2.high != null ? `${r2.low}%–${r2.high}%` : "Measurable";
-    cards.push({ metric: v2, label: `Improved ${m2}`, context: "Measured across implementation cohort" });
+    cards.push({
+      metric: valueFor(r2),
+      label: `Improved ${metricFor(r2, "capacity")}`,
+      context: "Secondary outcome tracked alongside the primary goal.",
+    });
   } else {
-    cards.push({ metric: `${evidence?.total_comparables || 0}+`, label: "Comparable implementations", context: "Organizations with similar workflows and scope" });
+    cards.push({ metric: "Pilot before scale", label: "Initial commitment", context: "Approval funds a measured pilot; full deployment is gated on results." });
   }
 
-  while (cards.length < 3) {
-    cards.push({ metric: "—", label: "Pending baseline data", context: "Estimate will be refined during the baseline measurement phase" });
+  if (tl?.min_weeks && tl?.max_weeks) {
+    const fmt = (w: number) => (w >= 12 ? `${Math.round(w / 4.33)} months` : `${w} weeks`);
+    cards.push({ metric: `${fmt(tl.min_weeks)} to ${fmt(tl.max_weeks)}`, label: "Time to measurable value", context: "From kickoff to validated pilot results." });
+  } else {
+    cards.push({ metric: "8 to 16 weeks", label: "Time to measurable value", context: "From kickoff to validated pilot results." });
   }
+
   return cards.slice(0, 3);
 }
 
