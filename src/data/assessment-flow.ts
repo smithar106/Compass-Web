@@ -4,14 +4,15 @@ import type { AssessmentQuestion } from "@/types";
 /**
  * The standalone assessment collects the minimum information needed to
  * generate a recommendation. Five existing questions, in order, each
- * mapped directly to a recommendation-engine profile field.
+ * mapped directly to a recommendation-engine profile field:
+ * department, problem, people affected, desired outcome, timeline.
  */
 export const STANDALONE_QUESTION_IDS = [
-  "situation",
   "dept",
-  "frequency",
+  "situation",
+  "people",
   "desired-outcome",
-  "risk",
+  "timeline",
 ] as const;
 
 export const standaloneQuestions: AssessmentQuestion[] = STANDALONE_QUESTION_IDS.map((id) => {

@@ -123,14 +123,14 @@ describe("Standalone assessment flow", () => {
     render(<AssessmentPage />);
     await screen.findByTestId("assessment-question-label");
 
-    // situation → sales problem; dept → Operations; frequency → Daily;
-    // desired-outcome → Cost reduction; risk → Medium.
+    // dept → Operations; situation → sales problem; people → 4–10;
+    // desired-outcome → Cost reduction; timeline → 1–3 months.
     const answers = [
-      "My sales team is missing inbound calls because we lack capacity",
       "Operations",
-      "Daily",
+      "My sales team is missing inbound calls because we lack capacity",
+      "4–10",
       "Cost reduction",
-      "Medium — noticeable business impact",
+      "1–3 months",
     ];
     for (let i = 0; i < answers.length; i++) {
       fireEvent.click(screen.getByRole("button", { name: answers[i] }));
@@ -147,9 +147,9 @@ describe("Standalone assessment flow", () => {
     expect(body.business_function).toBe("operations");
     expect(body.workflow).toBe("process_automation");
     expect(body.problem_statement).toContain("sales team");
-    expect(body.workflow_frequency).toBe("Daily");
+    expect(body.people_involved).toBe("4–10");
     expect(body.desired_outcome).toBe("cost");
-    expect(body.business_risk).toContain("Medium");
+    expect(body.implementation_timeline).toBe("1–3 months");
   });
 
   it("should prevent duplicate submissions while generation is in progress", async () => {
@@ -232,7 +232,7 @@ describe("Standalone assessment flow", () => {
     const stored = JSON.parse(sessionStorage.getItem("compass-assessment-session") ?? "{}");
     expect(stored.version).toBe("4.0.0");
     expect(stored.currentQuestion).toBe(1);
-    expect(stored.answers).toEqual([{ questionId: "situation", value: answerFor(0) }]);
+    expect(stored.answers).toEqual([{ questionId: "dept", value: answerFor(0) }]);
   });
 
   it("should restore an in-progress session on refresh", async () => {
@@ -242,9 +242,9 @@ describe("Standalone assessment flow", () => {
         version: "4.0.0",
         currentQuestion: 2,
         answers: [
-          { questionId: "situation", value: answerFor(0) },
-          { questionId: "dept", value: answerFor(1) },
-          { questionId: "frequency", value: answerFor(2) },
+          { questionId: "dept", value: answerFor(0) },
+          { questionId: "situation", value: answerFor(1) },
+          { questionId: "people", value: answerFor(2) },
         ],
       })
     );
