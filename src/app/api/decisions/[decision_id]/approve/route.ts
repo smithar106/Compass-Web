@@ -16,8 +16,10 @@ export async function POST(_req: NextRequest, { params }: { params: { decision_i
     return NextResponse.json({ error: "Decision not found" }, { status: 404 });
   }
   const rec = await recRes.json();
-  const top = Array.isArray(rec.recommendations) ? rec.recommendations[0] : null;
-  const interventionId = top?.intervention_id;
+  // The engine matches approvals against scored_interventions (UUID ids),
+  // not the recommendation's category slug — use the top-scored one.
+  const scored = Array.isArray(rec.scored_interventions) ? rec.scored_interventions : [];
+  const interventionId = scored[0]?.intervention_id;
   if (!interventionId) {
     return NextResponse.json({ error: "No intervention available to approve" }, { status: 400 });
   }
