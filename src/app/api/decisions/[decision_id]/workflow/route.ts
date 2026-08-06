@@ -16,12 +16,16 @@ export async function GET(_req: NextRequest, { params }: { params: { decision_id
   if (selRes && selRes.ok) selected = true;
 
   let outcome = false;
-  const outRes = await proxyEngine("/api/outcomes?limit=50", undefined, 10000);
-  if (outRes && outRes.ok) {
-    const data = await outRes.json();
-    outcome =
-      Array.isArray(data?.outcomes) &&
-      data.outcomes.some((o: { recommendation_id?: string }) => o.recommendation_id === id);
+  try {
+    const outRes = await proxyEngine("/api/outcomes?limit=100", { cache: "no-store" }, 20000);
+    if (outRes && outRes.ok) {
+      const data = await outRes.json();
+      outcome =
+        Array.isArray(data?.outcomes) &&
+        data.outcomes.some((o: { recommendation_id?: string }) => o.recommendation_id === id);
+    }
+  } catch {
+    // Outcome state is best-effort; the workspace degrades gracefully.
   }
 
   return NextResponse.json({ decision_id: id, selected, outcome });
