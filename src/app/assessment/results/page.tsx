@@ -418,7 +418,7 @@ function ResultsContent() {
             <div className="mb-6 p-4 bg-[#f6f8fa] rounded-xl border border-[#e6eaef]">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#4f6280] mb-2">Why this is the strongest path</p>
               <p className="text-[12px] text-[#4f6280] leading-[1.6] mb-2">
-                {top.rationale || (top.why_ranked_first?.summary) || "Ranked by comparable evidence and workflow fit."}
+                {top.rationale || (top.why_ranked_first?.summary) || "Recommended because it will save time and money, and best fits your organization's profile, goals, and operational strategy."}
               </p>
               {top.why_it_ranked_here && top.why_it_ranked_here.length > 0 && (
                 <ul className="space-y-1">

@@ -42,21 +42,12 @@ export function actionTitle(top: DecisionRec): string {
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
   const title = firstSentence(top.title) || "this approach";
-  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-  const reasons = (top.why_ranked_first?.supporting_reasons || [])
-    .map(firstSentence)
-    .filter(Boolean)
-    .filter((r) => !/\b(confiden|similar|comparable|evidence|alternative|retriev|database|count|corpus|score)\b/i.test(r));
 
-  const one = reasons[0]
-    ? `Why: ${cap(reasons[0])}.`
-    : `Why: ${title} targets the largest source of avoidable cost and manual effort in this workflow.`;
+  const one = "This approach is recommended because it will save time and money, and best fits your organization's profile, goals, and operational strategy.";
 
-  const two = "What this approval covers: a bounded pilot measured against a clear baseline, with a go/no-go decision before any wider deployment.";
+  const two = "Approval authorizes a bounded pilot measured against a clear baseline, with a go/no-go decision before any wider deployment.";
 
-  const three = reasons[1]
-    ? `${cap(reasons[1])}.`
-    : "Recommendation: proceed now with a controlled, measurable first phase.";
+  const three = `We recommend approving ${title} now and beginning with a controlled, measurable first phase.`;
 
   return { one, two, three };
 }
