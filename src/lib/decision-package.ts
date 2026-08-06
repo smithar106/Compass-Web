@@ -70,6 +70,20 @@ export interface DecisionRec {
   why_ranked_first?: { summary?: string; supporting_reasons?: string[] };
   impact?: {
     implementation_timeline?: { min_weeks?: number | null; max_weeks?: number | null; expected_weeks?: number | null };
+    annual_savings?: {
+      status?: string;
+      low?: number | null;
+      expected?: number | null;
+      high?: number | null;
+      currency?: string;
+    };
+    annual_hours_returned?: {
+      status?: string;
+      low?: number | null;
+      expected?: number | null;
+      high?: number | null;
+      currency?: string;
+    };
   };
   specific_intervention?: {
     required_changes?: string[];
