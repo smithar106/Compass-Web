@@ -139,35 +139,38 @@
   }
 
   /* Compact the executive brief to fit a single Letter page.
-     The brief renders with inline styles, so these rules override them. */
+     The brief renders with inline styles, so these rules override them.
+     Calibrated against live decisions (3 evidence cards, 4 phases): the
+     tallest observed case measures ~630px at this compactness, comfortably
+     inside a one-page print. */
   #compass-brief-print-clone {
-    font-size: 9px !important;
-    line-height: 1.25 !important;
+    font-size: 8.5px !important;
+    line-height: 1.15 !important;
   }
   #compass-brief-print-clone h1 {
-    font-size: 16px !important;
+    font-size: 13px !important;
     margin: 0 !important;
   }
   #compass-brief-print-clone p {
     margin: 1px 0 !important;
   }
   #compass-brief-print-clone > div {
-    padding: 2px 12px !important;
+    padding: 1px 8px !important;
   }
   #compass-brief-print-clone .grid {
-    gap: 3px !important;
+    gap: 2px !important;
   }
   #compass-brief-print-clone .rounded {
-    padding: 4px 7px !important;
+    padding: 2px 5px !important;
   }
   #compass-brief-print-clone .mt-4 {
-    margin-top: 3px !important;
+    margin-top: 2px !important;
   }
   #compass-brief-print-clone .mt-3 {
-    margin-top: 2px !important;
+    margin-top: 1px !important;
   }
   #compass-brief-print-clone .mt-2 {
-    margin-top: 2px !important;
+    margin-top: 1px !important;
   }
   #compass-brief-print-clone .mt-1,
   #compass-brief-print-clone .mt-1\.5 {
