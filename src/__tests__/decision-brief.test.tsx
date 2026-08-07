@@ -76,7 +76,7 @@ describe("DecisionPackageView executive memo", () => {
     );
     // Authored recommendation paragraph uses LLM rationale.
     expect(screen.getByText(/Manual matching is the top driver of processing cost and errors/i)).toBeTruthy();
-    expect(screen.getByText(/Automated Invoice Matching is the highest-value, lowest-risk fix identified/i)).toBeTruthy();
+    expect(screen.getByText(/Automated Invoice Matching addresses this directly/i)).toBeTruthy();
     expect(
       screen.getByText(/A go\/no-go decision at the end of the pilot gates any wider deployment on measured results/i)
     ).toBeTruthy();

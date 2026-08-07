@@ -143,11 +143,26 @@ export function actionTitle(top: DecisionRec): string {
       return `Approve ${titleCasePhrase(solution)}`;
     }
   }
+  // No colon — the engine returned a generic title. Build a better one
+  // from the problem + category if the title is too short or generic.
+  const GENERIC = /^(ai|software|process|workflow|automation|staffing|hybrid)\s/i;
+  if (GENERIC.test(t) || t.split(/\s+/).length <= 2) {
+    const problem = problemFocus(top);
+    if (problem && problem.length > 3) {
+      const cat = (top.category || "").toLowerCase();
+      if (cat.includes("ai")) return `Approve AI-powered ${titleCasePhrase(problem)} Solution`;
+      if (cat.includes("software")) return `Approve Software Solution for ${titleCasePhrase(problem)}`;
+      if (cat.includes("process")) return `Approve Process Redesign for ${titleCasePhrase(problem)}`;
+      if (cat.includes("workflow") || cat.includes("automation")) return `Approve Workflow Automation for ${titleCasePhrase(problem)}`;
+      return `Approve ${titleCasePhrase(problem)}`;
+    }
+  }
   return `Approve ${titleCasePhrase(t)}`;
 }
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
   const solutionPhrase = solutionPhraseFor(top, summary);
+  const focus = problemFocus(top, summary);
   const rationale = firstSentence(top.rationale);
   const description = firstSentence(top.description);
 
@@ -156,11 +171,12 @@ export function recommendationExplanation(top: DecisionRec, summary: any): { one
   const cleanRationale = rationale && !evidenceTerms.test(rationale) ? rationale : null;
   const context = cleanRationale || description;
 
+  // Three scannable sentences: problem → solution → approval
   const one = context && context.length > 10
     ? `${context.charAt(0).toUpperCase() + context.slice(1)}${context.endsWith(".") ? "" : "."}`
-    : "This workflow carries the highest manual cost and operational risk in your organization today.";
+    : `${titleCasePhrase(focus)} depends on manual effort that compounds cost and risk as volume grows.`;
 
-  const two = `${solutionPhrase} is the highest-value, lowest-risk fix identified. This decision funds a bounded pilot, not a full rollout.`;
+  const two = `${solutionPhrase} addresses this directly. This decision funds a bounded pilot, not a full rollout.`;
 
   const three = "A go/no-go decision at the end of the pilot gates any wider deployment on measured results.";
 
