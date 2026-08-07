@@ -94,7 +94,6 @@ export default function DecisionPage() {
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent-deep">Permanent decision link</p>
           <p className="mt-0.5 text-[12px] text-muted">This decision is persisted. Share this URL to return to it anytime.</p>
         </div>
-        {top?.title && <p className="text-[12px] font-semibold text-ink">{top.title}</p>}
       </div>
 
       <DecisionPackageView

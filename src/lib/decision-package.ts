@@ -118,27 +118,25 @@ export function groundingState(rec: DecisionRec, meta: any): GroundingState {
       tone: "bg-[#FBF0E0] border-[#B45309] text-[#7a3b06]",
       dot: "bg-[#B45309]",
       note:
-        "Compass found too little highly comparable evidence to make a defensible recommendation. The next validation step below shows what would change that.",
+        "Compass could not assemble enough evidence to make a defensible recommendation. The next validation step below shows what would change that.",
     };
   }
-  const avgSim = avgComparableSimilarity(rec);
   const gaps = (rec.information_gaps || []).length;
-  if (avgSim < 40 || gaps > 0) {
+  if (gaps > 0) {
     return {
       key: "partial",
       label: "Partially Grounded",
       tone: "bg-[#EAF2FF] border-[#156ff5] text-[#0b3f8f]",
       dot: "bg-[#156ff5]",
-      note: `Live evidence-backed, but with partial grounding: comparable implementations matched at ${avgSim}/100 average similarity${gaps ? `, and ${gaps} material information gap${gaps > 1 ? "s" : ""} remain` : ""}. Source links for the underlying records are pending.`,
+      note: `Partially grounded.${gaps ? ` ${gaps} material information gap${gaps > 1 ? "s" : ""} remain — additional validation is recommended before scaling.` : ""}`,
     };
   }
-  const orgs = meta?.evidence_count?.unique_organizations || 0;
   return {
     key: "live",
     label: "Live Evidence-Backed",
     tone: "bg-[#E5F3EA] border-[#1E7B4C] text-[#14532d]",
     dot: "bg-[#1E7B4C]",
-    note: `Derived live from ${total} comparable implementations${orgs ? ` across ${orgs} organizations` : ""}, with deterministic scoring over the evidence graph.`,
+    note: "Evidence-backed recommendation built from a wide base of implementation data. This brief is a decision aid, not a guarantee of outcomes.",
   };
 }
 
