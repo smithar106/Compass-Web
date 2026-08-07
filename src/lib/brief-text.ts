@@ -77,11 +77,11 @@ function shortenProblem(value: string): string {
   const cleaned = stripManual(value)
     .replace(/^(my|our|we|the)\s+/i, "")
     .trim();
-  if (cleaned.length <= 60) return cleaned;
-  // Cut at the last complete word before 60 chars, append ellipsis.
-  const cut = cleaned.slice(0, 57);
+  if (cleaned.length <= 38) return cleaned;
+  // Cut at the last complete word before 38 chars, append ellipsis.
+  const cut = cleaned.slice(0, 35);
   const lastSpace = cut.lastIndexOf(" ");
-  return lastSpace > 30 ? cleaned.slice(0, lastSpace) + "…" : cleaned.slice(0, 57) + "…";
+  return lastSpace > 10 ? cleaned.slice(0, lastSpace) + "…" : cleaned.slice(0, 35) + "…";
 }
 
 interface TitleParts {
@@ -96,7 +96,7 @@ function titleParts(top: DecisionRec, summary?: any): TitleParts {
     return { solution: t.slice(0, idx).trim(), problem: t.slice(idx + 1).trim() };
   }
   const rawProblem = firstSentence(summary?.problem_statement) || "";
-  return { solution: t, problem: shortenProblem(rawProblem) || t };
+  return { solution: t, problem: shortenProblem(rawProblem) || "" };
 }
 
  /**
