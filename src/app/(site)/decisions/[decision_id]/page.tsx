@@ -88,7 +88,7 @@ export default function DecisionPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
+    <div className="mx-auto max-w-5xl px-6 pt-28 pb-10">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent-deep">Permanent decision link</p>

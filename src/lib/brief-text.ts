@@ -131,12 +131,11 @@ export function actionTitle(top: DecisionRec): string {
 }
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
-  const focus = problemFocus(top, summary);
   const solutionPhrase = solutionPhraseFor(top, summary);
 
   return {
-    one: `${titleCasePhrase(focus)} is consuming the most manual effort and operational risk in the workflow today.`,
-    two: `${titleCasePhrase(solutionPhrase)} is the highest-value, lowest-risk fix identified — this decision funds a bounded pilot, not a full rollout.`,
+    one: "This workflow is consuming the most manual effort and operational risk in your organization today.",
+    two: `${solutionPhrase} is the highest-value, lowest-risk fix identified — this decision funds a bounded pilot, not a full rollout.`,
     three: "A go/no-go decision at the end of the pilot gates any wider deployment on measured results.",
   };
 }

@@ -75,7 +75,7 @@ describe("DecisionPackageView executive memo", () => {
       />
     );
     // Authored recommendation paragraph + controlled-pilot close (no hardcoded domain).
-    expect(screen.getByText(/Invoice Processing is consuming the most manual effort and operational risk/i)).toBeTruthy();
+    expect(screen.getByText(/workflow is consuming the most manual effort and operational risk/i)).toBeTruthy();
     expect(screen.getByText(/Automated Invoice Matching is the highest-value, lowest-risk fix identified/i)).toBeTruthy();
     expect(
       screen.getByText(/A go\/no-go decision at the end of the pilot gates any wider deployment on measured results/i)
