@@ -306,7 +306,7 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
 }
 
 export function evidenceIntro(top: DecisionRec): string {
-  return "The evidence below comes from organizations that implemented this approach and measured the outcomes — observed results, not projections.";
+  return "The evidence below comes from organizations that implemented this approach and measured the outcomes — observed results, not projections. Compass draws from 5,000+ analyzed solutions across more than 2,000 companies.";
 }
 
 // ---- Section 3: Objectives ----
