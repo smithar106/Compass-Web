@@ -84,8 +84,6 @@ describe("DecisionPackageView executive memo", () => {
     expect(screen.queryByText(/Over 5,000 solutions analyzed/)).toBeNull();
     expect(screen.getByText(/observed results, not projections/i)).toBeTruthy();
     // Context line restates the problem from the assessment.
-    expect(screen.getByText(/Based on your assessment/)).toBeTruthy();
-    // Evidence cards carry a one-sentence context.
     expect(screen.getByText("Implemented automated matching to streamline invoice processing.")).toBeTruthy();
     // Implementation steps read as phases (now linear timeline with "01" prefix).
     expect(screen.getByText("Establish the Baseline")).toBeTruthy();

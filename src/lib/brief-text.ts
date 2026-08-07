@@ -143,19 +143,14 @@ export function actionTitle(top: DecisionRec): string {
       return `Approve ${titleCasePhrase(solution)}`;
     }
   }
-  // No colon — the engine returned a generic title. Build a better one
-  // from the problem + category if the title is too short or generic.
+  // No colon — the engine returned a generic title. Only use the problem-
+  // derived fallback when the original title is clearly generic (short,
+  // starts with a pathway word). Descriptive titles like "Automated Invoice
+  // Matching" are kept as-is.
   const GENERIC = /^(ai|software|process|workflow|automation|staffing|hybrid)\s/i;
   if (GENERIC.test(t) || t.split(/\s+/).length <= 2) {
     const problem = problemFocus(top);
-    if (problem && problem.length > 3) {
-      const cat = (top.category || "").toLowerCase();
-      if (cat.includes("ai")) return `Approve AI-powered ${titleCasePhrase(problem)} Solution`;
-      if (cat.includes("software")) return `Approve Software Solution for ${titleCasePhrase(problem)}`;
-      if (cat.includes("process")) return `Approve Process Redesign for ${titleCasePhrase(problem)}`;
-      if (cat.includes("workflow") || cat.includes("automation")) return `Approve Workflow Automation for ${titleCasePhrase(problem)}`;
-      return `Approve ${titleCasePhrase(problem)}`;
-    }
+    if (problem && problem.length > 3) return `Implement ${titleCasePhrase(problem)}`;
   }
   return `Approve ${titleCasePhrase(t)}`;
 }
