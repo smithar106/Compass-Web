@@ -55,10 +55,10 @@ describe("DecisionPackageView executive memo", () => {
       />
     );
     expect(screen.getByText("Approve Automated Invoice Matching")).toBeTruthy();
-    expect(screen.getByText("Evidence")).toBeTruthy();
+    expect(screen.getAllByText("Evidence").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Grounded in 24 comparable implementations")).toBeTruthy();
-    expect(screen.getByText("Strategy and Objectives")).toBeTruthy();
-    expect(screen.getByText("Implementation")).toBeTruthy();
+    expect(screen.getByText("Objectives")).toBeTruthy();
+    expect(screen.getByText("Next Steps")).toBeTruthy();
   });
 
   it("renders the refreshed executive copy", () => {
@@ -74,14 +74,15 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    // Authored recommendation paragraph + controlled-pilot close.
-    expect(screen.getByText(/is consuming valuable finance capacity and creating unnecessary operational friction/i)).toBeTruthy();
+    // Authored recommendation paragraph + controlled-pilot close (no hardcoded domain).
+    expect(screen.getByText(/Invoice Processing is consuming the most manual effort and operational risk/i)).toBeTruthy();
+    expect(screen.getByText(/Automated Invoice Matching is the highest-value, lowest-risk fix identified/i)).toBeTruthy();
     expect(
-      screen.getByText(/We recommend approving a controlled pilot, with expansion contingent on achieving predefined operational and financial success criteria/i)
+      screen.getByText(/A go\/no-go decision at the end of the pilot gates any wider deployment on measured results/i)
     ).toBeTruthy();
     // Evidence intro no longer advertises the engine.
     expect(screen.queryByText(/Over 5,000 solutions analyzed/)).toBeNull();
-    expect(screen.getByText(/Comparable organizations have successfully implemented similar solutions/i)).toBeTruthy();
+    expect(screen.getByText(/observed results, not projections/i)).toBeTruthy();
     // Evidence cards carry a one-sentence context.
     expect(screen.getByText("Implemented automated matching to streamline invoice processing.")).toBeTruthy();
     // Implementation steps read as phases.

@@ -105,82 +105,28 @@
     padding: 0 !important;
     box-shadow: none !important;
     border-radius: 0 !important;
+    isolation: isolate;
   }
 
+  /* The memo is designed at its natural size for Letter; only mild
+     typography compaction keeps pagination clean. Cards never split. */
   #compass-brief-print-clone {
     color: #1c1a17 !important;
-    font-size: 12px;
-    line-height: 1.4;
+    font-size: 11.5px;
+    line-height: 1.45;
   }
-  #compass-brief-print-clone h1 { font-size: 22px !important; }
-  #compass-brief-print-clone h2 { font-size: 15px !important; }
-  #compass-brief-print-clone .px-8 { padding-left: 0 !important; padding-right: 0 !important; }
-  #compass-brief-print-clone .px-10 { padding-left: 0 !important; padding-right: 0 !important; }
-  #compass-brief-print-clone .py-7 { padding-top: 0 !important; padding-bottom: 0 !important; }
-  #compass-brief-print-clone section { margin-top: 10px !important; }
-  #compass-brief-print-clone .mt-6 { margin-top: 10px !important; }
-  #compass-brief-print-clone .mt-8 { margin-top: 12px !important; }
-  #compass-brief-print-clone .mb-2\.5 { margin-bottom: 6px !important; }
-  #compass-brief-print-clone .p-3 { padding: 8px !important; }
-  #compass-brief-print-clone .p-4 { padding: 10px !important; }
-  #compass-brief-print-clone .p-5 { padding: 10px !important; }
-  #compass-brief-print-clone .py-2 { padding-top: 4px !important; padding-bottom: 4px !important; }
-  #compass-brief-print-clone section,
-  #compass-brief-print-clone .print-card {
-    break-inside: auto;
-    page-break-inside: auto;
+  #compass-brief-print-clone h1 {
+    font-size: 26px !important;
   }
-  #compass-brief-print-clone .print-avoid-break {
+  #compass-brief-print-clone h2 {
+    font-size: 18px !important;
+  }
+  #compass-brief-print-clone .print-avoid {
     break-inside: avoid;
     page-break-inside: avoid;
   }
-  #compass-brief-print-clone br {
-    display: none;
-  }
-
-  /* Compact the executive brief to fit a single Letter page.
-     The brief renders with inline styles, so these rules override them.
-     Calibrated against live decisions (3 evidence cards, 4 phases): the
-     tallest observed case measures ~630px at this compactness, comfortably
-     inside a one-page print. */
-  #compass-brief-print-clone {
-    font-size: 8.5px !important;
-    line-height: 1.15 !important;
-  }
-  #compass-brief-print-clone h1 {
-    font-size: 13px !important;
-    margin: 0 !important;
-  }
-  #compass-brief-print-clone p {
-    margin: 1px 0 !important;
-  }
-  #compass-brief-print-clone > div {
-    padding: 1px 8px !important;
-  }
-  #compass-brief-print-clone .grid {
-    gap: 2px !important;
-  }
-  #compass-brief-print-clone .rounded {
-    padding: 2px 5px !important;
-  }
-  #compass-brief-print-clone .mt-4 {
-    margin-top: 2px !important;
-  }
-  #compass-brief-print-clone .mt-3 {
-    margin-top: 1px !important;
-  }
-  #compass-brief-print-clone .mt-2 {
-    margin-top: 1px !important;
-  }
-  #compass-brief-print-clone .mt-1,
-  #compass-brief-print-clone .mt-1\.5 {
-    margin-top: 1px !important;
-  }
-  #compass-brief-print-clone .space-y-1 > * + * {
-    margin-top: 1px !important;
-  }
-  /* Interactive app controls have no place in the printed brief. */
-  #compass-brief-print-clone div.mt-4.flex {
-    display: none !important;
+  #compass-brief-print-clone section {
+    break-inside: auto;
+    page-break-inside: auto;
   }
 }

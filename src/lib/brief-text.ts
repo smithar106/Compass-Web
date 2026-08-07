@@ -1,4 +1,8 @@
 // Decision Brief — four-section data helpers
+//
+// Copy helpers here turn raw engine data into a tight executive memo:
+// every sentence is deliberately short, domain-neutral (no hardcoded
+// "finance" language), and free of duplicated noun phrases.
 
 import type { DecisionRec } from "@/lib/decision-package";
 
@@ -34,6 +38,12 @@ const DOMAIN_NOISE = /\b(finance|financial|solution|solutions|department|departm
 
 // Intervention family names that stand alone as noun phrases (no problem noun needed).
 const NOUN_PHRASE = /(automation|software|platform|system|solution|redesign|staffing|hybrid|implementation|workflow)/i;
+
+// Words that already make a solution phrase read as a complete noun phrase,
+// so we never append the problem focus to it ("Automated Invoice Matching
+// invoice processing" must never happen).
+const SOLUTION_NOUN =
+  /(automation|matching|processing|redesign|optimization|scoring|routing|review|platform|system|solution|software|tooling|workflow|intelligence|analytics|management|onboarding|scheduling|reconciliation|documentation|triage|qualification|health|support|service|reporting|ingestion|extraction|validation|tracking|monitoring)$/i;
 
 function titleCasePhrase(value: string): string {
   const small = new Set(["a", "an", "the", "and", "or", "of", "for", "in", "on", "with", "to", "vs"]);
@@ -76,7 +86,27 @@ function titleParts(top: DecisionRec, summary?: any): TitleParts {
   return { solution: t, problem: firstSentence(summary?.problem_statement) || "" };
 }
 
-// ---- Section 1: Decision Recommendation ----
+/**
+ * Build a standalone solution phrase for a sentence.
+ * "AI-powered" + focus "invoice processing" → "AI-powered invoice processing".
+ * "Automated Invoice Matching" (already a noun phrase) stays as-is.
+ */
+function solutionPhraseFor(top: DecisionRec, summary?: any): string {
+  const { solution, problem } = titleParts(top, summary);
+  const modifier = cleanModifier(solution);
+  const focus = stripManual(problem);
+  if (!modifier) return focus || "This solution";
+  if (SOLUTION_NOUN.test(modifier)) return modifier;
+  if (focus) return `${modifier} ${focus}`;
+  return modifier;
+}
+
+/** Lower-case problem focus ("Manual invoice processing" → "invoice processing"). */
+export function problemFocus(top: DecisionRec, summary?: any): string {
+  return stripManual(titleParts(top, summary).problem) || "the workflow";
+}
+
+// ---- Section 1: Decision Recommendation (Purpose) ----
 
 export interface ImpactCard {
   metric: string;
@@ -101,27 +131,14 @@ export function actionTitle(top: DecisionRec): string {
 }
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
-  const { solution, problem } = titleParts(top, summary);
+  const focus = problemFocus(top, summary);
+  const solutionPhrase = solutionPhraseFor(top, summary);
 
-  const problemPhrase = problem || "The current process";
-  const modifier = cleanModifier(solution);
-  const focus = stripManual(problemPhrase);
-  const solutionPhrase =
-    !problem
-      ? modifier || focus || "This solution"
-      : modifier && focus && !NOUN_PHRASE.test(modifier)
-        ? `${modifier} ${focus}`
-        : modifier
-          ? modifier
-          : focus || "This solution";
-
-  const one = `${problemPhrase} is consuming valuable finance capacity and creating unnecessary operational friction. ${solutionPhrase} offers the strongest opportunity to reduce manual effort, accelerate processing, and improve financial controls while limiting implementation risk through a phased rollout.`;
-
-  const two = "Approval authorizes a bounded pilot measured against a clear baseline, with a go/no-go decision before any wider deployment.";
-
-  const three = "We recommend approving a controlled pilot, with expansion contingent on achieving predefined operational and financial success criteria.";
-
-  return { one, two, three };
+  return {
+    one: `${titleCasePhrase(focus)} is consuming the most manual effort and operational risk in the workflow today.`,
+    two: `${titleCasePhrase(solutionPhrase)} is the highest-value, lowest-risk fix identified — this decision funds a bounded pilot, not a full rollout.`,
+    three: "A go/no-go decision at the end of the pilot gates any wider deployment on measured results.",
+  };
 }
 
 function compactCurrency(n: number | null | undefined, currency?: string): string {
@@ -211,7 +228,7 @@ function cleanMetric(metricRaw: string, val: string): string {
 export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
   const raw = (top.comparable_implementations || []).slice(0, 3);
   const seen = new Set<string>();
-  const focus = stripManual(titleParts(top, summary).problem) || "operations";
+  const focus = problemFocus(top, summary);
   return raw
     .filter((c) => {
       const key = asString(c.organization).trim().toLowerCase();
@@ -247,10 +264,10 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
 }
 
 export function evidenceIntro(top: DecisionRec): string {
-  return "Comparable organizations have successfully implemented similar solutions and reported measurable improvements in cost, processing speed, and operational performance. Compass recommends this approach because organizations facing similar operational challenges consistently achieved the strongest business outcomes with this implementation strategy.";
+  return "The evidence below comes from comparable organizations that implemented the same intervention and measured the outcomes — observed results, not projections.";
 }
 
-// ---- Section 3: Strategy and Objectives ----
+// ---- Section 3: Objectives ----
 
 export interface StrategyCard {
   heading: string;
@@ -259,32 +276,32 @@ export interface StrategyCard {
 }
 
 export function strategyCards(top: DecisionRec): StrategyCard[] {
-  const problem = "manual processing";
+  const focus = problemFocus(top);
   return [
     {
       heading: "Reduce Manual Effort",
-      description: `Automate repeatable ${problem} steps while routing exceptions through a controlled human review process.`,
-      objective: `Reduce manual processing effort without weakening controls.`,
+      description: `Automate repeatable steps in ${focus} while routing exceptions through controlled human review.`,
+      objective: "Cut manual effort without weakening controls.",
     },
     {
       heading: "Increase Processing Capacity",
-      description: `Scale volume through automation rather than headcount. The solution handles higher throughput while maintaining quality.`,
-      objective: `Improve processing capacity while maintaining service quality.`,
+      description: "Absorb higher volume through automation rather than headcount, holding quality steady.",
+      objective: "Grow throughput without adding headcount.",
     },
     {
-      heading: "Strengthen Compliance",
-      description: `Standardize processing rules and create a consistent, auditable record for every transaction.`,
-      objective: `Improve compliance and reduce audit risk.`,
+      heading: "Strengthen Controls",
+      description: "Standardize processing rules and keep a consistent, auditable record of every step.",
+      objective: "Reduce risk and audit exposure.",
     },
     {
       heading: "Validate Before Scaling",
-      description: `Begin with a bounded pilot measured against a clear baseline before committing to full deployment.`,
-      objective: `Confirm value before committing to full deployment.`,
+      description: "Run a bounded pilot against a clear baseline before committing to full deployment.",
+      objective: "Confirm value before committing to scale.",
     },
   ];
 }
 
-// ---- Section 4: Implementation ----
+// ---- Section 4: Next Steps ----
 
 export interface ImplementationStep {
   name: string;
@@ -294,12 +311,13 @@ export interface ImplementationStep {
 }
 
 export function implementationSteps(top: DecisionRec): ImplementationStep[] {
-  const sc = firstSentence(top.next_validation_step?.success_criteria) || "At least 90% of workflow instances captured with complete timestamps";
+  const sc = firstSentence(top.next_validation_step?.success_criteria) || "at least 90% of workflow instances captured with complete timestamps";
+  const criteria = sc ? ` Success criteria: ${sc.charAt(0).toLowerCase() + sc.slice(1)}.` : "";
   return [
     {
       name: "Establish the Baseline",
       timeline: "Weeks 1 to 2",
-      detail: `Measure workflow volume, handling time, labor cost, error rate, and exception frequency.${sc ? ` Success requires that ${sc.charAt(0).toLowerCase() + sc.slice(1)}.` : ""}`,
+      detail: `Measure workflow volume, handling time, labor cost, error rate, and exception frequency.${criteria}`,
       team: "Operations and Finance",
     },
     {
