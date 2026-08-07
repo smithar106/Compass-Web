@@ -167,9 +167,10 @@ export function recommendationExplanation(top: DecisionRec, summary: any): { one
   const context = cleanRationale || description;
 
   // Three scannable sentences: problem → solution → approval
+  const cleanFocus = focus.includes("…") || focus === "the workflow" ? "This operation" : titleCasePhrase(focus);
   const one = context && context.length > 10
     ? `${context.charAt(0).toUpperCase() + context.slice(1)}${context.endsWith(".") ? "" : "."}`
-    : `${titleCasePhrase(focus)} depends on manual effort that compounds cost and risk as volume grows.`;
+    : `${cleanFocus} depends on manual effort that compounds cost and risk as volume grows.`;
 
   const two = `${solutionPhrase} addresses this directly. This decision funds a bounded pilot, not a full rollout.`;
 
@@ -314,10 +315,13 @@ export interface StrategyCard {
 
 export function strategyCards(top: DecisionRec): StrategyCard[] {
   const focus = problemFocus(top);
+  // Only interpolate the focus when it's a clean short phrase.
+  // Truncated problem fragments and generic fallbacks degrade the prose.
+  const workflow = focus.includes("…") || focus === "the workflow" ? "the workflow" : focus;
   return [
     {
       heading: "Reduce Manual Effort",
-      description: `Automate repeatable steps in ${focus} while routing exceptions through controlled human review.`,
+      description: `Automate repeatable steps in ${workflow} while routing exceptions through controlled human review.`,
       objective: "Cut manual effort without weakening controls.",
     },
     {
