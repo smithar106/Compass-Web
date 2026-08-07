@@ -163,7 +163,7 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
     cards.push({
       metric: compactCurrency(savings.expected, savings.currency),
       label: "Expected annual savings",
-      context: low !== high ? `Range ${low}–${high} across comparable implementations` : "Estimated from your volume, cost, and evidence",
+      context: low !== high ? `Range ${low}–${high}` : "Estimated from your volume, cost, and evidence",
     });
   }
 
@@ -237,13 +237,13 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
       return true;
     })
     .map((c) => {
-      const org = asString(c.organization).trim() || "A comparable organization";
+      const org = asString(c.organization).trim() || "An organization with a similar workflow";
       const outcome = asString(c.outcome_summary || c.observed_outcome);
       // One context sentence so each card explains what the comparable actually did.
       const intervention = asString(c.intervention || c.intervention_description);
       const context = intervention
         ? `Implemented ${intervention.toLowerCase()} to streamline ${focus}.`
-        : "Deployed a comparable solution to address the same operational challenge.";
+        : "Deployed this approach to address the same operational challenge.";
       const bullets: string[] = [];
       outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s)).forEach((s) => {
         const parts = s.split(/[:=]/).map((p) => p.trim());
