@@ -28,10 +28,10 @@ const mockRec = {
 describe("actionTitle", () => {
   it("formats titles as natural executive initiatives", () => {
     expect(actionTitle({ title: "AI-powered Finance: Manual invoice processing" } as any)).toBe(
-      "Approve AI-Powered Invoice Processing"
+      "Approve AI-Powered Finance Invoice Processing"
     );
     expect(actionTitle({ title: "Software solution for Sales: Lead qualification" } as any)).toBe(
-      "Approve Software for Sales Lead Qualification"
+      "Approve Software Solution for Sales Lead Qualification"
     );
   });
 
@@ -74,8 +74,8 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    // Authored recommendation paragraph + controlled-pilot close (no hardcoded domain).
-    expect(screen.getByText(/workflow is consuming the most manual effort and operational risk/i)).toBeTruthy();
+    // Authored recommendation paragraph uses LLM rationale.
+    expect(screen.getByText(/Manual matching is the top driver of processing cost and errors/i)).toBeTruthy();
     expect(screen.getByText(/Automated Invoice Matching is the highest-value, lowest-risk fix identified/i)).toBeTruthy();
     expect(
       screen.getByText(/A go\/no-go decision at the end of the pilot gates any wider deployment on measured results/i)
@@ -83,6 +83,8 @@ describe("DecisionPackageView executive memo", () => {
     // Evidence intro no longer advertises the engine.
     expect(screen.queryByText(/Over 5,000 solutions analyzed/)).toBeNull();
     expect(screen.getByText(/observed results, not projections/i)).toBeTruthy();
+    // Context line restates the problem from the assessment.
+    expect(screen.getByText(/Based on your assessment/)).toBeTruthy();
     // Evidence cards carry a one-sentence context.
     expect(screen.getByText("Implemented automated matching to streamline invoice processing.")).toBeTruthy();
     // Implementation steps read as phases (now linear timeline with "01" prefix).

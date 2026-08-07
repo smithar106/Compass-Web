@@ -104,6 +104,13 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
             {actionTitle(top)}
           </h1>
 
+          {/* Context line: restates the specific situation */}
+          {summary?.problem_statement && (
+            <p className="mb-4 max-w-[62ch] font-mono text-[11px] uppercase leading-[1.6] tracking-[0.10em]" style={{ color: BRIEF.accent }}>
+              Based on your assessment &middot; {summary.problem_statement}
+            </p>
+          )}
+
           <div className="mb-6 max-w-[62ch] space-y-4 text-[1.12rem] leading-[1.6]" style={{ color: BRIEF.text }}>
             <p className="m-0">{explanation.one}</p>
             <p className="m-0">{explanation.two}</p>

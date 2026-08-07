@@ -121,10 +121,9 @@ export function actionTitle(top: DecisionRec): string {
     const solution = t.slice(0, idx).trim();
     const problem = t.slice(idx + 1).trim();
     if (solution && problem) {
-      const modifier = cleanModifier(solution);
       const focus = stripManual(problem);
-      if (modifier && focus) return `Approve ${titleCasePhrase(modifier)} ${titleCasePhrase(focus)}`;
-      if (focus) return `Approve ${titleCasePhrase(focus)}`;
+      if (focus) return `Approve ${titleCasePhrase(solution)} ${titleCasePhrase(focus)}`;
+      return `Approve ${titleCasePhrase(solution)}`;
     }
   }
   return `Approve ${titleCasePhrase(t)}`;
@@ -132,12 +131,20 @@ export function actionTitle(top: DecisionRec): string {
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
   const solutionPhrase = solutionPhraseFor(top, summary);
+  const rationale = firstSentence(top.rationale);
+  const description = firstSentence(top.description);
 
-  return {
-    one: "This workflow is consuming the most manual effort and operational risk in your organization today.",
-    two: `${solutionPhrase} is the highest-value, lowest-risk fix identified — this decision funds a bounded pilot, not a full rollout.`,
-    three: "A go/no-go decision at the end of the pilot gates any wider deployment on measured results.",
-  };
+  const context = rationale || description;
+
+  const one = context && context.length > 10
+    ? `${context.charAt(0).toUpperCase() + context.slice(1)}${context.endsWith(".") ? "" : "."}`
+    : "This workflow carries the highest manual cost and operational risk in your organization today.";
+
+  const two = `${solutionPhrase} is the highest-value, lowest-risk fix identified. This decision funds a bounded pilot, not a full rollout.`;
+
+  const three = "A go/no-go decision at the end of the pilot gates any wider deployment on measured results.";
+
+  return { one, two, three };
 }
 
 function compactCurrency(n: number | null | undefined, currency?: string): string {
@@ -291,11 +298,6 @@ export function strategyCards(top: DecisionRec): StrategyCard[] {
       heading: "Strengthen Controls",
       description: "Standardize processing rules and keep a consistent, auditable record of every step.",
       objective: "Reduce risk and audit exposure.",
-    },
-    {
-      heading: "Validate Before Scaling",
-      description: "Run a bounded pilot against a clear baseline before committing to full deployment.",
-      objective: "Confirm value before committing to scale.",
     },
   ];
 }
