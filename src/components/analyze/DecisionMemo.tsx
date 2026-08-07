@@ -79,12 +79,6 @@ function MetaCell({ label, value, hl, hlColor }: { label: string; value: string;
   );
 }
 
-/**
- * The executive decision memo document — one layout shared by the on-screen
- * brief and the print/PDF preview. Structure: masthead, then 01 Purpose,
- * 02 Evidence, 03 Objectives, 04 Next Steps. All content stays in normal
- * flow (no absolute/fixed positioning) so text can never collide.
- */
 export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps) {
   const top = recs[0];
   if (!top) return null;
@@ -98,29 +92,18 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
   const strategies = strategyCards(top);
   const steps = implementationSteps(top);
   const timeToValue = impacts[2]?.metric ?? "8 to 16 weeks";
-  const totalComparables =
-    typeof top.evidence_summary?.total_comparables === "number" && top.evidence_summary.total_comparables > 0
-      ? top.evidence_summary.total_comparables
-      : null;
+
   const orgs =
     typeof meta?.evidence_count?.unique_organizations === "number" ? meta.evidence_count.unique_organizations : null;
   const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   return (
-    <div className="relative isolate bg-white text-[#1c1a17]">
+    <div className="bg-white text-[#1c1a17]">
       {/* ===== Masthead ===== */}
-      <div
-        className="h-1.5 w-full"
-        style={{ background: "linear-gradient(90deg, #1f9d57 0%, #0e9db0 42%, #6a5acd 74%, #d9932a 100%)" }}
-        aria-hidden="true"
-      />
-      <div className="px-6 pb-7 pt-6 sm:px-10 sm:pb-9 sm:pt-7">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6c685f]">Executive Decision Brief</p>
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6c685f]">
-            Prepared by Compass &middot; {date}
-          </p>
-        </div>
+      <div className="border-t border-[#e6e2db] px-6 pb-7 pt-6 sm:px-10 sm:pb-9 sm:pt-7">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6c685f]">
+          Executive Decision Brief &middot; Prepared by Compass &middot; {date}
+        </p>
 
         <div className="mt-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
           <h1
@@ -143,28 +126,32 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
         <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[#e6e2db] bg-[#e6e2db] sm:grid-cols-4">
           <MetaCell label="Decision" value="Approve bounded pilot" />
           <MetaCell label="Status" value={badge.text} hl hlColor={badge.ink} />
-          <MetaCell
-            label="Evidence"
-            value={totalComparables != null ? `${totalComparables} comparable implementations` : "Cataloguing evidence"}
-          />
+          <MetaCell label="Evidence" value="Evidence-backed" />
           <MetaCell label="Time to value" value={timeToValue} />
         </div>
       </div>
 
       {/* ===== 01 · Purpose ===== */}
-      <section data-testid="section-decision" className="print-avoid px-6 py-8 sm:px-10 sm:py-9" style={{ backgroundColor: TONES.purpose.bg }}>
+      <section
+        data-testid="section-decision"
+        className="border-t border-[#e6e2db] px-6 py-8 sm:px-10 sm:py-9"
+      >
         <div className="mx-auto max-w-5xl">
           <SectionHead number="01" title="Purpose" tone={TONES.purpose} />
-          <p className="mt-4 max-w-3xl text-[13.5px] leading-[1.65] text-[#2c2925]">
-            <span className="font-bold text-[#1c1a17]">Bottom line: </span>
-            {explanation.one} {explanation.two} {explanation.three}
-          </p>
+          <div className="mt-4 max-w-3xl space-y-2 text-[13.5px] leading-[1.65] text-[#2c2925]">
+            <p>
+              <span className="font-bold text-[#1c1a17]">Bottom line: </span>
+              {explanation.one}
+            </p>
+            <p>{explanation.two}</p>
+            <p>{explanation.three}</p>
+          </div>
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {impacts.map((c) => (
               <div
                 key={c.label}
                 data-testid="impact-card"
-                className="print-avoid rounded-lg bg-white px-5 py-5 shadow-[0_1px_2px_rgba(14,23,34,0.06)]"
+                className="rounded-lg bg-white px-5 py-5"
                 style={{ borderTop: `3px solid ${TONES.purpose.accent}` }}
               >
                 <p className="text-[28px] font-extrabold leading-none tracking-tight text-[#1c1a17] tabular-nums">{c.metric}</p>
@@ -177,27 +164,19 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
       </section>
 
       {/* ===== 02 · Evidence ===== */}
-      <section data-testid="section-evidence" className="px-6 py-8 sm:px-10 sm:py-9" style={{ backgroundColor: TONES.evidence.bg }}>
+      <section
+        data-testid="section-evidence"
+        className="border-t border-[#e6e2db] px-6 py-8 sm:px-10 sm:py-9"
+      >
         <div className="mx-auto max-w-5xl">
           <SectionHead number="02" title="Evidence" tone={TONES.evidence} />
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="max-w-2xl text-[13px] font-medium leading-[1.55] text-[#2c2925]">{evidenceIntro(top)}</p>
-            {totalComparables != null && (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-bold"
-                style={{ color: TONES.evidence.ink }}
-              >
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: TONES.evidence.accent }} />
-                Grounded in {totalComparables} comparable implementations
-              </span>
-            )}
-          </div>
+          <p className="mt-4 max-w-2xl text-[13px] font-medium leading-[1.55] text-[#2c2925]">{evidenceIntro(top)}</p>
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {evidences.slice(0, 3).map((e) => (
               <div
                 key={e.company}
                 data-testid="evidence-card"
-                className="print-avoid rounded-lg bg-white px-5 py-5 shadow-[0_1px_2px_rgba(14,23,34,0.06)]"
+                className="rounded-lg bg-white px-5 py-5"
                 style={{ borderTop: `3px solid ${TONES.evidence.accent}` }}
               >
                 <p className="text-[15px] font-bold text-[#1c1a17]">{e.company}</p>
@@ -227,7 +206,10 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
       </section>
 
       {/* ===== 03 · Objectives ===== */}
-      <section data-testid="section-strategy" className="px-6 py-8 sm:px-10 sm:py-9" style={{ backgroundColor: TONES.objectives.bg }}>
+      <section
+        data-testid="section-strategy"
+        className="border-t border-[#e6e2db] px-6 py-8 sm:px-10 sm:py-9"
+      >
         <div className="mx-auto max-w-5xl">
           <SectionHead number="03" title="Objectives" tone={TONES.objectives} />
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -235,7 +217,7 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
               <div
                 key={s.heading}
                 data-testid="strategy-card"
-                className="print-avoid rounded-lg bg-white px-5 py-5 shadow-[0_1px_2px_rgba(14,23,34,0.06)]"
+                className="rounded-lg bg-white px-5 py-5"
                 style={{ borderTop: `3px solid ${TONES.objectives.accent}` }}
               >
                 <p className="text-[16px] font-bold text-[#1c1a17]">{s.heading}</p>
@@ -250,7 +232,10 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
       </section>
 
       {/* ===== 04 · Next Steps ===== */}
-      <section data-testid="section-implementation" className="px-6 py-8 sm:px-10 sm:py-9" style={{ backgroundColor: TONES.next.bg }}>
+      <section
+        data-testid="section-implementation"
+        className="border-t border-[#e6e2db] px-6 py-8 sm:px-10 sm:py-9"
+      >
         <div className="mx-auto max-w-5xl">
           <SectionHead number="04" title="Next Steps" tone={TONES.next} />
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -258,7 +243,7 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
               <div
                 key={s.name}
                 data-testid="implementation-step"
-                className="print-avoid rounded-lg bg-white px-5 py-5 shadow-[0_1px_2px_rgba(14,23,34,0.06)]"
+                className="rounded-lg bg-white px-5 py-5"
                 style={{ borderTop: `3px solid ${TONES.next.accent}` }}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -295,8 +280,8 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
       {/* ===== Footnote ===== */}
       <div className="border-t border-[#e6e2db] bg-white px-6 py-5 sm:px-10">
         <p className="text-[11px] leading-[1.55] text-[#6c685f]">
-          Prepared by Compass &middot; Deterministic scoring over an evidence graph
-          {totalComparables != null && ` &middot; ${totalComparables} comparable implementations${orgs != null ? ` across ${orgs} organizations` : ""}`}
+          Prepared by Compass &middot; Evidence-backed recommendation
+          {orgs != null ? ` &middot; ${orgs.toLocaleString()} organizations in the evidence base` : ""}
           . This brief is a decision aid, not a guarantee of outcomes.
         </p>
       </div>

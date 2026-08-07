@@ -264,7 +264,7 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
 }
 
 export function evidenceIntro(top: DecisionRec): string {
-  return "The evidence below comes from comparable organizations that implemented the same intervention and measured the outcomes — observed results, not projections.";
+  return "The evidence below comes from organizations that implemented this approach and measured the outcomes — observed results, not projections.";
 }
 
 // ---- Section 3: Objectives ----
