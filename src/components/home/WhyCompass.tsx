@@ -8,7 +8,7 @@ export function WhyCompass() {
   const last = w.steps.length - 1;
 
   return (
-    <section className="border-b border-line bg-paper">
+    <section id="why-compass" className="border-b border-line bg-paper">
       <div className="mx-auto max-w-7xl px-5 py-section sm:px-8 lg:px-10 lg:py-section">
         <SectionHeader eyebrow={w.eyebrow} headline={w.headline} subtitle={w.supporting} align="center" />
 

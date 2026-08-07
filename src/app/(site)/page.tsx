@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { metadata as siteMetadata } from "@/content/marketing";
 import { HomeHero } from "@/components/home/HomeHero";
 import { Problem } from "@/components/home/Problem";
+import { ImplementationReality } from "@/components/marketing/ImplementationReality";
 import { WhyCompass } from "@/components/home/WhyCompass";
 import { ExecutiveBrief } from "@/components/home/ExecutiveBrief";
 import { ImplementationIntelligence } from "@/components/home/ImplementationIntelligence";
@@ -23,6 +24,7 @@ export default function HomePage() {
     <>
       <HomeHero />
       <Problem />
+      <ImplementationReality />
       <WhyCompass />
       <ExecutiveBrief />
       <ImplementationIntelligence />
