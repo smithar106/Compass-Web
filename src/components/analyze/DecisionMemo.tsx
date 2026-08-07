@@ -11,7 +11,22 @@ import {
   strategyCards,
   implementationSteps,
 } from "@/lib/brief-text";
-import { BRIEF_COLORS, type BriefTone } from "@/lib/brief-colors";
+
+/* ------------------------------------------------------------------ */
+/*  Cream + teal brief identity                                       */
+/* ------------------------------------------------------------------ */
+
+const BRIEF = {
+  bg: "#F4EEE1",
+  card: "#FCFAF3",
+  border: "#E4DBC7",
+  accent: "#0E7C8C",
+  accentLine: "rgba(14,124,140,0.32)",
+  accentSoft: "rgba(14,124,140,0.09)",
+  text: "#14203A",
+  muted: "#5A6072",
+  faint: "#8C8776",
+} as const;
 
 interface DecisionMemoProps {
   recs: DecisionRec[];
@@ -20,61 +35,14 @@ interface DecisionMemoProps {
   status?: string;
 }
 
-const TONES: Record<"purpose" | "evidence" | "objectives" | "next", (typeof BRIEF_COLORS)[BriefTone]> = {
-  purpose: BRIEF_COLORS.green,
-  evidence: BRIEF_COLORS.teal,
-  objectives: BRIEF_COLORS.amber,
-  next: BRIEF_COLORS.violet,
-};
-
-const BADGE_BY_KEY: Record<string, { text: string; dot: string; cls: string; ink: string }> = {
-  live: {
-    text: "Recommended for Pilot Approval",
-    dot: "bg-[#1E7B4C]",
-    cls: "bg-[#E5F3EA] text-[#14532d] border-[#BFDCC9]",
-    ink: "#14663a",
-  },
-  partial: {
-    text: "Recommended – Pilot Before Scale",
-    dot: "bg-[#B45309]",
-    cls: "bg-[#FBF0E0] text-[#7a3b06] border-[#E8CF9C]",
-    ink: "#7a3b06",
-  },
-  insufficient: {
-    text: "Insufficient evidence",
-    dot: "bg-[#C4382C]",
-    cls: "bg-[#FAE9E7] text-[#7a1f1a] border-[#E5B7B0]",
-    ink: "#7a1f1a",
-  },
-};
-
-function SectionHead({ number, title, tone }: { number: string; title: string; tone: (typeof BRIEF_COLORS)[BriefTone] }) {
+function Eyebrow({ children }: { children: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <span
-        aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[13px] font-bold text-white"
-        style={{ backgroundColor: tone.ink }}
-      >
-        {number}
-      </span>
-      <h2 className="font-serif text-[21px] font-semibold leading-tight tracking-[-0.01em] text-[#1c1a17]">{title}</h2>
-      <span className="h-px min-w-6 flex-1" style={{ backgroundColor: "rgba(28,26,23,0.14)" }} />
-    </div>
-  );
-}
-
-function MetaCell({ label, value, hl, hlColor }: { label: string; value: string; hl?: boolean; hlColor?: string }) {
-  return (
-    <div className={cn("min-w-0 bg-white px-4 py-3", hl && "bg-[#E5F3EA]")}>
-      <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-[#6c685f]">{label}</p>
-      <p
-        className="mt-1 truncate text-[13px] font-semibold leading-snug text-[#1c1a17]"
-        style={hl && hlColor ? { color: hlColor } : undefined}
-        title={value}
-      >
-        {value}
-      </p>
+    <div
+      className="flex items-center gap-3 font-mono text-[12px] font-medium uppercase tracking-[0.16em]"
+      style={{ color: BRIEF.accent }}
+    >
+      <span aria-hidden="true" className="inline-block h-px w-[26px]" style={{ backgroundColor: BRIEF.accent }} />
+      {children}
     </div>
   );
 }
@@ -84,206 +52,308 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
   if (!top) return null;
 
   const g = groundingState(top, meta);
-  const badge = BADGE_BY_KEY[g.key] ?? BADGE_BY_KEY.insufficient;
+  const badgeText =
+    g.key === "live"
+      ? "Recommended for Pilot Approval"
+      : g.key === "partial"
+        ? "Recommended – Pilot Before Scale"
+        : "Insufficient evidence";
 
   const explanation = recommendationExplanation(top, summary);
   const impacts = impactCards(top);
   const evidences = evidenceCards(top, summary);
   const strategies = strategyCards(top);
   const steps = implementationSteps(top);
-  const timeToValue = impacts[2]?.metric ?? "8 to 16 weeks";
 
-  const orgs =
-    typeof meta?.evidence_count?.unique_organizations === "number" ? meta.evidence_count.unique_organizations : null;
   const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   return (
-    <div className="bg-white text-[#1c1a17]">
-      {/* ===== Masthead ===== */}
-      <div className="border-t border-[#e6e2db] px-6 pb-7 pt-6 sm:px-10 sm:pb-9 sm:pt-7">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6c685f]">
-          Executive Decision Brief &middot; Prepared by Compass &middot; {date}
-        </p>
+    <div className="font-sans antialiased" style={{ backgroundColor: BRIEF.bg, color: BRIEF.text }}>
+      {/* ===== Left rail ===== */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed bottom-0 top-0 z-0 hidden sm:block"
+        style={{ left: 48, width: 1, background: `linear-gradient(to bottom, transparent, ${BRIEF.accentLine} 12%, ${BRIEF.accentLine} 88%, transparent)` }}
+      />
 
-        <div className="mt-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+      <div className="relative z-[1] mx-auto max-w-[1040px] px-5 pb-[100px] pt-6 sm:pl-[96px] sm:pr-10 sm:pt-7">
+
+        {/* ===== Masthead ===== */}
+        <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-y-2 pb-5" style={{ backgroundColor: BRIEF.bg }}>
+          <div className="flex items-center gap-[11px] text-[14px] font-semibold uppercase tracking-[0.18em]">
+            <span aria-hidden="true" className="inline-block h-[9px] w-[9px] rounded-full" style={{ backgroundColor: BRIEF.accent }} />
+            Compass
+          </div>
+          <div className="font-mono text-[11px] uppercase leading-[1.7] tracking-[0.14em]" style={{ color: BRIEF.muted }}>
+            Executive Decision Brief<br />
+            Prepared for Leadership &middot; {date}
+          </div>
+        </div>
+
+        {/* ======================================================================== */}
+        {/*  01 — Decision Recommendation                                           */}
+        {/* ======================================================================== */}
+        <section data-testid="section-decision" className="py-[60px]" style={{ borderTop: `1px solid ${BRIEF.border}` }}>
+          <Eyebrow>01 — Decision Recommendation</Eyebrow>
+
           <h1
             data-testid="decision-title"
-            className="max-w-3xl font-serif text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] text-[#1c1a17] sm:text-[38px]"
+            className="mb-[26px] mt-0 max-w-[20ch] text-[clamp(2rem,5vw,3.35rem)] font-normal leading-[1.08] tracking-[-0.025em]"
+            style={{ color: BRIEF.text }}
           >
             {actionTitle(top)}
           </h1>
-          <span
-            className={cn(
-              "inline-flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-bold",
-              badge.cls
-            )}
-          >
-            <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", badge.dot)} />
-            {badge.text}
-          </span>
-        </div>
 
-        <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[#e6e2db] bg-[#e6e2db] sm:grid-cols-4">
-          <MetaCell label="Decision" value="Approve bounded pilot" />
-          <MetaCell label="Status" value={badge.text} hl hlColor={badge.ink} />
-          <MetaCell label="Evidence" value="Evidence-backed" />
-          <MetaCell label="Time to value" value={timeToValue} />
-        </div>
-      </div>
-
-      {/* ===== 01 · Purpose ===== */}
-      <section
-        data-testid="section-decision"
-        className="border-t border-[#e6e2db] px-6 py-8 sm:px-10 sm:py-9"
-      >
-        <div className="mx-auto max-w-5xl">
-          <SectionHead number="01" title="Purpose" tone={TONES.purpose} />
-          <div className="mt-4 max-w-3xl space-y-2 text-[13.5px] leading-[1.65] text-[#2c2925]">
-            <p>
-              <span className="font-bold text-[#1c1a17]">Bottom line: </span>
-              {explanation.one}
-            </p>
-            <p>{explanation.two}</p>
-            <p>{explanation.three}</p>
+          <div className="mb-6 max-w-[62ch] space-y-4 text-[1.12rem] leading-[1.6]" style={{ color: BRIEF.text }}>
+            <p className="m-0">{explanation.one}</p>
+            <p className="m-0">{explanation.two}</p>
+            <p className="m-0">{explanation.three}</p>
           </div>
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+          {/* ---- KPI cards ---- */}
+          <div className="mt-10 grid grid-cols-1 gap-[18px] sm:grid-cols-3">
             {impacts.map((c) => (
               <div
                 key={c.label}
                 data-testid="impact-card"
-                className="rounded-lg bg-white px-5 py-5"
-                style={{ borderTop: `3px solid ${TONES.purpose.accent}` }}
+                className="relative overflow-hidden px-6 pb-6 pt-[26px]"
+                style={{
+                  backgroundColor: BRIEF.card,
+                  border: `1px solid ${BRIEF.border}`,
+                  borderRadius: 10,
+                }}
               >
-                <p className="text-[28px] font-extrabold leading-none tracking-tight text-[#1c1a17] tabular-nums">{c.metric}</p>
-                <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#6c685f]">{c.label}</p>
-                <p className="mt-1 text-[12px] leading-[1.45] text-[#6c685f]">{c.context}</p>
+                {/* top accent bar */}
+                <div
+                  aria-hidden="true"
+                  className="absolute left-0 top-0 h-[2px] w-full opacity-70"
+                  style={{ background: `linear-gradient(90deg, ${BRIEF.accent}, transparent 70%)` }}
+                />
+                <p
+                  className="mb-[14px] font-mono text-[11px] uppercase leading-none tracking-[0.14em]"
+                  style={{ color: BRIEF.muted }}
+                >
+                  {c.label}
+                </p>
+                <p
+                  className="text-[clamp(2.4rem,5vw,3.1rem)] font-light leading-none tracking-[-0.03em]"
+                  style={{ color: BRIEF.text, fontVariantNumeric: "tabular-nums" }}
+                >
+                  {c.metric}
+                </p>
+                {c.context && (
+                  <p className="mt-3 text-[0.92rem] leading-[1.5]" style={{ color: BRIEF.muted }}>
+                    {c.context}
+                  </p>
+                )}
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ===== 02 · Evidence ===== */}
-      <section
-        data-testid="section-evidence"
-        className="border-t border-[#e6e2db] px-6 py-8 sm:px-10 sm:py-9"
-      >
-        <div className="mx-auto max-w-5xl">
-          <SectionHead number="02" title="Evidence" tone={TONES.evidence} />
-          <p className="mt-4 max-w-2xl text-[13px] font-medium leading-[1.55] text-[#2c2925]">{evidenceIntro(top)}</p>
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {/* ======================================================================== */}
+        {/*  02 — Evidence                                                          */}
+        {/* ======================================================================== */}
+        <section data-testid="section-evidence" className="py-[60px]" style={{ borderTop: `1px solid ${BRIEF.border}` }}>
+          <Eyebrow>02 — Evidence</Eyebrow>
+          <h2 className="mb-[14px] mt-0 text-[clamp(1.6rem,3.4vw,2.3rem)] font-normal leading-[1.12] tracking-[-0.02em]" style={{ color: BRIEF.text }}>
+            Organizations that have made this move
+          </h2>
+          <p className="mb-0 max-w-[62ch] text-[0.95rem] leading-[1.6]" style={{ color: BRIEF.muted }}>
+            {evidenceIntro(top)}
+          </p>
+
+          <div className="mt-10 grid grid-cols-1 gap-[18px] sm:grid-cols-3">
             {evidences.slice(0, 3).map((e) => (
               <div
                 key={e.company}
                 data-testid="evidence-card"
-                className="rounded-lg bg-white px-5 py-5"
-                style={{ borderTop: `3px solid ${TONES.evidence.accent}` }}
+                className="flex flex-col gap-[14px] p-[26px_24px] transition-colors"
+                style={{
+                  backgroundColor: BRIEF.card,
+                  border: `1px solid ${BRIEF.border}`,
+                  borderRadius: 10,
+                }}
               >
-                <p className="text-[15px] font-bold text-[#1c1a17]">{e.company}</p>
-                {e.context && <p className="mt-1 text-[12px] leading-[1.45] text-[#6c685f]">{e.context}</p>}
-                <ul className="mt-2 space-y-1.5">
+                <p
+                  className="text-[1.18rem] font-semibold leading-snug tracking-[-0.01em]"
+                  style={{ color: BRIEF.text }}
+                >
+                  {e.company}
+                </p>
+                {e.context && (
+                  <p className="m-0 text-[0.95rem] leading-[1.5]" style={{ color: BRIEF.muted }}>
+                    {e.context}
+                  </p>
+                )}
+                {/* Bullet outcomes */}
+                <div className="mt-auto" style={{ borderTop: `1px solid ${BRIEF.border}`, paddingTop: 16 }}>
                   {e.bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2 text-[12.5px] leading-[1.5] text-[#1c1a17]">
-                      <span aria-hidden="true" className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: TONES.evidence.accent }} />
+                    <p
+                      key={b}
+                      className="m-0 text-[1.02rem] font-semibold leading-snug tracking-[-0.01em]"
+                      style={{ color: BRIEF.accent }}
+                    >
                       {b}
-                    </li>
+                    </p>
                   ))}
-                </ul>
+                  {e.bullets.length > 0 && (
+                    <span className="mt-1.5 block font-mono text-[10.5px] uppercase tracking-[0.12em]" style={{ color: BRIEF.muted }}>
+                      Measured outcome
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
             {evidences.length === 0 && (
-              <div className="rounded-lg bg-white px-5 py-5 sm:col-span-3">
-                <p className="text-[13px] italic text-[#6c685f]">Evidence is being catalogued.</p>
+              <div
+                className="col-span-full p-[26px_24px] italic"
+                style={{ backgroundColor: BRIEF.card, border: `1px solid ${BRIEF.border}`, borderRadius: 10, color: BRIEF.faint }}
+              >
+                Evidence is being catalogued.
               </div>
             )}
             {evidences.length > 0 && evidences.length < 3 && (
-              <div className="flex items-center justify-center rounded-lg border border-dashed border-[#a9dce2] bg-white/50 px-5 py-5">
-                <p className="text-[12px] italic text-[#6c685f]">Insufficient evidence</p>
+              <div
+                className="flex items-center justify-center p-[26px_24px] italic"
+                style={{
+                  backgroundColor: "rgba(252,250,243,0.5)",
+                  border: `1px dashed ${BRIEF.accentLine}`,
+                  borderRadius: 10,
+                  color: BRIEF.faint,
+                }}
+              >
+                Additional evidence pending
               </div>
             )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ===== 03 · Objectives ===== */}
-      <section
-        data-testid="section-strategy"
-        className="border-t border-[#e6e2db] px-6 py-8 sm:px-10 sm:py-9"
-      >
-        <div className="mx-auto max-w-5xl">
-          <SectionHead number="03" title="Objectives" tone={TONES.objectives} />
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* ======================================================================== */}
+        {/*  03 — Strategy &amp; Objectives                                          */}
+        {/* ======================================================================== */}
+        <section data-testid="section-strategy" className="py-[60px]" style={{ borderTop: `1px solid ${BRIEF.border}` }}>
+          <Eyebrow>03 — Strategy &amp; Objectives</Eyebrow>
+          <h2 className="mb-[14px] mt-0 text-[clamp(1.6rem,3.4vw,2.3rem)] font-normal leading-[1.12] tracking-[-0.02em]" style={{ color: BRIEF.text }}>
+            What this decision is designed to achieve
+          </h2>
+
+          <div className="mt-10 grid grid-cols-1 gap-[18px] sm:grid-cols-3">
             {strategies.map((s) => (
               <div
                 key={s.heading}
                 data-testid="strategy-card"
-                className="rounded-lg bg-white px-5 py-5"
-                style={{ borderTop: `3px solid ${TONES.objectives.accent}` }}
+                className="p-[28px_24px]"
+                style={{
+                  backgroundColor: BRIEF.card,
+                  border: `1px solid ${BRIEF.border}`,
+                  borderRadius: 10,
+                }}
               >
-                <p className="text-[16px] font-bold text-[#1c1a17]">{s.heading}</p>
-                <p className="mt-2 text-[13px] leading-[1.5] text-[#2c2925]">{s.description}</p>
-                <p className="mt-3 border-t border-[#e6e2db] pt-2.5 text-[12px] font-semibold text-[#1c1a17]">
-                  Objective: <span className="font-medium" style={{ color: TONES.objectives.ink }}>{s.objective}</span>
+                <p className="mb-5 text-[1.18rem] font-semibold leading-snug tracking-[-0.01em]" style={{ color: BRIEF.text }}>
+                  {s.heading}
                 </p>
+                <div className="mb-4">
+                  <p className="mb-[5px] font-mono text-[10.5px] uppercase tracking-[0.13em]" style={{ color: BRIEF.accent }}>
+                    Strategy
+                  </p>
+                  <p className="m-0 text-[0.94rem] leading-[1.5]" style={{ color: BRIEF.muted }}>
+                    {s.description}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-[5px] font-mono text-[10.5px] uppercase tracking-[0.13em]" style={{ color: BRIEF.accent }}>
+                    Business Objective
+                  </p>
+                  <p className="m-0 text-[0.94rem] leading-[1.5]" style={{ color: BRIEF.muted }}>
+                    {s.objective}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ===== 04 · Next Steps ===== */}
-      <section
-        data-testid="section-implementation"
-        className="border-t border-[#e6e2db] px-6 py-8 sm:px-10 sm:py-9"
-      >
-        <div className="mx-auto max-w-5xl">
-          <SectionHead number="04" title="Next Steps" tone={TONES.next} />
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* ======================================================================== */}
+        {/*  04 — Implementation                                                     */}
+        {/* ======================================================================== */}
+        <section data-testid="section-implementation" className="py-[60px]" style={{ borderTop: `1px solid ${BRIEF.border}` }}>
+          <Eyebrow>04 — Implementation</Eyebrow>
+          <h2 className="mb-[14px] mt-0 text-[clamp(1.6rem,3.4vw,2.3rem)] font-normal leading-[1.12] tracking-[-0.02em]" style={{ color: BRIEF.text }}>
+            A phased path from approval to scale
+          </h2>
+
+          <div className="mt-10 flex flex-col">
             {steps.map((s, i) => (
               <div
                 key={s.name}
                 data-testid="implementation-step"
-                className="rounded-lg bg-white px-5 py-5"
-                style={{ borderTop: `3px solid ${TONES.next.accent}` }}
+                className="grid grid-cols-[44px_1fr] gap-x-6 gap-y-0 py-7"
+                style={{ borderTop: i > 0 ? `1px solid ${BRIEF.border}` : "none" }}
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[16px] font-bold text-[#1c1a17]">Phase {i + 1}: {s.name}</p>
-                  <span
-                    className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]"
-                    style={{ backgroundColor: "rgba(106,90,205,0.12)", color: TONES.next.ink }}
-                  >
-                    {s.timeline}
-                  </span>
+                <span className="pt-[3px] font-mono text-[13px] font-semibold" style={{ color: BRIEF.accent }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <div className="mb-3 flex flex-wrap items-baseline gap-x-4 gap-y-2">
+                    <span className="text-[1.2rem] font-semibold leading-snug tracking-[-0.01em]" style={{ color: BRIEF.text }}>
+                      {s.name}
+                    </span>
+                    <span
+                      className="inline-block rounded-full border px-[11px] py-1 font-mono text-[10.5px] uppercase tracking-[0.12em]"
+                      style={{
+                        color: BRIEF.accent,
+                        borderColor: BRIEF.accentLine,
+                        backgroundColor: BRIEF.accentSoft,
+                      }}
+                    >
+                      {s.timeline}
+                    </span>
+                    <span
+                      className="inline-block rounded-full border px-[11px] py-1 font-mono text-[10.5px] uppercase tracking-[0.12em]"
+                      style={{ color: BRIEF.muted, borderColor: BRIEF.border }}
+                    >
+                      {s.team}
+                    </span>
+                  </div>
+                  <p className="m-0 max-w-[68ch] text-[0.96rem] leading-[1.55]" style={{ color: BRIEF.muted }}>
+                    {s.detail}
+                  </p>
                 </div>
-                <p className="mt-1.5 text-[11.5px] text-[#6c685f]">
-                  Team responsible: <span className="font-semibold text-[#2c2925]">{s.team}</span>
-                </p>
-                <p className="mt-2.5 text-[13px] leading-[1.55] text-[#2c2925]">{s.detail}</p>
               </div>
             ))}
           </div>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-2 rounded-md bg-[#1c1a17] px-4 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.08em] text-white">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: TONES.next.accent }} />
-              Implementation plan: 4 phases
+
+          {/* ---- CTAs ---- */}
+          <div className="mt-[52px] flex flex-wrap gap-[14px]">
+            <span
+              className="inline-flex cursor-pointer items-center gap-[10px] rounded-[9px] px-[26px] py-[15px] text-[0.95rem] font-semibold tracking-[0.01em] transition-all duration-[0.18s]"
+              style={{ backgroundColor: BRIEF.accent, color: "#FBF8F0", border: "1px solid transparent" }}
+              data-testid="download-pdf-label"
+            >
+              Download Brief as PDF
             </span>
             <span
-              className="inline-flex items-center gap-2 rounded-md border border-[#c5bef0] bg-white px-4 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.08em]"
-              style={{ color: TONES.next.ink }}
+              className="inline-flex select-none items-center gap-[10px] rounded-[9px] border px-[26px] py-[15px] text-[0.95rem] font-semibold tracking-[0.01em]"
+              style={{ color: BRIEF.muted, borderColor: BRIEF.border, cursor: "not-allowed" }}
             >
-              Go / No-Go at pilot completion
+              Select Your Implementation Partner
+              <span
+                className="inline-block rounded border px-[6px] py-[2px] font-mono text-[10px] uppercase tracking-[0.1em]"
+                style={{ color: BRIEF.faint, borderColor: BRIEF.border }}
+              >
+                Coming Soon
+              </span>
             </span>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ===== Footnote ===== */}
-      <div className="border-t border-[#e6e2db] bg-white px-6 py-5 sm:px-10">
-        <p className="text-[11px] leading-[1.55] text-[#6c685f]">
-          Prepared by Compass &middot; Evidence-backed recommendation
-          {orgs != null ? ` &middot; ${orgs.toLocaleString()} organizations in the evidence base` : ""}
-          . This brief is a decision aid, not a guarantee of outcomes.
-        </p>
+        {/* ===== Footer ===== */}
+        <footer className="mt-16 flex flex-wrap justify-between gap-[10px] border-t pt-[22px] font-mono text-[11px] uppercase tracking-[0.1em]" style={{ borderTopColor: BRIEF.border, color: BRIEF.faint }}>
+          <span>Compass &middot; Executive Decision Brief</span>
+          <span>Recommend. Decide. Implement. Measure.</span>
+        </footer>
+
       </div>
     </div>
   );

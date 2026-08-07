@@ -82,9 +82,8 @@
 
 @media print {
   html, body {
-    background: #ffffff !important;
-  }
-  body {
+    background: #F4EEE1 !important;
+    color: #14203A !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
@@ -106,27 +105,6 @@
     box-shadow: none !important;
     border-radius: 0 !important;
     isolation: isolate;
-  }
-
-  /* The memo is designed at its natural size for Letter; only mild
-     typography compaction keeps pagination clean. Cards never split. */
-  #compass-brief-print-clone {
-    color: #1c1a17 !important;
-    font-size: 11.5px;
-    line-height: 1.45;
-  }
-  #compass-brief-print-clone h1 {
-    font-size: 26px !important;
-  }
-  #compass-brief-print-clone h2 {
-    font-size: 18px !important;
-  }
-  #compass-brief-print-clone .print-avoid {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-  #compass-brief-print-clone section {
-    break-inside: auto;
-    page-break-inside: auto;
+    background: #F4EEE1 !important;
   }
 }

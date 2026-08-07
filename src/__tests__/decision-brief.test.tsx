@@ -55,10 +55,10 @@ describe("DecisionPackageView executive memo", () => {
       />
     );
     expect(screen.getByText("Approve Automated Invoice Matching")).toBeTruthy();
-    expect(screen.getAllByText("Evidence").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Evidence-backed")).toBeTruthy();
-    expect(screen.getByText("Objectives")).toBeTruthy();
-    expect(screen.getByText("Next Steps")).toBeTruthy();
+    expect(screen.getByText("01 — Decision Recommendation")).toBeTruthy();
+    expect(screen.getByText("02 — Evidence")).toBeTruthy();
+    expect(screen.getByText("03 — Strategy & Objectives")).toBeTruthy();
+    expect(screen.getByText("04 — Implementation")).toBeTruthy();
   });
 
   it("renders the refreshed executive copy", () => {
@@ -85,9 +85,9 @@ describe("DecisionPackageView executive memo", () => {
     expect(screen.getByText(/observed results, not projections/i)).toBeTruthy();
     // Evidence cards carry a one-sentence context.
     expect(screen.getByText("Implemented automated matching to streamline invoice processing.")).toBeTruthy();
-    // Implementation steps read as phases.
-    expect(screen.getByText("Phase 1: Establish the Baseline")).toBeTruthy();
-    expect(screen.getByText("Phase 4: Scale Deployment")).toBeTruthy();
+    // Implementation steps read as phases (now linear timeline with "01" prefix).
+    expect(screen.getByText("Establish the Baseline")).toBeTruthy();
+    expect(screen.getByText("Scale Deployment")).toBeTruthy();
   });
 
   it("opens the print preview with four-section layout", () => {
@@ -101,7 +101,7 @@ describe("DecisionPackageView executive memo", () => {
     );
     const buttons = screen.getAllByText("Download Brief as PDF");
     fireEvent.click(buttons[0]);
-    expect(screen.getAllByText((content) => content.includes("Prepared by Compass")).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText((content) => content.includes("Executive Decision Brief")).length).toBeGreaterThanOrEqual(1);
   });
 });
 
