@@ -104,12 +104,16 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
             {actionTitle(top)}
           </h1>
 
-          {/* Context line: restates the specific situation */}
-          {summary?.problem_statement && (
-            <p className="mb-4 max-w-[62ch] font-mono text-[11px] uppercase leading-[1.6] tracking-[0.10em]" style={{ color: BRIEF.accent }}>
-              Based on your assessment &middot; {summary.problem_statement}
-            </p>
-          )}
+          {/* Context line: restates the specific situation — shortened for executive readability */}
+          {summary?.problem_statement && (() => {
+            const s = String(summary.problem_statement).replace(/^(my|our)\s+/i, "").trim();
+            const display = s.length > 60 ? s.slice(0, s.lastIndexOf(" ", 57)) + "…" : s;
+            return (
+              <p className="mb-4 max-w-[62ch] font-mono text-[11px] uppercase leading-[1.6] tracking-[0.10em]" style={{ color: BRIEF.accent }}>
+                Based on your assessment &middot; {display}
+              </p>
+            );
+          })()}
 
           <div className="mb-6 max-w-[62ch] space-y-4 text-[1.12rem] leading-[1.6]" style={{ color: BRIEF.text }}>
             <p className="m-0">{explanation.one}</p>

@@ -72,6 +72,18 @@ function stripManual(value: string): string {
   return value.replace(/^(manual|the)\s+/i, "").trim();
 }
 
+/** Truncate verbose user problem statements to a clean executive phrase. */
+function shortenProblem(value: string): string {
+  const cleaned = stripManual(value)
+    .replace(/^(my|our|we|the)\s+/i, "")
+    .trim();
+  if (cleaned.length <= 60) return cleaned;
+  // Cut at the last complete word before 60 chars, append ellipsis.
+  const cut = cleaned.slice(0, 57);
+  const lastSpace = cut.lastIndexOf(" ");
+  return lastSpace > 30 ? cleaned.slice(0, lastSpace) + "…" : cleaned.slice(0, 57) + "…";
+}
+
 interface TitleParts {
   solution: string; // e.g. "AI-powered Finance"
   problem: string; // e.g. "Manual invoice processing"
@@ -83,13 +95,15 @@ function titleParts(top: DecisionRec, summary?: any): TitleParts {
   if (idx > 0) {
     return { solution: t.slice(0, idx).trim(), problem: t.slice(idx + 1).trim() };
   }
-  return { solution: t, problem: firstSentence(summary?.problem_statement) || "" };
+  const rawProblem = firstSentence(summary?.problem_statement) || "";
+  return { solution: t, problem: shortenProblem(rawProblem) || t };
 }
 
-/**
+ /**
  * Build a standalone solution phrase for a sentence.
  * "AI-powered" + focus "invoice processing" → "AI-powered invoice processing".
  * "Automated Invoice Matching" (already a noun phrase) stays as-is.
+ * When the title lacks a colon and the problem is too verbose, keeps the title alone.
  */
 function solutionPhraseFor(top: DecisionRec, summary?: any): string {
   const { solution, problem } = titleParts(top, summary);
@@ -97,13 +111,16 @@ function solutionPhraseFor(top: DecisionRec, summary?: any): string {
   const focus = stripManual(problem);
   if (!modifier) return focus || "This solution";
   if (SOLUTION_NOUN.test(modifier)) return modifier;
-  if (focus) return `${modifier} ${focus}`;
+  // Only concatenate if the focus is reasonably short — never create a
+  // run-on like "AI Implementation My sales team is missing inbound calls..."
+  if (focus && focus.length <= 45) return `${modifier} ${focus}`;
   return modifier;
 }
 
-/** Lower-case problem focus ("Manual invoice processing" → "invoice processing"). */
+/** Lower-case problem focus — shortened for use in evidence card context lines. */
 export function problemFocus(top: DecisionRec, summary?: any): string {
-  return stripManual(titleParts(top, summary).problem) || "the workflow";
+  const raw = stripManual(titleParts(top, summary).problem);
+  return shortenProblem(raw) || "the workflow";
 }
 
 // ---- Section 1: Decision Recommendation (Purpose) ----
@@ -134,7 +151,10 @@ export function recommendationExplanation(top: DecisionRec, summary: any): { one
   const rationale = firstSentence(top.rationale);
   const description = firstSentence(top.description);
 
-  const context = rationale || description;
+  // Drop rationale if it contains evidence-engine language
+  const evidenceTerms = /\b(comparable|similarity|ranked\s+based|total_comparables|confidence score|workflow fit|evidence graph)\b/i;
+  const cleanRationale = rationale && !evidenceTerms.test(rationale) ? rationale : null;
+  const context = cleanRationale || description;
 
   const one = context && context.length > 10
     ? `${context.charAt(0).toUpperCase() + context.slice(1)}${context.endsWith(".") ? "" : "."}`
