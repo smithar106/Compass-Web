@@ -52,6 +52,31 @@ const COVERAGE_OK = {
   headline: { implementations: 1200, organizations: 340, industries: 42, high_quality_percent: 68 },
 };
 
+const GAPS_OK = {
+  total_records: 4210,
+  categories: 74,
+  decision_coverage_by_function: {
+    legal: { coverage_pct: 43.2, categories: 4, good_plus: 2 },
+    finance: { coverage_pct: 53.1, categories: 8, good_plus: 5 },
+  },
+  shopping_list: [
+    {
+      workflow: "contract_review",
+      business_function: "legal",
+      decision_coverage: "absent",
+      expected_impact: 0.48,
+      estimated_records_needed: 7,
+    },
+    {
+      workflow: "invoice_processing",
+      business_function: "finance",
+      decision_coverage: "developing",
+      expected_impact: 0.31,
+      estimated_records_needed: 4,
+    },
+  ],
+};
+
 function seedRegistry(entries: { id: string; createdAt: string }[]) {
   localStorage.setItem(DECISION_REGISTRY_KEY, JSON.stringify(entries));
 }
@@ -61,6 +86,9 @@ function mockDecisions(ids: string[]) {
     const url = String(input);
     if (url.includes("/api/coverage")) {
       return Promise.resolve({ ok: true, json: async () => COVERAGE_OK });
+    }
+    if (url.includes("/api/gaps")) {
+      return Promise.resolve({ ok: true, json: async () => GAPS_OK });
     }
           if (url.includes("/workflow")) {
         const wfId = url.split("/api/decisions/")[1]?.split("/")[0];
@@ -270,6 +298,45 @@ describe("Workspace", () => {
     expect((await screen.findAllByText("Problem rec-a")).length).toBeGreaterThanOrEqual(1);
     expect(
       await screen.findByText(/Coverage is temporarily unavailable/i)
+    ).toBeTruthy();
+  });
+
+  it("renders evidence gaps in the coverage view", async () => {
+    seedRegistry([{ id: "rec-a", createdAt: "2026-08-01T12:00:00Z" }]);
+    mockDecisions(["rec-a"]);
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Workspace view="coverage" />);
+
+    // Gap engine headline section + shopping list rows
+    expect(await screen.findByText(/Where evidence is thin/i)).toBeTruthy();
+    expect(await screen.findByText(/contract review/i)).toBeTruthy();
+    expect(screen.getByText(/invoice processing/i)).toBeTruthy();
+    expect(screen.getByText("43.2%")).toBeTruthy();
+    // Decision-coverage KPI per function
+    expect(screen.getByText("2/4 categories at good+")).toBeTruthy();
+    // Impact column renders the expected_impact percentage
+    expect(screen.getByText("48%")).toBeTruthy();
+  });
+
+  it("degrades gaps section when the gaps API fails", async () => {
+    seedRegistry([{ id: "rec-a", createdAt: "2026-08-01T12:00:00Z" }]);
+    fetchMock.mockImplementation((input: unknown) => {
+      const url = String(input);
+      if (url.includes("/api/coverage")) {
+        return Promise.resolve({ ok: true, json: async () => COVERAGE_OK });
+      }
+      if (url.includes("/api/gaps")) {
+        return Promise.resolve({ ok: false, status: 500, json: async () => ({}) });
+      }
+      return Promise.resolve({ ok: true, json: async () => decisionPayload("rec-a") });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Workspace view="coverage" />);
+
+    expect(
+      await screen.findByText(/Gap analysis is temporarily unavailable/i)
     ).toBeTruthy();
   });
 

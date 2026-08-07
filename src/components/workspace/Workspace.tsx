@@ -26,6 +26,24 @@ interface CoverageHeadline {
   high_quality_percent?: number;
 }
 
+/** UI-shaped report from /api/gaps (engine Gap Engine v2, public read). */
+interface GapsReport {
+  total_records?: number;
+  categories?: number;
+  decision_coverage_by_function?: Record<
+    string,
+    { coverage_pct?: number; categories?: number; good_plus?: number }
+  >;
+  dimension_coverage?: Record<string, { n?: number; pct?: number }>;
+  shopping_list?: Array<{
+    workflow?: string;
+    business_function?: string;
+    decision_coverage?: string;
+    expected_impact?: number;
+    estimated_records_needed?: number;
+  }>;
+}
+
 const STATUS_FILTERS: Array<WorkspaceStatus | "all"> = ["all", ...WORKSPACE_STATUSES];
 
 export type WorkspaceView = "overview" | "decisions" | "coverage" | "intelligence";
@@ -36,6 +54,8 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [coverage, setCoverage] = useState<CoverageHeadline | null>(null);
   const [coverageError, setCoverageError] = useState(false);
+  const [gaps, setGaps] = useState<GapsReport | null>(null);
+  const [gapsError, setGapsError] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<WorkspaceStatus | "all">("all");
   const [functionFilter, setFunctionFilter] = useState("all");
@@ -99,13 +119,27 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
       } catch {
         if (alive) setCoverageError(true);
       }
+
+      if (view === "coverage") {
+        try {
+          const res = await fetch("/api/gaps", { cache: "no-store" });
+          if (!res.ok) {
+            setGapsError(true);
+          } else {
+            const data = await res.json();
+            if (alive) setGaps(data ?? null);
+          }
+        } catch {
+          if (alive) setGapsError(true);
+        }
+      }
     }
 
     void load();
     return () => {
       alive = false;
     };
-  }, []);
+  }, [view]);
 
   /** Rows with engine lifecycle state folded into the status. */
   const liveRows = useMemo(
@@ -514,6 +548,83 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
             </div>
           )}
 
+        </section>
+      )}
+
+      {view === "coverage" && (
+        <section aria-label="Evidence gaps" className="mt-8">
+          <h2 className="mb-4 text-[17px] font-semibold tracking-tight text-ink">
+            Where evidence is thin
+          </h2>
+          {gapsError ? (
+            <div className="border border-line bg-surface px-5 py-8 text-center">
+              <p className="text-[13px] leading-relaxed text-muted">
+                Gap analysis is temporarily unavailable.
+              </p>
+            </div>
+          ) : gaps && gaps.shopping_list?.length ? (
+            <div className="border border-line bg-surface">
+              <div className="grid grid-cols-1 gap-px bg-line sm:grid-cols-2">
+                {Object.entries(gaps.decision_coverage_by_function ?? {})
+                  .sort((a, b) => (a[1]?.coverage_pct ?? 0) - (b[1]?.coverage_pct ?? 0))
+                  .slice(0, 6)
+                  .map(([fn, agg]) => (
+                    <div key={fn} className="bg-surface px-5 py-4">
+                      <dt className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
+                        {fn.replace(/_/g, " ")}
+                      </dt>
+                      <dd className="mt-1 text-[22px] font-extrabold tracking-tight text-ink">
+                        {agg.coverage_pct != null ? `${agg.coverage_pct}%` : "—"}
+                        <span className="ml-2 text-[11px] font-medium text-faint">
+                          {agg.good_plus ?? 0}/{agg.categories ?? 0} categories at good+
+                        </span>
+                      </dd>
+                    </div>
+                  ))}
+              </div>
+              <table className="w-full border-t border-line text-left">
+                <thead>
+                  <tr className="border-b border-line text-[10.5px] font-bold uppercase tracking-wide text-muted">
+                    <th className="px-5 py-3">Priority gap</th>
+                    <th className="px-5 py-3">Coverage</th>
+                    <th className="px-5 py-3">Impact</th>
+                    <th className="px-5 py-3">Needed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gaps.shopping_list.slice(0, 8).map((n) => (
+                    <tr key={`${n.workflow}-${n.business_function}`} className="border-b border-line last:border-b-0">
+                      <td className="px-5 py-3">
+                        <span className="text-[13px] font-semibold text-ink">
+                          {n.workflow?.replace(/_/g, " ")}
+                        </span>
+                        <span className="ml-2 text-[11px] text-faint">
+                          {n.business_function?.replace(/_/g, " ")}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-[12.5px] text-muted">
+                        {n.decision_coverage?.replace(/_/g, " ")}
+                      </td>
+                      <td className="px-5 py-3 text-[12.5px] text-muted">
+                        {n.expected_impact != null ? `${Math.round(n.expected_impact * 100)}%` : "—"}
+                      </td>
+                      <td className="px-5 py-3 text-[12.5px] text-muted">
+                        {n.estimated_records_needed ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="border-t border-line px-5 py-3.5 text-[11.5px] leading-relaxed text-faint">
+                Decision coverage by function and the ranked shopping list from the Evidence Gap
+                Engine — where Compass is actively filling evidence.
+              </p>
+            </div>
+          ) : (
+            <div className="border border-line bg-surface px-5 py-8 text-center">
+              <p className="text-[13px] text-muted">Gap analysis is loading…</p>
+            </div>
+          )}
         </section>
       )}
 
