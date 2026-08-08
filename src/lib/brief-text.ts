@@ -43,7 +43,7 @@ const NOUN_PHRASE = /(automation|software|platform|system|solution|redesign|staf
 // so we never append the problem focus to it ("Automated Invoice Matching
 // invoice processing" must never happen).
 const SOLUTION_NOUN =
-  /(automation|matching|processing|redesign|optimization|scoring|routing|review|platform|system|solution|software|tooling|workflow|intelligence|analytics|management|onboarding|scheduling|reconciliation|documentation|triage|qualification|health|support|service|reporting|ingestion|extraction|validation|tracking|monitoring)$/i;
+  /(automation|implementation|matching|processing|redesign|optimization|scoring|routing|review|platform|system|solution|software|tooling|workflow|intelligence|analytics|management|onboarding|scheduling|reconciliation|documentation|triage|qualification|health|support|service|reporting|ingestion|extraction|validation|tracking|monitoring)$/i;
 
 function titleCasePhrase(value: string): string {
   const small = new Set(["a", "an", "the", "and", "or", "of", "for", "in", "on", "with", "to", "vs"]);
@@ -106,13 +106,15 @@ function titleParts(top: DecisionRec, summary?: any): TitleParts {
  * When the title lacks a colon and the problem is too verbose, keeps the title alone.
  */
 function solutionPhraseFor(top: DecisionRec, summary?: any): string {
+  // Prefer the engine's specific action or intervention title when available.
+  const specific = firstSentence((top as any).specific_action);
+  if (specific && specific.length > 10) return specific;
+
   const { solution, problem } = titleParts(top, summary);
   const modifier = cleanModifier(solution);
   const focus = stripManual(problem);
   if (!modifier) return focus || "This solution";
   if (SOLUTION_NOUN.test(modifier)) return modifier;
-  // Only concatenate if the focus is reasonably short — never create a
-  // run-on like "AI Implementation My sales team is missing inbound calls..."
   if (focus && focus.length <= 45) return `${modifier} ${focus}`;
   return modifier;
 }
@@ -150,7 +152,9 @@ export function actionTitle(top: DecisionRec): string {
   const GENERIC = /^(ai|software|process|workflow|automation|staffing|hybrid)\s/i;
   if (GENERIC.test(t) || t.split(/\s+/).length <= 2) {
     const problem = problemFocus(top);
-    if (problem && problem.length > 3) return `Implement ${titleCasePhrase(problem)}`;
+    if (problem && problem.length > 3 && !problem.includes("…") && problem !== "the workflow") {
+      return `Implement ${titleCasePhrase(problem)}`;
+    }
   }
   return `Approve ${titleCasePhrase(t)}`;
 }
@@ -158,25 +162,37 @@ export function actionTitle(top: DecisionRec): string {
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
   const solutionPhrase = solutionPhraseFor(top, summary);
   const focus = problemFocus(top, summary);
+  const cat = (top.category || "").toLowerCase();
   const rationale = firstSentence(top.rationale);
   const description = firstSentence(top.description);
+  const specificAction = firstSentence((top as any).specific_action);
 
-  // Drop rationale if it contains evidence-engine language
-  const evidenceTerms = /\b(comparable|similarity|ranked\s+based|total_comparables|confidence score|workflow fit|evidence graph)\b/i;
+  // Build the opening problem sentence. Prefer rationale or description if
+  // available and free of evidence-engine language.
+  const evidenceTerms = /\b(comparable|similarity|ranked\s+based|total_comparables|confidence score|workflow fit|evidence graph|alternatives evaluated|Our analysis|Based on your)\b/i;
   const cleanRationale = rationale && !evidenceTerms.test(rationale) ? rationale : null;
-  const context = cleanRationale || description;
+  const cleanDescription = description && !evidenceTerms.test(description) ? description : null;
+  const context = cleanRationale || cleanDescription;
 
-  // Three scannable sentences: problem → solution → approval
-  const cleanFocus = focus.includes("…") || focus === "the workflow" ? "This operation" : titleCasePhrase(focus);
-  const one = context && context.length > 10
-    ? `${context.charAt(0).toUpperCase() + context.slice(1)}${context.endsWith(".") ? "" : "."}`
-    : `${cleanFocus} depends on manual effort that compounds cost and risk as volume grows.`;
+  // Five-slot sequence: problem → Compass recommends X → why → expected result → condition
+  // Compressed to 2-3 sentences. Never open with evidence counts or engine language.
 
-  const two = `${solutionPhrase} addresses this directly. This decision funds a bounded pilot, not a full rollout.`;
+  let problem: string;
+  if (context && context.length > 10) {
+    problem = context.charAt(0).toUpperCase() + context.slice(1) + (context.endsWith(".") ? "" : ".");
+  } else {
+    problem = `${titleCasePhrase(focus)} is consuming capacity and creating unnecessary cost and delay.`;
+  }
 
-  const three = "A go/no-go decision at the end of the pilot gates any wider deployment on measured results.";
+  const rec = specificAction && specificAction.length > 10
+    ? `Compass recommends ${specificAction.charAt(0).toLowerCase() + specificAction.slice(1)}.`
+    : `Compass recommends ${solutionPhrase.toLowerCase()} to reduce manual effort, increase capacity, and improve consistency.`;
 
-  return { one, two, three };
+  const pilot = cat.includes("no_action")
+    ? "Establish the baseline before committing to any technology investment."
+    : "Begin with a controlled pilot and expand only after validating the results against the current baseline.";
+
+  return { one: problem, two: rec, three: pilot };
 }
 
 function compactCurrency(n: number | null | undefined, currency?: string): string {
@@ -267,6 +283,7 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
   const raw = (top.comparable_implementations || []).slice(0, 3);
   const seen = new Set<string>();
   const focus = problemFocus(top, summary);
+  const cleanFocus = focus.includes("…") || focus === "the workflow" ? "this workflow" : focus;
   return raw
     .filter((c) => {
       const key = asString(c.organization).trim().toLowerCase();
@@ -280,7 +297,7 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
       // One context sentence so each card explains what the comparable actually did.
       const intervention = asString(c.intervention || c.intervention_description);
       const context = intervention
-        ? `Implemented ${intervention.toLowerCase()} to streamline ${focus}.`
+        ? `Implemented ${intervention.toLowerCase()} to streamline ${cleanFocus}.`
         : "Deployed this approach to address the same operational challenge.";
       const bullets: string[] = [];
       outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s)).forEach((s) => {
