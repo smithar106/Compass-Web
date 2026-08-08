@@ -74,9 +74,9 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    // Single integrated paragraph: operating change → recommendation → outcomes → condition
-    expect(screen.getByText(/Compass recommends/i)).toBeTruthy();
-    expect(screen.getByText(/Approve a bounded pilot/i)).toBeTruthy();
+    // Four-sentence paragraph: operating change → mechanism → business effect → condition
+    expect(screen.getByText(/Route repeatable work through deterministic rules/i)).toBeTruthy();
+    expect(screen.getByText(/Begin with a bounded pilot/i)).toBeTruthy();
     // Evidence intro no longer advertises the engine.
     expect(screen.queryByText(/Over 5,000 solutions analyzed/)).toBeNull();
     expect(screen.getByText(/observed results, not projections/i)).toBeTruthy();

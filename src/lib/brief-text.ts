@@ -172,70 +172,48 @@ export function actionTitle(top: DecisionRec): string {
 }
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
-  const solutionPhrase = solutionPhraseFor(top, summary);
   const cat = (top.category || "").toLowerCase();
   const specificAction = firstSentence((top as any).specific_action);
-  const ranges = top.outcome_ranges || [];
   const workflow = summary?.workflow || top.pathway_label || "";
+  const wfLabel = workflow.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()) || "this workflow";
 
-  // Build the intervention description — prefer specific_action
-  const intervention = specificAction && specificAction.length > 10
-    ? specificAction.charAt(0).toLowerCase() + specificAction.slice(1)
-    : solutionPhrase.toLowerCase();
-
-  // Build outcome list from the KPI cards
-  const outcomeLabels = ranges.slice(0, 3).map((r: any) => {
-    const label = (r.metric_label || "").replace(/_/g, " ").toLowerCase();
-    return label;
-  });
-
-  // Operating model transformation by pathway. Each describes what changes
-  // in the business, not what technology is used.
-  const operatingModel = (() => {
-    const wfLabel = workflow.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
-
-    if (cat.includes("ai")) {
-      return `Move ${wfLabel || "this workflow"} from manual processing to exception-based management.`;
-    }
-    if (cat.includes("software")) {
-      return `Replace manual ${wfLabel || "processing"} with a purpose-built software solution.`;
-    }
-    if (cat.includes("process")) {
-      return `Redesign ${wfLabel || "this workflow"} to eliminate unnecessary steps and clarify ownership before introducing new technology.`;
-    }
-    if (cat.includes("workflow") || cat.includes("automation")) {
-      return `Automate the repeatable steps in ${wfLabel || "this workflow"} while routing exceptions to human review.`;
-    }
-    if (cat.includes("staffing")) {
-      return `Add capacity in ${wfLabel || "this area"} through additional staffing rather than technology investment.`;
-    }
-    if (cat.includes("hybrid")) {
-      return `Combine automation for routine work with human expertise for exceptions and judgment-intensive decisions in ${wfLabel || "this workflow"}.`;
-    }
-    if (cat.includes("no_action")) {
-      return `Do not invest in new technology for ${wfLabel || "this workflow"} at this stage. Establish the baseline first.`;
-    }
-    return `Improve ${wfLabel || "this workflow"} with the recommended intervention.`;
+  // Sentence 1 — Operating-model change. Describes what shifts in the
+  // business, not what technology is used.
+  const operatingChange = (() => {
+    if (cat.includes("ai")) return `Move ${wfLabel} from manual handling to exception-based management.`;
+    if (cat.includes("software")) return `Replace manual ${wfLabel} with a purpose-built software solution.`;
+    if (cat.includes("process")) return `Redesign ${wfLabel} to eliminate unnecessary steps and clarify ownership before introducing new technology.`;
+    if (cat.includes("workflow") || cat.includes("automation")) return `Automate the repeatable steps in ${wfLabel} while routing exceptions to human review.`;
+    if (cat.includes("staffing")) return `Add capacity in ${wfLabel} through additional staffing rather than technology investment.`;
+    if (cat.includes("hybrid")) return `Combine automation for routine work with human expertise for exceptions in ${wfLabel}.`;
+    if (cat.includes("no_action")) return `Do not invest in new technology for ${wfLabel} at this stage.`;
+    return `Improve ${wfLabel} with the recommended intervention.`;
   })();
 
-  // Recommendation
-  const recommendation = `Compass recommends ${intervention}.`;
+  // Sentence 2 — What actually changes. Uses specific_action if available,
+  // otherwise infers from the pathway.
+  const mechanism = specificAction && specificAction.length > 10
+    ? specificAction.charAt(0).toLowerCase() + specificAction.slice(1) + (specificAction.endsWith(".") ? "" : ".")
+    : (() => {
+        if (cat.includes("ai")) return "Automate the highest-volume, most repeatable steps while keeping human judgment on exceptions and high-risk decisions.";
+        if (cat.includes("software")) return "Deploy purpose-built software to handle routine processing while the team focuses on higher-value work.";
+        if (cat.includes("process")) return "Simplify responsibilities, approvals, and exception paths before considering technology investment.";
+        if (cat.includes("workflow") || cat.includes("automation")) return "Route repeatable work through deterministic rules and surface only exceptions for human review.";
+        return "Implement the recommended changes to improve throughput and consistency.";
+      })();
 
-  // Business case — connects to the KPI cards
-  let businessCase = "";
-  if (outcomeLabels.length >= 2) {
-    businessCase = `The business case rests on ${outcomeLabels.length} outcomes: ${outcomeLabels.slice(0, 2).join(" and ")}${outcomeLabels.length > 2 ? `, and ${outcomeLabels[2]}` : ""}.`;
-  } else {
-    businessCase = "The expected impact will be validated against the current baseline.";
-  }
+  // Sentence 3 — Why leadership should care. Describes the business effect
+  // without enumerating KPI labels (the cards do that separately).
+  const businessEffect = cat.includes("no_action")
+    ? "Establish the baseline so leadership can determine whether intervention is economically justified."
+    : "The evidence indicates this operating model can materially reduce cost and manual effort while strengthening controls.";
 
-  // Condition
-  const pilot = cat.includes("no_action")
+  // Sentence 4 — Decision condition.
+  const condition = cat.includes("no_action")
     ? "Reassess only if volume or complexity increases."
-    : "Approve a bounded pilot and scale only when those improvements are demonstrated against your current baseline.";
+    : "Begin with a bounded pilot and scale only after the economics, accuracy, and control performance are validated against your current baseline.";
 
-  // Combine into a single executive paragraph
-  const one = `${operatingModel} ${recommendation} ${businessCase} ${pilot}`;
+  const one = `${operatingChange} ${mechanism} ${businessEffect} ${condition}`;
 
   return { one, two: "", three: "" };
 }
@@ -279,8 +257,21 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
     return `Improved ${clean || m}`;
   };
 
-  if (ranges.length > 0) {
-    const r = ranges[0];
+  // Sort outcome ranges: Economics → Capacity → Control.
+  // Cost, savings, and effort metrics lead. Throughput and capacity follow.
+  // Quality, detection, and compliance metrics come last.
+  const sortedRanges = [...ranges].sort((a: any, b: any) => {
+    const aLabel = (a.metric_label || "").toLowerCase();
+    const bLabel = (b.metric_label || "").toLowerCase();
+    const isCost = (l: string) => /cost|savings|saving|expense|spend/i.test(l);
+    const isCapacity = (l: string) => /capacity|throughput|volume|time|cycle|delay|backlog|processed/i.test(l);
+    const aRank = isCost(aLabel) ? 1 : isCapacity(aLabel) ? 2 : 3;
+    const bRank = isCost(bLabel) ? 1 : isCapacity(bLabel) ? 2 : 3;
+    return aRank - bRank;
+  });
+
+  if (sortedRanges.length > 0) {
+    const r = sortedRanges[0];
     cards.push({
       metric: valueFor(r),
       label: labelFor(r, "processing cost"),
@@ -290,8 +281,8 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
     cards.push({ metric: "Measurable", label: "Reduced processing cost", context: "Primary outcome of this initiative." });
   }
 
-  if (ranges.length > 1) {
-    const r2 = ranges[1];
+  if (sortedRanges.length > 1) {
+    const r2 = sortedRanges[1];
     cards.push({
       metric: valueFor(r2),
       label: labelFor(r2, "capacity"),
