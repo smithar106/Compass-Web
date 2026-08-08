@@ -24,18 +24,18 @@ export const headerCta = {
 export const marketing = {
     home: {
       hero: {
-        headline: "Implementation is becoming abundant. Judgment remains scarce.",
+        headline: "Decide. Implement. Measure. Learn.",
         supporting:
-          "Organizations spend millions implementing AI, software, automation, and transformation initiatives before determining whether they are actually the right operational decision.",
-        supporting2: "Compass helps leadership make the right decision before implementation begins.",
+          "Companies spend millions on AI and transformation without knowing if they chose the right intervention. Most never measure whether it worked.",
+        supporting2: "Compass helps leadership decide what to implement, manage execution against that decision, and measure whether it created the expected value.",
         ctaPrimary: "Start Assessment",
         ctaPrimaryHref: "/assessment",
         ctaSecondary: "View Demo",
         ctaSecondaryHref: "/demo",
       },
       problem: {
-        eyebrow: "The problem",
-        headline: "Implementation begins before the decision.",
+        eyebrow: "The cost of the wrong decision",
+        headline: "Most organizations implement before they decide.",
         stats: [
           {
             value: "30%",
@@ -64,38 +64,40 @@ export const marketing = {
           },
         ],
         closing:
-          "The challenge isn\u2019t building AI. It\u2019s deciding what should be built in the first place. Most organizations choose an implementation before comparing alternative approaches. That is the problem Compass solves.",
+          "The challenge isn\u2019t access to AI or automation. It\u2019s knowing whether the implementation you chose actually solved the business problem it was approved to address \u2014 and having a system that proves it.",
       },
       howItWorks: {
-        eyebrow: "Why Compass",
-        headline: "Every operational decision makes the next one better.",
+        eyebrow: "The full loop",
+        headline: "Decide. Approve. Implement. Measure. Learn.",
         supporting:
-          "Compass compares AI, workflow automation, software implementation, process redesign, staffing, and hybrid approaches on the evidence \u2014 before people or capital are committed.",
+          "Compass compares AI, software, automation, process redesign, staffing, and hybrid options on the evidence \u2014 then manages execution and measures outcomes so every completed implementation strengthens future recommendations.",
         steps: [
           { number: "01", name: "Business Problem" },
           { number: "02", name: "Assessment" },
           { number: "03", name: "Executive Recommendation" },
-          { number: "04", name: "Implementation" },
-          { number: "05", name: "Measured Outcomes" },
-          { number: "06", name: "Better Future Decisions" },
+          { number: "04", name: "Approve & Launch" },
+          { number: "05", name: "Implementation Command Center" },
+          { number: "06", name: "Measured Outcomes" },
+          { number: "07", name: "Better Future Decisions" },
         ],
+        closing: "The moat is memory, not models.",
       },
       brief: {
         eyebrow: "The Executive Recommendation",
-        headline: "A board-ready recommendation.",
+        headline: "A board-ready recommendation — with execution built in.",
         supporting:
-          "The decision, the expected business impact, the supporting evidence, and an implementation plan \u2014 written for the people who approve the budget.",
-        callout: "Executive-ready in under 60 seconds.",
+          "The decision, the expected business impact, the supporting evidence, and an implementation plan — written for the people who approve the budget. Once approved, Compass launches an Implementation Command Center that tracks progress, risks, KPIs, owners, and actual value against the original decision.",
+        callout: "From recommendation to measured outcome in one system.",
       },
       intelligence: {
-        eyebrow: "Implementation Intelligence",
-        headline: "The world\u2019s growing implementation intelligence library.",
+        eyebrow: "The learning loop",
+        headline: "Every implementation makes the next recommendation better.",
         supporting:
-          "Compass continuously learns from real enterprise implementations across industries. Every implementation strengthens future recommendations.",
+          "Compass continuously learns from real enterprise implementations across industries. Every completed implementation becomes first-party evidence that improves future recommendations.",
         points: [
-          "Built on real enterprise implementations, not vendor claims",
-          "Every completed implementation sharpens the next recommendation",
-          "The library grows with each outcome \u2014 so Compass gets better with use",
+          "First-party evidence from your own completed implementations",
+          "Every measured outcome strengthens future recommendations",
+          "The library grows with each implementation — so Compass gets better with use",
         ],
       },
       cta: {
