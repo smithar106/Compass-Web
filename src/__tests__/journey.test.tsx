@@ -159,7 +159,7 @@ describe("Customer journey (route-level integration)", () => {
     // 3. Executive Recommendation (decision page, shareable permanent link)
     render(<DecisionPage />);
     expect(await screen.findByTestId("decision-title")).toBeTruthy();
-    expect(screen.getByText("Automated Invoice Matching")).toBeTruthy();
+    expect(screen.getByText("Approve Automated Invoice Matching")).toBeTruthy();
     // Return to workspace completes the loop.
     const workspaceLink = screen.getByRole("link", { name: /return to workspace/i });
     expect(workspaceLink.getAttribute("href")).toBe("/workspace");
