@@ -157,7 +157,7 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
         <section data-testid="section-evidence" className="py-[60px]" style={{ borderTop: `1px solid ${BRIEF.border}` }}>
           <Eyebrow>02 — Evidence</Eyebrow>
           <h2 className="mb-[14px] mt-0 text-[clamp(1.6rem,3.4vw,2.3rem)] font-normal leading-[1.12] tracking-[-0.02em]" style={{ color: BRIEF.text }}>
-            Organizations that have made this move
+            What happened when others implemented this approach
           </h2>
           <p className="mb-0 max-w-[62ch] text-[0.95rem] leading-[1.6]" style={{ color: BRIEF.muted }}>
             {evidenceIntro(top)}

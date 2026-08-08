@@ -282,8 +282,6 @@ function cleanMetric(metricRaw: string, val: string): string {
 export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
   const raw = (top.comparable_implementations || []).slice(0, 3);
   const seen = new Set<string>();
-  const focus = problemFocus(top, summary);
-  const cleanFocus = focus.includes("…") || focus === "the workflow" ? "this workflow" : focus;
   return raw
     .filter((c) => {
       const key = asString(c.organization).trim().toLowerCase();
@@ -294,11 +292,12 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
     .map((c) => {
       const org = asString(c.organization).trim() || "An organization with a similar workflow";
       const outcome = asString(c.outcome_summary || c.observed_outcome);
-      // One context sentence so each card explains what the comparable actually did.
-      const intervention = asString(c.intervention || c.intervention_description);
+      // Describe what the organization actually implemented — never rewrite
+      // the source implementation as though it solved the current user's problem.
+      const intervention = asString(c.intervention_description || c.intervention);
       const context = intervention
-        ? `Implemented ${intervention.toLowerCase()} to streamline ${cleanFocus}.`
-        : "Deployed this approach to address the same operational challenge.";
+        ? `Implemented ${intervention.toLowerCase()}.`
+        : "Deployed this approach.";
       const bullets: string[] = [];
       outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s)).forEach((s) => {
         const parts = s.split(/[:=]/).map((p) => p.trim());
@@ -319,7 +318,7 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
 }
 
 export function evidenceIntro(top: DecisionRec): string {
-  return "The evidence below comes from organizations that implemented this approach and measured the outcomes — observed results, not projections. Compass draws from 5,000+ analyzed solutions across more than 2,000 companies.";
+  return "These organizations implemented comparable approaches and reported measurable business outcomes. Results are observed from published implementations, not projections of what your organization will achieve.";
 }
 
 // ---- Section 3: Objectives ----

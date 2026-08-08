@@ -80,9 +80,9 @@ describe("DecisionPackageView executive memo", () => {
     expect(screen.getByText(/Begin with a controlled pilot/i)).toBeTruthy();
     // Evidence intro no longer advertises the engine.
     expect(screen.queryByText(/Over 5,000 solutions analyzed/)).toBeNull();
-    expect(screen.getByText(/observed results, not projections/i)).toBeTruthy();
+    expect(screen.getByText(/not projections of what your organization will achieve/i)).toBeTruthy();
     // Context line restates the problem from the assessment.
-    expect(screen.getByText("Implemented automated matching to streamline invoice processing.")).toBeTruthy();
+    expect(screen.getByText("Implemented automated matching.")).toBeTruthy();
     // Implementation steps read as phases (now linear timeline with "01" prefix).
     expect(screen.getByText("Establish the Baseline")).toBeTruthy();
     expect(screen.getByText("Scale Deployment")).toBeTruthy();
