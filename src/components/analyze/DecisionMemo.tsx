@@ -164,7 +164,7 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
           </p>
 
           <div className="mt-10 grid grid-cols-1 gap-[18px] sm:grid-cols-3">
-            {evidences.slice(0, 3).map((e) => (
+            {evidences.map((e, i) => (
               <div
                 key={e.company}
                 data-testid="evidence-card"
@@ -181,12 +181,16 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
                 >
                   {e.company}
                 </p>
+                {e.isSupporting && (
+                  <span className="mt-[-8px] font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: BRIEF.faint }}>
+                    Supporting evidence
+                  </span>
+                )}
                 {e.context && (
                   <p className="m-0 text-[0.95rem] leading-[1.5]" style={{ color: BRIEF.muted }}>
                     {e.context}
                   </p>
                 )}
-                {/* Bullet outcomes */}
                 <div className="mt-auto" style={{ borderTop: `1px solid ${BRIEF.border}`, paddingTop: 16 }}>
                   {e.bullets.map((b) => (
                     <p
@@ -199,7 +203,7 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
                   ))}
                   {e.bullets.length > 0 && (
                     <span className="mt-1.5 block font-mono text-[10.5px] uppercase tracking-[0.12em]" style={{ color: BRIEF.muted }}>
-                      Measured outcome
+                      {e.isSupporting ? "Supporting outcome" : "Observed outcome"}
                     </span>
                   )}
                 </div>

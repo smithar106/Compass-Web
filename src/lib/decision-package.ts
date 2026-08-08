@@ -115,6 +115,8 @@ export interface ScoredEvidence extends ComparableEvidence {
   relevanceTier: EvidenceTier;
   relevanceScore: number;
   relevanceReason: string;
+  /** True for tiers A–B (direct evidence), false for C (supporting only). */
+  isDirect: boolean;
 }
 
 /**
@@ -149,18 +151,20 @@ export function classifyEvidence(
     const eiWords = ei.split(/\s+/).filter((w) => w.length > 2);
     const iOverlap = eiWords.filter((w) => iWords.has(w)).length;
 
-    // If we have no workflow or intervention to compare against, don't filter.
+    // If we have no workflow or intervention to compare against, we cannot
+    // determine relevance. Unknown ≠ relevant. Classify conservatively.
     const noDecisionContext = !dwf || di.length < 5;
-    // If this evidence record has no workflow to compare, pass through.
     const noEvidenceWorkflow = !ewf;
     if (noDecisionContext || noEvidenceWorkflow) {
       return {
         ...e,
         relevanceTier: "C",
-        relevanceScore: 0.5,
-        relevanceReason: "Insufficient workflow context for relevance comparison — passing through.",
+        relevanceScore: 0.4,
+        relevanceReason: "Insufficient workflow context to verify relevance — classified as supporting evidence only.",
+        isDirect: false,
       };
     }
+
     let tier: EvidenceTier;
     let reason: string;
     let relevance: number;
@@ -192,6 +196,7 @@ export function classifyEvidence(
       relevanceTier: tier,
       relevanceScore: Math.min(1, Math.round(relevance * 100) / 100),
       relevanceReason: reason,
+      isDirect: tier === "A" || tier === "B",
     };
   });
 }
@@ -206,6 +211,39 @@ export function selectBriefEvidence(scored: ScoredEvidence[]): ScoredEvidence[] 
     .filter((e) => e.relevanceTier === "A" || e.relevanceTier === "B" || e.relevanceTier === "C")
     .sort((a, b) => b.relevanceScore - a.relevanceScore)
     .slice(0, 3);
+}
+
+/**
+ * Filter outcome ranges to only those semantically relevant to the decision.
+ * Prevents unrelated metrics (e.g. "AP fraud losses" on a sales-call brief)
+ * from appearing in the hero impact cards.
+ *
+ * Returns the original ranges if all are relevant, or a filtered subset.
+ * If no relevant metrics remain, falls back to generic pilot KPIs.
+ */
+export function selectRelevantImpactMetrics(
+  outcomeRanges: { metric_label?: string; [k: string]: any }[],
+  decisionWorkflow: string,
+): { metric_label?: string; [k: string]: any }[] {
+  if (!outcomeRanges.length) return outcomeRanges;
+
+  // Domain-specific terms that clearly indicate an unrelated workflow.
+  // e.g. "AP fraud" on a sales decision is a mismatch.
+  const salesTerms = /\b(ap[\s_]|fraud|invoice|payable|procurement|contract|legal\s+review)\b/i;
+  const financeTerms = /\b(sales\s+call|inbound\s+call|lead\s+qualif|pipeline|forecast|crm|onboarding)\b/i;
+  const supportTerms = /\b(invoice|payable|procurement|contract\s+review|sales\s+call)\b/i;
+
+  const dwf = (decisionWorkflow || "").toLowerCase();
+  const isSales = /\b(sales|inbound)\b/i.test(dwf);
+  const isFinance = /\b(invoice|payable|finance|procurement)\b/i.test(dwf);
+  const isSupport = /\b(support|service|customer)\b/i.test(dwf);
+
+  const mismatch: RegExp | null = isSales ? salesTerms : isFinance ? financeTerms : isSupport ? supportTerms : null;
+
+  if (!mismatch) return outcomeRanges;
+
+  const filtered = outcomeRanges.filter((r) => !mismatch.test(r.metric_label || ""));
+  return filtered.length > 0 ? filtered : outcomeRanges;
 }
 
 export interface GroundingState {

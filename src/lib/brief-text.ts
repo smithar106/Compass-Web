@@ -5,7 +5,7 @@
 // "finance" language), and free of duplicated noun phrases.
 
 import type { DecisionRec } from "@/lib/decision-package";
-import { classifyEvidence, selectBriefEvidence } from "@/lib/decision-package";
+import { classifyEvidence, selectBriefEvidence, selectRelevantImpactMetrics } from "@/lib/decision-package";
 
 // ---- Sanitization: strip run-ons, malformed JSON, and stray artifacts ----
 
@@ -146,17 +146,10 @@ export function actionTitle(top: DecisionRec): string {
       return `Approve ${titleCasePhrase(solution)}`;
     }
   }
-  // No colon — the engine returned a generic title. Only use the problem-
-  // derived fallback when the original title is clearly generic (short,
-  // starts with a pathway word). Descriptive titles like "Automated Invoice
-  // Matching" are kept as-is.
-  const GENERIC = /^(ai|software|process|workflow|automation|staffing|hybrid)\s/i;
-  if (GENERIC.test(t) || t.split(/\s+/).length <= 2) {
-    const problem = problemFocus(top);
-    if (problem && problem.length > 3 && !problem.includes("…") && problem !== "the workflow") {
-      return `Implement ${titleCasePhrase(problem)}`;
-    }
-  }
+  // No colon — the engine returned a generic title. Never construct the
+  // executive title from the problem statement. The title must describe the
+  // intervention, not the problem. If the engine can't produce a specific
+  // intervention title, that is an upstream data-quality issue.
   return `Approve ${titleCasePhrase(t)}`;
 }
 
@@ -207,7 +200,9 @@ function compactCurrency(n: number | null | undefined, currency?: string): strin
 
 export function impactCards(top: DecisionRec): ImpactCard[] {
   const cards: ImpactCard[] = [];
-  const ranges = top.outcome_ranges || [];
+  // Filter to only metrics relevant to this decision context.
+  const workflow = top.pathway_label || (top as any).workflow || "";
+  const ranges = selectRelevantImpactMetrics(top.outcome_ranges || [], workflow);
   const tl = top.impact?.implementation_timeline;
 
   // Organization-specific dollar impact leads the board summary when the
@@ -272,6 +267,7 @@ export interface EvidenceCard {
   company: string;
   context?: string;
   bullets: string[];
+  isSupporting?: boolean;
 }
 
 function cleanMetric(metricRaw: string, val: string): string {
@@ -320,12 +316,27 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
       });
       const unique = [...new Set(bullets)];
       if (unique.length === 0) unique.push("Reported measurable operational improvement.");
-      return { company: org, context, bullets: unique.slice(0, 3) };
+      return { company: org, context, bullets: unique.slice(0, 3), isSupporting: !c.isDirect };
     });
 }
 
 export function evidenceIntro(top: DecisionRec): string {
-  return "These organizations implemented comparable approaches and reported measurable business outcomes. Results are observed from published implementations, not projections of what your organization will achieve.";
+  const evidence = top.comparable_implementations || [];
+  // Count tier A/B vs tier C evidence
+  const workflow = (top as any).pathway_label || "";
+  const intervention = top.category || top.title || "";
+  const scored = classifyEvidence(evidence, workflow, intervention);
+  const selected = selectBriefEvidence(scored);
+  const hasDirect = selected.some((e) => e.isDirect);
+  const hasSupportingOnly = selected.length > 0 && selected.every((e) => !e.isDirect);
+
+  if (hasSupportingOnly) {
+    return "These organizations implemented comparable approaches in adjacent operational contexts. Results are observed from published implementations, not projections of what your organization will achieve.";
+  }
+  if (hasDirect) {
+    return "These organizations implemented comparable approaches and reported measurable business outcomes. Results are observed from published implementations, not projections of what your organization will achieve.";
+  }
+  return "Directly comparable evidence is currently limited. Results below are from organizations implementing similar interventions in adjacent operational contexts.";
 }
 
 // ---- Section 3: Objectives ----
