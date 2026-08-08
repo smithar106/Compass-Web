@@ -146,24 +146,28 @@ export function actionTitle(top: DecisionRec): string {
       return `Approve ${titleCasePhrase(solution)}`;
     }
   }
-  // No colon — the engine returned a generic title. Build a title that
-  // describes the intervention, not the problem. Format: verb + approach.
-  const cat = (top.category || "").toLowerCase();
-  const desc = firstSentence(top.description || (top as any).specific_action || "");
-  const action = desc && desc.length > 10
-    ? desc.charAt(0).toUpperCase() + desc.slice(1) + (desc.endsWith(".") ? "" : ".")
-    : null;
+  // No colon — the engine returned a generic title. Use specific_action
+  // if available; otherwise build from category.
+  const specific = firstSentence((top as any).specific_action || "");
+  if (specific && specific.length > 10) {
+    return titleCasePhrase(specific);
+  }
 
-  if (action) return action;
+  const desc = firstSentence(top.description || "");
+  if (desc && desc.length > 10 && desc.length < 100) {
+    const action = desc.charAt(0).toUpperCase() + desc.slice(1);
+    return action + (action.endsWith(".") ? "" : ".");
+  }
 
   // Fallback: use category to build a meaningful action phrase
+  const cat = (top.category || "").toLowerCase();
   if (cat.includes("ai")) return "Implement AI-powered solution for this workflow";
   if (cat.includes("software")) return "Implement software-driven solution for this workflow";
   if (cat.includes("process")) return "Redesign workflow with a focus on quality and efficiency";
   if (cat.includes("workflow") || cat.includes("automation")) return "Automate this workflow with a focus on consistency";
   if (cat.includes("staffing")) return "Expand team capacity with a focus on throughput";
   if (cat.includes("hybrid")) return "Implement hybrid solution combining automation and human review";
-  if (cat.includes("no_action")) return "Maintain current process — no implementation recommended";
+  if (cat.includes("no_action")) return "Maintain current process \u2014 no implementation recommended";
   return `Approve ${titleCasePhrase(t)}`;
 }
 
@@ -174,11 +178,13 @@ export function recommendationExplanation(top: DecisionRec, summary: any): { one
   const description = firstSentence(top.description);
   const specificAction = firstSentence((top as any).specific_action);
 
-  // Filter evidence-engine language from rationale
+  // Filter evidence-engine language from rationale. Prefer specific_action
+  // over generic description text.
   const evidenceTerms = /\b(comparable|similarity|ranked\s+based|total_comparables|confidence score|workflow fit|evidence graph|alternatives evaluated|Our analysis|Based on your)\b/i;
   const cleanRationale = rationale && !evidenceTerms.test(rationale) ? rationale : null;
-  const cleanDescription = description && !evidenceTerms.test(description) ? description : null;
-  const context = cleanRationale || cleanDescription;
+  const cleanSpecific = specificAction && !evidenceTerms.test(specificAction) ? specificAction : null;
+  const cleanDescription = description && !evidenceTerms.test(description) && description.length < 100 ? description : null;
+  const context = cleanRationale || cleanSpecific || cleanDescription;
 
   // Paragraph 1 — The situation in executive language
   const one = context && context.length > 10
