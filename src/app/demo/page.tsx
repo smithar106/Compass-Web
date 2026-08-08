@@ -1,6 +1,5 @@
 import { SummaryCards } from "@/components/demo/SummaryCards";
 import { PriorityDecisions } from "@/components/demo/PriorityDecisions";
-import { ActivityFeed } from "@/components/demo/ActivityFeed";
 import { CoveragePanel } from "@/components/demo/CoveragePanel";
 import { OutcomesPanel } from "@/components/demo/OutcomesPanel";
 
@@ -21,10 +20,7 @@ export default function DemoOverviewPage() {
 
       <PriorityDecisions />
 
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
-        <ActivityFeed />
-        <CoveragePanel />
-      </div>
+      <CoveragePanel />
 
       <OutcomesPanel limit={4} />
     </div>
