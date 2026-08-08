@@ -105,10 +105,8 @@ export function DecisionMemo({ recs, meta, summary, status, onImplement }: Decis
             {actionTitle(top)}
           </h1>
 
-          <div className="mb-6 max-w-[62ch] space-y-4 text-[1.12rem] leading-[1.6]" style={{ color: BRIEF.text }}>
+          <div className="mb-6 max-w-[62ch] text-[1.12rem] leading-[1.6]" style={{ color: BRIEF.text }}>
             <p className="m-0">{explanation.one}</p>
-            <p className="m-0">{explanation.two}</p>
-            <p className="m-0">{explanation.three}</p>
           </div>
 
           {/* ---- KPI cards ---- */}

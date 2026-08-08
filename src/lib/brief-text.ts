@@ -174,35 +174,70 @@ export function actionTitle(top: DecisionRec): string {
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
   const solutionPhrase = solutionPhraseFor(top, summary);
   const cat = (top.category || "").toLowerCase();
-  const rationale = firstSentence(top.rationale);
-  const description = firstSentence(top.description);
   const specificAction = firstSentence((top as any).specific_action);
+  const ranges = top.outcome_ranges || [];
+  const workflow = summary?.workflow || top.pathway_label || "";
 
-  // Filter evidence-engine language from rationale. Keep recommendations
-  // out of the problem sentence — solutions belong in paragraph 2.
-  const evidenceTerms = /\b(comparable|similarity|ranked\s+based|total_comparables|confidence score|workflow fit|evidence graph|alternatives evaluated|Our analysis|Based on your)\b/i;
-  const cleanRationale = rationale && !evidenceTerms.test(rationale) ? rationale : null;
-  const cleanDescription = description && !evidenceTerms.test(description) && description.length < 100 ? description : null;
-  const context = cleanRationale || cleanDescription;
-
-  // Paragraph 1 — The situation in executive language
-  const one = context && context.length > 10
-    ? `${context.charAt(0).toUpperCase() + context.slice(1)}${context.endsWith(".") ? "" : "."}`
-    : "This operation currently depends on manual effort that compounds cost and risk as volume grows.";
-
-  // Paragraph 2 — What Compass recommends and why
-  const recBody = specificAction && specificAction.length > 10
+  // Build the intervention description — prefer specific_action
+  const intervention = specificAction && specificAction.length > 10
     ? specificAction.charAt(0).toLowerCase() + specificAction.slice(1)
     : solutionPhrase.toLowerCase();
 
-  const two = `Compass recommends ${recBody}. The strongest evidence across more than 5,000 real-world implementations supports this direction.`;
+  // Build outcome list from the KPI cards
+  const outcomeLabels = ranges.slice(0, 3).map((r: any) => {
+    const label = (r.metric_label || "").replace(/_/g, " ").toLowerCase();
+    return label;
+  });
 
-  // Paragraph 3 — Approval and pilot condition
-  const three = cat.includes("no_action")
-    ? "No technology investment is recommended at this stage. Establish the baseline first."
-    : "Begin with a controlled pilot and expand only after validating the results against the current baseline.";
+  // Operating model transformation by pathway. Each describes what changes
+  // in the business, not what technology is used.
+  const operatingModel = (() => {
+    const wfLabel = workflow.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
 
-  return { one, two, three };
+    if (cat.includes("ai")) {
+      return `Move ${wfLabel || "this workflow"} from manual processing to exception-based management.`;
+    }
+    if (cat.includes("software")) {
+      return `Replace manual ${wfLabel || "processing"} with a purpose-built software solution.`;
+    }
+    if (cat.includes("process")) {
+      return `Redesign ${wfLabel || "this workflow"} to eliminate unnecessary steps and clarify ownership before introducing new technology.`;
+    }
+    if (cat.includes("workflow") || cat.includes("automation")) {
+      return `Automate the repeatable steps in ${wfLabel || "this workflow"} while routing exceptions to human review.`;
+    }
+    if (cat.includes("staffing")) {
+      return `Add capacity in ${wfLabel || "this area"} through additional staffing rather than technology investment.`;
+    }
+    if (cat.includes("hybrid")) {
+      return `Combine automation for routine work with human expertise for exceptions and judgment-intensive decisions in ${wfLabel || "this workflow"}.`;
+    }
+    if (cat.includes("no_action")) {
+      return `Do not invest in new technology for ${wfLabel || "this workflow"} at this stage. Establish the baseline first.`;
+    }
+    return `Improve ${wfLabel || "this workflow"} with the recommended intervention.`;
+  })();
+
+  // Recommendation
+  const recommendation = `Compass recommends ${intervention}.`;
+
+  // Business case — connects to the KPI cards
+  let businessCase = "";
+  if (outcomeLabels.length >= 2) {
+    businessCase = `The business case rests on ${outcomeLabels.length} outcomes: ${outcomeLabels.slice(0, 2).join(" and ")}${outcomeLabels.length > 2 ? `, and ${outcomeLabels[2]}` : ""}.`;
+  } else {
+    businessCase = "The expected impact will be validated against the current baseline.";
+  }
+
+  // Condition
+  const pilot = cat.includes("no_action")
+    ? "Reassess only if volume or complexity increases."
+    : "Approve a bounded pilot and scale only when those improvements are demonstrated against your current baseline.";
+
+  // Combine into a single executive paragraph
+  const one = `${operatingModel} ${recommendation} ${businessCase} ${pilot}`;
+
+  return { one, two: "", three: "" };
 }
 
 function compactCurrency(n: number | null | undefined, currency?: string): string {
