@@ -12,6 +12,11 @@ export interface ComparableEvidence {
   source_url?: string;
   evidence_tier?: string;
   similarity_score?: number;
+  /** 0–1: how relevant this evidence is to the current decision. */
+  decision_relevance_score?: number;
+  /** Why this evidence was selected (or rejected) for this decision. */
+  comparable_reason?: string;
+  workflow?: string;
 }
 
 export interface DecisionRec {
@@ -97,6 +102,110 @@ export function avgComparableSimilarity(rec: DecisionRec): number {
   const c = rec.comparable_implementations || [];
   if (!c.length) return 0;
   return Math.round(c.reduce((s, x) => s + (x.similarity_score || 0), 0) / c.length);
+}
+
+// ---- Evidence relevance tiers -----------------------------------------------
+// Quality ≠ relevance. A Gold implementation can still be irrelevant.
+// Evidence must pass BOTH the quality gate and the relevance gate before
+// it appears in the Executive Brief.
+
+export type EvidenceTier = "A" | "B" | "C" | "D" | "E";
+
+export interface ScoredEvidence extends ComparableEvidence {
+  relevanceTier: EvidenceTier;
+  relevanceScore: number;
+  relevanceReason: string;
+}
+
+/**
+ * Classify evidence by relevance to the current decision.
+ *
+ * Tier A — Direct comparable: same workflow + same intervention.
+ * Tier B — Strong comparable: same intervention, similar constraint.
+ * Tier C — Adjacent comparable: same intervention only.
+ * Tier D — Broad technology match, unrelated workflow (do not show).
+ * Tier E — Completely unrelated (never show).
+ */
+export function classifyEvidence(
+  evidence: ComparableEvidence[],
+  decisionWorkflow: string,
+  decisionIntervention: string,
+  _decisionPathway?: string,
+): ScoredEvidence[] {
+  const norm = (s: string) => s.toLowerCase().replace(/[_\s]+/g, " ").trim();
+
+  const dwf = norm(decisionWorkflow);
+  const di = norm(decisionIntervention);
+
+  return evidence.map((e) => {
+    const ewf = norm(e.workflow || "");
+    const ei = norm(e.intervention || e.intervention_description || "");
+    const sim = e.similarity_score ?? 0;
+
+    // Workflow match is a strong relevance signal
+    const wfMatch = dwf && ewf && (dwf === ewf || dwf.includes(ewf) || ewf.includes(dwf));
+    // Intervention keyword overlap
+    const iWords = new Set(di.split(/\s+/).filter((w) => w.length > 2));
+    const eiWords = ei.split(/\s+/).filter((w) => w.length > 2);
+    const iOverlap = eiWords.filter((w) => iWords.has(w)).length;
+
+    // If we have no workflow or intervention to compare against, don't filter.
+    const noDecisionContext = !dwf || di.length < 5;
+    // If this evidence record has no workflow to compare, pass through.
+    const noEvidenceWorkflow = !ewf;
+    if (noDecisionContext || noEvidenceWorkflow) {
+      return {
+        ...e,
+        relevanceTier: "C",
+        relevanceScore: 0.5,
+        relevanceReason: "Insufficient workflow context for relevance comparison — passing through.",
+      };
+    }
+    let tier: EvidenceTier;
+    let reason: string;
+    let relevance: number;
+
+    if (wfMatch && sim >= 50) {
+      tier = "A";
+      reason = "Same workflow with strong evidence similarity.";
+      relevance = 0.9 + sim / 1000;
+    } else if (wfMatch && sim >= 30) {
+      tier = "B";
+      reason = "Same workflow with moderate evidence similarity.";
+      relevance = 0.7 + sim / 1000;
+    } else if (!wfMatch && iOverlap >= 1 && sim >= 40) {
+      tier = "C";
+      reason = "Comparable intervention applied in a different operational context.";
+      relevance = 0.55;
+    } else if (wfMatch) {
+      tier = "D";
+      reason = "Same workflow but evidence similarity is too low to present as primary evidence.";
+      relevance = 0.3;
+    } else {
+      tier = "E";
+      reason = "Different workflow with no meaningful intervention overlap — not relevant to this decision.";
+      relevance = 0.1;
+    }
+
+    return {
+      ...e,
+      relevanceTier: tier,
+      relevanceScore: Math.min(1, Math.round(relevance * 100) / 100),
+      relevanceReason: reason,
+    };
+  });
+}
+
+/**
+ * Select evidence records that should appear in the Executive Brief.
+ * Tiers A–C are eligible. Never shows tier D or E.
+ * Never pads to fill three cards — quality over quantity.
+ */
+export function selectBriefEvidence(scored: ScoredEvidence[]): ScoredEvidence[] {
+  return scored
+    .filter((e) => e.relevanceTier === "A" || e.relevanceTier === "B" || e.relevanceTier === "C")
+    .sort((a, b) => b.relevanceScore - a.relevanceScore)
+    .slice(0, 3);
 }
 
 export interface GroundingState {

@@ -5,6 +5,7 @@
 // "finance" language), and free of duplicated noun phrases.
 
 import type { DecisionRec } from "@/lib/decision-package";
+import { classifyEvidence, selectBriefEvidence } from "@/lib/decision-package";
 
 // ---- Sanitization: strip run-ons, malformed JSON, and stray artifacts ----
 
@@ -281,9 +282,17 @@ function cleanMetric(metricRaw: string, val: string): string {
 }
 
 export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
-  const raw = (top.comparable_implementations || []).slice(0, 3);
+  const raw = (top.comparable_implementations || []);
+
+  // Classify evidence by relevance to this decision. Only tiers A–C qualify
+  // for the Executive Brief. Never show irrelevant records just to fill slots.
+  const workflow = summary?.workflow || top.pathway_label || "";
+  const intervention = top.category || (top as any).specific_action || top.title || "";
+  const scored = classifyEvidence(raw, workflow, intervention);
+  const relevant = selectBriefEvidence(scored);
+
   const seen = new Set<string>();
-  return raw
+  return relevant
     .filter((c) => {
       const key = asString(c.organization).trim().toLowerCase();
       if (!key || seen.has(key)) return false;
@@ -293,11 +302,9 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
     .map((c) => {
       const org = asString(c.organization).trim() || "An organization with a similar workflow";
       const outcome = asString(c.outcome_summary || c.observed_outcome);
-      // Describe what the organization actually implemented — never rewrite
-      // the source implementation as though it solved the current user's problem.
-      const intervention = asString(c.intervention_description || c.intervention);
-      const context = intervention
-        ? `Implemented ${intervention.toLowerCase()}.`
+      const impl = asString(c.intervention_description || c.intervention);
+      const context = impl
+        ? `Implemented ${impl.toLowerCase()}.`
         : "Deployed this approach.";
       const bullets: string[] = [];
       outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s)).forEach((s) => {
@@ -311,7 +318,6 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
           if (dash) bullets.push(cleanMetric(dash[1], `${dash[2]}%`));
         }
       });
-      // De-dupe identical bullets and collapse to the strongest 3.
       const unique = [...new Set(bullets)];
       if (unique.length === 0) unique.push("Reported measurable operational improvement.");
       return { company: org, context, bullets: unique.slice(0, 3) };

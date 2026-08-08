@@ -207,23 +207,12 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
             ))}
             {evidences.length === 0 && (
               <div
-                className="col-span-full p-[26px_24px] italic"
-                style={{ backgroundColor: BRIEF.card, border: `1px solid ${BRIEF.border}`, borderRadius: 10, color: BRIEF.faint }}
+                className="col-span-full p-[26px_24px]"
+                style={{ backgroundColor: BRIEF.card, border: `1px solid ${BRIEF.border}`, borderRadius: 10, color: BRIEF.muted }}
               >
-                Evidence is being catalogued.
-              </div>
-            )}
-            {evidences.length > 0 && evidences.length < 3 && (
-              <div
-                className="flex items-center justify-center p-[26px_24px] italic"
-                style={{
-                  backgroundColor: "rgba(252,250,243,0.5)",
-                  border: `1px dashed ${BRIEF.accentLine}`,
-                  borderRadius: 10,
-                  color: BRIEF.faint,
-                }}
-              >
-                Additional evidence pending
+                <p className="m-0 text-[0.95rem] leading-[1.6]">
+                  Directly comparable evidence is currently limited. Compass found supporting evidence for the broader implementation pattern, but not enough directly comparable deployments to display as primary evidence.
+                </p>
               </div>
             )}
           </div>
