@@ -1,6 +1,5 @@
 import { SummaryCards } from "@/components/demo/SummaryCards";
 import { PriorityDecisions } from "@/components/demo/PriorityDecisions";
-import { CoveragePanel } from "@/components/demo/CoveragePanel";
 import { OutcomesPanel } from "@/components/demo/OutcomesPanel";
 
 export default function DemoOverviewPage() {
@@ -19,8 +18,6 @@ export default function DemoOverviewPage() {
       <SummaryCards />
 
       <PriorityDecisions />
-
-      <CoveragePanel />
 
       <OutcomesPanel limit={4} />
     </div>

@@ -10,7 +10,7 @@ export default function DemoOutcomesPage() {
   return (
     <div>
       <h1 className="text-[22px] font-semibold tracking-tight text-ink sm:text-[24px]">
-        Measured outcomes
+        Results
       </h1>
       <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-muted">
         Completed decisions with expected versus actual results. Every outcome is captured against

@@ -13,9 +13,9 @@ export function OutcomesPanel({ limit }: { limit?: number }) {
     : 0;
 
   return (
-    <section aria-label="Measured outcomes">
+    <section aria-label="Results">
       <div className="mb-4 flex items-baseline justify-between gap-3">
-        <h2 className="text-[17px] font-semibold tracking-tight text-ink">Measured outcomes</h2>
+        <h2 className="text-[17px] font-semibold tracking-tight text-ink">Results</h2>
         {limit && (
           <Link href="/demo/outcomes" className="text-[12.5px] font-medium text-muted transition-colors hover:text-ink">
             View all outcomes →
@@ -23,24 +23,18 @@ export function OutcomesPanel({ limit }: { limit?: number }) {
         )}
       </div>
 
-      <div className="mb-6 grid grid-cols-3 gap-4">
+      <div className="mb-6 grid grid-cols-2 gap-4">
         <div className="border border-line bg-surface px-5 py-5 text-center">
           <p className="text-[clamp(2rem,3vw,2.6rem)] font-extralight leading-none tracking-[-0.02em] text-ink">
             {outcomesSummary.completedDecisions}
           </p>
-          <p className="mt-2 text-[13px] font-semibold text-ink">Completed decisions</p>
+          <p className="mt-2 text-[13px] font-semibold text-ink">Decisions completed</p>
         </div>
         <div className="border border-[#cfe6d8] bg-[#f2faf5] px-5 py-5 text-center">
           <p className="text-[clamp(2rem,3vw,2.6rem)] font-extralight leading-none tracking-[-0.02em] text-[#14532d]">
             {pct}%
           </p>
           <p className="mt-2 text-[13px] font-semibold text-[#14532d]">Met or exceeded target</p>
-        </div>
-        <div className="border border-line bg-surface px-5 py-5 text-center">
-          <p className="text-[clamp(2rem,3vw,2.6rem)] font-extralight leading-none tracking-[-0.02em] text-ink">
-            $1.8M
-          </p>
-          <p className="mt-2 text-[13px] font-semibold text-ink">Measured annual value</p>
         </div>
       </div>
 

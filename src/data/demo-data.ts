@@ -168,8 +168,8 @@ export const demoDecisions: DemoDecision[] = [
       "Expand to customer and vendor contracts",
     ],
     outcome: [
-      { metric: "Contract review cycle time", expected: "40% faster", actual: "44% faster", unit: "cycle time" },
-      { metric: "Backlog cleared", expected: "By week 12", actual: "By week 9", unit: "backlog" },
+      { metric: "Expected annual savings", expected: "$410K", actual: "$452K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "$452K", unit: "USD" },
     ],
   },
   {
@@ -282,8 +282,8 @@ export const demoDecisions: DemoDecision[] = [
       "Scale across regions",
     ],
     outcome: [
-      { metric: "First-response time", expected: "30% faster", actual: "27% faster", unit: "time" },
-      { metric: "Senior staff load", expected: "25% lower", actual: "31% lower", unit: "load" },
+      { metric: "Expected annual savings", expected: "$480K", actual: "$432K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "$432K", unit: "USD" },
     ],
   },
   {
@@ -330,7 +330,8 @@ export const demoDecisions: DemoDecision[] = [
       "Expand to all new vendors",
     ],
     outcome: [
-      { metric: "Vendor onboarding cycle", expected: "35% faster", actual: "38% faster", unit: "cycle time" },
+      { metric: "Expected annual savings", expected: "$320K", actual: "$348K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "$348K", unit: "USD" },
     ],
   },
   {
@@ -355,7 +356,8 @@ export const demoDecisions: DemoDecision[] = [
       "Roll out with manager training",
     ],
     outcome: [
-      { metric: "Scheduling time per week", expected: "50% lower", actual: "46% lower", unit: "time" },
+      { metric: "Expected annual savings", expected: "K", actual: "K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "K", unit: "USD" },
     ],
   },
   {
@@ -380,7 +382,8 @@ export const demoDecisions: DemoDecision[] = [
       "Cut over and measure time saved",
     ],
     outcome: [
-      { metric: "Reconciliation time", expected: "60% lower", actual: "57% lower", unit: "time" },
+      { metric: "Expected annual savings", expected: "K", actual: "K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "K", unit: "USD" },
     ],
   },
   {
@@ -405,7 +408,8 @@ export const demoDecisions: DemoDecision[] = [
       "Expand with quality gates",
     ],
     outcome: [
-      { metric: "Document processing cost", expected: "40% lower", actual: "52% lower", unit: "cost" },
+      { metric: "Expected annual savings", expected: "K", actual: "K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "K", unit: "USD" },
     ],
   },
 ];
