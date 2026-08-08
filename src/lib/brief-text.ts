@@ -135,7 +135,7 @@ export interface ImpactCard {
 }
 
 export function actionTitle(top: DecisionRec): string {
-  const t = firstSentence(top.title) || "the recommended intervention";
+  const t = firstSentence(top.title) || "";
   const idx = t.indexOf(":");
   if (idx > 0) {
     const solution = t.slice(0, idx).trim();
@@ -146,48 +146,58 @@ export function actionTitle(top: DecisionRec): string {
       return `Approve ${titleCasePhrase(solution)}`;
     }
   }
-  // No colon — the engine returned a generic title. Never construct the
-  // executive title from the problem statement. The title must describe the
-  // intervention, not the problem. If the engine can't produce a specific
-  // intervention title, that is an upstream data-quality issue.
+  // No colon — the engine returned a generic title. Build a title that
+  // describes the intervention, not the problem. Format: verb + approach.
+  const cat = (top.category || "").toLowerCase();
+  const desc = firstSentence(top.description || (top as any).specific_action || "");
+  const action = desc && desc.length > 10
+    ? desc.charAt(0).toUpperCase() + desc.slice(1) + (desc.endsWith(".") ? "" : ".")
+    : null;
+
+  if (action) return action;
+
+  // Fallback: use category to build a meaningful action phrase
+  if (cat.includes("ai")) return "Implement AI-powered solution for this workflow";
+  if (cat.includes("software")) return "Implement software-driven solution for this workflow";
+  if (cat.includes("process")) return "Redesign workflow with a focus on quality and efficiency";
+  if (cat.includes("workflow") || cat.includes("automation")) return "Automate this workflow with a focus on consistency";
+  if (cat.includes("staffing")) return "Expand team capacity with a focus on throughput";
+  if (cat.includes("hybrid")) return "Implement hybrid solution combining automation and human review";
+  if (cat.includes("no_action")) return "Maintain current process — no implementation recommended";
   return `Approve ${titleCasePhrase(t)}`;
 }
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
   const solutionPhrase = solutionPhraseFor(top, summary);
-  const focus = problemFocus(top, summary);
   const cat = (top.category || "").toLowerCase();
   const rationale = firstSentence(top.rationale);
   const description = firstSentence(top.description);
   const specificAction = firstSentence((top as any).specific_action);
 
-  // Build the opening problem sentence. Prefer rationale or description if
-  // available and free of evidence-engine language.
+  // Filter evidence-engine language from rationale
   const evidenceTerms = /\b(comparable|similarity|ranked\s+based|total_comparables|confidence score|workflow fit|evidence graph|alternatives evaluated|Our analysis|Based on your)\b/i;
   const cleanRationale = rationale && !evidenceTerms.test(rationale) ? rationale : null;
   const cleanDescription = description && !evidenceTerms.test(description) ? description : null;
   const context = cleanRationale || cleanDescription;
 
-  // Five-slot sequence: problem → Compass recommends X → why → expected result → condition
-  // Compressed to 2-3 sentences. Never open with evidence counts or engine language.
+  // Paragraph 1 — The situation in executive language
+  const one = context && context.length > 10
+    ? `${context.charAt(0).toUpperCase() + context.slice(1)}${context.endsWith(".") ? "" : "."}`
+    : "This operation currently depends on manual effort that compounds cost and risk as volume grows.";
 
-  let problem: string;
-  const cleanFocus = focus.includes("…") || focus === "the workflow" ? "This workflow" : titleCasePhrase(focus);
-  if (context && context.length > 10) {
-    problem = context.charAt(0).toUpperCase() + context.slice(1) + (context.endsWith(".") ? "" : ".");
-  } else {
-    problem = `${cleanFocus} is consuming capacity and creating unnecessary cost and delay.`;
-  }
+  // Paragraph 2 — What Compass recommends and why
+  const recBody = specificAction && specificAction.length > 10
+    ? specificAction.charAt(0).toLowerCase() + specificAction.slice(1)
+    : solutionPhrase.toLowerCase();
 
-  const rec = specificAction && specificAction.length > 10
-    ? `Compass recommends ${specificAction.charAt(0).toLowerCase() + specificAction.slice(1)}.`
-    : `Compass recommends ${solutionPhrase.toLowerCase()} to reduce manual effort, increase capacity, and improve consistency.`;
+  const two = `Compass recommends ${recBody} — the strongest evidence supports this approach for this type of operational challenge.`;
 
-  const pilot = cat.includes("no_action")
-    ? "Establish the baseline before committing to any technology investment."
+  // Paragraph 3 — Approval and pilot condition
+  const three = cat.includes("no_action")
+    ? "No technology investment is recommended at this stage. Establish the baseline first."
     : "Begin with a controlled pilot and expand only after validating the results against the current baseline.";
 
-  return { one: problem, two: rec, three: pilot };
+  return { one, two, three };
 }
 
 function compactCurrency(n: number | null | undefined, currency?: string): string {
@@ -321,22 +331,8 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
 }
 
 export function evidenceIntro(top: DecisionRec): string {
-  const evidence = top.comparable_implementations || [];
-  // Count tier A/B vs tier C evidence
-  const workflow = (top as any).pathway_label || "";
-  const intervention = top.category || top.title || "";
-  const scored = classifyEvidence(evidence, workflow, intervention);
-  const selected = selectBriefEvidence(scored);
-  const hasDirect = selected.some((e) => e.isDirect);
-  const hasSupportingOnly = selected.length > 0 && selected.every((e) => !e.isDirect);
-
-  if (hasSupportingOnly) {
-    return "These organizations implemented comparable approaches in adjacent operational contexts. Results are observed from published implementations, not projections of what your organization will achieve.";
-  }
-  if (hasDirect) {
-    return "These organizations implemented comparable approaches and reported measurable business outcomes. Results are observed from published implementations, not projections of what your organization will achieve.";
-  }
-  return "Directly comparable evidence is currently limited. Results below are from organizations implementing similar interventions in adjacent operational contexts.";
+  const solutionPhrase = solutionPhraseFor(top).toLowerCase();
+  return `The organizations below implemented ${solutionPhrase} and reported measurable business outcomes — observed results, not projections.`;
 }
 
 // ---- Section 3: Objectives ----

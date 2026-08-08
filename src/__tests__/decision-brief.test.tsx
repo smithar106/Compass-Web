@@ -35,8 +35,8 @@ describe("actionTitle", () => {
     );
   });
 
-  it("falls back to 'Approve {title}' when there is no colon split", () => {
-    expect(actionTitle({ title: "Automated Invoice Matching" } as any)).toBe("Approve Automated Invoice Matching");
+  it("falls back to a category-based action title when there is no colon split", () => {
+    expect(actionTitle({ title: "Automated Invoice Matching", category: "Workflow_Automation" } as any)).toBe("Automate this workflow with a focus on consistency");
   });
 });
 
@@ -54,7 +54,7 @@ describe("DecisionPackageView executive memo", () => {
         status="decision_ready"
       />
     );
-    expect(screen.getByText("Approve Automated Invoice Matching")).toBeTruthy();
+    expect(screen.getByText("Automate this workflow with a focus on consistency")).toBeTruthy();
     expect(screen.getByText("01 — Decision Recommendation")).toBeTruthy();
     expect(screen.getByText("02 — Evidence")).toBeTruthy();
     expect(screen.getByText("03 — Strategy & Objectives")).toBeTruthy();
@@ -80,7 +80,7 @@ describe("DecisionPackageView executive memo", () => {
     expect(screen.getByText(/Begin with a controlled pilot/i)).toBeTruthy();
     // Evidence intro no longer advertises the engine.
     expect(screen.queryByText(/Over 5,000 solutions analyzed/)).toBeNull();
-    expect(screen.getByText(/not projections of what your organization will achieve/i)).toBeTruthy();
+    expect(screen.getByText(/observed results, not projections/i)).toBeTruthy();
     // Context line restates the problem from the assessment.
     expect(screen.getByText("Implemented automated matching.")).toBeTruthy();
     // Implementation steps read as phases (now linear timeline with "01" prefix).
