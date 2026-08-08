@@ -31,6 +31,12 @@ export function ExecutiveHeader() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link
+            href="/"
+            className="text-[12.5px] font-semibold text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
+          >
+            ← Home
+          </Link>
+          <Link
             href="/assessment"
             className="text-[12.5px] font-semibold text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
           >

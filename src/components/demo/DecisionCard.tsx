@@ -15,28 +15,14 @@ export function DecisionCard({ decision }: { decision: DemoDecision }) {
         <StatusBadge status={decision.status} />
       </div>
 
-      <p className="mt-1.5 text-[12px] font-semibold uppercase tracking-wide text-muted">
+      <p className="mt-1 text-[12px] font-semibold uppercase tracking-wide text-muted">
         {decision.businessFunction}
       </p>
 
-      <p className="mt-3 text-[13.5px] leading-relaxed text-ink">
-        <span className="font-semibold">Recommendation:</span> {decision.recommendation}
+      <p className="mt-4 text-[clamp(1.6rem,2.5vw,2rem)] font-extralight leading-none tracking-[-0.02em] text-ink">
+        {decision.expectedImpact}
       </p>
-
-      <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2.5 text-[12.5px] sm:grid-cols-2">
-        <div className="flex items-start justify-between gap-3">
-          <dt className="text-muted">Expected impact</dt>
-          <dd className="text-right font-semibold text-ink">{decision.expectedImpact}</dd>
-        </div>
-        <div className="flex items-start justify-between gap-3">
-          <dt className="text-muted">Owner</dt>
-          <dd className="text-right font-medium text-ink">{decision.owner}</dd>
-        </div>
-        <div className="flex items-start justify-between gap-3 sm:col-span-2">
-          <dt className="text-muted">Next action</dt>
-          <dd className="text-right font-medium text-ink">{decision.nextAction}</dd>
-        </div>
-      </dl>
+      <p className="mt-1 text-[12px] leading-snug text-muted">{decision.recommendation}</p>
 
       <div className="mt-4 flex items-center gap-2 border-t border-line pt-3.5">
         <EvidenceBadge strength={decision.evidence} />

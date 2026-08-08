@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export const DEMO_TABS = [
   { label: "Overview", href: "/demo" },
   { label: "Decisions", href: "/demo/decisions" },
-  { label: "Implementation Intelligence", href: "/demo/intelligence" },
+  { label: "Intelligence", href: "/demo/intelligence" },
   { label: "Outcomes", href: "/demo/outcomes" },
 ] as const;
 

@@ -15,7 +15,7 @@ export default function DemoIntelligencePage() {
       <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-muted">
         Every recommendation in this portfolio is grounded in a library of real
         implementation evidence — what organizations did, in what context, and what actually
-        happened. This view shows where that evidence is strongest for this organization&apos;s
+        happened. This view shows where that evidence is strongest for this organization\u2019s
         operating functions.
       </p>
 
@@ -30,8 +30,8 @@ export default function DemoIntelligencePage() {
             body: "Every recommendation in this portfolio is built on documented implementations with measured outcomes.",
           },
           {
-            title: "Matched to Northwind&apos;s functions",
-            body: "Evidence is compared against this organization&apos;s operating functions and constraints.",
+            title: "Matched to Northwind\u2019s functions",
+            body: "Evidence is compared against this organization\u2019s operating functions and constraints.",
           },
           {
             title: "The portfolio sharpens the library",

@@ -527,3 +527,13 @@ export const measuredOutcomes = demoDecisions
       ...m,
     }))
   );
+
+export const outcomesSummary = {
+  completedDecisions: demoDecisions.filter((d) => d.status === "completed").length,
+  metOrExceeded: measuredOutcomes.filter((o) => {
+    const actual = parseFloat(String(o.actual).replace(/[^0-9.]/g, ""));
+    const expected = parseFloat(String(o.expected).replace(/[^0-9.]/g, ""));
+    return !isNaN(actual) && !isNaN(expected) && actual >= expected;
+  }).length,
+  totalMetrics: measuredOutcomes.length,
+};

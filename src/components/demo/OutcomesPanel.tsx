@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { measuredOutcomes } from "@/data/demo-data";
+import { measuredOutcomes, outcomesSummary } from "@/data/demo-data";
 
 export function OutcomesPanel({ limit }: { limit?: number }) {
   const rows = limit ? measuredOutcomes.slice(0, limit) : measuredOutcomes;
@@ -7,6 +7,10 @@ export function OutcomesPanel({ limit }: { limit?: number }) {
   if (rows.length === 0) {
     return <p className="text-sm text-muted">No measured outcomes yet.</p>;
   }
+
+  const pct = outcomesSummary.totalMetrics > 0
+    ? Math.round((outcomesSummary.metOrExceeded / outcomesSummary.totalMetrics) * 100)
+    : 0;
 
   return (
     <section aria-label="Measured outcomes">
@@ -17,6 +21,27 @@ export function OutcomesPanel({ limit }: { limit?: number }) {
             View all outcomes →
           </Link>
         )}
+      </div>
+
+      <div className="mb-6 grid grid-cols-3 gap-4">
+        <div className="border border-line bg-surface px-5 py-5 text-center">
+          <p className="text-[clamp(2rem,3vw,2.6rem)] font-extralight leading-none tracking-[-0.02em] text-ink">
+            {outcomesSummary.completedDecisions}
+          </p>
+          <p className="mt-2 text-[13px] font-semibold text-ink">Completed decisions</p>
+        </div>
+        <div className="border border-[#cfe6d8] bg-[#f2faf5] px-5 py-5 text-center">
+          <p className="text-[clamp(2rem,3vw,2.6rem)] font-extralight leading-none tracking-[-0.02em] text-[#14532d]">
+            {pct}%
+          </p>
+          <p className="mt-2 text-[13px] font-semibold text-[#14532d]">Met or exceeded target</p>
+        </div>
+        <div className="border border-line bg-surface px-5 py-5 text-center">
+          <p className="text-[clamp(2rem,3vw,2.6rem)] font-extralight leading-none tracking-[-0.02em] text-ink">
+            $1.8M
+          </p>
+          <p className="mt-2 text-[13px] font-semibold text-ink">Measured annual value</p>
+        </div>
       </div>
 
       <div className="overflow-x-auto border border-line bg-surface">
