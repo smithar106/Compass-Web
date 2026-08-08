@@ -15,7 +15,7 @@ export interface NavItem {
 export const PUBLIC_NAV: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "How It Works", href: "/how-it-works" },
-  { label: "Implementation Intelligence", href: "/evidence" },
+  { label: "Evidence", href: "/evidence" },
   { label: "Demo", href: "/demo" },
 ];
 
@@ -28,7 +28,7 @@ export const APP_NAV: NavItem[] = [
   { label: "Workspace", href: "/workspace" },
   { label: "Decisions", href: "/workspace/decisions" },
   { label: "Coverage", href: "/workspace/coverage" },
-  { label: "Implementation Intelligence", href: "/workspace/intelligence" },
+  { label: "Evidence Library", href: "/workspace/intelligence" },
 ];
 
 export const APP_NAV_CTA: NavItem = {

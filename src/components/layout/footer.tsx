@@ -44,7 +44,7 @@ export function Footer() {
         <div className="mt-10 flex flex-col gap-3 border-t border-lineDark pt-6 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
           <p>{footer.copyright}</p>
           <p className="font-mono">
-            Decide &middot; Implement &middot; Monitor &middot; Improve
+            Decide &middot; Approve &middot; Implement &middot; Measure &middot; Learn
           </p>
         </div>
       </div>

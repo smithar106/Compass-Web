@@ -4,10 +4,10 @@
 
 export const name = "Compass";
 
-export const tagline = "Implementation is becoming abundant. Judgment remains scarce.";
+export const tagline = "Decide. Approve. Implement. Measure. Learn.";
 
 export const description =
-  "Compass helps leadership make the right operational decision before implementation begins \u2014 comparing AI, software, automation, and process redesign on evidence from real implementations.";
+  "Compass helps leadership decide what to implement, manage execution against that decision, and measure whether it created the expected value \u2014 comparing AI, software, automation, and process redesign on evidence from real implementations.";
 
 export const nav = [
   { label: "Product", href: "/product" },
