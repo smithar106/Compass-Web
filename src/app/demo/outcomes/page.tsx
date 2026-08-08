@@ -13,8 +13,7 @@ export default function DemoOutcomesPage() {
         Results
       </h1>
       <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-        Completed decisions with expected versus actual results. Every outcome is captured against
-        the baseline agreed before implementation began.
+        Expected versus actual annual savings for every completed implementation.
       </p>
       <div className="mt-7">
         <OutcomesPanel />

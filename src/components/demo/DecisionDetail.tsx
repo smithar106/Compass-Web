@@ -82,7 +82,7 @@ export function DecisionDetail({ decision }: { decision: DemoDecision }) {
 
       {decision.outcome && decision.outcome.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-[16px] font-semibold tracking-tight text-ink">Measured outcomes</h2>
+          <h2 className="text-[16px] font-semibold tracking-tight text-ink">Results</h2>
           <div className="mt-3 overflow-x-auto border border-line bg-surface">
             <table className="w-full min-w-[520px] border-collapse text-left text-[13px]">
               <thead>
