@@ -178,13 +178,12 @@ export function recommendationExplanation(top: DecisionRec, summary: any): { one
   const description = firstSentence(top.description);
   const specificAction = firstSentence((top as any).specific_action);
 
-  // Filter evidence-engine language from rationale. Prefer specific_action
-  // over generic description text.
+  // Filter evidence-engine language from rationale. Keep recommendations
+  // out of the problem sentence — solutions belong in paragraph 2.
   const evidenceTerms = /\b(comparable|similarity|ranked\s+based|total_comparables|confidence score|workflow fit|evidence graph|alternatives evaluated|Our analysis|Based on your)\b/i;
   const cleanRationale = rationale && !evidenceTerms.test(rationale) ? rationale : null;
-  const cleanSpecific = specificAction && !evidenceTerms.test(specificAction) ? specificAction : null;
   const cleanDescription = description && !evidenceTerms.test(description) && description.length < 100 ? description : null;
-  const context = cleanRationale || cleanSpecific || cleanDescription;
+  const context = cleanRationale || cleanDescription;
 
   // Paragraph 1 — The situation in executive language
   const one = context && context.length > 10
@@ -196,7 +195,7 @@ export function recommendationExplanation(top: DecisionRec, summary: any): { one
     ? specificAction.charAt(0).toLowerCase() + specificAction.slice(1)
     : solutionPhrase.toLowerCase();
 
-  const two = `Compass recommends ${recBody} — the strongest evidence supports this approach for this type of operational challenge.`;
+  const two = `Compass recommends ${recBody}. The strongest evidence across more than 5,000 real-world implementations supports this direction.`;
 
   // Paragraph 3 — Approval and pilot condition
   const three = cat.includes("no_action")

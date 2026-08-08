@@ -76,7 +76,7 @@ describe("DecisionPackageView executive memo", () => {
     );
     // Authored recommendation paragraph — problem → Compass recommends → condition.
     expect(screen.getByText(/Manual matching is the top driver of processing cost and errors/i)).toBeTruthy();
-    expect(screen.getByText(/Compass recommends/i)).toBeTruthy();
+    expect(screen.getByText(/across more than 5,000 real-world implementations/i)).toBeTruthy();
     expect(screen.getByText(/Begin with a controlled pilot/i)).toBeTruthy();
     // Evidence intro no longer advertises the engine.
     expect(screen.queryByText(/Over 5,000 solutions analyzed/)).toBeNull();
