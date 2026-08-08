@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { DecisionPackageView } from "@/components/analyze/DecisionPackageView";
+import {
+  createImplementation,
+  findImplementationByDecision,
+  type ImplementationPhase,
+  type TrackedOutcome,
+} from "@/lib/implementation";
+import { implementationSteps } from "@/lib/brief-text";
 
 interface Analysis {
   analysis_id: string;
@@ -73,6 +80,49 @@ export default function DecisionPage() {
 
   const saveDecision = () => setShowSave(true);
 
+  const launchImplementation = () => {
+    const existing = findImplementationByDecision(params.decision_id);
+    if (existing) {
+      router.push(`/implementations/${existing.implementationId}`);
+      return;
+    }
+
+    const steps: ImplementationPhase[] = implementationSteps(top).map((s) => ({
+      name: s.name,
+      timeline: s.timeline,
+      detail: s.detail,
+      team: s.team,
+      status: "not_started" as const,
+    }));
+
+    const savings = (top.impact as any)?.annual_savings;
+    const outcomes: TrackedOutcome[] = [];
+    if (savings?.status === "estimated" && savings.expected > 0) {
+      outcomes.push({
+        label: "Expected annual savings",
+        target: `$${Math.round(savings.expected).toLocaleString()}`,
+        unit: "USD",
+      });
+    }
+    (top.outcome_ranges || []).slice(0, 2).forEach((r: any) => {
+      const label = (r.metric_label || "").replace(/_/g, " ");
+      if (r.median) {
+        outcomes.push({ label: label || "Primary KPI", target: `${r.median}%`, unit: r.unit || "%" });
+      }
+    });
+
+    const impl = createImplementation({
+      decisionId: params.decision_id,
+      title: top.title || top.specific_action || "Implementation",
+      approvedDecisionSnapshot: decision as Record<string, unknown>,
+      phases: steps,
+      expectedOutcomes: outcomes,
+      owner: "Executive Sponsor",
+    });
+
+    router.push(`/implementations/${impl.implementationId}`);
+  };
+
   const submitSave = async () => {
     setSaving(true);
     try {
@@ -102,7 +152,7 @@ export default function DecisionPage() {
         summary={decision.assessment_summary}
         status={analysis.status}
         recommendationId={decision.recommendation_id}
-        onImplement={() => router.push(`/decisions/${params.decision_id}/implement`)}
+        onImplement={launchImplementation}
         onSave={saveDecision}
       />
 

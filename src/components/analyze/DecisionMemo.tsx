@@ -33,6 +33,7 @@ interface DecisionMemoProps {
   meta: any;
   summary: any;
   status?: string;
+  onImplement?: () => void;
 }
 
 function Eyebrow({ children }: { children: string }) {
@@ -47,7 +48,7 @@ function Eyebrow({ children }: { children: string }) {
   );
 }
 
-export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps) {
+export function DecisionMemo({ recs, meta, summary, status, onImplement }: DecisionMemoProps) {
   const top = recs[0];
   if (!top) return null;
 
@@ -319,24 +320,22 @@ export function DecisionMemo({ recs, meta, summary, status }: DecisionMemoProps)
 
           {/* ---- CTAs ---- */}
           <div className="mt-[52px] flex flex-wrap gap-[14px]">
+            {onImplement && (
+              <button
+                type="button"
+                onClick={onImplement}
+                className="inline-flex cursor-pointer items-center gap-[10px] rounded-[9px] px-[26px] py-[15px] text-[0.95rem] font-semibold tracking-[0.01em] transition-all duration-[0.18s] hover:opacity-90"
+                style={{ backgroundColor: BRIEF.accent, color: "#FBF8F0", border: "1px solid transparent" }}
+              >
+                Approve &amp; Launch Pilot →
+              </button>
+            )}
             <span
               className="inline-flex cursor-pointer items-center gap-[10px] rounded-[9px] px-[26px] py-[15px] text-[0.95rem] font-semibold tracking-[0.01em] transition-all duration-[0.18s]"
-              style={{ backgroundColor: BRIEF.accent, color: "#FBF8F0", border: "1px solid transparent" }}
+              style={{ backgroundColor: "#1c1a17", color: "#FBF8F0", border: "1px solid transparent" }}
               data-testid="download-pdf-label"
             >
               Download Brief as PDF
-            </span>
-            <span
-              className="inline-flex select-none items-center gap-[10px] rounded-[9px] border px-[26px] py-[15px] text-[0.95rem] font-semibold tracking-[0.01em]"
-              style={{ color: BRIEF.muted, borderColor: BRIEF.border, cursor: "not-allowed" }}
-            >
-              Select Your Implementation Partner
-              <span
-                className="inline-block rounded border px-[6px] py-[2px] font-mono text-[10px] uppercase tracking-[0.1em]"
-                style={{ color: BRIEF.faint, borderColor: BRIEF.border }}
-              >
-                Coming Soon
-              </span>
             </span>
           </div>
         </section>

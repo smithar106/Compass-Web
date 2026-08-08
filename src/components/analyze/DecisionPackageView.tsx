@@ -31,7 +31,7 @@ export function DecisionPackageView({
 
   return (
     <div>
-      <DecisionMemo recs={recs} meta={meta} summary={summary} status={status} />
+      <DecisionMemo recs={recs} meta={meta} summary={summary} status={status} onImplement={onImplement} />
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <button
@@ -41,14 +41,6 @@ export function DecisionPackageView({
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-ink px-6 py-3 text-[14px] font-semibold text-paper transition-colors hover:bg-ink2"
         >
           Download Brief as PDF
-        </button>
-        <button
-          type="button"
-          data-testid="view-implementation-plan"
-          onClick={() => onImplement?.()}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-ink/25 bg-white px-6 py-3 text-[14px] font-semibold text-ink transition-colors hover:border-ink"
-        >
-          View Implementation Plan
         </button>
       </div>
 

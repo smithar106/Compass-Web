@@ -18,6 +18,7 @@ import {
 } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
 import { ArrowIcon } from "@/components/home/primitives";
+import { loadRegistryEntries } from "@/lib/implementation";
 
 interface CoverageHeadline {
   implementations?: number;
@@ -60,6 +61,12 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
   const [statusFilter, setStatusFilter] = useState<WorkspaceStatus | "all">("all");
   const [functionFilter, setFunctionFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [implMap] = useState(() => {
+    const entries = loadRegistryEntries();
+    const map = new Map<string, string>();
+    entries.forEach((e) => map.set(e.decisionId, e.implementationId));
+    return map;
+  });
 
   const [workflow, setWorkflow] = useState<Record<string, WorkflowState>>({});
   const [acting, setActing] = useState<Record<string, "approve" | "outcome" | "">>({});
@@ -430,8 +437,15 @@ export function Workspace({ view = "overview" }: { view?: WorkspaceView }) {
                           <td className="whitespace-nowrap px-5 py-4 text-muted">{formatDate(r.createdAt)}</td>
                           <td className="px-5 py-4 text-ink">{r.expectedImpact}</td>
                           <td className="px-5 py-4 text-muted">{r.nextAction}</td>
-                          <td className="px-5 py-4">
-                            {r.status === "completed" ? (
+                           <td className="px-5 py-4">
+                             {implMap.has(r.id) ? (
+                               <Link
+                                 href={`/implementations/${implMap.get(r.id)}`}
+                                 className="inline-flex items-center gap-1 border border-line bg-surface px-2.5 py-1.5 text-[11.5px] font-semibold text-ink transition-colors hover:border-ink/40"
+                               >
+                                 View Implementation →
+                               </Link>
+                             ) : r.status === "completed" ? (
                               <span className="text-[11.5px] font-bold text-ok">✓ Measured</span>
                             ) : r.status === "approved" ? (
                               outcomeOpen[r.id] ? (
