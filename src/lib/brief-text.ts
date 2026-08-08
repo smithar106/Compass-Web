@@ -178,10 +178,11 @@ export function recommendationExplanation(top: DecisionRec, summary: any): { one
   // Compressed to 2-3 sentences. Never open with evidence counts or engine language.
 
   let problem: string;
+  const cleanFocus = focus.includes("…") || focus === "the workflow" ? "This workflow" : titleCasePhrase(focus);
   if (context && context.length > 10) {
     problem = context.charAt(0).toUpperCase() + context.slice(1) + (context.endsWith(".") ? "" : ".");
   } else {
-    problem = `${titleCasePhrase(focus)} is consuming capacity and creating unnecessary cost and delay.`;
+    problem = `${cleanFocus} is consuming capacity and creating unnecessary cost and delay.`;
   }
 
   const rec = specificAction && specificAction.length > 10
