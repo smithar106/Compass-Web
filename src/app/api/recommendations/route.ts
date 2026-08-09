@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
       business_function: body.business_function || "",
       workflow: body.workflow || "",
       problem_statement: body.problem_statement || "",
+      constraint: body.constraint || "",
       industry: body.industry || "",
       company_size: body.company_size || "",
       workflow_frequency: body.workflow_frequency || "",
@@ -35,6 +36,8 @@ export async function POST(request: NextRequest) {
       annual_workflow_volume: body.annual_workflow_volume || "",
       current_handling_time: body.current_handling_time || "",
       loaded_labor_cost: body.loaded_labor_cost || "",
+      standardization_level: body.standardization_level || "",
+      failure_impact: body.failure_impact || "",
     };
 
     const controller = new AbortController();
