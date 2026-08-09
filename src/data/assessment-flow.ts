@@ -10,10 +10,13 @@ import type { AssessmentQuestion } from "@/types";
 export const STANDALONE_QUESTION_IDS = [
   "dept",
   "situation",
+  "constraint",
+  "standardization",
   "people",
   "volume",
   "handling-time",
   "loaded-cost",
+  "failure-impact",
   "desired-outcome",
   "timeline",
 ] as const;

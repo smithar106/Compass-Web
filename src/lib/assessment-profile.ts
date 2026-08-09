@@ -13,6 +13,7 @@ export interface AssessmentProfile {
   business_function: string;
   workflow: string;
   problem_statement: string;
+  constraint: string;
   industry: string;
   company_size: string;
   workflow_frequency: string;
@@ -32,6 +33,10 @@ export interface AssessmentProfile {
   current_handling_time: string;
   /** Fully loaded cost of the team's time ($/hour) — enables dollar impact estimates. */
   loaded_labor_cost: string;
+  /** What's preventing better performance (capacity, errors, speed, etc.) */
+  standardization_level: string;
+  /** Impact if the system gets it wrong */
+  failure_impact: string;
 }
 
 const DEPARTMENT_WORKFLOWS: Record<string, string> = {
@@ -146,6 +151,7 @@ export function buildProfile(answers: AssessmentAnswerInput[]): AssessmentProfil
     business_function: businessFunction,
     workflow: DEPARTMENT_WORKFLOWS[dept] || "process_automation",
     problem_statement: problemStatement,
+    constraint: toConstraintKey(m.get("constraint")),
     industry: toIndustry(businessFunction),
     company_size: "",
     workflow_frequency: (m.get("frequency") as string) || "",
@@ -162,5 +168,41 @@ export function buildProfile(answers: AssessmentAnswerInput[]): AssessmentProfil
     annual_workflow_volume: annualVolumeFromLabel(m.get("volume")),
     current_handling_time: handlingHoursFromLabel(m.get("handling-time")),
     loaded_labor_cost: loadedCostFromLabel(m.get("loaded-cost")),
+    standardization_level: toStandardizationKey(m.get("standardization")),
+    failure_impact: toFailureImpactKey(m.get("failure-impact")),
   };
+}
+
+function toConstraintKey(raw: unknown): string {
+  if (typeof raw !== "string") return "unknown";
+  const t = raw.toLowerCase();
+  if (t.includes("capacity")) return "capacity";
+  if (t.includes("error")) return "errors";
+  if (t.includes("slow") || t.includes("too long")) return "speed";
+  if (t.includes("inconsistent") || t.includes("varies")) return "quality";
+  if (t.includes("expensive") || t.includes("cost") || t.includes("unsustainable")) return "cost";
+  if (t.includes("visibility") || t.includes("track") || t.includes("measure")) return "visibility";
+  if (t.includes("compliance") || t.includes("regulatory")) return "compliance";
+  if (t.includes("unknown") || t.includes("diagnose") || t.includes("root cause")) return "unknown";
+  return "unknown";
+}
+
+function toStandardizationKey(raw: unknown): string {
+  if (typeof raw !== "string") return "unknown";
+  const t = raw.toLowerCase();
+  if (t.includes("mostly repeatable")) return "repeatable";
+  if (t.includes("repeatable with exceptions")) return "with_exceptions";
+  if (t.includes("highly variable")) return "variable";
+  if (t.includes("significant judgment")) return "heavy_judgment";
+  return "unknown";
+}
+
+function toFailureImpactKey(raw: unknown): string {
+  if (typeof raw !== "string") return "unknown";
+  const t = raw.toLowerCase();
+  if (t.includes("low impact") || t.includes("minor")) return "low";
+  if (t.includes("moderate")) return "moderate";
+  if (t.includes("material") || t.includes("financial") || t.includes("customer")) return "material";
+  if (t.includes("regulatory") || t.includes("safety") || t.includes("legal")) return "regulatory";
+  return "unknown";
 }
