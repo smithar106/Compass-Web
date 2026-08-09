@@ -155,6 +155,7 @@ function ImplementationPhase({
   actions,
   success,
   cost,
+  isLast,
 }: {
   step: number;
   phase: string;
@@ -163,20 +164,26 @@ function ImplementationPhase({
   actions: string[];
   success: string;
   cost: string;
+  isLast?: boolean;
 }) {
   return (
-    <div className="flex gap-5 pb-8">
-      <div
-        className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold"
-        style={{
-          backgroundColor: T.accentLight,
-          color: T.accent,
-          fontFamily: "Urbanist, sans-serif",
-        }}
-      >
-        {String(step).padStart(2, "0")}
+    <div className="flex gap-5">
+      <div className="flex flex-col items-center flex-shrink-0">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold"
+          style={{
+            backgroundColor: T.accentLight,
+            color: T.accent,
+            fontFamily: "Urbanist, sans-serif",
+          }}
+        >
+          {String(step).padStart(2, "0")}
+        </div>
+        {!isLast && (
+          <div className="w-px flex-1 min-h-[24px] mt-1" style={{ backgroundColor: T.accent, opacity: 0.2 }} />
+        )}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 pb-8">
         <div
           className="text-[17px] font-semibold mb-1"
           style={{ fontFamily: "Urbanist, sans-serif", color: T.text }}
@@ -264,6 +271,36 @@ function AlternativeRow({
 /*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 
+function generateDecisionTitle(dm: any, rec: any): string {
+  const omc = dm?.recommendation?.operating_model_change;
+  if (omc) {
+    const verb = omc.replace(/^Move from /, "").split(" to ")[0];
+    if (verb) return verb.split(" ").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  }
+  const titles: Record<string, string> = {
+    "Workflow Automation": "Automate Inbound Call Handling",
+    "AI Implementation": "Deploy AI-Powered Processing",
+    "Software Implementation": "Implement Software Solution",
+    "Process Redesign": "Redesign Operating Process",
+    "Staffing Change": "Expand Team Capacity",
+    "Hybrid Intervention": "Deploy Hybrid Solution",
+    "No Action / Establish Baseline": "Establish Baseline First",
+  };
+  return titles[rec.family_name] || `Implement ${rec.family_name}`;
+}
+
+function evidenceText(e: any): string | undefined {
+  if (e.cost_impact) return `Cost impact: ${e.cost_impact}`;
+  if (e.cost_savings) return `Cost impact: ${e.cost_savings}`;
+  const outcome = e.outcome;
+  if (Array.isArray(outcome) && outcome.length > 0) return String(outcome[0]);
+  if (typeof outcome === "string") return outcome;
+  if (outcome && typeof outcome === "object") {
+    return Object.values(outcome).filter(Boolean).slice(0, 2).join(" · ");
+  }
+  return undefined;
+}
+
 interface ExecutiveDecisionBriefProps {
   decisionModel: any;
   onImplement?: () => void;
@@ -330,29 +367,12 @@ export function ExecutiveDecisionBrief({
       <section className="px-6 md:px-12 py-16 md:py-24 border-b print:border-0" style={{ borderColor: T.border }}>
         <Eyebrow num="01" label="Decision Recommendation" />
 
-        <h1
-          className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px] mb-8"
-          style={{ color: T.text }}
-        >
-          {decisionModel.recommendation?.operating_model_change
-            ? decisionModel.recommendation.operating_model_change
-                .replace(/^Move from /, "")
-                .replace(/ to .+$/, "")
-                .split(" ")
-                .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
-                .join(" ")
-            : rec.family_name === "Workflow Automation"
-              ? "Automate Inbound Call Handling"
-              : rec.family_name === "AI Implementation"
-                ? "Deploy AI-Powered Processing"
-                : rec.family_name === "Software Implementation"
-                  ? "Implement Software Solution"
-                  : rec.family_name === "Process Redesign"
-                    ? "Redesign Operating Process"
-                    : rec.family_name === "Staffing Change"
-                      ? "Expand Team Capacity"
-                      : `Implement ${rec.family_name}`}
-        </h1>
+          <h1
+            className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px] mb-8"
+            style={{ color: T.text }}
+          >
+            {generateDecisionTitle(decisionModel, rec)}
+          </h1>
 
         <NarrativeParagraph>
           {decisionModel.recommendation?.rationale
@@ -452,8 +472,7 @@ export function ExecutiveDecisionBrief({
                 <p>
                   Implementation cost of <strong>{implCostStr}</strong> is
                   derived from the 5-phase implementation plan below. Payback
-                  within {paybackStr} assuming 50% savings ramp-up in the first
-                  month.
+                  within {paybackStr}. 3-year projected ROI: <strong>{roiStr}</strong>.
                 </p>
               </div>
             </div>
@@ -526,27 +545,15 @@ export function ExecutiveDecisionBrief({
           <SectionTitle>Comparable Implementations</SectionTitle>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {evidence.slice(0, 3).map((e: any, i: number) => {
-              const org = e.organization || e.company || "—";
-              const what = e.intervention || e.what_they_did || "—";
-              const outcomeText =
-                e.cost_impact || e.cost_savings
-                  ? `Cost impact: ${e.cost_impact || e.cost_savings}`
-                  : Array.isArray(e.outcome) && e.outcome.length > 0
-                    ? e.outcome[0]
-                    : e.outcome
-                      ? String(e.outcome)
-                      : undefined;
-              return (
-                <EvidenceCard
-                  key={i}
-                  org={org}
-                  what={what}
-                  outcome={outcomeText}
-                  tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
-                />
-              );
-            })}
+            {evidence.slice(0, 3).map((e: any, i: number) => (
+              <EvidenceCard
+                key={i}
+                org={e.organization || e.company || "—"}
+                what={e.intervention || e.what_they_did || "—"}
+                outcome={evidenceText(e)}
+                tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
+              />
+            ))}
           </div>
         </section>
       )}
@@ -595,7 +602,7 @@ export function ExecutiveDecisionBrief({
           </div>
 
           <div className="max-w-[780px]">
-            {path.map((step: any) => (
+            {path.map((step: any, i: number) => (
               <ImplementationPhase
                 key={step.step}
                 step={step.step}
@@ -605,6 +612,7 @@ export function ExecutiveDecisionBrief({
                 actions={step.actions || []}
                 success={step.success_criteria}
                 cost={step.cost}
+                isLast={i === path.length - 1}
               />
             ))}
           </div>
