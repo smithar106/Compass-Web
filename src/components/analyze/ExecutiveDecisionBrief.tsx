@@ -302,9 +302,22 @@ export function ExecutiveDecisionBrief({
     ? `${econ.three_year_roi}×`
     : "—";
 
+  // Calculate implementation duration from path phases
+  const durationWeeks = path
+    ? path.reduce((acc: number, s: any) => {
+        const dur = s.duration || "";
+        const nums = (dur.match(/\d+/g) || []).map(Number);
+        return acc + (nums.length >= 2 ? (nums[0] + nums[1]) / 2 : nums[0] || 0);
+      }, 0)
+    : 0;
+  const durationStr =
+    durationWeeks > 0
+      ? `${Math.floor(durationWeeks)}–${Math.ceil(durationWeeks * 1.3)} weeks`
+      : "12–17 weeks";
+
   return (
     <div
-      className="mx-auto"
+      className="mx-auto print:bg-white"
       style={{
         maxWidth: 1160,
         backgroundColor: T.page,
@@ -314,30 +327,39 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       {/* 01 — DECISION RECOMMENDATION                                     */}
       {/* ================================================================ */}
-      <section className="px-6 md:px-12 py-16 md:py-24">
+      <section className="px-6 md:px-12 py-16 md:py-24 border-b print:border-0" style={{ borderColor: T.border }}>
         <Eyebrow num="01" label="Decision Recommendation" />
 
         <h1
           className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px] mb-8"
           style={{ color: T.text }}
         >
-          {rec.family_name === "Workflow Automation"
-            ? "Automate Inbound Call Handling"
-            : rec.family_name === "AI Implementation"
-              ? "Deploy AI-Powered Processing"
-              : rec.family_name === "Software Implementation"
-                ? "Implement Software Solution"
-                : rec.family_name === "Process Redesign"
-                  ? "Redesign Operating Process"
-                  : rec.family_name === "Staffing Change"
-                    ? "Expand Team Capacity"
-                    : `Implement ${rec.family_name}`}
+          {decisionModel.recommendation?.operating_model_change
+            ? decisionModel.recommendation.operating_model_change
+                .replace(/^Move from /, "")
+                .replace(/ to .+$/, "")
+                .split(" ")
+                .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(" ")
+            : rec.family_name === "Workflow Automation"
+              ? "Automate Inbound Call Handling"
+              : rec.family_name === "AI Implementation"
+                ? "Deploy AI-Powered Processing"
+                : rec.family_name === "Software Implementation"
+                  ? "Implement Software Solution"
+                  : rec.family_name === "Process Redesign"
+                    ? "Redesign Operating Process"
+                    : rec.family_name === "Staffing Change"
+                      ? "Expand Team Capacity"
+                      : `Implement ${rec.family_name}`}
         </h1>
 
         <NarrativeParagraph>
-          {cf?.summary
-            ? cf.summary.split(". ").slice(0, 2).join(". ") + "."
-            : `${rec.family_name} addresses the ${prob.constraint_type} constraint in ${prob.workflow} with expected annual savings of ${savingsStr} against the current operating baseline.`}
+          {decisionModel.recommendation?.rationale
+            ? decisionModel.recommendation.rationale
+            : cf?.summary
+              ? cf.summary.split(". ").slice(0, 2).join(". ") + "."
+              : `${rec.family_name} addresses the ${prob.constraint_type} constraint in ${prob.workflow} with expected annual savings of ${savingsStr} against the current operating baseline.`}
         </NarrativeParagraph>
 
         {/* KPI cards */}
@@ -352,7 +374,7 @@ export function ExecutiveDecisionBrief({
       {/* 02 — ECONOMICS                                                    */}
       {/* ================================================================ */}
       {econ && (
-        <section className="px-6 md:px-12 py-16 md:py-20">
+        <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
           <Eyebrow num="02" label="Economics" />
           <SectionTitle>Cost &amp; Savings Analysis</SectionTitle>
 
@@ -442,14 +464,14 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       {/* 03 — WHY THIS INTERVENTION                                        */}
       {/* ================================================================ */}
-      <section className="px-6 md:px-12 py-16 md:py-20">
+      <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
         <Eyebrow num="03" label="Why This Intervention" />
         <SectionTitle>Why {rec.family_name}</SectionTitle>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <NarrativeParagraph>
-            {cf?.summary
-              ? cf.summary
+            {decisionModel.recommendation?.rationale
+              ? decisionModel.recommendation.rationale.split(". ").slice(0, 1).join(". ") + "."
               : `${rec.family_name} addresses the ${prob.constraint_type} constraint directly. At ${prob.annual_volume?.toLocaleString() || "—"} items/year with ${prob.exception_rate || "—"} exceptions, the workflow has enough volume and standardization to justify the investment.`}
           </NarrativeParagraph>
 
@@ -499,26 +521,32 @@ export function ExecutiveDecisionBrief({
       {/* 04 — EVIDENCE                                                    */}
       {/* ================================================================ */}
       {evidence.length > 0 && (
-        <section className="px-6 md:px-12 py-16 md:py-20">
+        <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
           <Eyebrow num="04" label="Evidence" />
           <SectionTitle>Comparable Implementations</SectionTitle>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {evidence.slice(0, 3).map((e: any, i: number) => (
-              <EvidenceCard
-                key={i}
-                org={e.organization || e.company || "—"}
-                what={e.intervention || e.what_they_did || "—"}
-                outcome={
-                  e.cost_savings
-                    ? `Cost impact: ${e.cost_savings}`
+            {evidence.slice(0, 3).map((e: any, i: number) => {
+              const org = e.organization || e.company || "—";
+              const what = e.intervention || e.what_they_did || "—";
+              const outcomeText =
+                e.cost_impact || e.cost_savings
+                  ? `Cost impact: ${e.cost_impact || e.cost_savings}`
+                  : Array.isArray(e.outcome) && e.outcome.length > 0
+                    ? e.outcome[0]
                     : e.outcome
-                      ? e.outcome[0]
-                      : undefined
-                }
-                tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
-              />
-            ))}
+                      ? String(e.outcome)
+                      : undefined;
+              return (
+                <EvidenceCard
+                  key={i}
+                  org={org}
+                  what={what}
+                  outcome={outcomeText}
+                  tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
+                />
+              );
+            })}
           </div>
         </section>
       )}
@@ -527,7 +555,7 @@ export function ExecutiveDecisionBrief({
       {/* 05 — ALTERNATIVES CONSIDERED                                      */}
       {/* ================================================================ */}
       {alts.length > 0 && (
-        <section className="px-6 md:px-12 py-16 md:py-20">
+        <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
           <Eyebrow num="05" label="Alternatives Considered" />
           <SectionTitle>Why Not the Alternatives</SectionTitle>
 
@@ -556,14 +584,14 @@ export function ExecutiveDecisionBrief({
       {/* 06 — IMPLEMENTATION PATH                                          */}
       {/* ================================================================ */}
       {path && path.length > 0 && (
-        <section className="px-6 md:px-12 py-16 md:py-20">
+        <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
           <Eyebrow num="06" label="Implementation Path" />
           <SectionTitle>How to Implement</SectionTitle>
 
           {/* Summary bar */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
             <KPICard value={implCostStr} label="Estimated Implementation Cost" />
-            <KPICard value="12–17 weeks" label="Estimated Duration" />
+            <KPICard value={durationStr} label="Estimated Duration" />
           </div>
 
           <div className="max-w-[780px]">
@@ -618,21 +646,30 @@ export function ExecutiveDecisionBrief({
               Risks &amp; Contraindications
             </div>
             <ul className="space-y-2">
-              {[
-                "CRM integration complexity",
-                "Customer experience during transition",
-                "Escalation quality for exceptions",
-                "Data quality for automation rules",
-                "User adoption and training",
-              ].map((r, i) => (
-                <li
-                  key={i}
-                  className="text-[14px] leading-[1.5] flex items-start gap-2"
-                  style={{ color: T.amber, fontFamily: "Urbanist, sans-serif" }}
-                >
-                  <span aria-hidden>⚠</span> {r}
-                </li>
-              ))}
+              {decisionModel.risks && decisionModel.risks.length > 0
+                ? decisionModel.risks.map((r: string, i: number) => (
+                    <li
+                      key={i}
+                      className="text-[14px] leading-[1.5] flex items-start gap-2"
+                      style={{ color: T.amber, fontFamily: "Urbanist, sans-serif" }}
+                    >
+                      <span aria-hidden>⚠</span> {r}
+                    </li>
+                  ))
+                : [
+                    "Integration complexity with existing systems",
+                    "Customer experience during transition period",
+                    "Exception handling quality for edge cases",
+                    "User adoption and training requirements",
+                  ].map((r, i) => (
+                    <li
+                      key={i}
+                      className="text-[14px] leading-[1.5] flex items-start gap-2"
+                      style={{ color: T.amber, fontFamily: "Urbanist, sans-serif" }}
+                    >
+                      <span aria-hidden>⚠</span> {r}
+                    </li>
+                  ))}
               {contras.map((c: string, i: number) => (
                 <li
                   key={`contra-${i}`}
