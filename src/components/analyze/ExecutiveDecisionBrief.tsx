@@ -367,12 +367,12 @@ export function ExecutiveDecisionBrief({
       <section className="px-6 md:px-12 py-16 md:py-24 border-b print:border-0" style={{ borderColor: T.border }}>
         <Eyebrow num="01" label="Decision Recommendation" />
 
-          <h1
-            className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px] mb-8"
-            style={{ color: T.text }}
-          >
-            {generateDecisionTitle(decisionModel, rec)}
-          </h1>
+        <h1
+          className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px] mb-8"
+          style={{ color: T.text }}
+        >
+          {generateDecisionTitle(decisionModel, rec)}
+        </h1>
 
         <NarrativeParagraph>
           {decisionModel.recommendation?.rationale
