@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { DecisionRec } from "@/lib/decision-package";
 import { DecisionMemo } from "./DecisionMemo";
+import { ExecutiveDecisionBrief } from "./ExecutiveDecisionBrief";
 import { DecisionBriefPrint } from "./DecisionBriefPrint";
 
 export function DecisionPackageView({
@@ -11,6 +12,7 @@ export function DecisionPackageView({
   summary,
   status,
   recommendationId,
+  decisionModel,
   onImplement,
 }: {
   recs: DecisionRec[];
@@ -18,6 +20,7 @@ export function DecisionPackageView({
   summary: any;
   status?: string;
   recommendationId?: string;
+  decisionModel?: any;
   onImplement?: () => void;
   onSave?: () => void;
 }) {
@@ -29,6 +32,31 @@ export function DecisionPackageView({
     return <InsufficientEvidence rec={top} />;
   }
 
+  // Use the new Executive Decision Brief when decision model is available
+  if (decisionModel?.recommended_intervention) {
+    return (
+      <div>
+        <ExecutiveDecisionBrief decisionModel={decisionModel} onImplement={onImplement} />
+
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row px-6 md:px-12">
+          <button
+            type="button"
+            data-testid="download-pdf"
+            onClick={() => setPrinting(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-ink px-6 py-3 text-[14px] font-semibold text-paper transition-colors hover:bg-ink2"
+          >
+            Download Brief as PDF
+          </button>
+        </div>
+
+        {printing && (
+          <DecisionBriefPrint recs={recs} meta={meta} summary={summary} status={status} onClose={() => setPrinting(false)} />
+        )}
+      </div>
+    );
+  }
+
+  // Fallback to legacy DecisionMemo
   return (
     <div>
       <DecisionMemo recs={recs} meta={meta} summary={summary} status={status} onImplement={onImplement} />

@@ -152,6 +152,7 @@ export default function DecisionPage() {
         summary={decision.assessment_summary}
         status={analysis.status}
         recommendationId={decision.recommendation_id}
+        decisionModel={decision.methodology?.decision_model || null}
         onImplement={launchImplementation}
         onSave={saveDecision}
       />
