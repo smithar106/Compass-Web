@@ -5,7 +5,7 @@
 // "finance" language), and free of duplicated noun phrases.
 
 import type { DecisionRec } from "@/lib/decision-package";
-import { classifyEvidence, selectBriefEvidence, selectRelevantImpactMetrics } from "@/lib/decision-package";
+import { selectRelevantImpactMetrics } from "@/lib/decision-package";
 
 // ---- Sanitization: strip run-ons, malformed JSON, and stray artifacts ----
 
@@ -321,16 +321,16 @@ function cleanMetric(metricRaw: string, val: string): string {
 export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
   const raw = (top.comparable_implementations || []);
 
-  // Classify evidence by relevance to this decision. Only tiers A–C qualify
-  // for the Executive Brief. Never show irrelevant records just to fill slots.
-  const workflow = summary?.workflow || top.pathway_label || "";
-  const intervention = top.category || (top as any).specific_action || top.title || "";
-  const scored = classifyEvidence(raw, workflow, intervention);
-  const relevant = selectBriefEvidence(scored);
+  // Trust the engine's decision_relevance classification (direct/supporting/rejected).
+  // The engine determines relevance from workflow+intervention matching with
+  // similarity scores — the frontend renders, it does not re-classify.
+  const relevant = raw.filter(
+    (c: any) => c.decision_relevance !== "rejected"
+  );
 
   const seen = new Set<string>();
   return relevant
-    .filter((c) => {
+    .filter((c: any) => {
       const key = asString(c.organization).trim().toLowerCase();
       if (!key || seen.has(key)) return false;
       seen.add(key);
@@ -357,7 +357,7 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
       });
       const unique = [...new Set(bullets)];
       if (unique.length === 0) unique.push("Reported measurable operational improvement.");
-      return { company: org, context, bullets: unique.slice(0, 3), isSupporting: !c.isDirect };
+      return { company: org, context, bullets: unique.slice(0, 3), isSupporting: (c as any).decision_relevance !== "direct" };
     });
 }
 

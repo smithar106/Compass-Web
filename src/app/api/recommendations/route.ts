@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { generateDevFallback, getDevRecommendation, isDevRec } from "@/lib/dev-fallback";
 
 const compassApiUrl =
   process.env.COMPASS_API_URL ??
@@ -12,6 +13,10 @@ export async function POST(request: NextRequest) {
 
     if (!compassApiUrl) {
       console.error(`[Recs:${requestId}] COMPASS_API_URL not configured`);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[Recs:${requestId}] Dev fallback — generating mock recommendation`);
+        return NextResponse.json(generateDevFallback(body), { status: 200 });
+      }
       return NextResponse.json({ error: "Compass Engine URL is not configured.", type: "config_error" }, { status: 500 });
     }
 
@@ -42,17 +47,32 @@ export async function POST(request: NextRequest) {
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
-    const engineRes = await fetch(`${compassApiUrl}/api/recommendations`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
+    let engineRes: Response;
+    try {
+      engineRes = await fetch(`${compassApiUrl}/api/recommendations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeout);
+      console.error(`[Recs:${requestId}] Engine unreachable:`, fetchError);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[Recs:${requestId}] Dev fallback — engine unreachable, generating mock`);
+        return NextResponse.json(generateDevFallback(body), { status: 200 });
+      }
+      return NextResponse.json({ error: "Recommendation engine is unreachable.", type: "engine_unreachable" }, { status: 504 });
+    }
     clearTimeout(timeout);
 
     if (!engineRes.ok) {
       const errText = await engineRes.text().catch(() => "");
       console.error(`[Recs:${requestId}] Engine error (${engineRes.status}): ${errText.slice(0, 500)}`);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[Recs:${requestId}] Dev fallback — engine returned ${engineRes.status}, generating mock`);
+        return NextResponse.json(generateDevFallback(body), { status: 200 });
+      }
       return NextResponse.json({ error: "Engine returned an error.", type: "engine_error" }, { status: 502 });
     }
 
@@ -60,11 +80,17 @@ export async function POST(request: NextRequest) {
 
     if (!engineResult.recommendations || !Array.isArray(engineResult.recommendations)) {
       console.error(`[Recs:${requestId}] Malformed engine response — missing recommendations array`);
+      if (process.env.NODE_ENV === "development") {
+        return NextResponse.json(generateDevFallback(body), { status: 200 });
+      }
       return NextResponse.json({ error: "Malformed response from engine.", type: "malformed_response" }, { status: 502 });
     }
 
     if (!engineResult.recommendation_id) {
       console.error(`[Recs:${requestId}] Engine response missing recommendation_id`);
+      if (process.env.NODE_ENV === "development") {
+        return NextResponse.json(generateDevFallback(body), { status: 200 });
+      }
       return NextResponse.json({ error: "Malformed response from engine.", type: "malformed_response" }, { status: 502 });
     }
 
@@ -83,13 +109,20 @@ export async function GET(request: NextRequest) {
   const maxRetries = 2;
   let lastError: string | null = null;
 
+  const { searchParams } = new URL(request.url);
+  const recId = searchParams.get("recommendation_id") || searchParams.get("run_id");
+  if (!recId) {
+    return NextResponse.json({ error: "recommendation_id is required" }, { status: 400 });
+  }
+
+  if (isDevRec(recId)) {
+    const dev = getDevRecommendation(recId);
+    if (dev) return NextResponse.json(dev, { status: 200 });
+    return NextResponse.json({ error: "Decision not found." }, { status: 404 });
+  }
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const { searchParams } = new URL(request.url);
-      const recId = searchParams.get("recommendation_id") || searchParams.get("run_id");
-      if (!recId) {
-        return NextResponse.json({ error: "recommendation_id is required" }, { status: 400 });
-      }
 
       if (!compassApiUrl) {
         return NextResponse.json({ error: "Compass Engine URL is not configured." }, { status: 500 });

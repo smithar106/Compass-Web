@@ -104,11 +104,15 @@ export default function AssessmentPage() {
       setSubmitError(null);
       try {
         const profile = buildProfile(finalAnswers);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 60000);
         const res = await fetch("/api/recommendations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(profile),
+          signal: controller.signal,
         });
+        clearTimeout(timeout);
         if (!res.ok) {
           let message = `Generation failed (${res.status})`;
           try {
@@ -126,7 +130,13 @@ export default function AssessmentPage() {
         trackAssessmentCompleted();
         router.push(`/decisions/${encodeURIComponent(data.recommendation_id)}`);
       } catch (err) {
-        setSubmitError(err instanceof Error ? err.message : "Failed to generate your recommendation. Please try again.");
+        setSubmitError(
+          err instanceof Error && err.name === "AbortError"
+            ? "The request timed out. The recommendation engine may not be running. Please try again."
+            : err instanceof Error
+              ? err.message
+              : "Failed to generate your recommendation. Please try again."
+        );
         setSubmitting(false);
         submittingRef.current = false;
       }

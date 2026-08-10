@@ -356,8 +356,8 @@ export const demoDecisions: DemoDecision[] = [
       "Roll out with manager training",
     ],
     outcome: [
-      { metric: "Expected annual savings", expected: "K", actual: "K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "K", unit: "USD" },
+      { metric: "Expected annual savings", expected: "$60K", actual: "$62K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "$62K", unit: "USD" },
     ],
   },
   {
@@ -382,8 +382,8 @@ export const demoDecisions: DemoDecision[] = [
       "Cut over and measure time saved",
     ],
     outcome: [
-      { metric: "Expected annual savings", expected: "K", actual: "K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "K", unit: "USD" },
+      { metric: "Expected annual savings", expected: "$190K", actual: "$185K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "$185K", unit: "USD" },
     ],
   },
   {
@@ -408,8 +408,8 @@ export const demoDecisions: DemoDecision[] = [
       "Expand with quality gates",
     ],
     outcome: [
-      { metric: "Expected annual savings", expected: "K", actual: "K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "K", unit: "USD" },
+      { metric: "Expected annual savings", expected: "$310K", actual: "$325K", unit: "USD" },
+      { metric: "Actual annual savings", expected: "—", actual: "$325K", unit: "USD" },
     ],
   },
 ];
