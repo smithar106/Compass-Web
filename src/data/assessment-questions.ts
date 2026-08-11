@@ -8,7 +8,6 @@ export const questions: AssessmentQuestion[] = [
     "Our onboarding process doesn't scale",
     "Our finance team manually reconciles invoices",
     "Our contracts take too long to review",
-    "Something else",
   ]},
   { id: "dept", section: "Problem", category: "department", question: "Which department owns this workflow?", type: "multi-choice", chip: true, options: [
     "Sales", "Marketing", "Operations", "Finance", "HR",

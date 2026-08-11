@@ -331,7 +331,7 @@ export function ExecutiveDecisionBrief({
     ? `$${(econ.expected_annual_savings / 1_000_000).toFixed(2)}M`
     : "—";
   const paybackStr = econ?.payback_months
-    ? `~${Math.ceil(econ.payback_months)} months`
+    ? `~${Math.ceil(econ.payback_months)} month${Math.ceil(econ.payback_months) === 1 ? "" : "s"}`
     : "—";
   const roiStr = econ?.three_year_roi
     ? `${econ.three_year_roi}×`
@@ -374,18 +374,17 @@ export function ExecutiveDecisionBrief({
 
         <NarrativeParagraph>
           {(() => {
-            const title = generateDecisionTitle(decisionModel, rec);
             const altNames = alts.map((a: any) => a.family_name).filter(Boolean);
             const altSummary = altNames.length
               ? ` Other alternatives that were considered—${altNames.slice(0, 3).join(", ")}${altNames.length > 3 ? ", and others" : ""}—were either more costly, slower to implement, or did not adequately address this specific problem.`
               : "";
             if (!Number.isFinite(implCost) || !Number.isFinite(econ?.expected_annual_savings)) {
-              return `We recommend ${title.charAt(0).toLowerCase() + title.slice(1)}.${altSummary} Begin with a bounded pilot and scale only after the economics are validated against the current baseline.`;
+              return `This approach is the most cost-effective path given the workflow's volume, repeatability, and constraint profile.${altSummary} Begin with a bounded pilot and scale only after the economics are validated against the current baseline.`;
             }
             const savings = econ.expected_annual_savings;
             const payback = econ.payback_months;
-            const paybackText = payback ? ` with an expected payback of ~${Math.ceil(payback)} months` : "";
-            return `We recommend ${title.charAt(0).toLowerCase() + title.slice(1)}—expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}.${altSummary}`;
+            const paybackText = payback ? ` with an expected payback of ~${Math.ceil(payback)} month${Math.ceil(payback) === 1 ? "" : "s"}` : "";
+            return `This approach is expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}. It ranked highest across all intervention paths on evidence strength, cost, and implementability.${altSummary}`;
           })()}
         </NarrativeParagraph>
 
@@ -497,11 +496,10 @@ export function ExecutiveDecisionBrief({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <NarrativeParagraph>
             {(() => {
-              const title = generateDecisionTitle(decisionModel, rec);
               const constraint = prob.constraint_type
                 ? `, which is constrained by ${prob.constraint_type.toLowerCase()}`
                 : "";
-              return `${title}—the recommendation is based on the volume and repeatability of this workflow${constraint}. The evidence shows this is the most cost-effective path, and every rejected alternative was scored against the same criteria.`;
+              return `The recommendation is based on the volume and repeatability of this workflow${constraint}. The evidence shows this is the most cost-effective path, and every rejected alternative was scored against the same criteria.`;
             })()}
           </NarrativeParagraph>
 

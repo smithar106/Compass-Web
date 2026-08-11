@@ -136,6 +136,13 @@ export function generateDevFallback(input: DevFallbackInput): DevRecommendation 
             evidence_tier: "silver",
             similarity_score: 55,
           },
+          {
+            organization: "Delta Systems",
+            intervention: `Workflow restructuring in ${fnDisplay}`,
+            outcome_summary: "Processing cost down 31% within 90 days",
+            evidence_tier: "silver",
+            similarity_score: 51,
+          },
         ],
         risks: [
           {

@@ -169,7 +169,6 @@ export const demoDecisions: DemoDecision[] = [
     ],
     outcome: [
       { metric: "Expected annual savings", expected: "$410K", actual: "$452K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "$452K", unit: "USD" },
     ],
   },
   {
@@ -283,7 +282,6 @@ export const demoDecisions: DemoDecision[] = [
     ],
     outcome: [
       { metric: "Expected annual savings", expected: "$480K", actual: "$432K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "$432K", unit: "USD" },
     ],
   },
   {
@@ -331,7 +329,6 @@ export const demoDecisions: DemoDecision[] = [
     ],
     outcome: [
       { metric: "Expected annual savings", expected: "$320K", actual: "$348K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "$348K", unit: "USD" },
     ],
   },
   {
@@ -357,7 +354,6 @@ export const demoDecisions: DemoDecision[] = [
     ],
     outcome: [
       { metric: "Expected annual savings", expected: "$60K", actual: "$62K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "$62K", unit: "USD" },
     ],
   },
   {
@@ -383,7 +379,6 @@ export const demoDecisions: DemoDecision[] = [
     ],
     outcome: [
       { metric: "Expected annual savings", expected: "$190K", actual: "$185K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "$185K", unit: "USD" },
     ],
   },
   {
@@ -409,7 +404,6 @@ export const demoDecisions: DemoDecision[] = [
     ],
     outcome: [
       { metric: "Expected annual savings", expected: "$310K", actual: "$325K", unit: "USD" },
-      { metric: "Actual annual savings", expected: "—", actual: "$325K", unit: "USD" },
     ],
   },
 ];

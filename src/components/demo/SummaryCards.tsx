@@ -32,7 +32,7 @@ export function SummaryCards() {
           <p className="text-[clamp(2.2rem,4vw,3rem)] font-extralight leading-none tracking-[-0.03em] text-[#14532d]">
             $2.4M
           </p>
-          <p className="mt-3 text-[14px] font-semibold text-[#14532d]">Expected annual value</p>
+          <p className="mt-3 text-[14px] font-semibold text-[#14532d]">Estimated annual revenue gain</p>
         </div>
       </div>
     </section>
