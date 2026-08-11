@@ -124,12 +124,14 @@ function EvidenceCard({
   outcome,
   tier,
   color,
+  sourceType,
 }: {
   org: string;
   what: string;
   outcome?: string;
   tier?: string;
   color?: string;
+  sourceType?: string;
 }) {
   const c = color ?? T.accent;
   return (
@@ -162,14 +164,27 @@ function EvidenceCard({
           {outcome}
         </div>
       )}
-      {tier && (
-        <div
-          className="mt-2 text-[11px] font-medium uppercase tracking-[0.08em]"
-          style={{ color: c }}
-        >
-          {tier}
-        </div>
-      )}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {tier && (
+          <div
+            className="text-[11px] font-medium uppercase tracking-[0.08em]"
+            style={{ color: c }}
+          >
+            {tier}
+          </div>
+        )}
+        {sourceType && (
+          <span
+            className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+            style={{
+              backgroundColor: sourceType === "Independently Verified" ? "#E6F2F0" : sourceType === "Vendor Case Study" ? "#FDF6E8" : "#F1F3F6",
+              color: sourceType === "Independently Verified" ? T.accent : sourceType === "Vendor Case Study" ? T.gold : T.silver,
+            }}
+          >
+            {sourceType}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -308,20 +323,20 @@ function AlternativeRow({
 
 function generateDecisionTitle(dm: any, rec: any): string {
   const omc = dm?.recommendation?.operating_model_change;
-  if (omc) {
+  if (omc && typeof omc === "string" && omc.length > 5) {
     const verb = omc.replace(/^Move from /, "").split(" to ")[0];
     if (verb) return verb.split(" ").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   }
-  const titles: Record<string, string> = {
-    "Workflow Automation": "Automate Inbound Call Handling",
-    "AI Implementation": "Deploy AI-Powered Processing",
-    "Software Implementation": "Implement Software Solution",
-    "Process Redesign": "Redesign Operating Process",
-    "Staffing Change": "Expand Team Capacity",
-    "Hybrid Intervention": "Deploy Hybrid Solution",
-    "No Action / Establish Baseline": "Establish Baseline First",
-  };
-  return titles[rec.family_name] || `Implement ${rec.family_name}`;
+  // Fallback: derive from intervention category
+  const cat = (rec?.category || rec?.family_name || "").toLowerCase();
+  if (cat.includes("ai")) return "Deploy AI-Powered Solution";
+  if (cat.includes("automation") || cat.includes("workflow")) return "Automate This Workflow";
+  if (cat.includes("software")) return "Implement Software Solution";
+  if (cat.includes("process") || cat.includes("redesign")) return "Redesign Operating Process";
+  if (cat.includes("staffing")) return "Expand Team Capacity";
+  if (cat.includes("hybrid")) return "Deploy Hybrid Solution";
+  if (cat.includes("no_action")) return "Establish Baseline First";
+  return "Implement Recommended Intervention";
 }
 
 function evidenceText(e: any): string | undefined {
@@ -354,6 +369,15 @@ export function ExecutiveDecisionBrief({
   const alts = decisionModel.alternatives_considered || [];
   const evidence = rec?.evidence || [];
   const cf = decisionModel.counterfactual_rationale;
+  const confidence = decisionModel.recommendation_confidence || "moderate";
+  const confidenceLabels: Record<string, string> = {
+    high: "High confidence",
+    moderate: "Moderate confidence",
+    low: "Lower confidence — limited direct evidence",
+  };
+  const evidenceWidened = decisionModel.confidence_limits?.some(
+    (l: any) => l.source === "evidence_retrieval" && l.reason?.includes("Only ")
+  );
 
   if (!rec || !prob) return null;
 
@@ -371,9 +395,57 @@ export function ExecutiveDecisionBrief({
     ? `${econ.three_year_roi}×`
     : "—";
 
-  // Calculate implementation duration from path phases
-  const durationWeeks = path
-    ? path.reduce((acc: number, s: any) => {
+  // Generate adaptive implementation phases based on intervention family
+  const adaptivePath = (() => {
+    const family = (rec?.family_name || rec?.category || "").toLowerCase();
+    const isAI = family.includes("ai");
+    const isAutomation = family.includes("automation") || family.includes("workflow");
+    const isProcess = family.includes("process") || family.includes("redesign");
+    const isStaffing = family.includes("staffing");
+    const isSoftware = family.includes("software");
+
+    if (isAI) return [
+      { step: 1, phase: "Establish the Baseline", duration: "Week 1–2", owner: "Operations Lead", actions: ["Document current workflow steps and timing", "Measure current accuracy and exception rate", "Define acceptance criteria for the pilot"], success: "Baseline metrics captured and signed off", cost: "Internal time only" },
+      { step: 2, phase: "Data Readiness & Preparation", duration: "Weeks 2–4", owner: "Data / IT Team", actions: ["Audit data quality for training inputs", "Clean and label historical examples", "Define data pipeline and refresh cadence"], success: "Training dataset validated with example coverage ≥80%", cost: "Light engineering" },
+      { step: 3, phase: "Model Configuration & Testing", duration: "Weeks 4–8", owner: "Implementation Team", actions: ["Configure the AI model against the training data", "Run offline evaluation on a holdout set", "Tune thresholds for precision vs. recall"], success: "Offline accuracy meets acceptance criteria", cost: "Model configuration + testing" },
+      { step: 4, phase: "Run the Pilot", duration: "Weeks 8–12", owner: "Operations + Implementation", actions: ["Deploy to a limited volume or subset", "Run in shadow mode with human review", "Track accuracy, exception rate, and human override rate"], success: "Pilot KPIs within 10% of targets; no increase in error rate", cost: "Pilot operations" },
+      { step: 5, phase: "Scale Deployment", duration: "Weeks 12–16", owner: "Implementation Team", actions: ["Expand to full volume", "Remove shadow review for high-confidence cases", "Set up ongoing monitoring and retraining cadence"], success: "Full deployment with monitoring in place", cost: "Full implementation" },
+    ];
+
+    if (isAutomation) return [
+      { step: 1, phase: "Map the Current Workflow", duration: "Week 1–2", owner: "Operations Lead", actions: ["Document every step, decision point, and handoff", "Identify which steps are deterministic vs. require judgment", "Measure current throughput and error rate"], success: "Workflow map signed off; automation candidates identified", cost: "Internal time only" },
+      { step: 2, phase: "Configure Automation Rules", duration: "Weeks 2–4", owner: "Implementation Team", actions: ["Define deterministic routing rules", "Set up exception queues for human review", "Configure integrations with existing systems"], success: "Rules tested against historical data; exception rate <15%", cost: "Light configuration" },
+      { step: 3, phase: "Run the Pilot", duration: "Weeks 4–8", owner: "Operations + Implementation", actions: ["Deploy automation on a subset of volume", "Monitor throughput, accuracy, and exception rate", "Adjust rules based on pilot data"], success: "Throughput improved; error rate unchanged or better", cost: "Pilot operations" },
+      { step: 4, phase: "Scale Deployment", duration: "Weeks 8–12", owner: "Implementation Team", actions: ["Expand to full volume", "Train team on exception handling workflow", "Set up ongoing monitoring and rule refinement"], success: "Full deployment with monitoring", cost: "Full implementation" },
+    ];
+
+    if (isProcess) return [
+      { step: 1, phase: "Document the Current State", duration: "Week 1–2", owner: "Operations Lead", actions: ["Map the current process end-to-end", "Identify bottlenecks, rework loops, and unnecessary steps", "Interview stakeholders across the workflow"], success: "Current-state map complete with pain points documented", cost: "Internal time only" },
+      { step: 2, phase: "Design the Future State", duration: "Weeks 2–4", owner: "Process Owner", actions: ["Define the target process with clear ownership", "Remove redundant steps and handoffs", "Document new decision rights and escalation paths"], success: "Future-state design signed off by all stakeholders", cost: "Workshop time" },
+      { step: 3, phase: "Pilot the New Process", duration: "Weeks 4–8", owner: "Operations Lead", actions: ["Train the team on the new process", "Run the new process on a subset of volume", "Collect feedback and adjust"], success: "Process running as designed; team feedback incorporated", cost: "Training + pilot oversight" },
+      { step: 4, phase: "Roll Out & Standardize", duration: "Weeks 8–12", owner: "Process Owner", actions: ["Expand to full volume across the team", "Document the standardized process", "Establish review cadence and continuous improvement"], success: "Process standardized; review cadence established", cost: "Rollout cost" },
+    ];
+
+    if (isStaffing) return [
+      { step: 1, phase: "Define Capacity Requirements", duration: "Week 1–2", owner: "Operations Lead", actions: ["Quantify the capacity gap based on current volume", "Define the role, skills required, and reporting structure", "Draft the cost-benefit analysis for staffing vs. alternatives"], success: "Capacity requirements documented and approved", cost: "Internal time only" },
+      { step: 2, phase: "Recruit or Reallocate", duration: "Weeks 2–6", owner: "HR / Operations", actions: ["Post the role or identify internal candidates", "Screen and interview candidates", "Make an offer and set start date"], success: "Candidate hired with start date", cost: "Recruiting cost" },
+      { step: 3, phase: "Onboard & Train", duration: "Weeks 6–10", owner: "Operations Lead", actions: ["Set up systems access and tools", "Train on the workflow and tools", "Run shadowing with an experienced team member"], success: "New hire operating independently", cost: "Training time" },
+      { step: 4, phase: "Measure Impact", duration: "Weeks 10–14", owner: "Operations Lead", actions: ["Track throughput and quality with additional capacity", "Compare against pre-hire baseline", "Adjust process as needed"], success: "Capacity gap closed; quality maintained", cost: "Ongoing labor cost" },
+    ];
+
+    if (isSoftware) return [
+      { step: 1, phase: "Requirements & Vendor Selection", duration: "Weeks 1–3", owner: "Operations + IT", actions: ["Define functional requirements and integration needs", "Evaluate candidate software/vendors", "Select the best-fit solution"], success: "Vendor selected; contract signed", cost: "Evaluation time" },
+      { step: 2, phase: "Configuration & Integration", duration: "Weeks 3–6", owner: "Implementation Team", actions: ["Configure the software to match the workflow", "Integrate with existing systems and data sources", "Set up user roles, permissions, and reporting"], success: "Software configured and integrated; UAT passed", cost: "Configuration + integration" },
+      { step: 3, phase: "Run the Pilot", duration: "Weeks 6–10", owner: "Operations Lead", actions: ["Deploy to a pilot group", "Train users on the new software", "Collect feedback and adjust configuration"], success: "Pilot users productive on the new system", cost: "Pilot operations" },
+      { step: 4, phase: "Full Rollout", duration: "Weeks 10–14", owner: "Implementation Team", actions: ["Expand to all users", "Run training sessions for the full team", "Set up ongoing support and maintenance"], success: "Full team onboarded; support structure in place", cost: "Full implementation" },
+    ];
+
+    return path;
+  })();
+
+  const displayPath = adaptivePath?.length ? adaptivePath : path;
+  const durationWeeks = displayPath
+    ? displayPath.reduce((acc: number, s: any) => {
         const dur = s.duration || "";
         const nums = (dur.match(/\d+/g) || []).map(Number);
         return acc + (nums.length >= 2 ? (nums[0] + nums[1]) / 2 : nums[0] || 0);
@@ -400,12 +472,27 @@ export function ExecutiveDecisionBrief({
         style={{ borderColor: T.border, borderLeft: `4px solid ${T.gold}` }}>
         <Eyebrow num="01" label="Decision Recommendation" color={T.gold} />
 
-        <h1
-          className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px] mb-8"
-          style={{ color: T.text }}
-        >
-          {generateDecisionTitle(decisionModel, rec)}
-        </h1>
+        <div className="flex flex-wrap items-baseline gap-3 mb-4">
+          <h1
+            className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px]"
+            style={{ color: T.text }}
+          >
+            {generateDecisionTitle(decisionModel, rec)}
+          </h1>
+          <span
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold"
+            style={{
+              backgroundColor: confidence === "low" ? "#FEF3C7" : confidence === "high" ? "#E6F2F0" : "#F1F3F6",
+              color: confidence === "low" ? "#92400E" : confidence === "high" ? T.accent : T.silver,
+            }}
+          >
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: confidence === "low" ? "#F59E0B" : confidence === "high" ? T.accent : T.silver }}
+            />
+            {confidenceLabels[confidence] || "Moderate confidence"}
+          </span>
+        </div>
 
         <NarrativeParagraph>
           {(() => {
@@ -493,28 +580,93 @@ export function ExecutiveDecisionBrief({
                 className="text-[15px] leading-[1.55]"
                 style={{ color: T.text, fontFamily: "Urbanist, sans-serif" }}
               >
-                <p className="mb-3">
-                  Current annual labor cost of{" "}
-                  <strong>
-                    $
-                    {econ.current_annual_labor_cost
-                      ? (econ.current_annual_labor_cost / 1_000_000).toFixed(2)
-                      : "—"}
-                    M
-                  </strong>{" "}
-                  is based on {prob.annual_volume?.toLocaleString() || "—"} items/year at{" "}
-                  {prob.handling_time_hours || "—"} hours each at $
-                  {prob.loaded_labor_cost || "—"}/hour.
-                </p>
-                <p className="mb-3">
-                  At {econ.automatable_pct || "—"}% automatable, expected savings
-                  are <strong>{savingsStr}/year</strong>.
-                </p>
-                <p>
-                  Implementation cost of <strong>{implCostStr}</strong> is
-                  derived from the 5-phase implementation plan below. Payback
-                  within {paybackStr}. 3-year projected ROI: <strong>{roiStr}</strong>.
-                </p>
+                {(() => {
+                  const constraint = (prob.constraint_type || "").toLowerCase();
+                  const isRevenue = constraint.includes("revenue") || constraint.includes("growth");
+                  const isRisk = constraint.includes("risk") || constraint.includes("compliance");
+                  const isQuality = constraint.includes("quality") || constraint.includes("error") || constraint.includes("inconsistent");
+                  const isSpeed = constraint.includes("speed") || constraint.includes("slow") || constraint.includes("sla");
+                  const isCapacity = constraint.includes("capacity") || constraint.includes("volume");
+
+                  if (isRevenue) {
+                    return (
+                      <>
+                        <p className="mb-3">
+                          Expected annual revenue gain of <strong>{savingsStr}</strong> based on{" "}
+                          {prob.annual_volume?.toLocaleString() || "projected"} transactions/year and
+                          the value of each incremental conversion or expansion.
+                        </p>
+                        <p className="mb-3">
+                          Revenue impact is modeled from the current gap between target and actual
+                          performance. Implementation cost of <strong>{implCostStr}</strong> is
+                          recovered within {paybackStr}.
+                        </p>
+                      </>
+                    );
+                  }
+
+                  if (isRisk || isQuality) {
+                    return (
+                      <>
+                        <p className="mb-3">
+                          The current workflow operates at a risk or quality level that carries
+                          measurable exposure. Expected annual value of <strong>{savingsStr}</strong>{" "}
+                          reflects the cost of errors, rework, and exposure that the recommended
+                          intervention is designed to reduce.
+                        </p>
+                        <p className="mb-3">
+                          At {econ.automatable_pct || "—"}% of the workflow addressable, the
+                          implementation cost of <strong>{implCostStr}</strong> pays back within{" "}
+                          {paybackStr}.
+                        </p>
+                      </>
+                    );
+                  }
+
+                  if (isSpeed) {
+                    return (
+                      <>
+                        <p className="mb-3">
+                          Current processing time creates a gap against expected service levels.
+                          Expected annual value of <strong>{savingsStr}</strong> reflects the
+                          economic impact of reducing processing time to target levels.
+                        </p>
+                        <p className="mb-3">
+                          Implementation cost of <strong>{implCostStr}</strong> is derived from the
+                          implementation plan below. Payback within {paybackStr}. 3-year projected
+                          ROI: <strong>{roiStr}</strong>.
+                        </p>
+                      </>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <p className="mb-3">
+                        Current annual labor cost of{" "}
+                        <strong>
+                          $
+                          {econ.current_annual_labor_cost
+                            ? (econ.current_annual_labor_cost / 1_000_000).toFixed(2)
+                            : "—"}
+                          M
+                        </strong>{" "}
+                        is based on {prob.annual_volume?.toLocaleString() || "—"} items/year at{" "}
+                        {prob.handling_time_hours || "—"} hours each at $
+                        {prob.loaded_labor_cost || "—"}/hour.
+                      </p>
+                      <p className="mb-3">
+                        At {econ.automatable_pct || "—"}% automatable, expected savings
+                        are <strong>{savingsStr}/year</strong>.
+                      </p>
+                      <p>
+                        Implementation cost of <strong>{implCostStr}</strong> is
+                        derived from the implementation plan below. Payback
+                        within {paybackStr}. 3-year projected ROI: <strong>{roiStr}</strong>.
+                      </p>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -603,10 +755,24 @@ export function ExecutiveDecisionBrief({
           <Eyebrow num="04" label="Evidence" color={T.gold} />
           <SectionTitle>Comparable Implementations</SectionTitle>
 
+          {evidenceWidened && (
+            <div className="mb-6 rounded-lg border px-4 py-3" style={{ borderColor: "#FCD34D", backgroundColor: "#FFFBEB" }}>
+              <p className="text-[12px] leading-relaxed" style={{ color: "#92400E" }}>
+                Direct comparables were limited for this workflow. Results include the most relevant
+                implementations from adjacent problem domains.
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {evidence.slice(0, 3).map((e: any, i: number) => {
               const tier = (e.evidence_tier || "").toLowerCase();
               const tierColor = tier === "gold" ? T.gold : tier === "silver" ? T.silver : T.bronze;
+              const sourceType = e.independently_verified
+                ? "Independently Verified"
+                : e.vendor_reported
+                  ? "Vendor Case Study"
+                  : "First-Party Record";
               return (
                 <EvidenceCard
                   key={i}
@@ -615,6 +781,7 @@ export function ExecutiveDecisionBrief({
                   outcome={evidenceText(e)}
                   tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
                   color={tierColor}
+                  sourceType={sourceType}
                 />
               );
             })}
@@ -661,7 +828,7 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       {/* 06 — IMPLEMENTATION PATH                                          */}
       {/* ================================================================ */}
-      {path && path.length > 0 && (
+      {displayPath && displayPath.length > 0 && (
         <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
           <Eyebrow num="06" label="Implementation Path" color={T.silver} />
           <SectionTitle>How to Implement</SectionTitle>
@@ -673,7 +840,7 @@ export function ExecutiveDecisionBrief({
           </div>
 
           <div className="max-w-[780px]">
-            {path.map((step: any, i: number) => (
+            {displayPath.map((step: any, i: number) => (
               <ImplementationPhase
                 key={step.step}
                 step={step.step}
@@ -681,9 +848,9 @@ export function ExecutiveDecisionBrief({
                 duration={step.duration}
                 owner={step.owner}
                 actions={step.actions || []}
-                success={step.success_criteria}
-                cost={step.cost}
-                isLast={i === path.length - 1}
+                success={step.success_criteria || step.success || ""}
+                cost={step.cost || ""}
+                isLast={i === displayPath.length - 1}
               />
             ))}
           </div>
@@ -705,6 +872,15 @@ export function ExecutiveDecisionBrief({
         >
           Approve &amp; Launch Pilot
         </button>
+
+        <div className="mt-5 max-w-[600px] rounded-lg border border-line px-4 py-3" style={{ backgroundColor: T.card }}>
+          <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: T.accent }}>What happens next</p>
+          <p className="mt-1 text-[12.5px] leading-relaxed" style={{ color: T.muted }}>
+            Approval moves this decision to the Implementation Command Center. The baseline metrics
+            will be captured, the first phase will begin, and progress will be tracked against the
+            milestones and success criteria defined in this brief.
+          </p>
+        </div>
 
 
       </div>
