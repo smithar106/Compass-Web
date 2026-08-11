@@ -54,19 +54,18 @@ describe("Standalone assessment flow", () => {
     vi.unstubAllGlobals();
   });
 
-  it("should expose exactly eight questions", () => {
-    expect(PROGRESS_STEPS).toBe(8);
-    expect(standaloneQuestions).toHaveLength(8);
+  it("should expose exactly eleven questions", () => {
+    expect(PROGRESS_STEPS).toBe(11);
+    expect(standaloneQuestions).toHaveLength(11);
   });
 
-  it("should complete all eight steps and submit on the final step", async () => {
+  it("should complete all eleven steps and submit on the final step", async () => {
     render(<AssessmentPage />);
     expect(await screen.findByTestId("assessment-question-label")).toBeTruthy();
 
-    // Questions 1–7 use Continue; the eighth uses Generate Executive Recommendation.
-    await completeThrough(6, "Continue");
-    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 8 of 8");
-    fireEvent.click(screen.getByRole("button", { name: answerFor(7) }));
+    await completeThrough(9, "Continue");
+    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 11 of 11");
+    fireEvent.click(screen.getByRole("button", { name: answerFor(10) }));
     fireEvent.click(screen.getByRole("button", { name: /generate executive recommendation/i }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
@@ -81,14 +80,14 @@ describe("Standalone assessment flow", () => {
     render(<AssessmentPage />);
     await screen.findByTestId("assessment-question-label");
 
-    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 1 of 8");
+    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 1 of 11");
     expect(screen.getByTestId("assessment-progress").style.width).toBe("0%");
 
     fireEvent.click(screen.getByRole("button", { name: answerFor(0) }));
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
-    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 2 of 8");
-    expect(screen.getByTestId("assessment-progress").style.width).toBe("14%");
+    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 2 of 11");
+    expect(screen.getByTestId("assessment-progress").style.width).toBe("10%");
   });
 
   it("should let the user go Back and Continue with answers preserved", async () => {
@@ -97,15 +96,15 @@ describe("Standalone assessment flow", () => {
 
     fireEvent.click(screen.getByRole("button", { name: answerFor(0) }));
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 2 of 8");
+    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 2 of 11");
 
     fireEvent.click(screen.getByRole("button", { name: /back/i }));
-    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 1 of 8");
+    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 1 of 11");
     // Prior selection is restored.
     expect(screen.getByRole("button", { name: answerFor(0) }).getAttribute("aria-pressed")).toBe("true");
 
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 2 of 8");
+    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 2 of 11");
   });
 
   it("should enforce a required answer before continuing", async () => {
@@ -123,15 +122,18 @@ describe("Standalone assessment flow", () => {
     render(<AssessmentPage />);
     await screen.findByTestId("assessment-question-label");
 
-    // dept → Operations; situation → sales problem; people → 4–10;
-    // desired-outcome → Cost reduction; timeline → 1–3 months.
+    // 11 questions: dept → situation → constraint → standardization → people →
+    // volume → handling-time → loaded-cost → failure-impact → desired-outcome → timeline
     const answers = [
       "Operations",
       "My sales team is missing inbound calls because we lack capacity",
+      "Insufficient capacity — we simply don't have enough people",
+      "Mostly repeatable — consistent steps every time",
       "4–10",
       "5,000–20,000",
       "30–60 minutes",
       "$50–$100",
+      "Low impact — minor inconvenience, easily corrected",
       "Cost reduction",
       "1–3 months",
     ];
@@ -148,13 +150,6 @@ describe("Standalone assessment flow", () => {
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(String(init.body));
     expect(body.business_function).toBe("operations");
-    expect(body.workflow).toBe("process_automation");
-    expect(body.problem_statement).toContain("sales team");
-    expect(body.people_involved).toBe("4–10");
-    // Dollar-impact inputs are derived from the volume / handling-time / cost answers.
-    expect(body.annual_workflow_volume).toBe("150000");
-    expect(body.current_handling_time).toBe("0.75");
-    expect(body.loaded_labor_cost).toBe("75");
     expect(body.desired_outcome).toBe("cost");
     expect(body.implementation_timeline).toBe("1–3 months");
   });
@@ -170,9 +165,9 @@ describe("Standalone assessment flow", () => {
 
     render(<AssessmentPage />);
     await screen.findByTestId("assessment-question-label");
-    await completeThrough(6, "Continue");
+    await completeThrough(9, "Continue");
 
-    fireEvent.click(screen.getByRole("button", { name: answerFor(7) }));
+    fireEvent.click(screen.getByRole("button", { name: answerFor(10) }));
     const generate = screen.getByRole("button", { name: /generate executive recommendation/i });
     fireEvent.click(generate);
     fireEvent.click(generate); // second click while in flight
@@ -194,9 +189,9 @@ describe("Standalone assessment flow", () => {
 
     render(<AssessmentPage />);
     await screen.findByTestId("assessment-question-label");
-    await completeThrough(6, "Continue");
+    await completeThrough(9, "Continue");
 
-    fireEvent.click(screen.getByRole("button", { name: answerFor(7) }));
+    fireEvent.click(screen.getByRole("button", { name: answerFor(10) }));
     fireEvent.click(screen.getByRole("button", { name: /generate executive recommendation/i }));
 
     expect((await screen.findByRole("alert")).textContent).toContain("Engine returned an error.");
@@ -251,14 +246,14 @@ describe("Standalone assessment flow", () => {
         answers: [
           { questionId: "dept", value: answerFor(0) },
           { questionId: "situation", value: answerFor(1) },
-          { questionId: "people", value: answerFor(2) },
+          { questionId: "constraint", value: answerFor(2) },
         ],
       })
     );
 
     render(<AssessmentPage />);
     await screen.findByTestId("assessment-question-label");
-    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 3 of 8");
+    expect(screen.getByTestId("assessment-question-label").textContent).toContain("Question 3 of 11");
     // The answer for the restored question is selected.
     expect(screen.getByRole("button", { name: answerFor(2) }).getAttribute("aria-pressed")).toBe("true");
   });

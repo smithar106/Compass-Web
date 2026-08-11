@@ -10,6 +10,16 @@ vi.mock("next/navigation", () => ({
 
 const fetchMock = vi.fn();
 
+const localStorageMock = {
+  _store: {} as Record<string, string>,
+  getItem: (k: string) => localStorageMock._store[k] ?? null,
+  setItem: (k: string, v: string) => { localStorageMock._store[k] = v; },
+  removeItem: (k: string) => { delete localStorageMock._store[k]; },
+  clear: () => { localStorageMock._store = {}; },
+  get length() { return Object.keys(localStorageMock._store).length; },
+  key: (i: number) => Object.keys(localStorageMock._store)[i] ?? null,
+};
+
 function decisionPayload(
   id: string,
   overrides: Partial<{
@@ -104,7 +114,8 @@ function mockDecisions(ids: string[]) {
 
 describe("Workspace", () => {
   beforeEach(() => {
-    localStorage.clear();
+    vi.stubGlobal("localStorage", localStorageMock);
+    localStorageMock.clear();
     pushMock.mockReset();
     fetchMock.mockReset();
   });
@@ -359,7 +370,8 @@ describe("Workspace", () => {
 
 describe("Workspace lifecycle actions", () => {
   beforeEach(() => {
-    localStorage.clear();
+    vi.stubGlobal("localStorage", localStorageMock);
+    localStorageMock.clear();
     fetchMock.mockReset();
   });
 

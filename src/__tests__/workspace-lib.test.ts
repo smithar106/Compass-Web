@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   DECISION_REGISTRY_KEY,
   loadDecisionRegistry,
@@ -10,11 +10,25 @@ import {
   formatDate,
 } from "@/lib/workspace";
 
-describe("workspace registry", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+const store: Record<string, string> = {};
 
+const ls = {
+  getItem: (k: string) => store[k] ?? null,
+  setItem: (k: string, v: string) => { store[k] = v; },
+  removeItem: (k: string) => { delete store[k]; },
+  get length() { return Object.keys(store).length; },
+  key: (i: number) => Object.keys(store)[i] ?? null,
+};
+
+beforeEach(() => {
+  Object.keys(store).forEach((k) => delete store[k]);
+  vi.stubGlobal("localStorage", ls);
+  vi.stubGlobal("window", {
+    localStorage: ls,
+  });
+});
+
+describe("workspace registry", () => {
   it("round-trips recorded decisions deterministically", () => {
     recordDecision("rec-1", "2026-08-01T12:00:00Z");
     recordDecision("rec-2", "2026-08-02T12:00:00Z");
