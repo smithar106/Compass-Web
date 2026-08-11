@@ -461,17 +461,21 @@ export function ExecutiveDecisionBrief({
   })();
 
   const displayPath = adaptivePath?.length ? adaptivePath : path;
-  const durationWeeks = displayPath
-    ? displayPath.reduce((acc: number, s: any) => {
-        const dur = s.duration || "";
-        const nums = (dur.match(/\d+/g) || []).map(Number);
-        return acc + (nums.length >= 2 ? (nums[0] + nums[1]) / 2 : nums[0] || 0);
-      }, 0)
-    : 0;
+  const durationWeeks = (() => {
+    if (!displayPath || !displayPath.length) return 0;
+    let maxEnd = 0;
+    for (const s of displayPath) {
+      const dur = (s.duration || "").toString();
+      const nums = (dur.match(/\d+/g) || []).map(Number);
+      if (nums.length >= 2 && nums[1] > maxEnd) maxEnd = nums[1];
+      else if (nums.length === 1 && nums[0] > maxEnd) maxEnd = nums[0];
+    }
+    return maxEnd;
+  })();
   const durationStr =
     durationWeeks > 0
-      ? `${Math.floor(durationWeeks)}–${Math.ceil(durationWeeks * 1.3)} weeks`
-      : "12–17 weeks";
+      ? `~${durationWeeks} weeks`
+      : "~12 weeks";
 
   return (
     <div
@@ -517,13 +521,30 @@ export function ExecutiveDecisionBrief({
             const altSummary = altNames.length
               ? ` Other alternatives that were considered—${altNames.slice(0, 3).join(", ")}${altNames.length > 3 ? ", and others" : ""}—were either more costly, slower to implement, or did not adequately address this specific problem.`
               : "";
+            const constraint = (prob.constraint_type || "").toLowerCase();
+            const constraintReason = constraint.includes("capacity")
+              ? "given the current capacity gap"
+              : constraint.includes("speed") || constraint.includes("slow")
+                ? "given the processing time gap against service levels"
+                : constraint.includes("cost")
+                  ? "given the current cost structure"
+                  : constraint.includes("quality") || constraint.includes("error")
+                    ? "given the rework and quality issues"
+                    : constraint.includes("risk") || constraint.includes("compliance")
+                      ? "given the risk and compliance exposure"
+                      : "";
+            const repeatability = prob.standardization
+              ? ` The workflow is ${prob.standardization.toLowerCase()}${
+                  prob.exception_rate ? ` with ${prob.exception_rate} exceptions` : ""
+                }, making it well-suited to this approach.`
+              : "";
             if (!Number.isFinite(implCost) || !Number.isFinite(econ?.expected_annual_savings)) {
-              return `This approach is the most cost-effective path given the workflow's volume, repeatability, and constraint profile.${altSummary} Begin with a bounded pilot and scale only after the economics are validated against the current baseline.`;
+              return `This approach is the most cost-effective path${constraintReason ? ` ${constraintReason}` : ""}.${repeatability}${altSummary} Begin with a bounded pilot and scale only after the economics are validated against the current baseline.`;
             }
             const savings = econ.expected_annual_savings;
             const payback = econ.payback_months;
             const paybackText = payback ? ` with an expected payback of ~${Math.ceil(payback)} month${Math.ceil(payback) === 1 ? "" : "s"}` : "";
-            return `This approach is expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}. It ranked highest after comparing problem fit, economics, risk, feasibility, and available evidence.${altSummary}`;
+            return `This approach is expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}. It ranked highest after comparing problem fit, economics, risk, feasibility, and available evidence.${repeatability}${altSummary}`;
           })()}
         </NarrativeParagraph>
 
@@ -696,6 +717,17 @@ export function ExecutiveDecisionBrief({
               </div>
             </div>
           </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-6 text-[11px] text-muted">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: T.gold }} />
+              Direct comparable — similar workflow and intervention in a comparable organization
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: T.silver }} />
+              Supporting — relevant outcome in an adjacent domain or intervention type
+            </span>
+          </div>
         </section>
       )}
 
@@ -839,7 +871,7 @@ export function ExecutiveDecisionBrief({
                 : "";
               const reason =
                 cleaned ||
-                `${rec.family_name} scored higher (${Number.isFinite(rec.overall_score) ? rec.overall_score.toFixed(2) : rec.overall_score} vs ${alt.overall_score != null ? alt.overall_score.toFixed(2) : "—"}) for this problem`;
+                `${rec.family_name} is better suited to this problem based on fit, cost, evidence, and feasibility.`;
               return (
                 <AlternativeRow
                   key={i}
