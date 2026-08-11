@@ -319,7 +319,6 @@ export function ExecutiveDecisionBrief({
   const alts = decisionModel.alternatives_considered || [];
   const evidence = rec?.evidence || [];
   const cf = decisionModel.counterfactual_rationale;
-  const methodology = decisionModel.methodology || {};
 
   if (!rec || !prob) return null;
 
@@ -661,18 +660,7 @@ export function ExecutiveDecisionBrief({
           Approve &amp; Launch Pilot
         </button>
 
-        <div
-          className="mt-4 text-[12px]"
-          style={{ color: T.faint, fontFamily: "Urbanist, sans-serif" }}
-        >
-          Engine: {methodology.engine_version || "decision-v1"} ·{" "}
-          {methodology.weights_tuned_for
-            ? `Weights: ${methodology.weights_tuned_for}`
-            : ""}{" "}
-          · Invariants:{" "}
-          {methodology.invariants_valid ? "✓ pass" : "✗ violations"}
-          {methodology.gap_engine_connected ? " · Gap engine: connected" : ""}
-        </div>
+
       </div>
     </div>
   );
