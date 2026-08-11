@@ -215,9 +215,25 @@ export function DecisionTree() {
           {/* ================================================================ */}
           <Reveal>
             <div className="text-center">
-              <Pill label="Choose execution path" color={C.blue} />
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-1.5">
+                <span className="h-2 w-2 rounded-full bg-accent-deep" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-accent-deep">
+                  Approve
+                </span>
+              </div>
+              <p className="mt-1 text-[13px] text-muted">
+                The decision and business case are locked.
+              </p>
+            </div>
+          </Reveal>
+
+          <Connector />
+
+          <Reveal>
+            <div className="text-center">
+              <Pill label="Execute" color={C.blue} />
               <p className="mt-3 text-[13px] text-muted">
-                The decision is locked. Now choose how to implement it.
+                Execution comes second. The recommendation doesn&apos;t change based on how you implement it.
               </p>
               <div className="mx-auto mt-4 grid max-w-md grid-cols-1 gap-3 sm:grid-cols-2">
                 <div
@@ -226,15 +242,15 @@ export function DecisionTree() {
                 >
                   <p className="text-[14px] font-semibold text-ink">Your Team</p>
                   <p className="mt-1 text-[12px] font-medium" style={{ color: C.silver }}>Implement internally</p>
-                  <p className="mt-2 text-[11px] leading-snug text-muted">Full plan and success criteria provided</p>
+                  <p className="mt-2 text-[11px] leading-snug text-muted">Use the Compass implementation plan</p>
                 </div>
                 <div
                   className="rounded-lg border border-line bg-surface px-4 py-4 text-center"
                   style={{ borderLeft: `3px solid ${C.blue}` }}
                 >
-                  <p className="text-[14px] font-semibold text-ink">Implementation Partner</p>
-                  <p className="mt-1 text-[12px] font-medium" style={{ color: C.blue }}>A partner you select</p>
-                  <p className="mt-2 text-[11px] leading-snug text-muted">Matched to intervention type and domain</p>
+                  <p className="text-[14px] font-semibold text-ink">Specialist Partner</p>
+                  <p className="mt-1 text-[12px] font-medium" style={{ color: C.blue }}>Work with a specialist</p>
+                  <p className="mt-2 text-[11px] leading-snug text-muted">Bring your preferred partner into the Compass implementation plan</p>
                 </div>
               </div>
             </div>
@@ -256,12 +272,17 @@ export function DecisionTree() {
                 <div className="border-b border-line bg-paper px-5 py-2.5">
                   <p className="text-[12px] font-semibold text-ink">Expected vs. Actual</p>
                 </div>
+                <div className="grid grid-cols-[1fr_80px_80px] border-b border-line bg-paper px-5 py-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-muted">Metric</span>
+                  <span className="text-center text-[10px] font-bold uppercase tracking-wide text-muted">Expected</span>
+                  <span className="text-center text-[10px] font-bold uppercase tracking-wide text-muted">Actual</span>
+                </div>
                 <div className="divide-y divide-line">
                   {[
                     { label: "Expected annual value", expected: "$1.3M", actual: "$1.17M", color: C.teal },
                     { label: "Target automation", expected: "80%", actual: "74%", color: "#B45309" },
                   ].map((row) => (
-                    <div key={row.label} className="grid grid-cols-3 px-5 py-3.5 text-[13px]">
+                    <div key={row.label} className="grid grid-cols-[1fr_80px_80px] px-5 py-3.5 text-[13px]">
                       <span className="font-medium text-ink">{row.label}</span>
                       <span className="text-center text-muted">{row.expected}</span>
                       <span className="text-center font-semibold" style={{ color: row.color }}>
@@ -304,8 +325,8 @@ export function DecisionTree() {
         <Reveal>
           <div className="mx-auto mt-14 max-w-lg rounded-lg border border-line bg-surface px-6 py-5 text-center">
             <p className="text-[12px] leading-relaxed text-muted">
-              The decision engine produces a locked recommendation based on evidence, economics,
-              and suitability. Execution path selection happens after the decision is made.
+              The decision is locked first. Execution comes second. The recommendation is always
+              based on evidence, economics, and suitability — never on who implements it.
             </p>
           </div>
         </Reveal>
