@@ -93,11 +93,11 @@ export const marketing = {
         eyebrow: "The learning loop",
         headline: "Every implementation makes the next recommendation better.",
         supporting:
-          "Compass continuously learns from real enterprise implementations across industries. Every completed implementation becomes first-party evidence that improves future recommendations.",
+          "Compass is designed to learn from real enterprise implementations over time. As the evidence base grows, future recommendations draw on a richer set of comparable outcomes.",
         points: [
-          "First-party evidence from your own completed implementations",
-          "Every measured outcome strengthens future recommendations",
-          "The library grows with each implementation — so Compass gets better with use",
+          "Structured evidence from enterprise implementations across industries",
+          "Every measured outcome strengthens the evidence available for future decisions",
+          "The evidence library is designed to improve with use",
         ],
       },
       cta: {
@@ -294,7 +294,6 @@ export const marketing = {
         capabilityLead: "Define the problem, then compare every viable intervention against structured evidence.",
         capabilities: [
           "Define the operational problem",
-          "Diagnose likely root causes",
           "Search structured implementation evidence",
           "Compare all viable intervention paths",
           "Rank decisions deterministically",
@@ -312,10 +311,10 @@ export const marketing = {
         capabilityLead: "Turn the decision into a plan your team or a trusted partner can execute\u2014without Compass doing the implementation itself.",
         capabilities: [
           "Generate an Implementation Plan",
-          "Define systems, data, ownership, dependencies, and risks",
+          "Define phases, owners, and validation criteria",
           "Choose internal implementation or a trusted partner",
           "Preserve the independence of the original decision",
-          "Establish milestones and validation criteria before work begins",
+          "Establish milestones before work begins",
         ],
       },
       {
@@ -360,7 +359,7 @@ export const marketing = {
     number: "09",
     headline: "A decision you can interrogate.",
     subtitle:
-      "Every Compass decision is built to answer eight questions\u2014clear enough for a COO, with the technical detail available on demand for engineering and implementation teams.",
+      "Every Compass decision is built to answer the questions that matter for approval and execution.",
     reportNote: "Illustrative decision",
     reportProblem: "Manual customer escalation triage",
     questions: [
@@ -381,28 +380,12 @@ export const marketing = {
           "Six intervention paths scored on evidence strength, expected impact, effort, readiness, and confidence. Hybrid ranked first deterministically\u2014the scoring inputs and version are reproducible on demand.",
       },
       {
-        id: "priority",
-        question: "Why should it be prioritized now?",
-        answer:
-          "Volume is growing, the cost of the current process is already visible, and the intervention does not depend on unavailable prerequisites. Delaying preserves the gap at an increasing cost.",
-        technical:
-          "Sequencing analysis compared this initiative against four competing opportunities on effort, dependency readiness, and expected value; this ranked first.",
-      },
-      {
         id: "evidence",
         question: "What evidence supports it?",
         answer:
-          "38 comparable implementations, 7 with independently validated outcomes. Each comparable record preserves its source, and the strongest evidence is cited directly in the decision.",
+          "38 comparable implementations, 7 with independently validated outcomes. The strongest evidence is cited directly in the decision.",
         technical:
           "Evidence tier distribution: 9 gold, 17 silver, 12 bronze. Sources include a government audit, two academic evaluations, three public-company disclosures, and customer documentation.",
-      },
-      {
-        id: "assumptions",
-        question: "Which assumptions could change it?",
-        answer:
-          "The decision rests on a handful of stated assumptions\u2014escalation volume, agent availability, exception complexity. Each one is visible, and Compass says what would change the decision if it is wrong.",
-        technical:
-          "Assumptions carry a direction and effect size. If exception rate exceeds 18%, the decision shifts toward more human review; if volume drops 30%, deferral becomes viable.",
       },
       {
         id: "success",
@@ -413,21 +396,20 @@ export const marketing = {
           "Metric definitions include measurement source, frequency, baseline, target, and validation criteria. Reporting cadence is agreed before implementation, not after.",
       },
       {
-        id: "escalation",
-      ownership: { owner: "COO", decided: "Feb 2026", review: "90 days after go-live", success: "Resolution time down 25% by day 90" },
-        question: "When is technical escalation required?",
-        answer:
-          "A clear escalation boundary is set in advance\u2014for engineering help, vendor involvement, or stopping the intervention. Operations teams do not have to improvise when something drifts.",
-        technical:
-          "Escalation thresholds: exception rate >18%, integration latency >2s, or milestone slippage >2 weeks trigger defined review actions with named owners.",
-      },
-      {
         id: "implementation",
         question: "How should it be implemented?",
         answer:
-          "The decision carries an Implementation Plan: phases, owners, dependencies, and validation criteria. Compass does not implement\u2014your team or a partner you select executes the plan.",
+          "The decision carries an Implementation Plan: phases, owners, and validation criteria. Compass does not implement\u2014your team or a partner you select executes the plan.",
         technical:
-          "Blueprint includes required systems, data contracts, human roles, security and privacy controls, rollout plan, and a validation gate before scale.",
+          "Implementation plan includes required systems, data contracts, human roles, rollout plan, and a validation gate before scale.",
+      },
+      {
+        id: "alternatives",
+        question: "Why not the alternatives?",
+        answer:
+          "Every rejected path is shown with the reason it lost. The counterfactual reasoning is part of the decision record.",
+        technical:
+          "Each alternative is scored on the same dimensions. The brief shows which alternatives were considered and why they ranked below the recommended intervention.",
       },
     ],
   },
@@ -514,14 +496,6 @@ export const marketing = {
         body: "Every viable path, scored on the same evidence and the same criteria.",
       },
       {
-        title: "Prioritizing competing improvement initiatives",
-        body: "Compare expected impact, effort, risk, and readiness across the whole portfolio.",
-      },
-      {
-        title: "Recovering an implementation that is not meeting expectations",
-        body: "Re-open the decision, check the assumptions, and correct the path before more capital is spent.",
-      },
-      {
         title: "Reviewing whether an intervention delivered its promised outcome",
         body: "Measure what actually happened against what was projected\u2014and keep the lesson.",
       },
@@ -533,11 +507,8 @@ export const marketing = {
     number: "11",
     headline: "Confidence is a design constraint, not marketing.",
     subtitle:
-      "These principles are checkable in the product, not promises on a page.",
+      "These principles guide how Compass is built.",
     principles: [
-      { title: "Every material claim is traceable", body: "Each claim points to a source you can open and read." },
-      { title: "Every alternative is compared", body: "The rejected paths are shown with the reasons they lost." },
-      { title: "Every assumption is visible", body: "Assumptions are listed with what would change if they are wrong." },
       { title: "Insufficient evidence leads to deferred judgment", body: "Compass says \u201cnot enough evidence\u201d rather than inventing an answer." },
       { title: "Partners cannot pay to influence decisions", body: "A partner becomes relevant only after the customer selects the intervention." },
       { title: "AI is not automatically preferred", body: "AI is evaluated like any other intervention\u2014and often loses." },

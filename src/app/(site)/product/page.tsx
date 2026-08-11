@@ -20,25 +20,20 @@ const DECIDE = [
   "Evidence collection and comparability analysis",
   "Intervention comparison across AI, automation, software, process redesign, staffing, and hybrid approaches",
   "Executive Decision Brief with rationale, economics, evidence, and alternatives",
-  "Counterfactual reasoning — why each rejected intervention lost",
+  "Scored comparison of rejected interventions",
   "Success metrics and assumptions stated before implementation begins",
 ];
 
 const EXECUTE_PATHS = [
   {
-    title: "Compass Deployment",
-    subtitle: "Dedicated FDE implementation when AI or automation is recommended",
-    color: C.teal,
-  },
-  {
-    title: "Verified Partner",
-    subtitle: "Best-fit qualified executor matched to the intervention type",
-    color: C.blue,
-  },
-  {
     title: "Your Team",
     subtitle: "Full implementation plan and success criteria — your team executes",
     color: C.silver,
+  },
+  {
+    title: "Implementation Partner",
+    subtitle: "A qualified partner you select to execute the approved decision",
+    color: C.blue,
   },
 ];
 
@@ -47,10 +42,9 @@ const MEASURE = [
   "Implementation cost vs. estimate",
   "KPIs tracked against baseline",
   "Milestone completion",
-  "Risk status",
+  "Risk status and blockers",
   "Expected vs. actual business value",
-  "Business-case drift detection",
-  "Structured outcome reviews at 3, 6, 9, and 12 months",
+  "Outcome documentation",
 ];
 
 export default function ProductPage() {

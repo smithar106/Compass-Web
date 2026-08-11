@@ -14,19 +14,18 @@ const LAYERS = [
     num: "02",
     name: "Execute",
     color: "#1E40AF",
-    summary: "Once leadership approves, Compass determines the execution path. The decision is locked before any execution path is selected — Compass Deployment never participates in intervention scoring.",
+    summary: "Once leadership approves, Compass determines the execution path. The decision is locked before any execution path is selected.",
     paths: [
-      { title: "Compass Deployment", detail: "Dedicated FDE for qualifying AI/automation implementations" },
-      { title: "Verified Partner", detail: "Best-fit qualified executor matched to the intervention type" },
       { title: "Your Team", detail: "Full implementation plan and success criteria — your team executes" },
+      { title: "Implementation Partner", detail: "A qualified partner you select to execute the approved decision" },
     ],
   },
   {
     num: "03",
     name: "Measure",
     color: "#14532D",
-    summary: "Regardless of who implements it, Compass stays. The Command Center retains the approved decision, expected economics, KPIs, milestones, risks, and actual outcomes — answering the executive question: did this produce the value we approved it for?",
-    produces: "Expected vs. actual, business-case drift detection, structured outcome reviews at 3, 6, 9, and 12 months.",
+    summary: "Regardless of who implements it, Compass stays. The Command Center retains the approved decision, expected economics, KPIs, milestones, risks, and actual outcomes.",
+    produces: "Expected vs. actual comparison, outcome documentation, and the basis for future recommendations.",
   },
 ];
 
@@ -100,13 +99,11 @@ export default function HowItWorksPage() {
         <div className="mx-auto max-w-5xl px-5 py-section sm:px-8 lg:px-10 lg:py-section text-center">
           <Reveal>
             <h2 className="text-section font-semibold tracking-tight text-ink">
-              Compass makes the same recommendation regardless of who implements it.
+              Evidence and economics determine the recommendation. Not commercial interests.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-lead leading-relaxed text-muted">
-              Evidence, economics, and suitability — not Compass&apos;s commercial interests —
-              determine the intervention. Compass Deployment never participates in intervention
-              scoring. The decision engine produces a locked recommendation before any execution
-              path is selected.
+              The decision engine produces a locked recommendation based on evidence,
+              economics, and suitability — before any execution path is considered.
             </p>
           </Reveal>
         </div>

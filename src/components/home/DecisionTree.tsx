@@ -49,28 +49,20 @@ const WHY_NOT_STAFFING = "Higher recurring cost and slower payback.";
 
 const EXECUTION_PATHS = [
   {
-    id: "compass",
-    title: "Compass Deployment",
-    subtitle: "Dedicated FDE",
-    note: "Available for qualifying AI / automation implementations",
-    icon: "◆",
-    color: C.teal,
-  },
-  {
-    id: "partner",
-    title: "Implementation Partner",
-    subtitle: "Best-fit qualified executor",
-    note: "Matched to intervention type and domain",
-    icon: "◇",
-    color: C.blue,
-  },
-  {
     id: "internal",
     title: "Your Team",
     subtitle: "Implement internally",
     note: "Full plan and success criteria provided",
     icon: "○",
     color: C.silver,
+  },
+  {
+    id: "partner",
+    title: "Implementation Partner",
+    subtitle: "A partner you select",
+    note: "Matched to intervention type and domain",
+    icon: "◇",
+    color: C.blue,
   },
 ] as const;
 
@@ -458,9 +450,8 @@ export function DecisionTree() {
         <Reveal>
           <div className="mx-auto mt-14 max-w-2xl rounded-lg border border-line bg-surface px-6 py-5 text-center">
             <p className="text-[12px] leading-relaxed text-muted">
-              <span className="font-bold text-ink">Compass Deployment</span>{" "}
-              never participates in intervention scoring. The decision engine produces a locked
-              recommendation before any execution path is selected.
+              The decision engine produces a locked recommendation based on evidence, economics,
+              and suitability. Execution path selection happens after the decision is made.
             </p>
           </div>
         </Reveal>

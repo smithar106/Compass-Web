@@ -168,7 +168,7 @@ export default function EvidencePage() {
                   Evidence quality
                 </p>
                 <h2 className="mt-5 text-section font-semibold tracking-tight text-ink">
-                  Every claim carries its source. Every gap is disclosed.
+                  Evidence is weighted, not inflated.
                 </h2>
                 <div className="mt-7 space-y-5">
                   {VERIFICATION.map((v) => (
@@ -227,10 +227,7 @@ export default function EvidencePage() {
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
               The library today
             </p>
-            <LibraryStats
-              size="lg"
-              extraCells={[{ value: "5", label: "source types — audits to disclosures" }]}
-            />
+            <LibraryStats size="lg" />
             <p className="mx-auto mt-8 max-w-2xl text-[13px] leading-relaxed text-muted">
               Every record traces to a document you can read — an audit, an evaluation, a
               disclosure, or a first-party record — and every gap is disclosed rather than hidden.
