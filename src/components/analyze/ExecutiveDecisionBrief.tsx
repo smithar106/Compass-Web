@@ -317,8 +317,6 @@ export function ExecutiveDecisionBrief({
   const econ = rec?.economics;
   const path = decisionModel.implementation_path;
   const alts = decisionModel.alternatives_considered || [];
-  const assumptions = econ?.assumptions || [];
-  const contras = decisionModel.contraindications || [];
   const evidence = rec?.evidence || [];
   const cf = decisionModel.counterfactual_rationale;
   const methodology = decisionModel.methodology || {};
@@ -375,11 +373,20 @@ export function ExecutiveDecisionBrief({
         </h1>
 
         <NarrativeParagraph>
-          {decisionModel.recommendation?.rationale
-            ? decisionModel.recommendation.rationale
-            : cf?.summary
-              ? cf.summary.split(". ").slice(0, 2).join(". ") + "."
-              : `${rec.family_name} addresses the ${prob.constraint_type} constraint in ${prob.workflow} with expected annual savings of ${savingsStr} against the current operating baseline.`}
+          {(() => {
+            const title = generateDecisionTitle(decisionModel, rec);
+            const altNames = alts.map((a: any) => a.family_name).filter(Boolean);
+            const altSummary = altNames.length
+              ? ` Other alternatives that were considered—${altNames.slice(0, 3).join(", ")}${altNames.length > 3 ? ", and others" : ""}—were either more costly, slower to implement, or did not adequately address this specific problem.`
+              : "";
+            if (!Number.isFinite(implCost) || !Number.isFinite(econ?.expected_annual_savings)) {
+              return `We recommend ${title.charAt(0).toLowerCase() + title.slice(1)}.${altSummary} Begin with a bounded pilot and scale only after the economics are validated against the current baseline.`;
+            }
+            const savings = econ.expected_annual_savings;
+            const payback = econ.payback_months;
+            const paybackText = payback ? ` with an expected payback of ~${Math.ceil(payback)} months` : "";
+            return `We recommend ${title.charAt(0).toLowerCase() + title.slice(1)}—expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}.${altSummary}`;
+          })()}
         </NarrativeParagraph>
 
         {/* KPI cards */}
@@ -485,53 +492,67 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
         <Eyebrow num="03" label="Why This Intervention" />
-        <SectionTitle>Why {rec.family_name}</SectionTitle>
+        <SectionTitle>Why We Recommend This</SectionTitle>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <NarrativeParagraph>
-            {decisionModel.recommendation?.rationale
-              ? decisionModel.recommendation.rationale.split(". ").slice(0, 1).join(". ") + "."
-              : `${rec.family_name} addresses the ${prob.constraint_type} constraint directly. At ${prob.annual_volume?.toLocaleString() || "—"} items/year with ${prob.exception_rate || "—"} exceptions, the workflow has enough volume and standardization to justify the investment.`}
+            {(() => {
+              const title = generateDecisionTitle(decisionModel, rec);
+              const constraint = prob.constraint_type
+                ? `, which is constrained by ${prob.constraint_type.toLowerCase()}`
+                : "";
+              return `${title}—the recommendation is based on the volume and repeatability of this workflow${constraint}. The evidence shows this is the most cost-effective path, and every rejected alternative was scored against the same criteria.`;
+            })()}
           </NarrativeParagraph>
 
           <div className="space-y-3">
-            {[
-              {
-                reason: "High Volume",
-                detail: `${prob.annual_volume?.toLocaleString() || "—"} items/year creates enough repetition for automation economics`,
-              },
-              {
-                reason: "Repeatable Work",
-                detail: `Standardization level: ${prob.standardization || "—"} with ${prob.exception_rate || "—"} exceptions`,
-              },
-              {
-                reason: "Strong Economics",
-                detail: `Expected ${savingsStr}/year savings against ${implCostStr} implementation — ${paybackStr} payback`,
-              },
-              {
-                reason: "Implementable",
-                detail: `Fits within stated budget (${prob.budget_range || "—"}) and timeline (${prob.timeline || "—"})`,
-              },
-            ].map((item) => (
-              <div
-                key={item.reason}
-                className="rounded-lg px-5 py-4"
-                style={{ backgroundColor: T.card, border: `1px solid ${T.border}` }}
-              >
+            {(() => {
+              const bullets: { reason: string; detail: string }[] = [];
+              if (prob.annual_volume) {
+                bullets.push({
+                  reason: "High Volume",
+                  detail: `${prob.annual_volume.toLocaleString()} items/year creates enough repetition for automation economics`,
+                });
+              }
+              if (prob.standardization) {
+                bullets.push({
+                  reason: "Repeatable Work",
+                  detail: `Standardization level: ${prob.standardization}${prob.exception_rate ? ` with ${prob.exception_rate} exceptions` : ""}`,
+                });
+              }
+              if (econ?.expected_annual_savings || econ?.payback_months) {
+                bullets.push({
+                  reason: "Strong Economics",
+                  detail: `Expected ${savingsStr}/year savings against ${implCostStr} implementation${econ?.payback_months ? ` — ${paybackStr} payback` : ""}`,
+                });
+              }
+              if (prob.budget_range || prob.timeline) {
+                bullets.push({
+                  reason: "Implementable",
+                  detail: `Fits within stated budget${prob.budget_range ? ` (${prob.budget_range})` : ""}${prob.timeline ? ` and timeline (${prob.timeline})` : ""}`,
+                });
+              }
+              return bullets.map((item) => (
                 <div
-                  className="text-[14px] font-semibold mb-0.5"
-                  style={{ color: T.text, fontFamily: "Urbanist, sans-serif" }}
+                  key={item.reason}
+                  className="rounded-lg px-5 py-4"
+                  style={{ backgroundColor: T.card, border: `1px solid ${T.border}` }}
                 >
-                  {item.reason}
+                  <div
+                    className="text-[14px] font-semibold mb-0.5"
+                    style={{ color: T.text, fontFamily: "Urbanist, sans-serif" }}
+                  >
+                    {item.reason}
+                  </div>
+                  <div
+                    className="text-[13px] leading-[1.4]"
+                    style={{ color: T.muted, fontFamily: "Urbanist, sans-serif" }}
+                  >
+                    {item.detail}
+                  </div>
                 </div>
-                <div
-                  className="text-[13px] leading-[1.4]"
-                  style={{ color: T.muted, fontFamily: "Urbanist, sans-serif" }}
-                >
-                  {item.detail}
-                </div>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
         </div>
       </section>
@@ -571,15 +592,22 @@ export function ExecutiveDecisionBrief({
               const altCf = cf?.per_alternative?.find(
                 (c: any) => c.alternative === alt.family_name
               );
+              const raw = altCf?.rationale as string | undefined;
+              const cleaned = raw
+                ? raw
+                    .replace(/^(and|but|or|so|yet|,)\s*/i, "")
+                    .replace(/^[a-z]/, (c) => c.toUpperCase())
+                    .replace(/\.\s*$/, "")
+                : "";
+              const reason =
+                cleaned ||
+                `${rec.family_name} scored higher (${Number.isFinite(rec.overall_score) ? rec.overall_score.toFixed(2) : rec.overall_score} vs ${alt.overall_score != null ? alt.overall_score.toFixed(2) : "—"}) for this problem`;
               return (
                 <AlternativeRow
                   key={i}
                   name={alt.family_name}
                   score={alt.overall_score}
-                  reason={
-                    altCf?.rationale ||
-                    `Ranked below ${rec.family_name} on overall fit for this constraint`
-                  }
+                  reason={reason}
                 />
               );
             })}
@@ -618,79 +646,6 @@ export function ExecutiveDecisionBrief({
           </div>
         </section>
       )}
-
-      {/* ================================================================ */}
-      {/* 07 — ASSUMPTIONS & RISKS                                          */}
-      {/* ================================================================ */}
-      <section className="px-6 md:px-12 py-16 md:py-20">
-        <Eyebrow num="07" label="Assumptions &amp; Risks" />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[900px]">
-          <div>
-            <div
-              className="text-[13px] font-semibold uppercase tracking-[0.08em] mb-3"
-              style={{ color: T.muted, fontFamily: "Urbanist, sans-serif" }}
-            >
-              Assumptions
-            </div>
-            <ul className="space-y-2">
-              {assumptions.slice(0, 8).map((a: string, i: number) => (
-                <li
-                  key={i}
-                  className="text-[14px] leading-[1.5]"
-                  style={{ color: T.text, fontFamily: "Urbanist, sans-serif" }}
-                >
-                  • {a}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <div
-              className="text-[13px] font-semibold uppercase tracking-[0.08em] mb-3"
-              style={{ color: T.muted, fontFamily: "Urbanist, sans-serif" }}
-            >
-              Risks &amp; Contraindications
-            </div>
-            <ul className="space-y-2">
-              {decisionModel.risks && decisionModel.risks.length > 0
-                ? decisionModel.risks.map((r: string, i: number) => (
-                    <li
-                      key={i}
-                      className="text-[14px] leading-[1.5] flex items-start gap-2"
-                      style={{ color: T.amber, fontFamily: "Urbanist, sans-serif" }}
-                    >
-                      <span aria-hidden>⚠</span> {r}
-                    </li>
-                  ))
-                : [
-                    "Integration complexity with existing systems",
-                    "Customer experience during transition period",
-                    "Exception handling quality for edge cases",
-                    "User adoption and training requirements",
-                  ].map((r, i) => (
-                    <li
-                      key={i}
-                      className="text-[14px] leading-[1.5] flex items-start gap-2"
-                      style={{ color: T.amber, fontFamily: "Urbanist, sans-serif" }}
-                    >
-                      <span aria-hidden>⚠</span> {r}
-                    </li>
-                  ))}
-              {contras.map((c: string, i: number) => (
-                <li
-                  key={`contra-${i}`}
-                  className="text-[14px] leading-[1.5] flex items-start gap-2"
-                  style={{ color: T.amber, fontFamily: "Urbanist, sans-serif" }}
-                >
-                  <span aria-hidden>⚠</span> {c}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
 
       {/* ================================================================ */}
       {/* APPROVE BUTTON                                                    */}
