@@ -125,6 +125,7 @@ function EvidenceCard({
   tier,
   color,
   sourceType,
+  sourceUrl,
 }: {
   org: string;
   what: string;
@@ -132,6 +133,7 @@ function EvidenceCard({
   tier?: string;
   color?: string;
   sourceType?: string;
+  sourceUrl?: string;
 }) {
   const c = color ?? T.accent;
   return (
@@ -173,12 +175,27 @@ function EvidenceCard({
             {tier}
           </div>
         )}
-        {sourceType && (
+        {sourceType && sourceUrl && (
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide transition-colors hover:underline"
+            style={{
+              backgroundColor: sourceType === "Independently Verified" ? "#E6F2F0" : sourceType === "Vendor Case Study" ? "#FDF6E8" : "#F0F7F6",
+              color: sourceType === "Independently Verified" ? T.accent : sourceType === "Vendor Case Study" ? T.gold : "#0A5C55",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {sourceType} ↗
+          </a>
+        )}
+        {sourceType && !sourceUrl && (
           <span
             className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
             style={{
-              backgroundColor: sourceType === "Independently Verified" ? "#E6F2F0" : sourceType === "Vendor Case Study" ? "#FDF6E8" : "#F1F3F6",
-              color: sourceType === "Independently Verified" ? T.accent : sourceType === "Vendor Case Study" ? T.gold : T.silver,
+              backgroundColor: sourceType === "Independently Verified" ? "#E6F2F0" : sourceType === "Vendor Case Study" ? "#FDF6E8" : "#F0F7F6",
+              color: sourceType === "Independently Verified" ? T.accent : sourceType === "Vendor Case Study" ? T.gold : "#0A5C55",
             }}
           >
             {sourceType}
@@ -506,7 +523,7 @@ export function ExecutiveDecisionBrief({
             const savings = econ.expected_annual_savings;
             const payback = econ.payback_months;
             const paybackText = payback ? ` with an expected payback of ~${Math.ceil(payback)} month${Math.ceil(payback) === 1 ? "" : "s"}` : "";
-            return `This approach is expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}. It ranked highest across all intervention paths on evidence strength, cost, and implementability.${altSummary}`;
+            return `This approach is expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}. It ranked highest after comparing problem fit, economics, risk, feasibility, and available evidence.${altSummary}`;
           })()}
         </NarrativeParagraph>
 
@@ -642,19 +659,28 @@ export function ExecutiveDecisionBrief({
 
                   return (
                     <>
-                      <p className="mb-3">
-                        Current annual labor cost of{" "}
-                        <strong>
-                          $
-                          {econ.current_annual_labor_cost
-                            ? (econ.current_annual_labor_cost / 1_000_000).toFixed(2)
-                            : "—"}
-                          M
-                        </strong>{" "}
-                        is based on {prob.annual_volume?.toLocaleString() || "—"} items/year at{" "}
-                        {prob.handling_time_hours || "—"} hours each at $
-                        {prob.loaded_labor_cost || "—"}/hour.
-                      </p>
+                      {prob.annual_volume && prob.handling_time_hours && prob.loaded_labor_cost ? (
+                        <p className="mb-3">
+                          Current annual labor cost of{" "}
+                          <strong>
+                            $
+                            {econ.current_annual_labor_cost
+                              ? (econ.current_annual_labor_cost / 1_000_000).toFixed(2)
+                              : "—"}
+                            M
+                          </strong>{" "}
+                          is based on {prob.annual_volume.toLocaleString()} items/year at{" "}
+                          {prob.handling_time_hours} hours each at $
+                          {prob.loaded_labor_cost}/hour.
+                        </p>
+                      ) : (
+                        <p className="mb-3">
+                          Economics are derived from the workflow volume, handling time, and labor
+                          costs provided in the assessment. Expected annual value of{" "}
+                          <strong>{savingsStr}</strong> reflects the projected impact of the
+                          recommended intervention against the current operating baseline.
+                        </p>
+                      )}
                       <p className="mb-3">
                         At {econ.automatable_pct || "—"}% automatable, expected savings
                         are <strong>{savingsStr}/year</strong>.
@@ -772,7 +798,8 @@ export function ExecutiveDecisionBrief({
                 ? "Independently Verified"
                 : e.vendor_reported
                   ? "Vendor Case Study"
-                  : "First-Party Record";
+                  : "Company Disclosure";
+              const sourceUrl = e.source_url as string | undefined;
               return (
                 <EvidenceCard
                   key={i}
@@ -782,6 +809,7 @@ export function ExecutiveDecisionBrief({
                   tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
                   color={tierColor}
                   sourceType={sourceType}
+                  sourceUrl={sourceUrl}
                 />
               );
             })}
