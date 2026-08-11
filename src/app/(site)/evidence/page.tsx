@@ -29,23 +29,11 @@ const VERIFICATION = [
 ];
 
 const GRAPH = [
-  { name: "Source documents", note: "Audits, evaluations, disclosures, records" },
-  { name: "Evidence claims", note: "Extracted, attributable, deduplicated" },
-  { name: "Implementation records", note: "Intervention, context, outcomes, risks" },
-  { name: "Decision", note: "Ranked, sourced, reproducible" },
+  { name: "Decision", note: "Ranked, sourced, reproducible", color: "#0A5C55" },
+  { name: "Source documents", note: "Audits, evaluations, disclosures, records", color: "#8B6914" },
+  { name: "Implementation records", note: "Intervention, context, outcomes, risks", color: "#1E40AF" },
+  { name: "Evidence claims", note: "Extracted, attributable, deduplicated", color: "#6D28D9" },
 ];
-
-function CircleNode({ node, x, y }: { node: { name: string; note: string }; x: string; y: string }) {
-  return (
-    <div
-      className="absolute w-[38%] -translate-x-1/2 -translate-y-1/2 border border-line bg-surface p-3 shadow-card-sm"
-      style={{ left: `${x}%`, top: `${y}%` }}
-    >
-      <p className="text-[12px] font-semibold leading-tight text-ink">{node.name}</p>
-      <p className="mt-0.5 text-[10px] leading-snug text-muted">{node.note}</p>
-    </div>
-  );
-}
 
 export default function EvidencePage() {
   return (
@@ -56,79 +44,58 @@ export default function EvidencePage() {
         subtitle="Compass reasons over a growing structured evidence base of real-world implementations. Every material claim carries its source&mdash;and when the evidence is insufficient, Compass says so."
       />
 
-      {/* Evidence graph */}
+      {/* Evidence layers */}
       <section className="border-b border-line bg-paper">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
-            <div className="lg:sticky lg:top-28 lg:self-start">
-              <Reveal>
-                <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
-                  The Evidence Graph
-                </p>
-                <h2 className="mt-5 text-section font-semibold tracking-tight text-ink">
-                  Four layers between a document and a decision.
-                </h2>
-                <p className="mt-5 max-w-md text-lead leading-relaxed text-muted">
-                  Compass does not ask a model to recall an example. It extracts structured claims
-                  from real sources, builds implementation records, and matches them to your problem
-                  and operating context before anything is recommended.
-                </p>
-              </Reveal>
-            </div>
+          <Reveal>
+            <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep text-center">
+              The Evidence Graph
+            </p>
+            <h2 className="mt-5 text-section font-semibold tracking-tight text-ink text-center">
+              Four layers between a document and a decision.
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-center text-lead leading-relaxed text-muted">
+              Compass does not ask a model to recall an example. It extracts structured claims
+              from real sources, builds implementation records, and matches them to your problem
+              and operating context before anything is recommended.
+            </p>
+          </Reveal>
 
-            <Reveal delay={120}>
-              <div className="relative aspect-square w-full overflow-hidden border border-line bg-surface">
-                <div aria-hidden="true" className="grid-backdrop absolute inset-0 opacity-40" />
-
-                <svg
-                  className="absolute inset-0 h-full w-full"
-                  viewBox="0 0 100 100"
-                  aria-hidden="true"
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {GRAPH.map((node, i) => (
+              <Reveal key={node.name} delay={i * 80}>
+                <div
+                  className="relative overflow-hidden rounded-lg border border-line bg-surface p-6"
+                  style={{ borderTop: `3px solid ${node.color}` }}
                 >
-                  <defs>
-                    <marker id="ev-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
-                      <path d="M0 0 L10 5 L0 10 z" fill="#4C650C" />
-                    </marker>
-                    <marker id="ev-arrow-faint" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
-                      <path d="M0 0 L10 5 L0 10 z" fill="#4C650C" fillOpacity="0.45" />
-                    </marker>
-                  </defs>
-
-                  {/* quadrant dividers */}
-                  <line x1="50" y1="6" x2="50" y2="94" stroke="#E3E0D7" strokeWidth="0.5" />
-                  <line x1="6" y1="50" x2="94" y2="50" stroke="#E3E0D7" strokeWidth="0.5" />
-
-                  {/* ring passing through the four node centers */}
-                  <circle cx="50" cy="50" r="35.36" fill="none" stroke="#4C650C" strokeOpacity="0.18" strokeWidth="0.8" />
-
-                  {/* clockwise loop: Source → Claims → Records → Decision → Source */}
-                  <path d="M75 25 A 35.36 35.36 0 0 1 75 75" fill="none" stroke="#4C650C" strokeWidth="1" markerEnd="url(#ev-arrow)" />
-                  <path d="M75 75 A 35.36 35.36 0 0 1 25 75" fill="none" stroke="#4C650C" strokeWidth="1" markerEnd="url(#ev-arrow)" />
-                  <path d="M25 75 A 35.36 35.36 0 0 1 25 25" fill="none" stroke="#4C650C" strokeWidth="1" markerEnd="url(#ev-arrow)" />
-                  {/* the learning loop return */}
-                  <path d="M25 25 A 35.36 35.36 0 0 1 75 25" fill="none" stroke="#4C650C" strokeWidth="1" strokeDasharray="2.4 1.8" strokeLinecap="round" markerEnd="url(#ev-arrow-faint)" />
-                </svg>
-
-                <CircleNode node={GRAPH[0]} x="75" y="25" />
-                <CircleNode node={GRAPH[1]} x="75" y="75" />
-                <CircleNode node={GRAPH[2]} x="25" y="75" />
-                <CircleNode node={GRAPH[3]} x="25" y="25" />
-
-                {/* center */}
-                <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="mx-auto text-accent-deep" aria-hidden="true">
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.1" />
-                    <path d="M14.5 9.5 13.3 13.3 9.5 14.5 10.7 10.7z" fill="currentColor" />
-                  </svg>
-                  <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-faint">Evidence loop</p>
+                  <div className="mb-3 flex items-center gap-2">
+                    <span
+                      className="flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                      style={{ backgroundColor: node.color }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Layer</span>
+                  </div>
+                  <p
+                    className="text-[16px] font-semibold tracking-tight"
+                    style={{ color: node.color }}
+                  >
+                    {node.name}
+                  </p>
+                  <p className="mt-2 text-[13px] leading-snug text-muted">{node.note}</p>
                 </div>
-
-                <p className="absolute bottom-2 right-3 text-[10px] text-faint">
-                  a decision loop, not a one-way pipeline
-                </p>
-              </div>
-            </Reveal>
+              </Reveal>
+            ))}
           </div>
+
+          <Reveal delay={360}>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-[12px] text-muted">
+              <span className="font-semibold text-ink">a decision loop, not a one-way pipeline</span>
+              <span aria-hidden="true">→</span>
+              <span>every completed outcome strengthens the next recommendation</span>
+            </div>
+          </Reveal>
         </div>
       </section>
 

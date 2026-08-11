@@ -49,15 +49,15 @@ export function DecisionPackageView({
           </button>
         </div>
 
-        {printing && (
-          <DecisionBriefPrint recs={recs} meta={meta} summary={summary} status={status} onClose={() => setPrinting(false)} />
-        )}
-      </div>
-    );
-  }
+      {printing && (
+        <DecisionBriefPrint decisionModel={decisionModel} recs={recs} meta={meta} summary={summary} status={status} onClose={() => setPrinting(false)} />
+      )}
+    </div>
+  );
+}
 
-  // Fallback to legacy DecisionMemo
-  return (
+// Fallback to legacy DecisionMemo
+return (
     <div>
       <DecisionMemo recs={recs} meta={meta} summary={summary} status={status} onImplement={onImplement} />
 

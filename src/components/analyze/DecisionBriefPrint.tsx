@@ -2,22 +2,30 @@
 
 import { useCallback } from "react";
 import type { DecisionRec } from "@/lib/decision-package";
+import { ExecutiveDecisionBrief } from "./ExecutiveDecisionBrief";
 import { DecisionMemo } from "./DecisionMemo";
 
 interface DecisionBriefPrintProps {
-  recs: DecisionRec[];
-  meta: any;
-  summary: any;
+  decisionModel?: any;
+  recs?: DecisionRec[];
+  meta?: any;
+  summary?: any;
   status?: string;
   onClose: () => void;
 }
 
 /**
- * Print-preview modal for the executive decision memo.
- * "Download PDF" clones the memo into a standalone holder and calls
- * window.print(); the print CSS in globals.css shows only that clone.
+ * Print-preview modal. When decisionModel is available (new brief), renders
+ * the ExecutiveDecisionBrief; otherwise falls back to the legacy DecisionMemo.
  */
-export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: DecisionBriefPrintProps) {
+export function DecisionBriefPrint({
+  decisionModel,
+  recs = [],
+  meta,
+  summary,
+  status,
+  onClose,
+}: DecisionBriefPrintProps) {
   const handleDownload = useCallback(() => {
     const source = document.getElementById("compass-brief-print");
     if (!source) return;
@@ -71,7 +79,11 @@ export function DecisionBriefPrint({ recs, meta, summary, status, onClose }: Dec
           data-testid="brief-print"
           className="overflow-hidden bg-white shadow-[0_25px_50px_rgba(0,0,0,0.35)]"
         >
-          <DecisionMemo recs={recs} meta={meta} summary={summary} status={status} />
+          {decisionModel?.recommended_intervention ? (
+            <ExecutiveDecisionBrief decisionModel={decisionModel} />
+          ) : (
+            <DecisionMemo recs={recs} meta={meta} summary={summary} status={status} />
+          )}
         </div>
       </div>
     </div>

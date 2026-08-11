@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { measuredOutcomes, outcomesSummary } from "@/data/demo-data";
 
+const C = {
+  teal: "#0A5C55",
+  green: "#14532D",
+  gold: "#8B6914",
+  blue: "#1E40AF",
+  purple: "#6D28D9",
+} as const;
+
 export function OutcomesPanel({ limit }: { limit?: number }) {
   const rows = limit ? measuredOutcomes.slice(0, limit) : measuredOutcomes;
 
@@ -15,7 +23,10 @@ export function OutcomesPanel({ limit }: { limit?: number }) {
   return (
     <section aria-label="Results">
       <div className="mb-4 flex items-baseline justify-between gap-3">
-        <h2 className="text-[17px] font-semibold tracking-tight text-ink">Results</h2>
+        <div className="flex items-center gap-2.5">
+          <span aria-hidden="true" className="h-4 w-0.5 rounded-full" style={{ backgroundColor: C.green }} />
+          <h2 className="text-[17px] font-semibold tracking-tight text-ink">Results</h2>
+        </div>
         {limit && (
           <Link href="/demo/outcomes" className="text-[12.5px] font-medium text-muted transition-colors hover:text-ink">
             View all outcomes →
@@ -24,13 +35,15 @@ export function OutcomesPanel({ limit }: { limit?: number }) {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4">
-        <div className="border border-line bg-surface px-5 py-5 text-center">
+        <div className="relative overflow-hidden border border-line bg-surface px-5 py-5 text-center">
+          <div aria-hidden="true" className="absolute left-0 top-0 h-1 w-full" style={{ backgroundColor: C.blue }} />
           <p className="text-[clamp(2rem,3vw,2.6rem)] font-extralight leading-none tracking-[-0.02em] text-ink">
             {outcomesSummary.completedDecisions}
           </p>
           <p className="mt-2 text-[13px] font-semibold text-ink">Decisions completed</p>
         </div>
-        <div className="border border-[#cfe6d8] bg-[#f2faf5] px-5 py-5 text-center">
+        <div className="relative overflow-hidden border border-[#cfe6d8] bg-[#f2faf5] px-5 py-5 text-center">
+          <div aria-hidden="true" className="absolute left-0 top-0 h-1 w-full" style={{ backgroundColor: C.green }} />
           <p className="text-[clamp(2rem,3vw,2.6rem)] font-extralight leading-none tracking-[-0.02em] text-[#14532d]">
             {pct}%
           </p>
@@ -68,10 +81,11 @@ export function OutcomesPanel({ limit }: { limit?: number }) {
                     <span
                       className={
                         met
-                          ? "rounded-full bg-ok-soft px-2.5 py-0.5 text-[11px] font-bold text-[#14532d]"
-                          : "rounded-full bg-line px-2.5 py-0.5 text-[11px] font-bold text-muted"
+                          ? "inline-flex items-center gap-1.5 rounded-full bg-ok-soft px-2.5 py-0.5 text-[11px] font-bold text-[#14532d]"
+                          : "inline-flex items-center gap-1.5 rounded-full bg-line px-2.5 py-0.5 text-[11px] font-bold text-muted"
                       }
                     >
+                      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
                       {met ? "Met or exceeded" : "On track"}
                     </span>
                   </td>

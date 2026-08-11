@@ -8,22 +8,32 @@ import { cn } from "@/lib/utils";
 /* ------------------------------------------------------------------ */
 
 const T = {
-  page: "#F4F0E6",
+  page: "#F5F1E8",
   card: "#FBFAF6",
-  border: "#D8D5CC",
-  accent: "#0F6B64",
-  accentLight: "#DDEBE6",
-  text: "#102A2E",
-  muted: "#65706D",
-  faint: "#8C8776",
-  amber: "#C2780A",
+  border: "#D0C9B8",
+  accent: "#0A5C55",
+  accentDeep: "#07423D",
+  accentLight: "#E6F2F0",
+  text: "#000000",
+  muted: "#1A1A1A",
+  faint: "#333333",
+  gold: "#8B6914",
+  goldLight: "#FBF3E0",
+  silver: "#4A5568",
+  silverLight: "#F1F3F6",
+  bronze: "#7C5E10",
+  bronzeLight: "#FDF6E8",
+  rose: "#9D174D",
+  roseLight: "#FDE8F0",
+  warning: "#B45309",
 } as const;
 
 /* ------------------------------------------------------------------ */
 /*  Sub-components                                                     */
 /* ------------------------------------------------------------------ */
 
-function Eyebrow({ num, label }: { num: string; label: string }) {
+function Eyebrow({ num, label, color }: { num: string; label: string; color?: string }) {
+  const c = color ?? T.accent;
   return (
     <div
       className="flex items-center gap-3 mb-2"
@@ -31,14 +41,14 @@ function Eyebrow({ num, label }: { num: string; label: string }) {
     >
       <span
         className="text-[11px] font-semibold uppercase tracking-[0.14em]"
-        style={{ color: T.accent }}
+        style={{ color: c }}
       >
         {num} — {label}
       </span>
       <span
         aria-hidden
         className="inline-block h-px flex-1 max-w-[40px]"
-        style={{ backgroundColor: T.accent, opacity: 0.3 }}
+        style={{ backgroundColor: c, opacity: 0.4 }}
       />
     </div>
   );
@@ -59,16 +69,25 @@ function KPICard({
   value,
   label,
   large,
+  color,
 }: {
   value: string;
   label: string;
   large?: boolean;
+  color?: string;
 }) {
   return (
     <div
-      className="rounded-lg px-6 py-5 md:px-8 md:py-6"
+      className="rounded-lg px-6 py-5 md:px-8 md:py-6 relative overflow-hidden"
       style={{ backgroundColor: T.card, border: `1px solid ${T.border}` }}
     >
+      {color && (
+        <div
+          aria-hidden="true"
+          className="absolute left-0 top-0 h-1 w-full"
+          style={{ backgroundColor: color }}
+        />
+      )}
       <div
         className={cn(
           "font-bold leading-[1] mb-1",
@@ -104,17 +123,25 @@ function EvidenceCard({
   what,
   outcome,
   tier,
+  color,
 }: {
   org: string;
   what: string;
   outcome?: string;
   tier?: string;
+  color?: string;
 }) {
+  const c = color ?? T.accent;
   return (
     <div
-      className="rounded-lg px-5 py-4"
+      className="rounded-lg px-5 py-4 relative overflow-hidden"
       style={{ backgroundColor: T.card, border: `1px solid ${T.border}` }}
     >
+      <div
+        aria-hidden="true"
+        className="absolute left-0 top-0 h-1 w-full"
+        style={{ backgroundColor: c }}
+      />
       <div
         className="text-[15px] font-semibold mb-1"
         style={{ fontFamily: "Urbanist, sans-serif", color: T.text }}
@@ -138,7 +165,7 @@ function EvidenceCard({
       {tier && (
         <div
           className="mt-2 text-[11px] font-medium uppercase tracking-[0.08em]"
-          style={{ color: T.accent }}
+          style={{ color: c }}
         >
           {tier}
         </div>
@@ -172,8 +199,9 @@ function ImplementationPhase({
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold"
           style={{
-            backgroundColor: T.accentLight,
-            color: T.accent,
+            backgroundColor: T.silverLight,
+            color: T.silver,
+            border: `2px solid ${T.silver}`,
             fontFamily: "Urbanist, sans-serif",
           }}
         >
@@ -235,13 +263,20 @@ function AlternativeRow({
 }) {
   return (
     <div
-      className="rounded-lg px-5 py-4 flex items-center gap-4"
+      className="rounded-lg px-5 py-4 flex items-center gap-4 relative overflow-hidden"
       style={{
         backgroundColor: recommended ? T.accentLight : T.card,
         border: `1px solid ${recommended ? T.accent : T.border}`,
       }}
     >
-      <div className="flex-1 min-w-0">
+      {!recommended && (
+        <div
+          aria-hidden="true"
+          className="absolute left-0 top-0 h-full w-1"
+          style={{ backgroundColor: T.rose }}
+        />
+      )}
+      <div className="flex-1 min-w-0 pl-2">
         <div
           className="text-[15px] font-semibold"
           style={{ fontFamily: "Urbanist, sans-serif", color: T.text }}
@@ -361,8 +396,9 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       {/* 01 — DECISION RECOMMENDATION                                     */}
       {/* ================================================================ */}
-      <section className="px-6 md:px-12 py-16 md:py-24 border-b print:border-0" style={{ borderColor: T.border }}>
-        <Eyebrow num="01" label="Decision Recommendation" />
+      <section className="px-6 md:px-12 py-16 md:py-24 border-b print:border-0"
+        style={{ borderColor: T.border, borderLeft: `4px solid ${T.gold}` }}>
+        <Eyebrow num="01" label="Decision Recommendation" color={T.gold} />
 
         <h1
           className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px] mb-8"
@@ -389,9 +425,9 @@ export function ExecutiveDecisionBrief({
 
         {/* KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
-          <KPICard value={savingsStr} label="Expected Annual Savings" large />
-          <KPICard value={implCostStr} label="Implementation Cost" />
-          <KPICard value={paybackStr} label="Expected Payback" />
+          <KPICard value={savingsStr} label="Expected Annual Savings" large color={T.accent} />
+          <KPICard value={implCostStr} label="Implementation Cost" color={T.gold} />
+          <KPICard value={paybackStr} label="Expected Payback" color={T.silver} />
         </div>
       </section>
 
@@ -400,7 +436,7 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       {econ && (
         <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
-          <Eyebrow num="02" label="Economics" />
+          <Eyebrow num="02" label="Economics" color={T.accent} />
           <SectionTitle>Cost &amp; Savings Analysis</SectionTitle>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -489,7 +525,7 @@ export function ExecutiveDecisionBrief({
       {/* 03 — WHY THIS INTERVENTION                                        */}
       {/* ================================================================ */}
       <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
-        <Eyebrow num="03" label="Why This Intervention" />
+        <Eyebrow num="03" label="Why This Intervention" color={T.accent} />
         <SectionTitle>Why We Recommend This</SectionTitle>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -532,9 +568,14 @@ export function ExecutiveDecisionBrief({
               return bullets.map((item) => (
                 <div
                   key={item.reason}
-                  className="rounded-lg px-5 py-4"
+                  className="rounded-lg px-5 py-4 relative overflow-hidden"
                   style={{ backgroundColor: T.card, border: `1px solid ${T.border}` }}
                 >
+                  <div
+                    aria-hidden="true"
+                    className="absolute left-0 top-0 h-full w-1"
+                    style={{ backgroundColor: T.accent }}
+                  />
                   <div
                     className="text-[14px] font-semibold mb-0.5"
                     style={{ color: T.text, fontFamily: "Urbanist, sans-serif" }}
@@ -559,19 +600,24 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       {evidence.length > 0 && (
         <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
-          <Eyebrow num="04" label="Evidence" />
+          <Eyebrow num="04" label="Evidence" color={T.gold} />
           <SectionTitle>Comparable Implementations</SectionTitle>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {evidence.slice(0, 3).map((e: any, i: number) => (
-              <EvidenceCard
-                key={i}
-                org={e.organization || e.company || "—"}
-                what={e.intervention || e.what_they_did || "—"}
-                outcome={evidenceText(e)}
-                tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
-              />
-            ))}
+            {evidence.slice(0, 3).map((e: any, i: number) => {
+              const tier = (e.evidence_tier || "").toLowerCase();
+              const tierColor = tier === "gold" ? T.gold : tier === "silver" ? T.silver : T.bronze;
+              return (
+                <EvidenceCard
+                  key={i}
+                  org={e.organization || e.company || "—"}
+                  what={e.intervention || e.what_they_did || "—"}
+                  outcome={evidenceText(e)}
+                  tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
+                  color={tierColor}
+                />
+              );
+            })}
           </div>
         </section>
       )}
@@ -581,7 +627,7 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       {alts.length > 0 && (
         <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
-          <Eyebrow num="05" label="Alternatives Considered" />
+          <Eyebrow num="05" label="Alternatives Considered" color={T.rose} />
           <SectionTitle>Why Not the Alternatives</SectionTitle>
 
           <div className="space-y-3 max-w-[780px]">
@@ -617,13 +663,13 @@ export function ExecutiveDecisionBrief({
       {/* ================================================================ */}
       {path && path.length > 0 && (
         <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
-          <Eyebrow num="06" label="Implementation Path" />
+          <Eyebrow num="06" label="Implementation Path" color={T.silver} />
           <SectionTitle>How to Implement</SectionTitle>
 
           {/* Summary bar */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-            <KPICard value={implCostStr} label="Estimated Implementation Cost" />
-            <KPICard value={durationStr} label="Estimated Duration" />
+            <KPICard value={implCostStr} label="Estimated Implementation Cost" color={T.gold} />
+            <KPICard value={durationStr} label="Estimated Duration" color={T.silver} />
           </div>
 
           <div className="max-w-[780px]">
