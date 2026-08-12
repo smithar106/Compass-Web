@@ -27,7 +27,7 @@ export const marketing = {
         headline: "Decide what to implement. Before you commit the capital",
         supporting:
           "Compass turns business problems into evidence-backed executive decisions\u2014and stays through the outcome.",
-        supporting2: "Compass compares AI, automation, software, process redesign, staffing, and other approaches against your economics and evidence from 50,000+ real-world implementations\u2014then tells leadership what to do, why, and whether it worked.",
+        supporting2: "Compass compares AI, automation, software, process redesign, staffing, and other approaches against your economics and evidence from 50,000+ real-world implementations\u2014then tells leadership what to do, why it beats the alternatives, and ultimately whether it delivered the expected value.",
         ctaPrimary: "Run an Assessment",
         ctaPrimaryHref: "/assessment",
         ctaSecondary: "See How Compass Works",
@@ -74,18 +74,18 @@ export const marketing = {
         cards: [
           {
             name: "Decide",
-            title: "Know what to do before you commit.",
-            body: "Compass compares AI, automation, software, process redesign, staffing, and hybrid approaches\u2014and explains why one beats the alternatives.",
+            title: "Choose the right intervention.",
+            body: "Compare possible approaches before committing capital.",
           },
           {
             name: "Implement",
-            title: "Turn the decision into an execution plan.",
-            body: "Get the implementation path, economics, milestones, owners, and success criteria required to move from recommendation to action.",
+            title: "Execute against the decision.",
+            body: "Keep delivery tied to the economics and success criteria leadership approved.",
           },
           {
             name: "Measure",
-            title: "Know whether it actually worked.",
-            body: "Keep execution tied to the business case leadership approved and compare expected value against actual results.",
+            title: "Know whether it worked.",
+            body: "Compare expected value with actual results and capture the outcome.",
           },
         ],
         closing: "From business problem to evidence-backed decision to measured outcome\u2014in one system.",
