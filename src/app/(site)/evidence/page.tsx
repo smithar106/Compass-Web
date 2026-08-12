@@ -37,8 +37,8 @@ export default function EvidencePage() {
     <>
       <PageHeader
         eyebrow="Evidence"
-        title="Not all evidence supports your decision."
-        subtitle="Compass separates what exists from what matters: it finds relevant implementations, verifies where each came from, and only lets evidence that actually supports your decision into the recommendation."
+        title="50,000+ implementations. Only the relevant ones matter."
+        subtitle="Compass finds the real-world implementations that actually apply to your decision—so recommendations are supported by comparable evidence, not just whatever data happens to exist."
       />
 
       {/* The three trust questions */}
