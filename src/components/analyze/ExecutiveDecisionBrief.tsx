@@ -338,24 +338,6 @@ function AlternativeRow({
 /*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 
-function generateDecisionTitle(dm: any, rec: any): string {
-  const omc = dm?.recommendation?.operating_model_change;
-  if (omc && typeof omc === "string" && omc.length > 5) {
-    const verb = omc.replace(/^Move from /, "").split(" to ")[0];
-    if (verb) return verb.split(" ").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-  }
-  // Fallback: derive from intervention category
-  const cat = (rec?.category || rec?.family_name || "").toLowerCase();
-  if (cat.includes("ai")) return "Deploy AI-Powered Solution";
-  if (cat.includes("automation") || cat.includes("workflow")) return "Automate This Workflow";
-  if (cat.includes("software")) return "Implement Software Solution";
-  if (cat.includes("process") || cat.includes("redesign")) return "Redesign Operating Process";
-  if (cat.includes("staffing")) return "Expand Team Capacity";
-  if (cat.includes("hybrid")) return "Deploy Hybrid Solution";
-  if (cat.includes("no_action")) return "Establish Baseline First";
-  return "Implement Recommended Intervention";
-}
-
 function evidenceText(e: any): string | undefined {
   if (e.cost_impact) return `Cost impact: ${e.cost_impact}`;
   if (e.cost_savings) return `Cost impact: ${e.cost_savings}`;
@@ -498,7 +480,7 @@ export function ExecutiveDecisionBrief({
             className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px]"
             style={{ color: T.text }}
           >
-            {generateDecisionTitle(decisionModel, rec)}
+            {rec.title || rec.family_name}
           </h1>
           <span
             className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold"
