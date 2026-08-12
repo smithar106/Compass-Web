@@ -805,13 +805,13 @@ export function ExecutiveDecisionBrief({
       {evidence.length > 0 && (
         <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
           <Eyebrow num="04" label="Evidence" color={T.gold} />
-          <SectionTitle>Comparable Implementations</SectionTitle>
+          <SectionTitle>What Happened in Comparable Implementations</SectionTitle>
 
           {evidenceWidened && (
             <div className="mb-6 rounded-lg border px-4 py-3" style={{ borderColor: "#FCD34D", backgroundColor: "#FFFBEB" }}>
               <p className="text-[12px] leading-relaxed" style={{ color: "#92400E" }}>
-                Direct comparables were limited for this workflow. Results include the most relevant
-                implementations from adjacent problem domains.
+                Directly comparable evidence is limited. Compass shows only the implementations
+                that independently passed the relevance threshold for this workflow and intervention.
               </p>
             </div>
           )}
@@ -826,13 +826,14 @@ export function ExecutiveDecisionBrief({
                   ? "Vendor Case Study"
                   : "Company Disclosure";
               const sourceUrl = e.source_url as string | undefined;
+              const relevance = e.relevance || (i === 0 ? "direct" : "supporting");
               return (
                 <EvidenceCard
                   key={i}
                   org={e.organization || e.company || "—"}
                   what={e.intervention || e.what_they_did || "—"}
                   outcome={evidenceText(e)}
-                  tier={i === 0 ? "DIRECT COMPARABLE" : "SUPPORTING"}
+                  tier={relevance === "direct" ? "DIRECT COMPARABLE" : "SUPPORTING"}
                   color={tierColor}
                   sourceType={sourceType}
                   sourceUrl={sourceUrl}
@@ -840,6 +841,11 @@ export function ExecutiveDecisionBrief({
               );
             })}
           </div>
+
+          <p className="mt-4 text-[11px] leading-relaxed" style={{ color: T.faint }}>
+            Observed outcomes from comparable implementations. These results are not projections
+            for your organization — they validate the intervention path, not your expected result.
+          </p>
         </section>
       )}
 

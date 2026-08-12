@@ -275,10 +275,10 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
     cards.push({
       metric: valueFor(r),
       label: labelFor(r, "processing cost"),
-      context: "Primary outcome of this initiative.",
+      context: "Observed across comparable implementations — not a projection for your organization.",
     });
   } else {
-    cards.push({ metric: "Measurable", label: "Reduced processing cost", context: "Primary outcome of this initiative." });
+    cards.push({ metric: "Measurable", label: "Reduced processing cost", context: "Success metrics defined before work begins." });
   }
 
   if (sortedRanges.length > 1) {
@@ -286,7 +286,7 @@ export function impactCards(top: DecisionRec): ImpactCard[] {
     cards.push({
       metric: valueFor(r2),
       label: labelFor(r2, "capacity"),
-      context: "Secondary outcome tracked alongside the primary goal.",
+      context: "Observed across comparable implementations — not a projection for your organization.",
     });
   } else {
     cards.push({ metric: "Pilot before scale", label: "Initial commitment", context: "Approval funds a measured pilot; full deployment is gated on results." });
