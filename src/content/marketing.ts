@@ -595,12 +595,12 @@ export const footer = {
   copyright: `\u00A9 ${new Date().getFullYear()} Compass. All rights reserved.`,
   columns: [
     {
-      title: "Product",
+      title: "Compass",
       links: [
-        { label: "Product", href: "/product" },
+        { label: "Home", href: "/" },
         { label: "How It Works", href: "/how-it-works" },
         { label: "Evidence", href: "/evidence" },
-        { label: "About", href: "/about" },
+        { label: "Demo", href: "/demo" },
       ],
     },
     {

@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { metadata as siteMetadata } from "@/content/marketing";
 import { HomeHero } from "@/components/home/HomeHero";
 import { WhyCompass } from "@/components/home/WhyCompass";
-import { DecisionTree } from "@/components/home/DecisionTree";
 import { ExecutiveBrief } from "@/components/home/ExecutiveBrief";
-import { Problem } from "@/components/home/Problem";
 import { ImplementationIntelligence } from "@/components/home/ImplementationIntelligence";
 import { HomeCta } from "@/components/home/HomeCta";
 
@@ -24,9 +22,7 @@ export default function HomePage() {
     <>
       <HomeHero />
       <WhyCompass />
-      <DecisionTree />
       <ExecutiveBrief />
-      <Problem />
       <ImplementationIntelligence />
       <HomeCta />
     </>

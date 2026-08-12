@@ -13,26 +13,23 @@ const PROVENANCE = [
   { name: "Vendor implementation record", note: "Context and limitations declared; weighted accordingly and never treated as independent.", tone: "low" },
 ];
 
-const VERIFICATION = [
+const RELEVANCE = [
   {
-    title: "Weighted by independence",
-    note: "Government audits and academic evaluations carry more weight than vendor records — and vendor claims are never treated as independent.",
+    title: "Direct comparable",
+    note: "Similar workflow and intervention in a comparable organization. The strongest evidence for a decision.",
   },
   {
-    title: "Attributable to a source",
-    note: "Every material claim traces to a document you can read: an audit, an evaluation, a disclosure, or a first-party record.",
+    title: "Supporting",
+    note: "Relevant outcome in an adjacent domain or intervention type. Directionally useful, weighted lower.",
   },
   {
-    title: "Gaps are disclosed",
-    note: "When the evidence for a decision is thin or missing, Compass says so instead of forcing a confident answer.",
+    title: "Adjacent — not evidence",
+    note: "Records that retrieval surfaced but that do not support this decision are excluded, never forced into the brief.",
   },
-];
-
-const GRAPH = [
-  { name: "Decision", note: "Ranked, sourced, reproducible", color: "#0A5C55" },
-  { name: "Source documents", note: "Audits, evaluations, disclosures, records", color: "#8B6914" },
-  { name: "Implementation records", note: "Intervention, context, outcomes, risks", color: "#1E40AF" },
-  { name: "Evidence claims", note: "Extracted, attributable, deduplicated", color: "#6D28D9" },
+  {
+    title: "Observed vs. predicted",
+    note: "What another company achieved is never presented as what you will achieve. The two are kept strictly separate.",
+  },
 ];
 
 export default function EvidencePage() {
@@ -40,71 +37,69 @@ export default function EvidencePage() {
     <>
       <PageHeader
         eyebrow="Evidence"
-        title="Decisions that trace back to a source you can read."
-        subtitle="Compass reasons over a growing structured evidence base of real-world implementations. Every material claim carries its source&mdash;and when the evidence is insufficient, Compass says so."
+        title="Having evidence isn't the same as having evidence that supports the decision."
+        subtitle="Compass reasons over a structured evidence base of real-world implementations — and applies a strict relevance gate so only supporting evidence reaches the recommendation."
       />
 
-      {/* Evidence layers */}
+      {/* The three trust questions */}
+      <section className="border-b border-line bg-paper">
+        <div className="mx-auto max-w-7xl px-5 py-section sm:px-8 lg:px-10 lg:py-section">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <Reveal className="h-full">
+              <div className="flex h-full flex-col border border-line bg-surface p-7" style={{ borderTop: "3px solid #0A5C55" }}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#0A5C55]">What has actually happened?</p>
+                <p className="mt-3 text-[18px] font-semibold tracking-tight text-ink">50,000+ implementations</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                  Real interventions with documented outcomes, across industries, functions, and
+                  intervention types — not marketing claims.
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={100} className="h-full">
+              <div className="flex h-full flex-col border border-line bg-surface p-7" style={{ borderTop: "3px solid #8B6914" }}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#8B6914]">Can we verify where it came from?</p>
+                <p className="mt-3 text-[18px] font-semibold tracking-tight text-ink">Provenance</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                  Every record is attributable to a source, weighted by independence — audits and
+                  academic evaluations outrank vendor case studies.
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={200} className="h-full">
+              <div className="flex h-full flex-col border border-line bg-surface p-7" style={{ borderTop: "3px solid #1E40AF" }}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1E40AF]">Does it support this decision?</p>
+                <p className="mt-3 text-[18px] font-semibold tracking-tight text-ink">Relevance</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                  A record must pass a strict relevance threshold. Retrieval may be broad; what
+                  qualifies as evidence stays narrow.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* What has actually happened — live library */}
       <section className="border-b border-line bg-paper">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep text-center">
-              The Evidence Graph
+              What has actually happened
             </p>
             <h2 className="mt-5 text-section font-semibold tracking-tight text-ink text-center">
-              Four layers between a document and a decision.
+              A structured evidence base, not a pile of documents.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-center text-lead leading-relaxed text-muted">
-              Compass does not ask a model to recall an example. It extracts structured claims
-              from real sources, builds implementation records, and matches them to your problem
-              and operating context before anything is recommended.
+              Compass extracts structured claims from real sources, builds implementation records,
+              and matches them to your problem and operating context before anything is recommended.
             </p>
           </Reveal>
 
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {GRAPH.map((node, i) => (
-              <Reveal key={node.name} delay={i * 80}>
-                <div
-                  className="relative overflow-hidden rounded-lg border border-line bg-surface p-6"
-                  style={{ borderTop: `3px solid ${node.color}` }}
-                >
-                  <div className="mb-3 flex items-center gap-2">
-                    <span
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold text-white"
-                      style={{ backgroundColor: node.color }}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Layer</span>
-                  </div>
-                  <p
-                    className="text-[16px] font-semibold tracking-tight"
-                    style={{ color: node.color }}
-                  >
-                    {node.name}
-                  </p>
-                  <p className="mt-2 text-[13px] leading-snug text-muted">{node.note}</p>
-                </div>
-              </Reveal>
-            ))}
+          <div className="mt-12">
+            <Reveal>
+              <EvidenceStats variant="full" />
+            </Reveal>
           </div>
-
-          <Reveal delay={360}>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-[12px] text-muted">
-              <span className="font-semibold text-ink">a decision loop, not a one-way pipeline</span>
-              <span aria-hidden="true">→</span>
-              <span>every completed outcome strengthens the next recommendation</span>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Evidence library stats */}
-      <section className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-16">
-          <Reveal>
-            <EvidenceStats variant="full" />
-          </Reveal>
         </div>
       </section>
 
@@ -113,15 +108,15 @@ export default function EvidencePage() {
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
-              Source provenance
+              Can we verify where it came from?
             </p>
             <h2 className="mt-5 max-w-2xl text-section font-semibold tracking-tight text-ink">
               Different sources carry different forms of confidence.
             </h2>
             <p className="mt-5 max-w-2xl text-lead leading-relaxed text-muted">
-              Compass tracks which type of source backs each claim&mdash;and never inflates it. A
-              vendor record is treated differently from an independent audit, and the difference is
-              visible in the decision.
+              Compass tracks which type of source backs each claim — and never inflates it. A vendor
+              record is treated differently from an independent audit, and the difference is visible
+              in the decision.
             </p>
           </Reveal>
 
@@ -158,64 +153,38 @@ export default function EvidencePage() {
         </div>
       </section>
 
-      {/* Evidence verification + cited claim */}
+      {/* Relevance */}
       <section className="border-b border-line bg-paper">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
-            <div>
-              <Reveal>
-                <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
-                  Evidence quality
-                </p>
-                <h2 className="mt-5 text-section font-semibold tracking-tight text-ink">
-                  Evidence is weighted, not inflated.
-                </h2>
-                <div className="mt-7 space-y-5">
-                  {VERIFICATION.map((v) => (
-                    <div key={v.title} className="flex items-start gap-3.5 border-b border-line pb-4 last:border-b-0">
-                      <span
-                        aria-hidden="true"
-                        className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-deep"
-                      />
-                      <div>
-                        <p className="text-[14px] font-semibold tracking-tight text-ink">{v.title}</p>
-                        <p className="mt-1 text-[13px] leading-snug text-muted">{v.note}</p>
-                      </div>
-                    </div>
-                  ))}
+          <Reveal>
+            <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
+              Does it support this decision?
+            </p>
+            <h2 className="mt-5 max-w-2xl text-section font-semibold tracking-tight text-ink">
+              Relevant evidence is a narrow set, not everything we found.
+            </h2>
+            <p className="mt-5 max-w-2xl text-lead leading-relaxed text-muted">
+              Retrieval can be broad. What qualifies as evidence stays strict. A record only reaches
+              a recommendation if it independently passes the relevance threshold for that workflow
+              and intervention.
+            </p>
+          </Reveal>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {RELEVANCE.map((r, i) => (
+              <Reveal key={r.title} delay={i * 70} className="h-full">
+                <div className="flex h-full items-start gap-3.5 border border-line bg-surface p-5">
+                  <span
+                    aria-hidden="true"
+                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-deep"
+                  />
+                  <div>
+                    <p className="text-[14px] font-semibold tracking-tight text-ink">{r.title}</p>
+                    <p className="mt-1 text-[13px] leading-snug text-muted">{r.note}</p>
+                  </div>
                 </div>
               </Reveal>
-            </div>
-
-            <Reveal delay={120}>
-              <div className="border border-line bg-surface">
-                <div className="flex items-center justify-between border-b border-line bg-paper/60 px-4 py-2.5">
-                  <span className="text-[11px] font-semibold tracking-wide text-ink">How a claim is presented</span>
-                  <span className="border border-line bg-surface px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-faint">
-                    Illustrative
-                  </span>
-                </div>
-                <div className="p-5">
-                  <p className="text-[13.5px] leading-relaxed text-ink">
-                    &ldquo;Across comparable implementations, exception-based routing reduced
-                    resolution time by 25&ndash;40% within the first quarter.&rdquo;
-                  </p>
-                  <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <span className="border border-line bg-paper px-2 py-0.5 text-[10px] font-medium text-muted">
-                      Public-company disclosure
-                    </span>
-                    <span className="border border-line bg-paper px-2 py-0.5 text-[10px] font-medium text-muted">
-                      38 comparable implementations
-                    </span>
-                  </div>
-                  <div className="mt-4 border-t border-line pt-3">
-                    <p className="font-mono text-[10.5px] leading-relaxed text-faint">
-                      Source: [document type], [year], p. [page] &middot; Excerpt shown inline
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
+            ))}
           </div>
         </div>
       </section>
