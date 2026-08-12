@@ -126,7 +126,7 @@ describe("Standalone assessment flow", () => {
     // volume → handling-time → loaded-cost → failure-impact → desired-outcome → timeline
     const answers = [
       "Operations",
-      "My sales team is missing inbound calls because we lack capacity",
+      "Order fulfillment has too many manual steps",
       "Insufficient capacity — we simply don't have enough people",
       "Mostly repeatable — consistent steps every time",
       "4–10",

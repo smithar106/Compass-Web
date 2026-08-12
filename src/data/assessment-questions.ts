@@ -1,14 +1,95 @@
 import type { AssessmentQuestion } from "@/types";
 
-export const questions: AssessmentQuestion[] = [
-  { id: "situation", section: "Problem", category: "situation", question: "Which statement best describes your situation?", type: "multi-choice", chip: true, options: [
+/**
+ * Department-specific problem statements for the "situation" question.
+ * The situation answer becomes the engine's `problem_statement`, so it must
+ * reflect the department the user already selected — not a generic list.
+ * Each department maps to concrete, department-appropriate problems.
+ */
+export const DEPARTMENT_SITUATIONS: Record<string, string[]> = {
+  Sales: [
     "My sales team is missing inbound calls because we lack capacity",
-    "Our reporting team spends too much time building manual reports",
-    "Customer support agents repeat the same work every day",
-    "Our onboarding process doesn't scale",
+    "Leads go cold because follow-up is too slow",
+    "Reps spend more time on admin than selling",
+    "Quotes take too long to turn around",
+  ],
+  Marketing: [
+    "Campaigns take too long to launch",
+    "Lead handoff to sales is inconsistent",
+    "We can't tell which channels actually convert",
+    "Content production doesn't scale",
+  ],
+  Operations: [
+    "Order fulfillment has too many manual steps",
+    "Work gets stuck between teams with no visibility",
+    "Too many handoffs slow everything down",
+    "Reporting takes days to assemble manually",
+  ],
+  Finance: [
     "Our finance team manually reconciles invoices",
+    "Month-end close takes too long",
+    "Approvals are slow and manual",
+    "Financial reporting is error-prone",
+  ],
+  HR: [
+    "Onboarding is slow and inconsistent",
+    "Recruiting coordination is manual",
+    "Employee requests take too long to resolve",
+    "Compliance tracking is manual",
+  ],
+  Support: [
+    "Customer support agents repeat the same work every day",
+    "Response times miss SLAs",
+    "Ticket routing is inconsistent",
+    "Escalations are hard to predict",
+  ],
+  Legal: [
     "Our contracts take too long to review",
-  ]},
+    "Contract review backlog keeps growing",
+    "We can't quickly find past contract terms",
+  ],
+  IT: [
+    "Access requests are manual and slow",
+    "Provisioning takes too long",
+    "Incident response is reactive",
+  ],
+  Engineering: [
+    "Deployments are manual and risky",
+    "Code review is a bottleneck",
+    "Incident response is slow and manual",
+  ],
+  "Supply Chain": [
+    "Supplier coordination is manual",
+    "Inventory tracking is unreliable",
+    "Order fulfillment has too many handoffs",
+  ],
+  Manufacturing: [
+    "Production scheduling is manual",
+    "Quality checks are inconsistent",
+    "Downtime reporting is slow",
+  ],
+};
+
+const GENERIC_SITUATIONS = [
+  "My sales team is missing inbound calls because we lack capacity",
+  "Our reporting team spends too much time building manual reports",
+  "Customer support agents repeat the same work every day",
+  "Our onboarding process doesn't scale",
+  "Our finance team manually reconciles invoices",
+  "Our contracts take too long to review",
+];
+
+/**
+ * Return the situation options for a given department, falling back to the
+ * generic list when the department is unknown or unselected.
+ */
+export function situationOptionsFor(dept: string | undefined): string[] {
+  if (dept && DEPARTMENT_SITUATIONS[dept]) return DEPARTMENT_SITUATIONS[dept];
+  return GENERIC_SITUATIONS;
+}
+
+export const questions: AssessmentQuestion[] = [
+  { id: "situation", section: "Problem", category: "situation", question: "Which statement best describes your situation?", type: "multi-choice", chip: true, options: GENERIC_SITUATIONS },
   { id: "dept", section: "Problem", category: "department", question: "Which department owns this workflow?", type: "multi-choice", chip: true, options: [
     "Sales", "Marketing", "Operations", "Finance", "HR",
     "Support", "Legal", "IT", "Engineering", "Supply Chain",

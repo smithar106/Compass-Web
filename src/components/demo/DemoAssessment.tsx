@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { standaloneQuestions } from "@/data/assessment-flow";
+import { situationOptionsFor } from "@/data/assessment-questions";
 import { cn } from "@/lib/utils";
 import { ArrowIcon } from "@/components/home/primitives";
 
@@ -16,6 +17,9 @@ export function DemoAssessment() {
   const total = standaloneQuestions.length;
   const q = standaloneQuestions[current];
   const selected = answers[q.id] ?? "";
+
+  const options =
+    q.id === "situation" ? situationOptionsFor(answers["dept"]) : q.options;
 
   const canContinue = Boolean(selected);
   const isLast = current === total - 1;
@@ -63,7 +67,7 @@ export function DemoAssessment() {
       <div className="mt-8 rounded-lg border border-line bg-surface p-6">
         <h2 className="text-[19px] font-semibold tracking-tight text-ink">{q.question}</h2>
         <div className="mt-5 space-y-2.5">
-          {q.options?.map((option) => {
+          {options?.map((option) => {
             const active = selected === option;
             return (
               <button

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { standaloneQuestions, PROGRESS_STEPS } from "@/data/assessment-flow";
+import { situationOptionsFor } from "@/data/assessment-questions";
 import { buildProfile } from "@/lib/assessment-profile";
 import { ensureAuthenticated } from "@/lib/supabase";
 import { trackAssessmentStarted, trackAssessmentCompleted } from "@/lib/analytics";
@@ -64,6 +65,12 @@ export default function AssessmentPage() {
   const isLast = current + 1 >= PROGRESS_STEPS;
   const hasAnswer = value !== "" && value !== undefined && value !== null;
   const progress = Math.round((current / Math.max(1, PROGRESS_STEPS - 1)) * 100);
+
+  // Adaptive questions: the "situation" options reflect the department the user
+  // selected, so the problems proposed match their actual context.
+  const deptAnswer = ANSWER_FOR_QUESTION(answers, "dept");
+  const options =
+    question.id === "situation" ? situationOptionsFor(deptAnswer as string) : question.options;
 
   // Restore any in-progress session and authenticate (preserved gate).
   useEffect(() => {
@@ -238,9 +245,9 @@ export default function AssessmentPage() {
         </h1>
 
         <div className="mt-6">
-          {question.options && question.chip ? (
+          {options && question.chip ? (
             <div className="flex flex-wrap gap-2">
-              {question.options.map((opt) => {
+              {options.map((opt) => {
                 const active = value === opt;
                 return (
                   <button
@@ -262,7 +269,7 @@ export default function AssessmentPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">
-              {(question.options ?? []).map((opt) => {
+              {(options ?? []).map((opt) => {
                 const active = value === opt;
                 return (
                   <button
