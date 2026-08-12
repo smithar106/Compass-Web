@@ -224,13 +224,14 @@ export default function EvidencePage() {
       <section className="border-b border-line bg-surface">
         <div className="mx-auto max-w-7xl px-5 py-14 text-center sm:px-8 lg:px-10 lg:py-16">
           <Reveal>
-            <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
+            <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep mb-6">
               The library today
             </p>
             <LibraryStats size="lg" />
-            <p className="mx-auto mt-8 max-w-2xl text-[13px] leading-relaxed text-muted">
-              Every record traces to a document you can read — an audit, an evaluation, a
-              disclosure, or a first-party record — and every gap is disclosed rather than hidden.
+            <p className="mx-auto mt-10 max-w-2xl text-[13px] leading-relaxed text-muted">
+              The evidence library is weighted by source independence — government audits and
+              academic evaluations carry more weight than vendor case studies — and every record
+              is attributable to a documented source.
             </p>
           </Reveal>
         </div>
