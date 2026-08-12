@@ -37,8 +37,8 @@ export default function EvidencePage() {
     <>
       <PageHeader
         eyebrow="Evidence"
-        title="Having evidence isn't the same as having evidence that supports the decision."
-        subtitle="Compass reasons over a structured evidence base of real-world implementations — and applies a strict relevance gate so only supporting evidence reaches the recommendation."
+        title="Not all evidence supports your decision."
+        subtitle="Compass separates what exists from what matters: it finds relevant implementations, verifies where each came from, and only lets evidence that actually supports your decision into the recommendation."
       />
 
       {/* The three trust questions */}
