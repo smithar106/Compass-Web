@@ -480,7 +480,7 @@ export function ExecutiveDecisionBrief({
             className="text-[40px] md:text-[46px] font-semibold leading-[1.08] tracking-[-0.02em] max-w-[800px]"
             style={{ color: T.text }}
           >
-            {rec.title || rec.family_name}
+            {rec.title || rec.executive_title || rec.family_name}
           </h1>
           <span
             className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold"
@@ -496,6 +496,15 @@ export function ExecutiveDecisionBrief({
             {confidenceLabels[confidence] || "Moderate confidence"}
           </span>
         </div>
+
+        {rec.operating_model_change && (
+          <p
+            className="text-[16px] leading-[1.5] max-w-[780px] mb-4"
+            style={{ fontFamily: "Urbanist, sans-serif", color: T.muted }}
+          >
+            {rec.operating_model_change}
+          </p>
+        )}
 
         <NarrativeParagraph>
           {(() => {
@@ -520,13 +529,16 @@ export function ExecutiveDecisionBrief({
                   prob.exception_rate ? ` with ${prob.exception_rate} exceptions` : ""
                 }, making it well-suited to this approach.`
               : "";
+            const implDesc = rec.implementation_pattern
+              ? ` ${rec.implementation_pattern}`
+              : "";
             if (!Number.isFinite(implCost) || !Number.isFinite(econ?.expected_annual_savings)) {
-              return `This approach is the most cost-effective path${constraintReason ? ` ${constraintReason}` : ""}.${repeatability}${altSummary} Begin with a bounded pilot and scale only after the economics are validated against the current baseline.`;
+              return `This approach is the most cost-effective path${constraintReason ? ` ${constraintReason}` : ""}.${repeatability}${implDesc}${altSummary} Begin with a bounded pilot and scale only after the economics are validated against the current baseline.`;
             }
             const savings = econ.expected_annual_savings;
             const payback = econ.payback_months;
             const paybackText = payback ? ` with an expected payback of ~${Math.ceil(payback)} month${Math.ceil(payback) === 1 ? "" : "s"}` : "";
-            return `This approach is expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}. It ranked highest after comparing problem fit, economics, risk, feasibility, and available evidence.${repeatability}${altSummary}`;
+            return `This approach is expected to save $${(savings / 1000).toFixed(0)}K annually against a $${(implCost / 1000).toFixed(0)}K implementation cost${paybackText}. It ranked highest after comparing problem fit, economics, risk, feasibility, and available evidence.${repeatability}${implDesc}${altSummary}`;
           })()}
         </NarrativeParagraph>
 
