@@ -1,54 +1,46 @@
-import { Fragment } from "react";
 import { marketing } from "@/content/marketing";
 import { SectionHeader } from "./primitives";
 import { Reveal } from "./Reveal";
 
+const C = {
+  gold: "#8B6914",
+  blue: "#1E40AF",
+  green: "#14532D",
+} as const;
+
 export function WhyCompass() {
-  const w = marketing.home.howItWorks;
-  const last = w.steps.length - 1;
+  const w = marketing.home.whyCompass;
 
   return (
-    <section id="why-compass" className="border-b border-line bg-paper">
+    <section id="why-compass" className="border-b border-line bg-surface">
       <div className="mx-auto max-w-7xl px-5 py-section sm:px-8 lg:px-10 lg:py-section">
         <SectionHeader eyebrow={w.eyebrow} headline={w.headline} subtitle={w.supporting} align="center" />
 
-        <div className="mx-auto mt-16 max-w-5xl">
-          <ol className="flex flex-col items-center gap-2 md:flex-row md:items-start md:gap-0">
-            {w.steps.map((s, i) => (
-              <Fragment key={s.number}>
-                <li className="flex w-full max-w-[240px] flex-col items-center gap-3 text-center md:w-auto md:flex-1 md:px-2">
-                  <span
-                    aria-hidden="true"
-                    className="flex h-12 w-12 items-center justify-center rounded-full border border-accent-deep/30 bg-accent-soft font-mono text-[13px] font-bold text-accent-deep"
-                  >
-                    {s.number}
-                  </span>
-                  <p className="text-[15px] font-semibold tracking-tight text-ink">{s.name}</p>
-                </li>
-                {i < last && (
-                  <span
-                    aria-hidden="true"
-                    className="flex h-8 w-8 shrink-0 rotate-90 items-center justify-center text-faint md:mt-4 md:rotate-0"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M2 8h11M9 3l5 5-5 5"
-                        stroke="currentColor"
-                        strokeWidth="1.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                )}
-              </Fragment>
-            ))}
-          </ol>
+        <div className="mt-16 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {w.cards.map((card, i) => {
+            const color = i === 0 ? C.gold : i === 1 ? C.blue : C.green;
+            return (
+              <Reveal key={card.name} delay={i * 110} className="h-full">
+                <div
+                  className="relative flex h-full flex-col overflow-hidden border border-line bg-paper px-8 py-10"
+                  style={{ borderTop: `3px solid ${color}` }}
+                >
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color }}>
+                    {card.name}
+                  </p>
+                  <p className="mt-4 text-[18px] font-semibold leading-snug tracking-tight text-ink">
+                    {card.title}
+                  </p>
+                  <p className="mt-3 text-[13.5px] leading-relaxed text-muted">{card.body}</p>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
 
-        <Reveal delay={200}>
-          <p className="mt-14 text-center font-serif text-[19px] italic leading-relaxed text-muted">
-            The moat is memory, not models.
+        <Reveal delay={340}>
+          <p className="mt-14 text-center text-[16px] font-medium leading-relaxed text-ink">
+            {w.closing}
           </p>
         </Reveal>
       </div>

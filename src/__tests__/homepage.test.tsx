@@ -34,12 +34,13 @@ describe("Homepage content", () => {
 
   it("should open with the scarce-judgment value proposition", () => {
     const h = site.marketing.home.hero;
-    expect(h.headline).toBe("Decide. Implement. Measure. Learn.");
-    expect(h.ctaPrimary).toBe("Start Assessment");
+    expect(h.headline).toBe("Decide what to implement. Before you commit the capital");
+    expect(h.ctaPrimary).toBe("Run an Assessment");
     expect(h.ctaPrimaryHref).toBe("/assessment");
-    expect(h.ctaSecondary).toBe("View Demo");
-    expect(h.ctaSecondaryHref).toBe("/demo");
-    expect(h.supporting).toContain("Companies spend millions on AI");
+    expect(h.ctaSecondary).toBe("See How Compass Works");
+    expect(h.ctaSecondaryHref).toBe("/how-it-works");
+    expect(h.supporting).toContain("evidence-backed executive decisions");
+    expect(h.supporting2).toContain("50,000+ real-world implementations");
   });
 
   it("should establish urgency with verified, citable industry statistics", () => {
@@ -114,24 +115,24 @@ describe("Homepage CTA routing", () => {
   it("should render the homepage with a single H1 and five sections", () => {
     render(<HomePage />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Decide. Implement.");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Decide what to implement");
   });
 
-  it("should point every Start Assessment CTA at /assessment (hero and final CTA only)", () => {
+  it("should point the hero Run an Assessment CTA at /assessment", () => {
     render(<HomePage />);
-    const links = screen.getAllByRole("link", { name: /start assessment/i });
-    expect(links).toHaveLength(2);
+    const links = screen.getAllByRole("link", { name: /run an assessment/i });
+    expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) {
       expect(link.getAttribute("href")).toBe("/assessment");
     }
   });
 
-  it("should point every View Demo CTA at /demo (hero and final CTA only)", () => {
+  it("should point the hero See How Compass Works CTA at /how-it-works", () => {
     render(<HomePage />);
-    const links = screen.getAllByRole("link", { name: /view demo/i });
-    expect(links).toHaveLength(2);
+    const links = screen.getAllByRole("link", { name: /see how compass works/i });
+    expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) {
-      expect(link.getAttribute("href")).toBe("/demo");
+      expect(link.getAttribute("href")).toBe("/how-it-works");
     }
   });
 

@@ -24,14 +24,14 @@ export const headerCta = {
 export const marketing = {
     home: {
       hero: {
-        headline: "Decide. Implement. Measure. Learn.",
+        headline: "Decide what to implement. Before you commit the capital",
         supporting:
-          "Companies spend millions on AI and transformation without knowing if they chose the right intervention. Most never measure whether it worked.",
-        supporting2: "Compass helps leadership decide what to implement, manage execution against that decision, and measure whether it created the expected value.",
-        ctaPrimary: "Start Assessment",
+          "Compass turns business problems into evidence-backed executive decisions\u2014and stays through the outcome.",
+        supporting2: "Compass compares AI, automation, software, process redesign, staffing, and other approaches against your economics and evidence from 50,000+ real-world implementations\u2014then tells leadership what to do, why, and whether it worked.",
+        ctaPrimary: "Run an Assessment",
         ctaPrimaryHref: "/assessment",
-        ctaSecondary: "View Demo",
-        ctaSecondaryHref: "/demo",
+        ctaSecondary: "See How Compass Works",
+        ctaSecondaryHref: "/how-it-works",
       },
       problem: {
         eyebrow: "The cost of the wrong decision",
@@ -65,6 +65,30 @@ export const marketing = {
         ],
         closing:
           "The challenge isn\u2019t access to AI or automation. It\u2019s knowing whether the implementation you chose actually solved the business problem it was approved to address \u2014 and having a system that proves it.",
+      },
+      whyCompass: {
+        eyebrow: "Why Compass?",
+        headline: "No executive can research 50,000 implementations before making one decision. Compass can.",
+        supporting:
+          "Companies make million-dollar AI, automation, software, and transformation bets using fragmented information\u2014internal experience, consultants, vendor pitches, and incomplete evidence. Compass starts with your business problem, compares the ways you could solve it, and tests those options against your economics and evidence from 50,000+ real-world implementations.",
+        cards: [
+          {
+            name: "Decide",
+            title: "Know what to do before you commit.",
+            body: "Compass compares AI, automation, software, process redesign, staffing, and hybrid approaches\u2014and explains why one beats the alternatives.",
+          },
+          {
+            name: "Implement",
+            title: "Turn the decision into an execution plan.",
+            body: "Get the implementation path, economics, milestones, owners, and success criteria required to move from recommendation to action.",
+          },
+          {
+            name: "Measure",
+            title: "Know whether it actually worked.",
+            body: "Keep execution tied to the business case leadership approved and compare expected value against actual results.",
+          },
+        ],
+        closing: "From business problem to evidence-backed decision to measured outcome\u2014in one system.",
       },
       howItWorks: {
         eyebrow: "The full loop",

@@ -57,7 +57,7 @@ export function HomeHero() {
         <Reveal delay={280}>
           <div className="mt-14 border-t border-line pt-8">
             <LibraryStats
-              extraCells={[{ value: "8", label: "questions · under 60 seconds" }]}
+              extraCells={[{ value: "11", label: "questions · under 60 seconds" }]}
             />
           </div>
         </Reveal>
