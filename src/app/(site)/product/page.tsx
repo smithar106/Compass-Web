@@ -56,38 +56,42 @@ export default function ProductPage() {
         subtitle="Compass is the persistent judgment layer for operational decisions. It defines the problem, compares every viable intervention against structured evidence, produces the Executive Decision Brief&mdash;then stays to measure whether it worked."
       />
 
-      {/* Decide → Execute → Measure */}
+      {/* Decide → Execute → Measure (3 Layers) */}
       <section className="border-b border-line bg-paper">
         <div className="mx-auto max-w-7xl px-5 py-section sm:px-8 lg:px-10 lg:py-section">
           <Reveal>
-            <h2 className="text-section font-semibold tracking-tight text-ink text-center">
-              Decide. Execute. Measure.
-            </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-center text-lead leading-relaxed text-muted">
-              Compass owns the decision and the measurement. Execution can be Compass, a verified
-              partner, or your team — and the recommendation is the same regardless.
-            </p>
+            <div className="mx-auto max-w-3xl text-center mb-12">
+              <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
+                The Three-Layer Architecture
+              </p>
+              <h2 className="mt-3 text-[28px] md:text-[34px] font-semibold tracking-tight text-ink">
+                Decision Intelligence. Implementation Intelligence. Outcome Intelligence.
+              </h2>
+              <p className="mt-4 text-lead leading-relaxed text-muted">
+                The Decision Brief is how we land. The decision-to-outcome dataset is how we compound.
+              </p>
+            </div>
           </Reveal>
 
           <div className="mt-14 grid grid-cols-1 gap-10 lg:grid-cols-3">
-            {/* Decide */}
+            {/* Layer 1 */}
             <Reveal delay={0}>
-              <div>
-                <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-full flex-col border border-line bg-surface p-8" style={{ borderTop: `3px solid ${C.gold}` }}>
+                <div className="mb-4 flex items-center justify-between">
                   <span
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-bold text-white"
                     style={{ backgroundColor: C.gold }}
                   >
                     01
                   </span>
-                  <h3 className="text-[17px] font-semibold text-ink">Decide</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-gold">The Wedge</span>
                 </div>
-                <p className="mb-4 text-[13.5px] leading-relaxed text-muted">
-                  A company brings Compass a business problem, not a predetermined technology
-                  request. Compass assesses the workflow, constraints, economics, risk, and desired
-                  outcome — then produces the Executive Decision Brief.
+                <h3 className="text-[20px] font-semibold text-ink mb-1">Decision Intelligence</h3>
+                <p className="text-[14px] font-medium text-accent-deep mb-3">Decide what to do.</p>
+                <p className="mb-6 text-[13.5px] leading-relaxed text-muted">
+                  A COO gives Compass a business problem—not an AI use case or vendor shortlist. Compass searches and reasons across 50,000+ implementations, combines evidence with economics, and compares interventions across AI, automation, software, process redesign, and staffing.
                 </p>
-                <ul className="space-y-2">
+                <ul className="space-y-2.5 mt-auto border-t border-line pt-4">
                   {DECIDE.map((item) => (
                     <li key={item} className="flex items-start gap-2.5 text-[12.5px] leading-snug text-ink">
                       <span
@@ -102,56 +106,61 @@ export default function ProductPage() {
               </div>
             </Reveal>
 
-            {/* Execute */}
+            {/* Layer 2 */}
             <Reveal delay={100}>
-              <div>
-                <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-full flex-col border border-line bg-surface p-8" style={{ borderTop: `3px solid ${C.blue}` }}>
+                <div className="mb-4 flex items-center justify-between">
                   <span
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-bold text-white"
                     style={{ backgroundColor: C.blue }}
                   >
                     02
                   </span>
-                  <h3 className="text-[17px] font-semibold text-ink">Execute</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-blue-700">Execution</span>
                 </div>
-                <p className="mb-4 text-[13.5px] leading-relaxed text-muted">
-                  Once leadership approves the decision, Compass determines the execution path.
-                  Three options — and the recommendation was the same regardless of which you
-                  choose.
+                <h3 className="text-[20px] font-semibold text-ink mb-1">Implementation Intelligence</h3>
+                <p className="text-[14px] font-medium text-blue-700 mb-3">Make sure the decision gets delivered.</p>
+                <p className="mb-6 text-[13.5px] leading-relaxed text-muted">
+                  Once approved, the decision becomes the baseline (expected cost, value, timeline, success criteria, assumptions). Compass follows execution—not tracking tasks like Jira, but checking whether the original decision is still making economic sense.
                 </p>
-                <div className="space-y-3">
-                  {EXECUTE_PATHS.map((path) => (
-                    <div
-                      key={path.title}
-                      className="rounded-lg border border-line px-4 py-3"
-                      style={{ borderLeft: `3px solid ${path.color}` }}
-                    >
-                      <p className="text-[13px] font-semibold text-ink">{path.title}</p>
-                      <p className="mt-0.5 text-[12px] leading-snug text-muted">{path.subtitle}</p>
-                    </div>
+                <ul className="space-y-2.5 mt-auto border-t border-line pt-4">
+                  {[
+                    "Approved business case as baseline",
+                    "Timeline and milestone monitoring",
+                    "Expected vs actual economic tracking",
+                    "Assumption drift and risk alerts",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-2.5 text-[12.5px] leading-snug text-ink">
+                      <span
+                        aria-hidden="true"
+                        className="mt-[6px] h-1 w-1 shrink-0 rounded-full"
+                        style={{ backgroundColor: C.blue }}
+                      />
+                      {item}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             </Reveal>
 
-            {/* Measure */}
+            {/* Layer 3 */}
             <Reveal delay={200}>
-              <div>
-                <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-full flex-col border border-line bg-surface p-8" style={{ borderTop: `3px solid ${C.green}` }}>
+                <div className="mb-4 flex items-center justify-between">
                   <span
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-bold text-white"
                     style={{ backgroundColor: C.green }}
                   >
                     03
                   </span>
-                  <h3 className="text-[17px] font-semibold text-ink">Measure</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">The Moat</span>
                 </div>
-                <p className="mb-4 text-[13.5px] leading-relaxed text-muted">
-                  Regardless of who implements it, Compass stays. The Command Center retains the
-                  decision, the economics, and the actual outcome — answering the executive
-                  question: did this produce the value we approved it for?
+                <h3 className="text-[20px] font-semibold text-ink mb-1">Outcome Intelligence</h3>
+                <p className="text-[14px] font-medium text-green-700 mb-3">Learn what actually works.</p>
+                <p className="mb-6 text-[13.5px] leading-relaxed text-muted">
+                  The flywheel closes: Problem → Context → Decision → Implementation → Outcome. Verified results feed back into the evidence library, creating proprietary first-party evidence that public web scraping and general AI cannot replicate.
                 </p>
-                <ul className="space-y-2">
+                <ul className="space-y-2.5 mt-auto border-t border-line pt-4">
                   {MEASURE.map((item) => (
                     <li key={item} className="flex items-start gap-2.5 text-[12.5px] leading-snug text-ink">
                       <span
