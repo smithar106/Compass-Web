@@ -34,13 +34,12 @@ describe("Homepage content", () => {
 
   it("should open with the new value proposition", () => {
     const h = site.marketing.home.hero;
-    expect(h.headline).toBe("Bring us the problem. We'll find the best way forward—and make sure it delivers.");
+    expect(h.headline).toBe("Bring us the problem. We'll find the best way forward for your business.");
     expect(h.ctaPrimary).toBe("Run an Assessment");
     expect(h.ctaPrimaryHref).toBe("/assessment");
     expect(h.ctaSecondary).toBe("See How Compass Works");
     expect(h.ctaSecondaryHref).toBe("/how-it-works");
     expect(h.supporting).toContain("economics, operations, technology, people, and customers");
-    expect(h.supporting2).toContain("50,000+ real-world implementations");
   });
 
   it("should establish urgency with verified, citable industry statistics", () => {

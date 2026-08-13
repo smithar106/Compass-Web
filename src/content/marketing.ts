@@ -24,9 +24,8 @@ export const headerCta = {
 export const marketing = {
     home: {
       hero: {
-        headline: "Bring us the problem. We'll find the best way forward—and make sure it delivers.",
+        headline: "Bring us the problem. We'll find the best way forward for your business.",
         supporting: "Compass evaluates every option across your economics, operations, technology, people, and customers, using evidence from 50,000+ real-world implementations to make better decisions for the whole business.",
-        supporting2: "Compass compares AI, automation, software, process redesign, staffing, and other approaches against your economics and evidence from 50,000+ real-world implementations—then tells leadership what to do, why it beats the alternatives, how to implement it, and ultimately whether it delivered the expected value.",
         ctaPrimary: "Run an Assessment",
         ctaPrimaryHref: "/assessment",
         ctaSecondary: "See How Compass Works",

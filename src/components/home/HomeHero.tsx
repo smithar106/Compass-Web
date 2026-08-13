@@ -31,9 +31,6 @@ export function HomeHero() {
           <p className="mx-auto mt-9 max-w-3xl text-lead leading-relaxed text-muted">
             {h.supporting}
           </p>
-          <p className="mx-auto mt-5 max-w-2xl text-[16px] font-medium leading-relaxed text-ink">
-            {h.supporting2}
-          </p>
         </Reveal>
 
         <Reveal delay={200}>
