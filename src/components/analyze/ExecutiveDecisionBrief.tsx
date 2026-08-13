@@ -886,11 +886,50 @@ export function ExecutiveDecisionBrief({
       )}
 
       {/* ================================================================ */}
-      {/* 06 — IMPLEMENTATION PATH                                          */}
+      {/* 06 — SUCCESS CRITERIA (HOW WE'LL MEASURE SUCCESS)                 */}
+      {/* ================================================================ */}
+      <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
+        <Eyebrow num="06" label="Success Criteria" color={T.accent} />
+        <SectionTitle>How We&apos;ll Measure Success</SectionTitle>
+
+        <p className="text-[16px] leading-[1.6] max-w-[780px] mb-8" style={{ color: T.muted }}>
+          Before leadership approves this decision, Compass establishes the measurement contract defining exactly how success will be verified.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[900px]">
+          <div className="rounded-lg border border-line bg-surface p-5">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Primary Business Objective</p>
+            <p className="mt-1 text-[15px] font-semibold text-ink">Reduce cost and cycle time while maintaining quality standards.</p>
+          </div>
+          <div className="rounded-lg border border-line bg-surface p-5">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Primary Success Metric</p>
+            <p className="mt-1 text-[15px] font-semibold text-ink">{rec.outcome_ranges?.[0]?.metric_label || "Processing cost / handling efficiency"}</p>
+          </div>
+          <div className="rounded-lg border border-line bg-surface p-5">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Current Baseline vs. Target</p>
+            <p className="mt-1 text-[15px] font-semibold text-ink">Baseline: Customer confirmation required · Target: {savingsStr}/yr value</p>
+          </div>
+          <div className="rounded-lg border border-line bg-surface p-5">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Measurement Window &amp; Frequency</p>
+            <p className="mt-1 text-[15px] font-semibold text-ink">90 days post-rollout · Weekly tracking cadence</p>
+          </div>
+          <div className="rounded-lg border border-line bg-surface p-5">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Guardrail Metrics</p>
+            <p className="mt-1 text-[14px] text-muted">Quality &amp; error rate cannot decline by &gt;5% during pilot.</p>
+          </div>
+          <div className="rounded-lg border border-line bg-surface p-5">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Data Source &amp; Owner</p>
+            <p className="mt-1 text-[14px] text-muted">Enterprise System / Operational Logs · Operations Owner</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================ */}
+      {/* 07 — IMPLEMENTATION PATH                                          */}
       {/* ================================================================ */}
       {displayPath && displayPath.length > 0 && (
         <section className="px-6 md:px-12 py-16 md:py-20 border-b print:border-0" style={{ borderColor: T.border }}>
-          <Eyebrow num="06" label="Implementation Path" color={T.silver} />
+          <Eyebrow num="07" label="Implementation Path" color={T.silver} />
           <SectionTitle>How to Implement</SectionTitle>
 
           {/* Summary bar */}
