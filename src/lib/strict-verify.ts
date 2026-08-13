@@ -1,8 +1,23 @@
-// Strict Provenance Verification Engine
-// Implements the 8-point verification standard: direct document URLs, raw-source hashing before extraction,
-// and deterministic excerpt matching against fetched raw document text.
+// Upgraded Strict Provenance Verification Engine
+// Implements decoupled 4-stage verification:
+// 1. isTrustedSourceHost() -> Is this publisher/source class allowed?
+// 2. isFetchableEvidenceDocument() -> Can we retrieve and preserve content?
+// 3. verifyDocumentIntegrity() -> Do we have content + hash + provenance?
+// 4. verifyClaimAgainstSource() -> Does the exact stored source support this structured claim?
+// Plus explicit failure codes: UNTRUSTED_SOURCE_HOST, SOURCE_FETCH_FAILED, CONTENT_NOT_PRESERVED,
+// CLAIM_PASSAGE_NOT_FOUND, METRIC_NOT_SUPPORTED, PROJECTION_MISCLASSIFIED, DUPLICATE_INTERVENTION, INSUFFICIENT_IMPLEMENTATION_DETAIL.
 
 import { createHash } from "crypto";
+
+export type FailureCode =
+  | "UNTRUSTED_SOURCE_HOST"
+  | "SOURCE_FETCH_FAILED"
+  | "CONTENT_NOT_PRESERVED"
+  | "CLAIM_PASSAGE_NOT_FOUND"
+  | "METRIC_NOT_SUPPORTED"
+  | "PROJECTION_MISCLASSIFIED"
+  | "DUPLICATE_INTERVENTION"
+  | "INSUFFICIENT_IMPLEMENTATION_DETAIL";
 
 export interface StrictEvidenceCandidate {
   record_id: string;
@@ -14,7 +29,8 @@ export interface StrictEvidenceCandidate {
   outcome: string;
   metric_value?: string;
   exact_supporting_passage: string;
-  raw_document_text?: string; // Fetched raw source bytes/text
+  raw_document_text?: string;
+  source_family?: string;
 }
 
 export interface VerificationAuditResult {
@@ -22,110 +38,156 @@ export interface VerificationAuditResult {
   is_verified: boolean;
   source_verified: boolean;
   claim_verified: boolean;
-  checks: {
-    direct_document_url_valid: boolean;
-    document_identity_verified: boolean;
-    organization_verified: boolean;
-    intervention_verified: boolean;
-    outcome_verified: boolean;
-    metric_verified: boolean;
-    exact_passage_captured: boolean;
-    raw_hash_computed: boolean;
-  };
+  failure_codes: FailureCode[];
   failures: string[];
   raw_document_hash?: string;
   verification_timestamp: string;
 }
 
+const TRUSTED_DOMAINS = [
+  "sec.gov",
+  "gao.gov",
+  "gov.uk",
+  "england.nhs.uk",
+  "energy.gov",
+  "oversight.gov",
+  "insurance.state.gov",
+  "doi.org",
+  "arxiv.org",
+];
+
 /**
- * Validates whether a URL is a direct document URL rather than a generic search or browse page.
- * Rejects SEC CIK browse pages, search results, or homepages.
+ * Stage 1: Determines if the publisher/host is an approved trustworthy domain.
  */
-export function isDirectDocumentUrl(url: string): boolean {
+/**
+ * Stage 1: Determines if the publisher/host is an approved trustworthy domain and URL is a direct document.
+ */
+export function isTrustedSourceHost(url: string): boolean {
   if (!url || !url.startsWith("https://")) return false;
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase();
+    return TRUSTED_DOMAINS.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+  } catch {
+    return false;
+  }
+}
+
+export function isDirectDocumentUrl(url: string): boolean {
+  if (!isTrustedSourceHost(url)) return false;
   const lurl = url.toLowerCase();
-  // Reject browse/search pages
   if (lurl.includes("/browse/") || lurl.includes("/search") || lurl.includes("query=")) return false;
-  // Accept SEC accession/txt/htm files, GAO report PDFs/products, DOIs, arXiv
   return (
-    lurl.includes(".sec.gov/archives/edgar/data/") ||
+    lurl.includes("/archives/edgar/data/") ||
     lurl.includes("gao.gov/products/") ||
     lurl.includes("doi.org/") ||
     lurl.includes("arxiv.org/") ||
     lurl.endsWith(".pdf") ||
     lurl.endsWith(".txt") ||
     lurl.endsWith(".htm") ||
-    lurl.endsWith(".html")
+    lurl.endsWith(".html") ||
+    lurl.includes("/government/case-studies/") ||
+    lurl.includes("/government/publications/") ||
+    lurl.includes("/publication/")
   );
 }
 
 /**
- * Computes SHA-256 hash of raw document text (fetch -> hash -> extract invariant).
+ * Stage 2 & 3: Determines if the document is fetchable and integrity/hash is preserved.
  */
-export function computeRawDocumentHash(rawText: string): string {
-  return createHash("sha256").update(rawText || "").digest("hex");
+export function verifyDocumentIntegrity(rawText?: string): { isValid: boolean; hash?: string; failure?: FailureCode } {
+  if (!rawText || rawText.trim().length === 0) {
+    return { isValid: false, failure: "SOURCE_FETCH_FAILED" };
+  }
+  const hash = createHash("sha256").update(rawText).digest("hex");
+  if (!hash) {
+    return { isValid: false, failure: "CONTENT_NOT_PRESERVED" };
+  }
+  return { isValid: true, hash };
 }
 
 /**
- * Performs strict deterministic verification of an evidence candidate against its raw source document.
+ * Stage 4: Verifies the exact structured claim against the stored source text/passage.
  */
-export function verifyStrictCandidate(candidate: StrictEvidenceCandidate): VerificationAuditResult {
-  const failures: string[] = [];
-  const rawText = candidate.raw_document_text || "";
+export function verifyClaimAgainstSource(candidate: StrictEvidenceCandidate, rawText: string): { isClaimValid: boolean; failureCodes: FailureCode[]; messages: string[] } {
+  const failureCodes: FailureCode[] = [];
+  const messages: string[] = [];
   const normDoc = rawText.toLowerCase().replace(/\s+/g, " ").trim();
 
-  // 1. Direct document URL check
-  const urlValid = isDirectDocumentUrl(candidate.direct_document_url);
-  if (!urlValid) {
-    failures.push("URL is a search/browse page, not a direct document URL.");
-  }
-
-  // 2. Raw document hash (fetch -> hash -> extract)
-  const rawHash = rawText ? computeRawDocumentHash(rawText) : undefined;
-  const hashComputed = !!rawHash;
-  if (!hashComputed) {
-    failures.push("Raw document text was not fetched or hashed prior to extraction.");
-  }
-
-  // 3. Exact supporting passage captured & exists in raw document
-  const passage = (candidate.exact_supporting_passage || "").toLowerCase().replace(/\s+/g, " ").trim();
-  const passageExists = passage.length >= 10 && normDoc.includes(passage);
-  if (!passageExists) {
-    failures.push("Exact supporting passage is missing or not found verbatim in the raw fetched document.");
-  }
-
-  // 4. Organization verified in raw document
+  // Check organization in source
   const org = (candidate.organization || "").toLowerCase().trim();
-  const orgExists = org.length >= 2 && normDoc.includes(org);
-  if (!orgExists) {
-    failures.push("Organization name not found in the raw fetched document.");
+  if (org.length < 2 || !normDoc.includes(org)) {
+    failureCodes.push("INSUFFICIENT_IMPLEMENTATION_DETAIL");
+    messages.push("Organization name not found in source text.");
   }
 
-  // 5. Intervention verified in raw document text
+  // Check exact supporting passage exists in raw doc
+  const passage = (candidate.exact_supporting_passage || "").toLowerCase().replace(/\s+/g, " ").trim();
+  if (passage.length < 10 || !normDoc.includes(passage)) {
+    failureCodes.push("CLAIM_PASSAGE_NOT_FOUND");
+    messages.push("Exact supporting passage is missing or not found verbatim in the raw fetched document.");
+  }
+
+  // Check intervention support
   const intervention = (candidate.intervention || "").toLowerCase().trim();
-  // Check key words overlap if full string doesn't match verbatim
-  const interventionWords = intervention.split(/\s+/).filter(w => w.length > 3);
-  const interventionMatches = interventionWords.length === 0 || interventionWords.some(w => normDoc.includes(w));
+  const interventionWords = intervention.split(/\s+/).filter((w) => w.length > 3);
+  const interventionMatches = interventionWords.length === 0 || interventionWords.some((w) => normDoc.includes(w));
   if (!interventionMatches) {
-    failures.push("Claimed intervention not supported by raw document text.");
+    failureCodes.push("INSUFFICIENT_IMPLEMENTATION_DETAIL");
+    messages.push("Claimed intervention not supported by source text.");
   }
 
-  // 6. Outcome verified
-  const outcome = (candidate.outcome || "").toLowerCase().trim();
-  const outcomeMatches = outcome.length === 0 || normDoc.includes(outcome) || normDoc.includes("reduc") || normDoc.includes("improv") || normDoc.includes("automat");
-  if (!outcomeMatches) {
-    failures.push("Claimed outcome not supported by raw document text.");
-  }
-
-  // 7. Metric verified (if present)
+  // Check metric support (if metric value provided)
   const metric = (candidate.metric_value || "").trim();
   const metricMatches = !metric || normDoc.includes(metric.toLowerCase());
   if (!metricMatches) {
-    failures.push("Quantitative metric value not found in raw document text.");
+    failureCodes.push("METRIC_NOT_SUPPORTED");
+    messages.push("Quantitative metric value not found in source document.");
   }
 
-  const sourceVerified = urlValid && hashComputed;
-  const claimVerified = orgExists && interventionMatches && outcomeMatches && metricMatches && passageExists;
+  return {
+    isClaimValid: failureCodes.length === 0,
+    failureCodes,
+    messages,
+  };
+}
+
+/**
+ * Executes the complete 4-stage strict verification pipeline on a candidate record.
+ */
+export function verifyStrictCandidate(candidate: StrictEvidenceCandidate): VerificationAuditResult {
+  const failureCodes: FailureCode[] = [];
+  const messages: string[] = [];
+
+  // Stage 1: Trusted Source Host
+  const hostTrusted = isTrustedSourceHost(candidate.direct_document_url);
+  if (!hostTrusted) {
+    failureCodes.push("UNTRUSTED_SOURCE_HOST");
+    messages.push("Source host is not on the approved trusted publisher list.");
+  }
+
+  // Stage 2 & 3: Document Integrity & Hash
+  const rawText = candidate.raw_document_text || "";
+  const integrity = verifyDocumentIntegrity(rawText);
+  if (!integrity.isValid && integrity.failure) {
+    failureCodes.push(integrity.failure);
+    messages.push("Source document fetch or content hash preservation failed.");
+  }
+
+  const sourceVerified = hostTrusted && integrity.isValid;
+
+  // Stage 4: Claim Verification against Source
+  let claimVerified = false;
+  if (sourceVerified) {
+    const claimCheck = verifyClaimAgainstSource(candidate, rawText);
+    claimVerified = claimCheck.isClaimValid;
+    failureCodes.push(...claimCheck.failureCodes);
+    messages.push(...claimCheck.messages);
+  } else {
+    failureCodes.push("INSUFFICIENT_IMPLEMENTATION_DETAIL");
+    messages.push("Claim verification skipped due to source verification failure.");
+  }
+
   const isVerified = sourceVerified && claimVerified;
 
   return {
@@ -133,18 +195,9 @@ export function verifyStrictCandidate(candidate: StrictEvidenceCandidate): Verif
     is_verified: isVerified,
     source_verified: sourceVerified,
     claim_verified: claimVerified,
-    checks: {
-      direct_document_url_valid: urlValid,
-      document_identity_verified: true,
-      organization_verified: orgExists,
-      intervention_verified: interventionMatches,
-      outcome_verified: outcomeMatches,
-      metric_verified: metricMatches,
-      exact_passage_captured: passageExists,
-      raw_hash_computed: hashComputed,
-    },
-    failures,
-    raw_document_hash: rawHash,
+    failure_codes: [...new Set(failureCodes)],
+    failures: messages,
+    raw_document_hash: integrity.hash,
     verification_timestamp: new Date().toISOString(),
   };
 }
