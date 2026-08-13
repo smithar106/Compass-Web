@@ -54,6 +54,27 @@ export function HomeHero() {
           </div>
         </Reveal>
 
+        <Reveal delay={240}>
+          <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-left border border-line bg-surface p-6">
+            <div className="border-b pb-3 sm:border-b-0 sm:pb-0 sm:border-r border-line sm:pr-4">
+              <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">What do I give Compass?</p>
+              <p className="mt-1 text-[14px] font-semibold text-ink">A business problem</p>
+            </div>
+            <div className="border-b pb-3 sm:border-b-0 sm:pb-0 sm:border-r border-line sm:pr-4">
+              <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">What does Compass do?</p>
+              <p className="mt-1 text-[14px] font-semibold text-ink">Evaluates possible ways to solve it</p>
+            </div>
+            <div className="border-b pb-3 sm:border-b-0 sm:pb-0 sm:border-r border-line sm:pr-4">
+              <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">What do I get?</p>
+              <p className="mt-1 text-[14px] font-semibold text-ink">A defensible executive decision</p>
+            </div>
+            <div>
+              <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">Why trust it?</p>
+              <p className="mt-1 text-[14px] font-semibold text-ink">Economics + 50,000+ implementations</p>
+            </div>
+          </div>
+        </Reveal>
+
         <Reveal delay={280}>
           <div className="mt-14 border-t border-line pt-8">
             <LibraryStats

@@ -25,9 +25,8 @@ export const marketing = {
     home: {
       hero: {
         headline: "Decide what to implement. Before you commit the capital",
-        supporting:
-          "Compass turns business problems into evidence-backed executive decisions\u2014and stays through the outcome.",
-        supporting2: "Compass compares AI, automation, software, process redesign, staffing, and other approaches against your economics and evidence from 50,000+ real-world implementations\u2014then tells leadership what to do, why it beats the alternatives, and ultimately whether it delivered the expected value.",
+        supporting: "Bring Compass the problem. We'll determine the best way to solve it — turning business problems into evidence-backed executive decisions.",
+        supporting2: "Compass compares AI, automation, software, process redesign, staffing, and other approaches against your economics and evidence from 50,000+ real-world implementations\u2014then tells leadership what to do, why it beats the alternatives, how to implement it, and ultimately whether it delivered the expected value.",
         ctaPrimary: "Run an Assessment",
         ctaPrimaryHref: "/assessment",
         ctaSecondary: "See How Compass Works",
@@ -68,27 +67,27 @@ export const marketing = {
       },
       whyCompass: {
         eyebrow: "Why Compass?",
-        headline: "No executive can research 50,000 implementations before making one decision. Compass can.",
+        headline: "50,000+ implementations. One decision you need to make.",
         supporting:
-          "Companies make million-dollar AI, automation, software, and transformation bets using fragmented information\u2014internal experience, consultants, vendor pitches, and incomplete evidence. Compass starts with your business problem, compares the ways you could solve it, and tests those options against your economics and evidence from 50,000+ real-world implementations.",
+          "No executive has time to research tens of thousands of implementations every time they make a transformation decision. Compass does the analysis for you.\n\nCompass compares the available interventions, evaluates the economics, retrieves relevant real-world evidence, and explains why one path is stronger than the alternatives.",
         cards: [
           {
-            name: "Decide",
-            title: "Choose the right intervention.",
-            body: "Compare possible approaches before committing capital.",
+            name: "DECIDE",
+            title: "Know what to do before you commit.",
+            body: "Compare AI, automation, software, process redesign, staffing, and hybrid approaches.",
           },
           {
-            name: "Implement",
-            title: "Execute against the decision.",
-            body: "Keep delivery tied to the economics and success criteria leadership approved.",
+            name: "IMPLEMENT",
+            title: "Turn the decision into action.",
+            body: "Translate the approved recommendation into an implementation path, milestones, economics, owners, and success criteria.",
           },
           {
-            name: "Measure",
+            name: "MEASURE",
             title: "Know whether it worked.",
-            body: "Compare expected value with actual results and capture the outcome.",
+            body: "Keep implementation tied to the business case leadership approved and compare expected value with actual results.",
           },
         ],
-        closing: "From business problem to evidence-backed decision to measured outcome\u2014in one system.",
+        closing: "You bring the problem. Compass does the thinking. Leadership gets the decision.",
       },
       howItWorks: {
         eyebrow: "The full loop",

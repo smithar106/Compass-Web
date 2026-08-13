@@ -38,8 +38,41 @@ export default function EvidencePage() {
       <PageHeader
         eyebrow="Evidence"
         title="50,000+ implementations. Only the relevant ones matter."
-        subtitle="Compass finds the real-world implementations that actually apply to your decision—so recommendations are supported by comparable evidence, not just whatever data happens to exist."
+        subtitle="Compass finds the real-world implementations that actually apply to your decision—so recommendations are supported by comparable evidence, not simply whatever data happens to exist."
       />
+
+      {/* Evidence flow & distinction */}
+      <section className="border-b border-line bg-paper">
+        <div className="mx-auto max-w-7xl px-5 py-section sm:px-8 lg:px-10 lg:py-section">
+          <Reveal>
+            <div className="mx-auto max-w-3xl text-center mb-12">
+              <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-accent-deep">
+                The evidence standard
+              </p>
+              <h2 className="mt-3 text-[24px] md:text-[28px] font-semibold tracking-tight text-ink">
+                Having evidence is not enough. It has to support this decision.
+              </h2>
+            </div>
+
+            {/* Evidence flow visual */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-center">
+              {[
+                { step: "01", label: "50,000+ implementations", desc: "Total institutional corpus across functions & industries" },
+                { step: "02", label: "Candidate retrieval", desc: "Surface matching workflows and intervention types" },
+                { step: "03", label: "Relevance validation", desc: "Strict workflow and operational context check" },
+                { step: "04", label: "Comparable evidence", desc: "Tiers A–C filtered for direct support" },
+                { step: "05", label: "Recommendation support", desc: "Evidence backs the decision, never invents it" },
+              ].map((item, i) => (
+                <div key={item.step} className="flex flex-col items-center text-center p-4 border border-line bg-surface h-full">
+                  <span className="font-mono text-[11px] font-bold text-accent-deep mb-1">{item.step}</span>
+                  <p className="text-[14px] font-semibold text-ink mb-1">{item.label}</p>
+                  <p className="text-[12px] text-muted leading-snug">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
       {/* The three trust questions */}
       <section className="border-b border-line bg-paper">
