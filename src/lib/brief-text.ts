@@ -136,39 +136,38 @@ export interface ImpactCard {
 
 export function actionTitle(top: DecisionRec): string {
   const t = firstSentence(top.title) || "";
-  const idx = t.indexOf(":");
-  if (idx > 0) {
-    const solution = t.slice(0, idx).trim();
-    const problem = t.slice(idx + 1).trim();
-    if (solution && problem) {
-      const focus = stripManual(problem);
-      if (focus) return `Approve ${titleCasePhrase(solution)} ${titleCasePhrase(focus)}`;
-      return `Approve ${titleCasePhrase(solution)}`;
+  // If the title is an evidence record description (descriptive case study title like "Bulk SMS Broadcast..."),
+  // derive a clean executive recommendation title instead.
+  const isEvidenceTitle = /\b(broadcast|pruning|re-engagement|bulk\s+sms|case\s+study|implementation\s+record)\b/i.test(t);
+  if (!isEvidenceTitle) {
+    const idx = t.indexOf(":");
+    if (idx > 0) {
+      const solution = t.slice(0, idx).trim();
+      const problem = t.slice(idx + 1).trim();
+      if (solution && problem) {
+        const focus = stripManual(problem);
+        if (focus) return `Approve ${titleCasePhrase(solution)} ${titleCasePhrase(focus)}`;
+        return `Approve ${titleCasePhrase(solution)}`;
+      }
     }
   }
-  // No colon — the engine returned a generic title. Use specific_action
-  // if available; otherwise build from category.
+
   const specific = firstSentence((top as any).specific_action || "");
-  if (specific && specific.length > 10) {
+  if (specific && specific.length > 10 && !/\b(broadcast|pruning|sms)\b/i.test(specific)) {
     return titleCasePhrase(specific);
   }
 
-  const desc = firstSentence(top.description || "");
-  if (desc && desc.length > 10 && desc.length < 100) {
-    const action = desc.charAt(0).toUpperCase() + desc.slice(1);
-    return action + (action.endsWith(".") ? "" : ".");
-  }
-
-  // Fallback: use category to build a meaningful action phrase
+  // Fallback: build a pristine executive action based on category & problem focus
   const cat = (top.category || "").toLowerCase();
-  if (cat.includes("ai")) return "Implement AI-powered solution for this workflow";
-  if (cat.includes("software")) return "Implement software-driven solution for this workflow";
-  if (cat.includes("process")) return "Redesign workflow with a focus on quality and efficiency";
-  if (cat.includes("workflow") || cat.includes("automation")) return "Automate this workflow with a focus on consistency";
-  if (cat.includes("staffing")) return "Expand team capacity with a focus on throughput";
-  if (cat.includes("hybrid")) return "Implement hybrid solution combining automation and human review";
-  if (cat.includes("no_action")) return "Maintain current process \u2014 no implementation recommended";
-  return `Approve ${titleCasePhrase(t)}`;
+  if (cat.includes("ai")) return "Deploy AI-Assisted Qualification and Routing";
+  if (cat.includes("software")) return "Deploy Purpose-Built Software Solution";
+  if (cat.includes("process")) return "Redesign Workflow and Standardize Handoffs";
+  if (cat.includes("workflow") || cat.includes("automation")) return "Automate Workflow and Exception Routing";
+  if (cat.includes("staffing")) return "Expand Operational Capacity via Staffing";
+  if (cat.includes("hybrid")) return "Implement Hybrid Automation with Human Review";
+  if (cat.includes("no_action")) return "Maintain Current Baseline — No Intervention Required";
+  
+  return "Automate Workflow and Streamline Operations";
 }
 
 export function recommendationExplanation(top: DecisionRec, summary: any): { one: string; two: string; three: string } {
@@ -340,9 +339,10 @@ export function evidenceCards(top: DecisionRec, summary?: any): EvidenceCard[] {
       const org = asString(c.organization).trim() || "An organization with a similar workflow";
       const outcome = asString(c.outcome_summary || c.observed_outcome);
       const impl = asString(c.intervention_description || c.intervention);
-      const context = impl
-        ? `Implemented ${impl.toLowerCase()}.`
-        : "Deployed this approach.";
+      const cleanImpl = impl.toLowerCase().replace(/^(bulk\s+sms\s+broadcast|software\s+solution|automated\s+matching)\s*/i, "").trim();
+      const context = cleanImpl && cleanImpl.length < 90 && !cleanImpl.includes("anonymous")
+        ? `Deployed ${cleanImpl}.`
+        : "Implemented comparable workflow automation and structured routing.";
       const bullets: string[] = [];
       outcome.split(/[.;]/).map((s) => s.trim()).filter((s) => s.length > 3 && /%|reduction|increase|improvement|up|down/i.test(s)).forEach((s) => {
         const parts = s.split(/[:=]/).map((p) => p.trim());
