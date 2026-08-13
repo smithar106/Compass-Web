@@ -135,7 +135,7 @@ export function run100CandidateAcquisitionBatch(): { report: BoundedAcquisitionR
         if (rejectionCounts[code] !== undefined) {
           rejectionCounts[code]++;
         } else {
-          rejectionCounts[INSUFFICIENT_IMPLEMENTATION_DETAIL]++;
+          rejectionCounts["INSUFFICIENT_IMPLEMENTATION_DETAIL"]++;
         }
       }
     }
