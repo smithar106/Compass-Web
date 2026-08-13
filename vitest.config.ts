@@ -8,6 +8,14 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     exclude: ["node_modules", "pinchtab"],
+    server: {
+      deps: {
+        inline: ["node:sqlite"],
+      },
+    },
+  },
+  ssr: {
+    external: ["node:sqlite", "sqlite"],
   },
   resolve: {
     alias: {
