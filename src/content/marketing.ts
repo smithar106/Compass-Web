@@ -66,9 +66,9 @@ export const marketing = {
       },
       whyCompass: {
         eyebrow: "Why Compass?",
-        headline: "50,000+ implementations. One decision you need to make.",
+        headline: "Compass doesn't start by asking how to use AI. It starts by asking what will work.",
         supporting:
-          "No executive has time to research tens of thousands of implementations every time they make a transformation decision. Compass does the analysis for you.\n\nCompass compares the available interventions, evaluates the economics, retrieves relevant real-world evidence, and explains why one path is stronger than the alternatives.",
+          "Every option is evaluated against your problem, economics, constraints, implementation requirements, and evidence from 50,000+ real-world implementations.\n\nNo executive has time to research tens of thousands of implementations every time they make a transformation decision. Compass does the analysis for you.",
         cards: [
           {
             name: "DECIDE",
