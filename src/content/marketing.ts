@@ -24,9 +24,9 @@ export const headerCta = {
 export const marketing = {
     home: {
       hero: {
-        headline: "Decide what to implement. Before you commit the capital",
-        supporting: "Most organizations implement technology before they decide how to solve the problem — turning business problems into evidence-backed executive decisions.",
-        supporting2: "Compass brings rigorous judgment to enterprise transformation. We compare AI, automation, software, process redesign, staffing, and hybrid approaches against your economics and evidence from 50,000+ real-world implementations—then tell leadership what to do, why it beats the alternatives, how to implement it, and ultimately whether it delivered the expected value.",
+        headline: "Bring us the problem. We'll find the best way forward—and make sure it delivers.",
+        supporting: "Compass evaluates every option across your economics, operations, technology, people, and customers, using evidence from 50,000+ real-world implementations to make better decisions for the whole business.",
+        supporting2: "Compass compares AI, automation, software, process redesign, staffing, and other approaches against your economics and evidence from 50,000+ real-world implementations—then tells leadership what to do, why it beats the alternatives, how to implement it, and ultimately whether it delivered the expected value.",
         ctaPrimary: "Run an Assessment",
         ctaPrimaryHref: "/assessment",
         ctaSecondary: "See How Compass Works",

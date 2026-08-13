@@ -32,14 +32,14 @@ describe("Homepage content", () => {
     mockMatchMedia();
   });
 
-  it("should open with the scarce-judgment value proposition", () => {
+  it("should open with the new value proposition", () => {
     const h = site.marketing.home.hero;
-    expect(h.headline).toBe("Decide what to implement. Before you commit the capital");
+    expect(h.headline).toBe("Bring us the problem. We'll find the best way forward—and make sure it delivers.");
     expect(h.ctaPrimary).toBe("Run an Assessment");
     expect(h.ctaPrimaryHref).toBe("/assessment");
     expect(h.ctaSecondary).toBe("See How Compass Works");
     expect(h.ctaSecondaryHref).toBe("/how-it-works");
-    expect(h.supporting).toContain("evidence-backed executive decisions");
+    expect(h.supporting).toContain("economics, operations, technology, people, and customers");
     expect(h.supporting2).toContain("50,000+ real-world implementations");
   });
 
@@ -115,7 +115,7 @@ describe("Homepage CTA routing", () => {
   it("should render the homepage with a single H1 and five sections", () => {
     render(<HomePage />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Decide what to implement");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Bring us the problem");
   });
 
   it("should point the hero Run an Assessment CTA at /assessment", () => {
