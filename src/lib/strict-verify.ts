@@ -20,6 +20,8 @@ export interface StrictEvidenceCandidate {
 export interface VerificationAuditResult {
   record_id: string;
   is_verified: boolean;
+  source_verified: boolean;
+  claim_verified: boolean;
   checks: {
     direct_document_url_valid: boolean;
     document_identity_verified: boolean;
@@ -122,14 +124,18 @@ export function verifyStrictCandidate(candidate: StrictEvidenceCandidate): Verif
     failures.push("Quantitative metric value not found in raw document text.");
   }
 
-  const isVerified = failures.length === 0;
+  const sourceVerified = urlValid && hashComputed;
+  const claimVerified = orgExists && interventionMatches && outcomeMatches && metricMatches && passageExists;
+  const isVerified = sourceVerified && claimVerified;
 
   return {
     record_id: candidate.record_id,
     is_verified: isVerified,
+    source_verified: sourceVerified,
+    claim_verified: claimVerified,
     checks: {
       direct_document_url_valid: urlValid,
-      document_identity_verified: true, // validated by direct URL + hash match
+      document_identity_verified: true,
       organization_verified: orgExists,
       intervention_verified: interventionMatches,
       outcome_verified: outcomeMatches,
