@@ -6,7 +6,9 @@ import { LibraryStats } from "./LibraryStats";
 
 export function HomeHero() {
   const h = marketing.home.hero;
-  const [headlineLead, headlineAccent] = h.headline.split(". ");
+  const parts = h.headline.split(". ");
+  const line1 = parts[0] + ".";
+  const line2 = parts.slice(1).join(". ");
 
   return (
     <section className="relative overflow-hidden border-b border-line bg-paper">
@@ -22,8 +24,9 @@ export function HomeHero() {
       <div className="relative mx-auto max-w-4xl px-5 pb-24 pt-28 text-center sm:px-8 lg:pb-32 lg:pt-36">
         <Reveal>
           <h1 className="text-display font-semibold tracking-tight text-ink">
-            {headlineLead}.{" "}
-            <em className="font-serif italic font-medium text-accent-deep">{headlineAccent}.</em>
+            {line1}
+            <br />
+            <em className="font-serif italic font-medium text-accent-deep">{line2}</em>
           </h1>
         </Reveal>
 
