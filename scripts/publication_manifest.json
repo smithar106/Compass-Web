@@ -1,0 +1,38 @@
+{
+  "manifest_id": "real_gov_20260813_001",
+  "manifest_version": 1,
+  "created_at": "2026-08-14T13:36:41Z",
+  "description": "First controlled real-world publication — 11 approved primary source intervention records",
+  "db_identity": {
+    "path": "/app/data/collector_v3.db",
+    "volume": "compass-engine-volume",
+    "snapshot_sha256": "63d653b85f7be94a063e9c98b34fd256ae88c55fc384faee0967a6c4642aebc4",
+    "snapshot_file": "/app/data/backups/collector_v3_offvolume_20260814T133641Z.db",
+    "offvolume_copy": "collector_v3_offvolume_20260814T133641Z.db"
+  },
+  "expected_pre_publication_state": {
+    "intervention_records": 54266,
+    "documents": 48463,
+    "metric_records": 14826,
+    "passage_records": 345
+  },
+  "expected_post_publication_state": {
+    "intervention_records": 54277,
+    "documents": 48474,
+    "metric_records": 14826,
+    "passage_records": 356
+  },
+  "record_ids": [
+    "real_rec_01",
+    "real_rec_02",
+    "real_rec_03",
+    "real_rec_04",
+    "real_rec_05",
+    "real_rec_06",
+    "real_rec_07",
+    "real_rec_08a",
+    "real_rec_08b",
+    "real_rec_09",
+    "real_rec_10"
+  ]
+}

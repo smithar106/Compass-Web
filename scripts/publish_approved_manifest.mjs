@@ -1,24 +1,25 @@
-// Controlled Publication Script — Phase 10
+// Controlled Publication Script — Phase 10 (Manifest-Driven)
 // DO NOT EXECUTE WITHOUT EXPLICIT FOUNDER AUTHORIZATION.
-// Publishes exclusively the 11 human-approved, claim-verified real-world records.
-// FAILS CLOSED on every guard: path, size, SQLite header, integrity, tables, and
-// OPTIMISTIC CONCURRENCY — the target must match the exact audited pre-publication state.
+// Publishes exclusively the records listed in scripts/publication_manifest.json.
+// Optimistic concurrency: current production state must EXACTLY match the manifest's
+// expected_pre_publication_state. Any divergence aborts and requires re-audit.
 
 import { DatabaseSync } from "node:sqlite";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { REAL_CANDIDATE_SOURCES } from "../run_11_real_sources_audit.js";
 
-const MIN_PRODUCTION_DB_BYTES = 100 * 1024 * 1024; // 100 MB minimum
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const MIN_PRODUCTION_DB_BYTES = 100 * 1024 * 1024;
 const SQLITE_HEADER = "SQLite format 3\x00";
 
-// This controlled publication is audited against EXACTLY this production state.
-const EXPECTED_PRE_PUBLICATION_STATE = {
-  intervention_records: 54266,
-  documents: 48463,
-  metric_records: 14826,
-  passage_records: 345,
-};
+// Load the approved manifest (carries expected pre-publication state + record set)
+const manifestPath = path.join(__dirname, "publication_manifest.json");
+if (!fs.existsSync(manifestPath)) {
+  throw new Error(`FATAL: Publication manifest not found at ${manifestPath}. Aborting.`);
+}
+const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
 
 const dbPath = process.env.COLLECTOR_DATABASE_URL
   ? process.env.COLLECTOR_DATABASE_URL.replace("sqlite:///", "")
@@ -32,26 +33,31 @@ function countTable(db, tableName) {
   }
 }
 
-function verifyTargetDatabase(expected) {
+function verifyTargetDatabase() {
   const failures = [];
+  const expected = manifest.expected_pre_publication_state;
 
-  // 1. Path must resolve to the configured production path
-  if (!dbPath) {
-    failures.push("No production database path configured.");
+  // 1. Manifest must not be stale
+  const manifestAgeDays = (Date.now() - Date.parse(manifest.created_at)) / 86400000;
+  if (manifestAgeDays > 7) {
+    throw new Error(`FATAL: Manifest is ${manifestAgeDays.toFixed(1)} days old. Requires re-audit. Aborting.`);
   }
 
-  // 2. File must exist (never create a new SQLite target silently)
+  // 2. Path must resolve to configured production path
+  if (!dbPath) failures.push("No production database path configured.");
+
+  // 3. File must exist (never silently create a new target)
   if (!fs.existsSync(dbPath)) {
     throw new Error(`FATAL: Authoritative production database does not exist at ${dbPath}. Aborting.`);
   }
 
-  // 3. Minimum size
+  // 4. Minimum size
   const stat = fs.statSync(dbPath);
   if (stat.size < MIN_PRODUCTION_DB_BYTES) {
     throw new Error(`FATAL: Target database size (${(stat.size / 1024 / 1024).toFixed(1)} MB) below 100 MB threshold. Aborting.`);
   }
 
-  // 4. SQLite header validity
+  // 5. SQLite header validity
   const header = fs.readFileSync(dbPath).subarray(0, 16).toString("utf-8");
   if (header !== SQLITE_HEADER) {
     throw new Error("FATAL: Target database does not have a valid SQLite format 3 header. Aborting.");
@@ -59,22 +65,20 @@ function verifyTargetDatabase(expected) {
 
   const db = new DatabaseSync(dbPath);
   try {
-    // 5. Integrity check
     const integrity = db.prepare("PRAGMA integrity_check").get();
     if (integrity.integrity_check !== "ok") {
-      throw new Error(`FATAL: Target database failed PRAGMA integrity_check: ${JSON.stringify(integrity)}. Aborting.`);
+      throw new Error(`FATAL: Target failed integrity_check: ${JSON.stringify(integrity)}. Aborting.`);
     }
 
-    // 6. Expected core tables exist
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map((r) => r.name);
     const coreTables = ["intervention_records", "documents", "metric_records", "passage_records"];
     for (const t of coreTables) {
       if (!tables.includes(t)) {
-        throw new Error(`FATAL: Expected core table "${t}" is missing from target. Aborting.`);
+        throw new Error(`FATAL: Expected core table "${t}" is missing. Aborting.`);
       }
     }
 
-    // 7. OPTIMISTIC CONCURRENCY — exact audited pre-publication counts
+    // 6. OPTIMISTIC CONCURRENCY — exact manifest state
     const actual = {
       intervention_records: countTable(db, "intervention_records"),
       documents: countTable(db, "documents"),
@@ -83,7 +87,7 @@ function verifyTargetDatabase(expected) {
     };
     for (const k of Object.keys(expected)) {
       if (actual[k] !== expected[k]) {
-        failures.push(`Count mismatch for ${k}: expected ${expected[k]}, actual ${actual[k]}. REQUIRES RE-AUDIT.`);
+        failures.push(`Count mismatch for ${k}: manifest expected ${expected[k]}, actual ${actual[k]}. REQUIRES RE-AUDIT.`);
       }
     }
 
@@ -100,17 +104,22 @@ function verifyTargetDatabase(expected) {
 }
 
 export function executeControlledPublication() {
-  console.log("=== EXECUTING CONTROLLED PUBLICATION BATCH: real_gov_20260813_001 ===");
-  console.log(`Verifying target: ${dbPath}`);
+  console.log(`=== EXECUTING CONTROLLED PUBLICATION: ${manifest.manifest_id} ===`);
+  console.log(`Target: ${dbPath}`);
+  console.log(`Expected pre-publication state: ${JSON.stringify(manifest.expected_pre_publication_state)}`);
 
-  const db = verifyTargetDatabase(EXPECTED_PRE_PUBLICATION_STATE);
-
+  const db = verifyTargetDatabase();
   db.exec("PRAGMA foreign_keys = ON;");
 
   const now = new Date().toISOString();
-  const batchId = "real_gov_20260813_001";
+  const batchId = manifest.manifest_id;
 
-  // 1. Insert batch ledger
+  const recordsToPublish = REAL_CANDIDATE_SOURCES.filter((c) => manifest.record_ids.includes(c.record_id));
+  if (recordsToPublish.length !== manifest.record_ids.length) {
+    db.close();
+    throw new Error("FATAL: Manifest record set does not match available candidates. Aborting.");
+  }
+
   db.prepare(`
     INSERT INTO ingestion_batches (
       id, source_family, started_at, completed_at, status,
@@ -118,15 +127,12 @@ export function executeControlledPublication() {
       interventions_published, parser_version, validator_version, notes
     ) VALUES (
       ?, 'government_regulatory_audits', ?, ?, 'completed',
-      11, 11, 11,
-      11, '2.1.0', '2.1.0', 'First controlled real-world publication batch — 11 approved primary records'
+      11, 11, ?, ?, '2.1.0', '2.1.0', 'Manifest-driven controlled publication'
     )
-  `).run(batchId, now, now);
+  `).run(batchId, now, now, recordsToPublish.length, recordsToPublish.length);
 
-  // 2. Insert documents, interventions, metrics, passages
-  for (const c of REAL_CANDIDATE_SOURCES) {
+  for (const c of recordsToPublish) {
     const docId = `doc_${c.record_id}`;
-
     db.prepare(`
       INSERT OR IGNORE INTO documents (
         id, url, title, publisher, content_hash, cleaned_text, document_type, crawl_status
@@ -147,7 +153,7 @@ export function executeControlledPublication() {
     `).run(`pas_${c.record_id}`, c.record_id, docId, c.exact_supporting_passage);
   }
 
-  console.log("Publication executed successfully for 11 records.");
+  console.log(`Publication executed for ${recordsToPublish.length} records.`);
   db.close();
 }
 
