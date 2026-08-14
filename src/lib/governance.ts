@@ -107,6 +107,57 @@ export function filterPublishedRecords<T extends { status?: string }>(records: T
   return records.filter((r) => r.status === "published");
 }
 
+export type PublicationStatus = "staging" | "published" | "quarantined" | "rejected";
+export type VerificationStatus = "legacy" | "source_authentic" | "document_verified" | "claim_verified" | "rejected";
+
+/**
+ * Recommendation retrieval gate: only publication_status === "published" is eligible.
+ * Legacy published (verification_status=legacy) and claim-verified published both pass.
+ * Staging, quarantined, and rejected are strictly excluded.
+ */
+export function filterForRecommendationRetrieval<T extends { publication_status?: string }>(records: T[]): T[] {
+  return records.filter((r) => r.publication_status === "published");
+}
+
+/**
+ * Truthful governed metadata counts derived from a record set.
+ */
+export function governedMetadataCounts<T extends { publication_status?: string; verification_status?: string }>(records: T[]) {
+  const total = records.length;
+  const published = records.filter((r) => r.publication_status === "published").length;
+  const legacyPublished = records.filter(
+    (r) => r.publication_status === "published" && r.verification_status === "legacy"
+  ).length;
+  const verifiedPublished = records.filter(
+    (r) => r.publication_status === "published" && r.verification_status === "claim_verified"
+  ).length;
+  const staging = records.filter((r) => r.publication_status === "staging").length;
+  const quarantined = records.filter((r) => r.publication_status === "quarantined").length;
+  const rejected = records.filter((r) => r.publication_status === "rejected").length;
+
+  return {
+    total_intervention_records: total,
+    published_records: published,
+    legacy_published_records: legacyPublished,
+    verified_published_records: verifiedPublished,
+    staging_records: staging,
+    quarantined_records: quarantined,
+    rejected_records: rejected,
+  };
+}
+
+/**
+ * Outcome classification (lives on metric/value records, not the intervention):
+ * observed vs projected/estimated/potential/target/unknown.
+ */
+export type OutcomeClassification =
+  | "observed"
+  | "projected"
+  | "estimated"
+  | "potential"
+  | "target"
+  | "unknown";
+
 export interface BatchIngestionLedger {
   batch_id: string;
   sources_fetched: number;
