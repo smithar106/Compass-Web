@@ -1,10 +1,14 @@
 // Controlled Publication Script — Phase 10
 // DO NOT EXECUTE WITHOUT EXPLICIT FOUNDER AUTHORIZATION.
 // Publishes exclusively the 11 human-approved, claim-verified real-world records.
+// FAILS CLOSED: Aborts if the target database does not exist or is smaller than 100MB.
 
 import { DatabaseSync } from "node:sqlite";
+import fs from "fs";
 import path from "path";
 import { REAL_CANDIDATE_SOURCES } from "../run_11_real_sources_audit.js";
+
+const MIN_PRODUCTION_DB_BYTES = 100 * 1024 * 1024; // 100 MB minimum size
 
 const dbPath = process.env.COLLECTOR_DATABASE_URL
   ? process.env.COLLECTOR_DATABASE_URL.replace("sqlite:///", "")
@@ -12,6 +16,17 @@ const dbPath = process.env.COLLECTOR_DATABASE_URL
 
 export function executeControlledPublication() {
   console.log("=== EXECUTING CONTROLLED PUBLICATION BATCH: real_gov_20260813_001 ===");
+
+  // Fail-closed target safety check
+  if (!fs.existsSync(dbPath)) {
+    throw new Error(`FATAL: Authoritative production database does not exist at target path: ${dbPath}. Aborting.`);
+  }
+
+  const stat = fs.statSync(dbPath);
+  if (stat.size < MIN_PRODUCTION_DB_BYTES) {
+    throw new Error(`FATAL: Target database size (${(stat.size / 1024 / 1024).toFixed(1)} MB) is below minimum expected threshold (100 MB). Aborting.`);
+  }
+
   const db = new DatabaseSync(dbPath);
   db.exec("PRAGMA foreign_keys = ON;");
 
@@ -45,8 +60,8 @@ export function executeControlledPublication() {
     // Intervention record
     db.prepare(`
       INSERT INTO intervention_records (
-        id, document_id, ingestion_batch_id, organization, workflow,
-        intervention, publication_status, verification_status, outcome_classification
+        id, document_id, ingestion_batch_id, organization_name, workflow,
+        intervention_title, publication_status, verification_status, outcome_classification
       ) VALUES (?, ?, ?, ?, ?, ?, 'published', 'claim_verified', 'operational_efficiency')
     `).run(c.record_id, docId, batchId, c.organization, c.workflow, c.intervention);
 
