@@ -139,12 +139,25 @@ export function executeControlledPublication() {
       ) VALUES (?, ?, ?, ?, ?, ?, 'government_case_study', 'success')
     `).run(docId, c.direct_document_url, c.actual_document_title, c.organization, "hash_" + c.record_id, c.raw_document_text);
 
+    // Note: outcome classification lives on metric_records.value_type (observed/projected/estimated),
+    // not on intervention_records, per governance schema decision. Metrics are inserted separately
+    // with value_type reflecting observed vs projected as derived from the source.
     db.prepare(`
       INSERT INTO intervention_records (
         id, document_id, ingestion_batch_id, organization_name, workflow,
-        intervention_title, publication_status, verification_status, outcome_classification
-      ) VALUES (?, ?, ?, ?, ?, ?, 'published', 'claim_verified', 'operational_efficiency')
+        intervention_title, publication_status, verification_status
+      ) VALUES (?, ?, ?, ?, ?, ?, 'published', 'claim_verified')
     `).run(c.record_id, docId, batchId, c.organization, c.workflow, c.intervention);
+
+    // Insert observed/projected metrics with explicit value_type classification
+    for (const [valueType, labels] of [["observed", c.observed_outcomes], ["projected", c.projected_outcomes]]) {
+      if (labels && labels.length) {
+        db.prepare(`
+          INSERT INTO metric_records (id, intervention_id, source_id, metric_name, reported_text, value_type, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(`met_${c.record_id}_${valueType}`, c.record_id, c.direct_document_url, `${valueType} outcome`, labels.join("; "), valueType, new Date().toISOString());
+      }
+    }
 
     db.prepare(`
       INSERT INTO passage_records (
