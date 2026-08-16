@@ -4,32 +4,69 @@
 
 export const name = "Compass";
 
-export const tagline = "Decide. Approve. Implement. Measure. Learn.";
+export const tagline = "Know what works before you decide.";
 
 export const description =
-  "Compass helps leadership decide what to implement, manage execution against that decision, and measure whether it created the expected value \u2014 comparing AI, software, automation, and process redesign on evidence from real implementations.";
+  "Compass helps leaders choose how to solve business problems using evidence from what organizations have actually implemented \u2014 comparing AI, software, automation, and process redesign on real outcomes, then monitoring whether the decision delivered.";
 
 export const nav = [
+  { label: "Control Room", href: "/control-room" },
   { label: "Product", href: "/product" },
   { label: "How It Works", href: "/how-it-works" },
   { label: "Evidence", href: "/evidence" },
-  { label: "About", href: "/about" },
 ];
 
 export const headerCta = {
-  label: "Start Assessment",
+  label: "Run an Assessment",
   href: "/assessment",
+};
+
+export const controlRoom = {
+  eyebrow: "Compass Control Room",
+  headline: "Know what works before you decide.",
+  supporting:
+    "Compass helps leaders choose how to solve business problems using evidence from what organizations have actually implemented.",
+  ctaPrimary: "Describe a business problem",
+  ctaPrimaryHref: "/assessment",
+  ctaSecondary: "See why this recommendation",
+  ctaSecondaryHref: "/control-room",
+  decisionCard: {
+    problem: "Reduce finance close time",
+    recommendation: "Process redesign + workflow automation",
+    impact: "$1.2M",
+    impactLabel: "estimated annual impact",
+    metric: "41%",
+    metricLabel: "median cycle-time reduction",
+    comparables: "37",
+    comparablesLabel: "comparable implementations",
+    confidence: "HIGH",
+    confidenceLabel: "evidence confidence",
+  },
+  whyThisWins:
+    "Compass compares the available ways to solve the problem, evaluates what has worked in comparable organizations, and recommends the approach that best fits yours.",
+  evidenceGraph: {
+    headline: "Every recommendation has receipts.",
+    columns: ["Organization", "What they implemented", "Observed result", "Source", "Verification status"],
+  },
+  journey: {
+    headline: "From decision to execution.",
+    steps: ["Problem", "Recommendation", "Evidence", "Implementation plan", "Outcome"],
+  },
+  notEveryProblemNeedsAi: {
+    headline: "Not every problem needs AI.",
+    options: ["AI Agent", "Automation", "Software", "Process redesign", "People", "Hybrid"],
+  },
 };
 
 export const marketing = {
     home: {
       hero: {
-        headline: "Bring us the problem. We'll find the best way forward—and make sure it delivers.",
-        supporting: "Compass evaluates every option across your economics, operations, technology, people, and customers — then tells leadership what to do, why it beats the alternatives, and whether it delivered the expected value.",
-        ctaPrimary: "Run an Assessment",
+        headline: "Know what works before you decide.",
+        supporting: "Compass helps leaders choose how to solve business problems using evidence from what organizations have actually implemented — then monitors whether the decision delivered.",
+        ctaPrimary: "Describe a business problem",
         ctaPrimaryHref: "/assessment",
-        ctaSecondary: "See How Compass Works",
-        ctaSecondaryHref: "/how-it-works",
+        ctaSecondary: "Open the Control Room",
+        ctaSecondaryHref: "/control-room",
       },
       problem: {
         eyebrow: "The cost of the wrong decision",

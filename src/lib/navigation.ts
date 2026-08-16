@@ -13,10 +13,10 @@ export interface NavItem {
 }
 
 export const PUBLIC_NAV: NavItem[] = [
-  { label: "Home", href: "/" },
+  { label: "Control Room", href: "/control-room" },
   { label: "How It Works", href: "/how-it-works" },
   { label: "Evidence", href: "/evidence" },
-  { label: "Demo", href: "/demo" },
+  { label: "Product", href: "/product" },
 ];
 
 export const PUBLIC_NAV_CTA: NavItem = {
@@ -45,6 +45,7 @@ export const VALID_ROUTES = [
   "/",
   "/about",
   "/assessment",
+  "/control-room",
   "/demo",
   "/demo/assessment",
   "/demo/decisions",

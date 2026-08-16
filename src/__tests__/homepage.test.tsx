@@ -32,14 +32,14 @@ describe("Homepage content", () => {
     mockMatchMedia();
   });
 
-  it("should open with the new value proposition", () => {
+  it("should open with the control-room value proposition", () => {
     const h = site.marketing.home.hero;
-    expect(h.headline).toBe("Bring us the problem. We'll find the best way forward—and make sure it delivers.");
-    expect(h.ctaPrimary).toBe("Run an Assessment");
+    expect(h.headline).toBe("Know what works before you decide.");
+    expect(h.ctaPrimary).toBe("Describe a business problem");
     expect(h.ctaPrimaryHref).toBe("/assessment");
-    expect(h.ctaSecondary).toBe("See How Compass Works");
-    expect(h.ctaSecondaryHref).toBe("/how-it-works");
-    expect(h.supporting).toContain("Compass evaluates every option");
+    expect(h.ctaSecondary).toBe("Open the Control Room");
+    expect(h.ctaSecondaryHref).toBe("/control-room");
+    expect(h.supporting).toContain("evidence from what organizations have actually implemented");
   });
 
   it("should establish urgency with verified, citable industry statistics", () => {
@@ -111,27 +111,27 @@ describe("Homepage CTA routing", () => {
     mockMatchMedia();
   });
 
-  it("should render the homepage with a single H1 and five sections", () => {
+  it("should render the homepage with a single H1", () => {
     render(<HomePage />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Bring us the problem");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Know what works");
   });
 
-  it("should point the hero Run an Assessment CTA at /assessment", () => {
+  it("should point the hero Describe a business problem CTA at /assessment", () => {
     render(<HomePage />);
-    const links = screen.getAllByRole("link", { name: /run an assessment/i });
+    const links = screen.getAllByRole("link", { name: /describe a business problem/i });
     expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) {
       expect(link.getAttribute("href")).toBe("/assessment");
     }
   });
 
-  it("should point the hero See How Compass Works CTA at /how-it-works", () => {
+  it("should point the hero Open the Control Room CTA at /control-room", () => {
     render(<HomePage />);
-    const links = screen.getAllByRole("link", { name: /see how compass works/i });
+    const links = screen.getAllByRole("link", { name: /open the control room/i });
     expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) {
-      expect(link.getAttribute("href")).toBe("/how-it-works");
+      expect(link.getAttribute("href")).toBe("/control-room");
     }
   });
 
