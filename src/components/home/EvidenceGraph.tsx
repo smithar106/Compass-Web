@@ -3,9 +3,9 @@ import { controlRoom } from "@/content/marketing";
 
 // One actual comparable implementation surfaced on the homepage.
 const SAMPLE = {
-  organization: "Lancashire Constabulary",
-  intervention: "Robotic Process Automation",
-  result: ">100 officer-equivalents saved · £2M savings",
+  organization: "West Midlands Police",
+  intervention: "Robotic Process Automation for duplicate records",
+  result: "299K duplicates removed · 22,000 hours saved",
   source: "Verified source passage",
   verified: true,
 };
@@ -20,13 +20,13 @@ export function EvidenceGraph() {
         </h2>
 
         <div className="mt-8 overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse">
+          <table className="w-full min-w-[680px] border-collapse">
             <thead>
               <tr>
                 {eg.columns.map((col) => (
                   <th
                     key={col}
-                    className="border-b border-line bg-paper px-4 py-2.5 text-left text-[10.5px] font-bold uppercase tracking-wide text-muted"
+                    className="border-b border-line bg-paper px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-muted"
                   >
                     {col}
                   </th>
@@ -38,14 +38,18 @@ export function EvidenceGraph() {
                 <td className="border-b border-line px-4 py-4 text-[14px] font-semibold text-ink">
                   {SAMPLE.organization}
                 </td>
-                <td className="border-b border-line px-4 py-4 text-[13px] text-ink">{SAMPLE.intervention}</td>
-                <td className="border-b border-line px-4 py-4 text-[13px] text-ink">{SAMPLE.result}</td>
-                <td className="border-b border-line px-4 py-4">
-                  <span className="border border-line bg-paper px-2 py-0.5 text-[11px] font-medium text-muted">
+                <td className="border-b border-line px-4 py-4 align-top text-[13px] text-ink">
+                  {SAMPLE.intervention}
+                </td>
+                <td className="border-b border-line px-4 py-4 align-top text-[13px] text-ink">
+                  {SAMPLE.result}
+                </td>
+                <td className="border-b border-line px-4 py-4 align-top">
+                  <span className="inline-block border border-line bg-paper px-2 py-1 text-[11px] font-medium leading-tight text-muted">
                     {SAMPLE.source}
                   </span>
                 </td>
-                <td className="border-b border-line px-4 py-4">
+                <td className="border-b border-line px-4 py-4 align-top whitespace-nowrap">
                   <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-valid">
                     <span aria-hidden="true">✓</span> Claim verified
                   </span>

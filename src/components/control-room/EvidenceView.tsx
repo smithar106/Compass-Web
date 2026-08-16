@@ -9,28 +9,28 @@ const OUTCOME_BREAKDOWN = [
 
 const COMPARABLES = [
   {
-    org: "Lancashire Constabulary",
-    intervention: "Workflow automation",
-    result: "100+ officer-equivalents saved · £2M savings",
+    org: "West Midlands Police",
+    intervention: "Robotic Process Automation",
+    result: "299K duplicates removed · 22,000 hours saved",
     verified: true,
     passage:
-      "Automating document handling freed 100+ officer-equivalents and delivered £2M in annual savings, with claims independently verified against the source record.",
+      "Automating duplicate-record handling removed 299K duplicates and freed 22,000 hours of officer time, with claims independently verified against the source record.",
   },
   {
-    org: "Alma (Marketo Engage)",
-    intervention: "Workflow automation",
-    result: "Doubled community in 12 months · 21% pipeline contribution",
+    org: "Whirlpool Corporation",
+    intervention: "ISO 50001 energy management system",
+    result: "15% energy consumption reduction · 450K first-year savings",
     verified: true,
     passage:
-      "Increased marketing's contribution to the pipeline by 21% year over year and doubled new memberships within 12 months.",
+      "Deployed an ISO 50001-ready energy management system with process redesign, delivering a 15% reduction in energy consumption and 450,000 in first-year savings.",
   },
   {
-    org: "RICOH (Automation Anywhere)",
-    intervention: "Workflow automation",
-    result: "500 days saved/month · €1.09M cumulative savings",
+    org: "Aon",
+    intervention: "CRM United program with Oracle Cloud CX",
+    result: "60X query performance · 15 hours saved/week",
     verified: true,
     passage:
-      "Automation delivered 500 days saved per month and €1.09 million in savings since 2019, across invoice processing, customer service, and HR reporting.",
+      "Consolidated CRM onto Oracle Cloud CX, boosting query performance by 60X and saving 15 hours of manual data extraction time per week.",
   },
 ];
 
