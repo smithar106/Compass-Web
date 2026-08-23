@@ -26,7 +26,7 @@ async function fetchMeta(): Promise<EvidenceMeta | null> {
   }
 }
 
-const FALLBACK_PHRASE = "Compass is built on verified implementation evidence.";
+const FALLBACK_PHRASE = "Built from 10,000+ verified implementation records and growing.";
 
 export async function EvidenceStats({
   variant = "full",

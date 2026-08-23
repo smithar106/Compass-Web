@@ -111,34 +111,51 @@ describe("Homepage CTA routing", () => {
     mockMatchMedia();
   });
 
-  it("should render the homepage with a single H1", () => {
+  it("should render the homepage with a single H1 and seven sections", () => {
     render(<HomePage />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Know what works");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
+      "Make Operational Decisions with Confidence"
+    );
+    // One h2 per section header (hero owns the single h1).
+    const h2s = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent ?? "");
+    expect(h2s).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("What are you trying to improve"),
+        expect.stringContaining("From operational problem to defensible decision"),
+        expect.stringContaining("See what a Compass decision looks like"),
+        expect.stringContaining("Choosing what to implement is not"),
+        expect.stringContaining("Every decision makes the next one better"),
+        expect.stringContaining("Before you implement anything, make sure it"),
+      ])
+    );
   });
 
-  it("should point the hero Describe a business problem CTA at /assessment", () => {
+  it("should point every Explore Common Problems CTA at the problem grid", () => {
     render(<HomePage />);
-    const links = screen.getAllByRole("link", { name: /describe a business problem/i });
-    expect(links.length).toBeGreaterThanOrEqual(1);
+    const links = screen.getAllByRole("link", { name: /explore common problems/i });
+    // Hero + final CTA.
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      expect(link.getAttribute("href")).toBe("/#problems");
+    }
+  });
+
+  it("should point every Analyze My Problem CTA at the full assessment", () => {
+    render(<HomePage />);
+    const links = screen.getAllByRole("link", { name: /analyze my problem/i });
+    // Hero + final CTA.
+    expect(links).toHaveLength(2);
     for (const link of links) {
       expect(link.getAttribute("href")).toBe("/assessment");
     }
   });
 
-  it("should point the hero Open the Control Room CTA at /control-room", () => {
-    render(<HomePage />);
-    const links = screen.getAllByRole("link", { name: /open the control room/i });
-    expect(links.length).toBeGreaterThanOrEqual(1);
-    for (const link of links) {
-      expect(link.getAttribute("href")).toBe("/control-room");
-    }
-  });
-
   it("should not embed the live assessment or dashboard on the homepage", () => {
     render(<HomePage />);
-    expect(screen.queryByRole("button", { name: /analyze problem/i })).toBeNull();
     expect(screen.queryByText(/gold evidence|silver evidence|bronze evidence/i)).toBeNull();
+    // The homepage shows problems, not an interactive assessment form.
+    expect(screen.queryByRole("button", { name: /generate recommendation/i })).toBeNull();
   });
 
   it("should render the demo portal and link to the real assessment", () => {

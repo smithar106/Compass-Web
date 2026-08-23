@@ -148,7 +148,7 @@ describe("Customer journey (route-level integration)", () => {
   it("traces homepage → assessment → decision → workspace → demo", async () => {
     // 1. Homepage CTA → assessment
     render(<HomePage />);
-    const startCta = screen.getAllByRole("link", { name: /start assessment/i });
+    const startCta = screen.getAllByRole("link", { name: /analyze my problem/i });
     expect(startCta.length).toBeGreaterThanOrEqual(1);
     expect(startCta[0].getAttribute("href")).toBe("/assessment");
     cleanup();

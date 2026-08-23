@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { metadata as siteMetadata } from "@/content/marketing";
 import { HomeHero } from "@/components/home/HomeHero";
-import { NotEveryProblemNeedsAi } from "@/components/home/NotEveryProblemNeedsAi";
-import { EvidenceGraph } from "@/components/home/EvidenceGraph";
+import { Problem } from "@/components/home/Problem";
+import { Flow } from "@/components/home/Flow";
+import { ExampleDecision } from "@/components/home/ExampleDecision";
+import { WhyCompass } from "@/components/home/WhyCompass";
+import { LearningLoop } from "@/components/home/LearningLoop";
 import { HomeCta } from "@/components/home/HomeCta";
 
 export const metadata: Metadata = {
@@ -20,8 +23,11 @@ export default function HomePage() {
   return (
     <>
       <HomeHero />
-      <NotEveryProblemNeedsAi />
-      <EvidenceGraph />
+      <Problem />
+      <Flow />
+      <ExampleDecision />
+      <WhyCompass />
+      <LearningLoop />
       <HomeCta />
     </>
   );

@@ -1,13 +1,9 @@
 import Link from "next/link";
-import { marketing, controlRoom } from "@/content/marketing";
 import { ArrowIcon } from "./primitives";
 import { Reveal } from "./Reveal";
-import { ControlRoomCard } from "./ControlRoomCard";
+import { HeroTrustLine } from "./HeroTrustLine";
 
 export function HomeHero() {
-  const h = marketing.home.hero;
-  const cr = controlRoom;
-
   return (
     <section className="relative overflow-hidden border-b border-line bg-paper">
       <div
@@ -19,44 +15,51 @@ export function HomeHero() {
         className="pointer-events-none absolute left-1/2 top-[-180px] h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-accent/25 blur-[120px]"
       />
 
-      <div className="relative mx-auto max-w-5xl px-5 pb-20 pt-24 text-center sm:px-8 lg:pb-28 lg:pt-32">
+      <div className="relative mx-auto max-w-5xl px-5 pb-24 pt-28 text-center sm:px-8 lg:pb-32 lg:pt-36">
         <Reveal>
-          <p className="mx-auto max-w-3xl text-[13px] font-semibold uppercase tracking-[0.18em] text-accent-deep">
-            {cr.eyebrow}
+          <p className="inline-flex items-center gap-2.5 border border-line bg-surface px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-eyebrow text-accent-deep">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent-deep" />
+            Built on real-world implementations
           </p>
-          <h1 className="mt-4 text-display font-semibold tracking-tight text-ink">
-            Know what works
-            <br />
-            <em className="font-serif italic font-medium text-accent-deep">before you decide.</em>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <h1 className="mt-7 text-display font-semibold tracking-tight text-ink">
+            Make Operational Decisions with Confidence.
           </h1>
         </Reveal>
 
-        <Reveal delay={100}>
-          <p className="mx-auto mt-7 max-w-3xl text-lead leading-relaxed text-muted">{h.supporting}</p>
+        <Reveal delay={160}>
+          <p className="mx-auto mt-7 max-w-3xl text-lead leading-relaxed text-ink">
+            Compass helps you identify the right intervention before you commit people, time, and
+            capital.
+          </p>
+          <p className="mx-auto mt-4 max-w-2xl text-[15px] font-medium leading-relaxed text-muted">
+            Evidence. Recommendation. Implementation path. Measurement.
+          </p>
         </Reveal>
 
-        <Reveal delay={200}>
+        <Reveal delay={240}>
           <div className="mt-11 flex flex-col items-center justify-center gap-3.5 sm:flex-row">
             <Link
-              href={cr.ctaPrimaryHref}
+              href="/#problems"
               className="group inline-flex items-center justify-center gap-2 bg-ink px-8 py-3.5 text-[15px] font-semibold text-paper transition-colors hover:bg-ink2"
             >
-              {cr.ctaPrimary}
+              Explore Common Problems
               <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
-              href={cr.ctaSecondaryHref}
+              href="/assessment"
               className="inline-flex items-center justify-center gap-2 border border-line bg-surface px-8 py-3.5 text-[15px] font-semibold text-ink transition-colors hover:border-ink/40"
             >
-              {cr.ctaSecondary}
+              Analyze My Problem
             </Link>
           </div>
         </Reveal>
 
-        {/* The product itself, immediately */}
-        <Reveal delay={260}>
-          <div className="mx-auto mt-14 max-w-3xl">
-            <ControlRoomCard />
+        <Reveal delay={320}>
+          <div className="mt-14 border-t border-line pt-8">
+            <HeroTrustLine />
           </div>
         </Reveal>
       </div>
