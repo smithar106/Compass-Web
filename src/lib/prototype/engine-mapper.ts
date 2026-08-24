@@ -16,6 +16,7 @@
 
 import type { PrototypeDecision, PrototypeRisk, EvidenceTag } from "@/types/prototype";
 import type { StructuredProblem } from "./problem-definitions";
+import { techStackFor } from "./tech-stack";
 
 export interface EngineComparable {
   organization?: string;
@@ -247,6 +248,7 @@ export function mapEngineToDecision(
       : rec?.specific_action ||
         rec?.specific_intervention?.description ||
         "Address the root cause with the strongest comparable evidence.",
+    techStack: techStackFor(rec?.category || "Workflow_Automation"),
     decisionStatus: thin ? "needs_more_evidence" : status,
     evidenceStrength: (rec?.evidence_summary?.overall_tier === "gold" || rec?.evidence_summary?.overall_tier === "decision_grade")
       ? "strong"

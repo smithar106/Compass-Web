@@ -105,7 +105,18 @@ export function CompassDecision({
         <p className="mt-2 text-[20px] font-semibold leading-snug tracking-tight text-paper sm:text-[22px]">
           {decision.recommendation}
         </p>
-        <p className="mt-3 text-[14.5px] leading-relaxed text-paper/85">{decision.strategy}</p>
+        {decision.techStack.length > 0 && (
+          <div className="mt-6 grid grid-cols-1 gap-2.5 border-t border-paper/15 pt-5 sm:grid-cols-2">
+            {decision.techStack.map((item) => (
+              <div key={item.role} className="flex items-baseline gap-2">
+                <span className="text-[10.5px] font-bold uppercase tracking-wide text-paper/50">
+                  {item.role}
+                </span>
+                <span className="text-[13.5px] font-semibold text-paper">{item.tool}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 2. Reasons for recommendation */}

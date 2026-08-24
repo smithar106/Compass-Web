@@ -74,6 +74,8 @@ export interface PrototypeDecision {
   recommendation: string;
   /** One-line strategy a CEO can state aloud, e.g. "Automate the standard path; keep humans on the exceptions." */
   strategy: string;
+  /** Recommended tooling for the intervention: role/purpose + concrete tool. */
+  techStack: { role: string; tool: string }[];
   decisionStatus: DecisionStatus;
   evidenceStrength: EvidenceStrength;
   implementationEffort: string;
