@@ -85,6 +85,15 @@ function declarativeExample(c: EngineComparable): string | null {
   return null;
 }
 
+function impactDirection(metricName: string): string {
+  const down = /cycle|time|cost|error|rework|handling|turnaround|close|processing/i;
+  const up = /throughput|productivity|output|revenue|satisfaction|adoption|capacity|speed/i;
+  const name = metricName.toLowerCase();
+  if (up.test(name)) return "improvement in";
+  if (down.test(name)) return "reduction in";
+  return "improvement in";
+}
+
 function metricFromComparables(cs: EngineComparable[]): { label: string; value: string; detail: string; tag: EvidenceTag }[] {
   const metrics = new Map<string, string>();
   for (const c of cs) {
@@ -102,12 +111,20 @@ function metricFromComparables(cs: EngineComparable[]): { label: string; value: 
     out.push({
       label: name,
       value: val,
-      detail: "Observed across comparable implementations.",
+      detail: `${impactDirection(name)} ${name.toLowerCase()}`,
       tag: "REAL_EVIDENCE",
     });
     if (++i >= 4) break;
   }
   return out;
+}
+
+/** Build a declarative impact headline, e.g. "83% reduction in processing time". */
+function impactHeadline(cs: EngineComparable[]): string {
+  const m = metricFromComparables(cs)[0];
+  if (!m) return "See expected impact";
+  const dir = m.detail || `impact on ${m.label.toLowerCase()}`;
+  return `${m.value} ${dir}`;
 }
 
 export function mapEngineToDecision(
@@ -142,6 +159,7 @@ export function mapEngineToDecision(
     const cleaned = r
       .replace(/comparable implementations? reported/i, "implementations reported")
       .replace(/in comparable implementations?/i, "in practice")
+      .replace(/^\d+ implementations? reported measurable outcomes in this area\.?$/i, "")
       .trim();
     if (cleaned && cleaned.length > 5) whyThis.push(cleaned);
     if (whyThis.length >= 4) break;
@@ -197,17 +215,20 @@ export function mapEngineToDecision(
           .replace(/versus the .* alternatives\.?$/i, "")
           .replace(/with \d+ comparable implementations\.?/i, "")
           .trim();
-        const title = rec?.title || "";
+        const recTitle =
+          rec?.specific_intervention?.title ||
+          rec?.title ||
+          "The recommended intervention";
         // Avoid repeating the recommendation title at the start of the why.
-        const whyBody = why && title && why.toLowerCase().startsWith(title.toLowerCase())
-          ? why.slice(title.length).replace(/^[,.\s]+/, "").replace(/^it /i, "it ")
+        const whyBody = why && recTitle && why.toLowerCase().startsWith(recTitle.toLowerCase())
+          ? why.slice(recTitle.length).replace(/^[,.\s]+/, "").replace(/^it /i, "it ")
           : why;
         const whySentence = whyBody
           ? whyBody.charAt(0).toLowerCase() === whyBody.charAt(0)
             ? `${whyBody.charAt(0).toUpperCase()}${whyBody.slice(1)}`
             : whyBody
           : "";
-        return `${title || "The recommended intervention"} is the strongest option for this problem. ${whySentence}`.trim();
+        return `${recTitle} is the strongest option for this problem. ${whySentence}`.trim();
       })();
 
   return {
@@ -234,10 +255,7 @@ export function mapEngineToDecision(
         : "limited",
     implementationEffort: "Medium",
     timeline: rec?.next_validation_step?.duration || "Weeks 1–12",
-    expectedImpact:
-      response.impact_summary?.headline ||
-      rec?.confidence?.explanation?.split(".")[0] ||
-      "See comparable outcomes",
+    expectedImpact: impactHeadline(comparables),
     whyThis,
     impactMetrics: metricFromComparables(comparables),
     comparableExamples,

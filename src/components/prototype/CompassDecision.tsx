@@ -12,26 +12,11 @@ const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
   needs_more_evidence: { label: "Needs more evidence", tone: "bg-warn-soft text-[#7a3b06]" },
 };
 
-function Fact({ label, value }: { label: string; value: string }) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-line bg-surface px-4 py-3.5">
-      <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-1 text-[13.5px] font-semibold text-ink">{value}</p>
-    </div>
-  );
-}
-
-function SectionTitle({ number, children }: { number: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3">
-      <span
-        aria-hidden="true"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-[11px] font-bold text-accent-deep"
-      >
-        {number}
-      </span>
-      <h2 className="text-[16px] font-semibold tracking-tight text-ink">{children}</h2>
-    </div>
+    <h2 className="text-[11px] font-bold uppercase tracking-eyebrow text-accent-deep">
+      {children}
+    </h2>
   );
 }
 
@@ -52,36 +37,28 @@ function PhaseRow({ phase, index }: { phase: ImplementationPhase; index: number 
           </span>
         </div>
         <p className="mt-1 text-[13px] leading-relaxed text-muted">{phase.summary}</p>
-        {phase.dependencies.length > 0 && (
-          <p className="mt-2 text-[11.5px] text-faint">
-            <span className="font-semibold text-muted">Prerequisites:</span>{" "}
-            {phase.dependencies.join(" · ")}
-          </p>
-        )}
       </div>
     </div>
   );
 }
 
 /**
- * Screen 3 — the Compass Decision, written as a board-ready brief.
+ * Screen 3 — the Compass Decision.
  *
- * Every section reads as a confident, declarative statement. The tool's
- * mechanics — evidence counts, tiers, provenance, scoring — are intentionally
- * absent from the page. What remains is what a CEO can present in a room:
- * the problem, the strategy, what has worked elsewhere, the impact, and why
- * this path was chosen.
+ * A five-section executive brief: Recommendation, Reasons for recommendation,
+ * Impact, Implementation guidelines, Next steps. Impact is stated with clear
+ * numbers ("78% reduction in processing time"). No evidence mechanics — no
+ * evidence counts, tiers, comparable-implementation language, or provenance —
+ * appear on the page.
  */
 export function CompassDecision({
   resolved,
   onReset,
-  source,
 }: {
   resolved: ResolvedDecision;
   onReset: () => void;
-  source?: "live" | "curated";
 }) {
-  const { decision, tuning, problem } = resolved;
+  const { decision, tuning } = resolved;
   const status = STATUS_LABEL[decision.decisionStatus] ?? STATUS_LABEL.defensible;
 
   return (
@@ -108,65 +85,33 @@ export function CompassDecision({
           </p>
         </div>
         <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-muted">
-          {problem.category}
+          {decision.category}
         </p>
         <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-ink sm:text-[30px]">
           {decision.problem}
         </h1>
-        <div className="mt-5 flex flex-wrap items-center gap-2">
+        <div className="mt-5">
           <span className={cn("rounded-full px-3 py-1 text-[11.5px] font-bold", status.tone)}>
             {status.label}
           </span>
-          {source === "live" && (
-            <span className="rounded-full bg-ok-soft px-3 py-1 text-[11px] font-bold text-[#14532d]">
-              Based on live comparable evidence
-            </span>
-          )}
         </div>
       </div>
 
-      {/* Recommendation + strategy */}
+      {/* 1. Recommendation */}
       <div className="mt-4 border border-ink bg-ink px-6 py-6 sm:px-8">
-        <p className="text-[10.5px] font-bold uppercase tracking-eyebrow text-accent">
-          Recommended intervention
-        </p>
+        <SectionTitle>
+          <span className="text-accent">1 · Recommendation</span>
+        </SectionTitle>
         <p className="mt-2 text-[20px] font-semibold leading-snug tracking-tight text-paper sm:text-[22px]">
           {decision.recommendation}
         </p>
         <p className="mt-3 text-[14.5px] leading-relaxed text-paper/85">{decision.strategy}</p>
       </div>
 
-      {/* The decision in one paragraph */}
-      <div className="mt-4 border border-line bg-surface px-6 py-6 sm:px-8">
-        <p className="text-[10.5px] font-bold uppercase tracking-eyebrow text-accent-deep">
-          The decision in one paragraph
-        </p>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink">{decision.decisionSummary}</p>
-      </div>
-
-      {/* Key facts */}
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Fact label="Expected impact" value={decision.expectedImpact} />
-        <Fact label="Implementation effort" value={decision.implementationEffort} />
-        <Fact label="Indicative timeline" value={tuning.timeline ?? decision.timeline} />
-      </div>
-
-      {/* 1. The strategy */}
-      <section className="mt-10">
-        <SectionTitle number="1">The strategy</SectionTitle>
-        <div className="mt-4 border border-line bg-surface px-6 py-6 sm:px-7">
-          <p className="text-[15px] font-semibold leading-relaxed text-ink">{decision.strategy}</p>
-          <p className="mt-3 text-[13.5px] leading-relaxed text-muted">
-            {decision.description} {decision.recommendation}. This path addresses the root cause
-            directly and is the strongest option we evaluated.
-          </p>
-        </div>
-      </section>
-
-      {/* 2. Why this works */}
+      {/* 2. Reasons for recommendation */}
       {decision.whyThis.length > 0 && (
         <section className="mt-10">
-          <SectionTitle number="2">Why this works</SectionTitle>
+          <SectionTitle>2 · Reasons for recommendation</SectionTitle>
           <ul className="mt-4 flex flex-col gap-3">
             {decision.whyThis.map((reason) => (
               <li key={reason} className="flex gap-3 border border-line bg-surface px-5 py-4">
@@ -178,90 +123,74 @@ export function CompassDecision({
         </section>
       )}
 
-      {/* 3. What this delivers */}
-      {decision.impactMetrics.length > 0 && (
-        <section className="mt-10">
-          <SectionTitle number="3">What this delivers</SectionTitle>
+      {/* 3. Impact */}
+      <section className="mt-10">
+        <SectionTitle>3 · Impact</SectionTitle>
+        {decision.impactMetrics.length > 0 ? (
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {decision.impactMetrics.map((metric) => (
-              <div key={metric.label} className="border border-line bg-surface px-5 py-4">
+              <div key={metric.label} className="border border-line bg-surface px-5 py-5">
                 <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
                   {metric.label}
                 </p>
-                <p className="mt-1 text-[18px] font-bold tracking-tight text-ink">{metric.value}</p>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{metric.detail}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 4. What has worked elsewhere */}
-      {decision.comparableExamples.length > 0 && (
-        <section className="mt-10">
-          <SectionTitle number="4">What has worked elsewhere</SectionTitle>
-          <div className="mt-4 flex flex-col gap-3">
-            {decision.comparableExamples.map((example) => (
-              <div key={example.statement} className="border border-line bg-surface px-6 py-5">
-                <p className="text-[14px] leading-relaxed text-ink">{example.statement}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 5. Why we chose this instead */}
-      {decision.alternatives.length > 0 && (
-        <section className="mt-10">
-          <SectionTitle number="5">Why we chose this instead</SectionTitle>
-          <div className="mt-4 flex flex-col gap-3">
-            {decision.alternatives.map((alt) => (
-              <div key={alt.name} className="border border-line bg-surface px-5 py-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[14px] font-semibold text-ink">{alt.name}</p>
-                  <span className="rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-bold text-muted">
-                    Not selected
-                  </span>
-                </div>
-                <p className="mt-2 text-[13px] leading-relaxed text-ink">
-                  <span className="font-semibold">Why we chose the recommendation instead:</span>{" "}
-                  {alt.whyRankedLower}
+                <p className="mt-1 text-[19px] font-bold tracking-tight text-ink">
+                  {metric.value}
                 </p>
+                {metric.detail && (
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{metric.detail}</p>
+                )}
               </div>
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <p className="mt-4 border border-line bg-surface px-5 py-5 text-[13.5px] leading-relaxed text-ink">
+            {decision.expectedImpact}
+          </p>
+        )}
+      </section>
 
-      {/* 6. Implementation path */}
+      {/* 4. Implementation guidelines */}
       <section className="mt-10">
-        <SectionTitle number="6">Implementation path</SectionTitle>
+        <SectionTitle>4 · Implementation guidelines</SectionTitle>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="border border-line bg-surface px-5 py-4">
+            <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">Effort</p>
+            <p className="mt-1 text-[14px] font-semibold text-ink">{decision.implementationEffort}</p>
+          </div>
+          <div className="border border-line bg-surface px-5 py-4">
+            <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
+              Indicative timeline
+            </p>
+            <p className="mt-1 text-[14px] font-semibold text-ink">
+              {tuning.timeline ?? decision.timeline}
+            </p>
+          </div>
+        </div>
+
         <div className="mt-4 flex flex-col gap-3">
           {decision.implementationPlan.map((phase, i) => (
             <PhaseRow key={phase.phase} phase={phase} index={i} />
           ))}
         </div>
+
+        {decision.risks.length > 0 && (
+          <div className="mt-6 border border-line bg-surface px-6 py-5">
+            <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">Key risks</p>
+            <ul className="mt-3 flex flex-col gap-3">
+              {decision.risks.map((risk) => (
+                <li key={risk.title} className="text-[13px] leading-relaxed text-ink">
+                  <span className="font-semibold">{risk.title}.</span>{" "}
+                  {risk.detail}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
-      {/* 7. Risks / constraints */}
+      {/* 5. Next steps */}
       <section className="mt-10">
-        <SectionTitle number="7">Risks / constraints</SectionTitle>
-        <div className="mt-4 flex flex-col gap-3">
-          {decision.risks.map((risk) => (
-            <div key={risk.title} className="border border-line bg-surface px-5 py-4">
-              <p className="text-[13.5px] font-semibold text-ink">{risk.title}</p>
-              <p className="mt-1 text-[13px] leading-relaxed text-muted">{risk.detail}</p>
-              <p className="mt-2 text-[12px] leading-relaxed text-muted">
-                <span className="font-semibold text-ink">Mitigation:</span> {risk.mitigation}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 8. Measurement plan */}
-      <section className="mt-10">
-        <SectionTitle number="8">Measurement plan</SectionTitle>
+        <SectionTitle>5 · Next steps</SectionTitle>
         <div className="mt-4 border border-line bg-surface px-6 py-6 sm:px-7">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
@@ -271,25 +200,14 @@ export function CompassDecision({
               </p>
             </div>
             <div>
-              <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">Primary KPI</p>
+              <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
+                Primary KPI
+              </p>
               <p className="mt-1 text-[13.5px] font-medium leading-relaxed text-ink">
                 {decision.measurement.primaryKpi}
               </p>
             </div>
           </div>
-          <p className="mt-6 text-[10.5px] font-bold uppercase tracking-wide text-muted">
-            Secondary KPIs
-          </p>
-          <ul className="mt-2 flex flex-wrap gap-2">
-            {decision.measurement.secondaryKpis.map((kpi) => (
-              <li
-                key={kpi}
-                className="rounded-full bg-paper px-3 py-1 text-[12px] font-medium text-ink"
-              >
-                {kpi}
-              </li>
-            ))}
-          </ul>
           <p className="mt-6 text-[10.5px] font-bold uppercase tracking-wide text-muted">
             30 / 60 / 90-day validation
           </p>
@@ -303,24 +221,22 @@ export function CompassDecision({
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* 9. What would change this decision */}
-      <section className="mt-10">
-        <SectionTitle number="9">What would change this decision?</SectionTitle>
-        <div className="mt-4 border border-line bg-surface px-6 py-6 sm:px-7">
-          <p className="text-[13.5px] leading-relaxed text-muted">
-            This recommendation is right under the conditions we assessed. It changes if:
-          </p>
-          <ul className="mt-4 flex flex-col gap-3">
-            {decision.whatWouldChangeThis.map((item) => (
-              <li key={item} className="flex items-start gap-3">
-                <span aria-hidden="true" className="mt-1.5 text-accent-deep">•</span>
-                <p className="text-[13px] leading-relaxed text-ink">{item}</p>
-              </li>
-            ))}
-          </ul>
+          {decision.whatWouldChangeThis.length > 0 && (
+            <div className="mt-6 border-t border-line pt-5">
+              <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
+                What would change this decision
+              </p>
+              <ul className="mt-3 flex flex-col gap-2">
+                {decision.whatWouldChangeThis.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-[12.5px] leading-relaxed text-muted">
+                    <span aria-hidden="true" className="mt-1 text-faint">—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </section>
 
@@ -328,9 +244,8 @@ export function CompassDecision({
       <div className="mt-12 border-t border-line pt-8">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <p className="max-w-md text-[13px] leading-relaxed text-muted">
-            {source === "live"
-              ? "This decision is based on comparable implementation evidence. Your organization\u2019s full assessment adds your specific context."
-              : "This is a prototype demonstration brief. A recommendation based on your organization\u2019s actual inputs comes from the full assessment."}
+            This decision is generated from Compass evidence. Your organization&apos;s full
+            assessment adds your specific context.
           </p>
           <div className="flex flex-col gap-2.5 sm:flex-row">
             <Link

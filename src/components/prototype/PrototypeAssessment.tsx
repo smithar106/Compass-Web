@@ -91,28 +91,19 @@ function LiveDecision({
     return <MissingProblem onReset={onReset} />;
   }
 
-  const { decision, source, loading } = useLiveDecision(problemId, answers);
+  const { decision, loading } = useLiveDecision(problemId, answers);
   const fallback = resolveDecision(problemId, answers);
 
   const resolved = {
     problem,
     decision: decision ?? fallback?.decision ?? ({} as PrototypeDecision),
-    tuning:
-      source === "live"
-        ? { note: "Decision generated from live comparable evidence." }
-        : fallback?.tuning ?? { note: "Prototype decision with curated data." },
+    tuning: fallback?.tuning ?? { note: "Decision generated from Compass evidence." },
   };
 
   return (
     <div>
       {loading && <DecisionLoading />}
-      {!loading && (
-        <CompassDecision
-          resolved={resolved}
-          onReset={onReset}
-          source={source === "live" ? "live" : "curated"}
-        />
-      )}
+      {!loading && <CompassDecision resolved={resolved} onReset={onReset} />}
     </div>
   );
 }
