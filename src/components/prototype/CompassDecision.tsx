@@ -75,9 +75,11 @@ function PhaseRow({ phase, index }: { phase: ImplementationPhase; index: number 
 export function CompassDecision({
   resolved,
   onReset,
+  source,
 }: {
   resolved: ResolvedDecision;
   onReset: () => void;
+  source?: "live" | "curated";
 }) {
   const { decision, tuning, problem } = resolved;
   const status = STATUS_LABEL[decision.decisionStatus] ?? STATUS_LABEL.defensible;
@@ -111,10 +113,15 @@ export function CompassDecision({
         <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-ink sm:text-[30px]">
           {decision.problem}
         </h1>
-        <div className="mt-5">
+        <div className="mt-5 flex flex-wrap items-center gap-2">
           <span className={cn("rounded-full px-3 py-1 text-[11.5px] font-bold", status.tone)}>
             {status.label}
           </span>
+          {source === "live" && (
+            <span className="rounded-full bg-ok-soft px-3 py-1 text-[11px] font-bold text-[#14532d]">
+              Based on live comparable evidence
+            </span>
+          )}
         </div>
       </div>
 
@@ -313,8 +320,9 @@ export function CompassDecision({
       <div className="mt-12 border-t border-line pt-8">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <p className="max-w-md text-[13px] leading-relaxed text-muted">
-            This is a demonstration brief. A recommendation based on your organization&apos;s
-            actual inputs comes from the full assessment.
+            {source === "live"
+              ? "This decision is based on comparable implementation evidence. Your organization\u2019s full assessment adds your specific context."
+              : "This is a prototype demonstration brief. A recommendation based on your organization\u2019s actual inputs comes from the full assessment."}
           </p>
           <div className="flex flex-col gap-2.5 sm:flex-row">
             <Link

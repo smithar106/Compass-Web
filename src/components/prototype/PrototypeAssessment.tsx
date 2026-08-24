@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ProblemSelect } from "./ProblemSelect";
 import { ContextForm } from "./ContextForm";
 import { CompassDecision } from "./CompassDecision";
 import { resolveDecision, type ContextAnswer } from "@/lib/prototype/recommendation";
-import { problemById } from "@/data/prototype/problems";
+import { problemById, type PrototypeProblem } from "@/data/prototype/problems";
+import type { PrototypeDecision } from "@/types/prototype";
 
 export type PrototypeView = "select" | "context" | "decision";
 
@@ -16,11 +17,11 @@ type Step =
 
 /**
  * Prototype assessment flow: Problem → Context → Decision.
- * Fully deterministic — the UI never calls an LLM or engine.
  *
- * Optionally starts at a specific problem (initialProblemId) and optionally
- * jumps straight to the decision (view = "decision"), so homepage cards and
- * example sections can deep-link into the experience.
+ * The decision step resolves from the LIVE engine when available (via
+ * /api/prototype/decision) and falls back to the curated deterministic
+ * prototype data when the engine is unreachable or the problem is thin.
+ * The UI never changes — both sources produce a PrototypeDecision.
  */
 export function PrototypeAssessment({
   initialProblemId,
@@ -67,11 +68,103 @@ export function PrototypeAssessment({
   }
 
   // step.kind === "decision"
-  const resolved = resolveDecision(step.problemId, context[step.problemId] ?? []);
-  if (!resolved) {
-    return <MissingProblem onReset={() => setStep({ kind: "select" })} />;
+  return (
+    <LiveDecision
+      problemId={step.problemId}
+      answers={context[step.problemId] ?? []}
+      onReset={() => setStep({ kind: "select" })}
+    />
+  );
+}
+
+function LiveDecision({
+  problemId,
+  answers,
+  onReset,
+}: {
+  problemId: string;
+  answers: ContextAnswer[];
+  onReset: () => void;
+}) {
+  const problem = problemById(problemId);
+  if (!problem) {
+    return <MissingProblem onReset={onReset} />;
   }
-  return <CompassDecision resolved={resolved} onReset={() => setStep({ kind: "select" })} />;
+
+  const { decision, source, loading } = useLiveDecision(problemId, answers);
+  const fallback = resolveDecision(problemId, answers);
+
+  const resolved = {
+    problem,
+    decision: decision ?? fallback?.decision ?? ({} as PrototypeDecision),
+    tuning:
+      source === "live"
+        ? { note: "Decision generated from live comparable evidence." }
+        : fallback?.tuning ?? { note: "Prototype decision with curated data." },
+  };
+
+  return (
+    <div>
+      {loading && <DecisionLoading />}
+      {!loading && (
+        <CompassDecision
+          resolved={resolved}
+          onReset={onReset}
+          source={source === "live" ? "live" : "curated"}
+        />
+      )}
+    </div>
+  );
+}
+
+function useLiveDecision(problemId: string, answers: ContextAnswer[]) {
+  const [decision, setDecision] = useState<PrototypeDecision | null>(null);
+  const [source, setSource] = useState<"live" | "curated" | "loading">("loading");
+
+  useEffect(() => {
+    let alive = true;
+    setDecision(null);
+    setSource("loading");
+    (async () => {
+      try {
+        const res = await fetch("/api/prototype/decision", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ problemId, answers }),
+        });
+        const data = await res.json();
+        if (!alive) return;
+        if (data?.decision) {
+          setDecision(data.decision);
+          setSource("live");
+        } else {
+          setSource("curated");
+        }
+      } catch {
+        if (alive) setSource("curated");
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [problemId, JSON.stringify(answers)]);
+
+  return { decision, source, loading: source === "loading" };
+}
+
+function DecisionLoading() {
+  return (
+    <div className="mx-auto max-w-4xl px-5 py-24 text-center sm:px-8">
+      <div
+        aria-hidden="true"
+        className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-line border-t-ink"
+      />
+      <p className="mt-6 text-[14px] font-medium text-ink">Evaluating comparable evidence…</p>
+      <p className="mt-2 text-[12.5px] text-muted">
+        Compass is matching your problem against the evidence library.
+      </p>
+    </div>
+  );
 }
 
 function MissingProblem({ onReset }: { onReset: () => void }) {
