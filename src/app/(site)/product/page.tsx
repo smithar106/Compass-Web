@@ -208,8 +208,8 @@ export default function ProductPage() {
           </div>
 
           <p className="mt-8">
-            <Link href="/evidence" className="inline-flex items-center gap-2 text-[14px] font-semibold text-accent-deep hover:underline">
-              Explore the evidence library
+            <Link href="/control-room" className="inline-flex items-center gap-2 text-[14px] font-semibold text-accent-deep hover:underline">
+              Explore the evidence in the Control Room
               <ArrowIcon className="h-4 w-4" />
             </Link>
           </p>

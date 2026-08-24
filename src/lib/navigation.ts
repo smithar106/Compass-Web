@@ -15,7 +15,6 @@ export interface NavItem {
 export const PUBLIC_NAV: NavItem[] = [
   { label: "Control Room", href: "/control-room" },
   { label: "How It Works", href: "/how-it-works" },
-  { label: "Evidence", href: "/evidence" },
   { label: "Product", href: "/product" },
 ];
 
@@ -54,7 +53,6 @@ export const VALID_ROUTES = [
   "/demo/outcomes",
   "/decisions/",
   "/design-partners",
-  "/evidence",
   "/how-it-works",
   "/implementations/",
   "/privacy",

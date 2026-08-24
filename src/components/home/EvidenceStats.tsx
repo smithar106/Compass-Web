@@ -28,6 +28,14 @@ async function fetchMeta(): Promise<EvidenceMeta | null> {
 
 const FALLBACK_PHRASE = "Built from 10,000+ verified implementation records and growing.";
 
+/**
+ * Corpus reference: 10,000+ verified implementation records (the validated
+ * corpus). The raw collector total (e.g. 54,277) is never shown on the site;
+ * supporting dimensions (organizations, industries, measured outcomes) render
+ * live when available.
+ */
+const CORPUS_REFERENCE = "10,000+";
+
 export async function EvidenceStats({
   variant = "full",
   className,
@@ -36,39 +44,39 @@ export async function EvidenceStats({
   className?: string;
 }) {
   const meta = await fetchMeta();
-  const n = Number(meta?.published_records);
-  const has = Number.isFinite(n) && n > 0;
+  const hasMeta = meta != null;
   const fmt = (v: unknown) => Number(v).toLocaleString("en-US");
   const growth = meta?.last_published_at ? "Updated continuously" : "";
+  const m = (meta ?? {}) as EvidenceMeta;
 
-  if (!has) {
+  if (!hasMeta) {
     return (
       <p className={cn("text-[13px] leading-relaxed text-muted", className)}>{FALLBACK_PHRASE}</p>
     );
   }
-  const m = meta as EvidenceMeta;
 
   if (variant === "line") {
     return (
       <p className={cn("text-[12.5px] leading-relaxed text-muted", className)}>
-        Powered by {fmt(n)} verified implementations · {fmt(m.unique_organizations)} organizations ·{" "}
+        Built on {CORPUS_REFERENCE} verified implementation records
+        {m.unique_organizations ? ` · ${fmt(m.unique_organizations)} organizations` : ""} ·{" "}
         {growth || "updated continuously"}
       </p>
     );
   }
 
   const stats = [
-    { value: fmt(n), label: "verified implementations", present: true },
-    { value: fmt(meta?.unique_organizations || 0), label: "organizations", present: meta?.unique_organizations != null },
-    { value: fmt(meta?.industries || 0), label: "industries", present: meta?.industries != null },
-    { value: fmt(meta?.measured_outcomes || 0), label: "measured outcomes", present: meta?.measured_outcomes != null },
+    { value: CORPUS_REFERENCE, label: "verified implementation records", present: true },
+    { value: fmt(m.unique_organizations || 0), label: "organizations", present: m.unique_organizations != null },
+    { value: fmt(m.industries || 0), label: "industries", present: m.industries != null },
+    { value: fmt(m.measured_outcomes || 0), label: "measured outcomes", present: m.measured_outcomes != null },
   ].filter((s) => s.present);
 
   if (variant === "compact") {
     return (
       <div className={className}>
         <p className="text-[12px] font-medium text-muted">
-          Built from <span className="font-bold text-ink">{fmt(n)} verified implementation records</span>
+          Built from <span className="font-bold text-ink">{CORPUS_REFERENCE} verified implementation records</span>
           <span className="text-faint"> and growing</span>
         </p>
       </div>
@@ -79,7 +87,7 @@ export async function EvidenceStats({
     <div className={cn("border border-line bg-surface", className)}>
       <div className="border-b border-line bg-paper/60 px-5 py-2.5">
         <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent-deep">
-          Built from {fmt(n)} verified implementation records
+          Built from {CORPUS_REFERENCE} verified implementation records
         </p>
       </div>
       {stats.length > 1 && (

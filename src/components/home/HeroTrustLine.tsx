@@ -10,9 +10,10 @@ interface Headline {
 }
 
 /**
- * Hero trust line. Fetches live evidence-library numbers from /api/coverage.
- * When the API is unavailable it falls back to the supported, real figure of
- * 10,000+ verified implementation records — never an invented number.
+ * Hero trust line. The corpus reference is 10,000+ verified implementation
+ * records (the validated corpus). When the coverage API is available the live
+ * organization count is shown alongside; the record count is always the
+ * supported "10,000+" figure — never the raw collector total.
  */
 export function HeroTrustLine({ className }: { className?: string }) {
   const [headline, setHeadline] = useState<Headline | null>(null);
@@ -33,18 +34,18 @@ export function HeroTrustLine({ className }: { className?: string }) {
     };
   }, []);
 
-  const n = Number(headline?.implementations);
-  const has = Number.isFinite(n) && n > 0;
+  const orgs = Number(headline?.organizations);
+  const hasOrgs = Number.isFinite(orgs) && orgs > 0;
 
   const fmt = (v: number) => v.toLocaleString("en-US");
-  const count = has ? fmt(n) : "10,000+";
-  const detail = has && headline?.organizations ? ` · ${fmt(headline.organizations)} organizations` : "";
+  const detail = hasOrgs ? ` · ${fmt(orgs)} organizations` : "";
 
   return (
     <div className={cn("text-[12px] font-medium text-muted", className)}>
-      Built from <span className="font-bold text-ink">{count} verified implementation records</span>
+      Built from{" "}
+      <span className="font-bold text-ink">10,000+ verified implementation records</span>
       <span className="text-faint"> and growing{detail}</span>
-      {!failed && !has && <span className="text-faint" />}
+      {!failed && !hasOrgs && <span className="text-faint" />}
     </div>
   );
 }

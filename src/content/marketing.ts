@@ -13,7 +13,6 @@ export const nav = [
   { label: "Control Room", href: "/control-room" },
   { label: "Product", href: "/product" },
   { label: "How It Works", href: "/how-it-works" },
-  { label: "Evidence", href: "/evidence" },
 ];
 
 export const headerCta = {
@@ -105,7 +104,7 @@ export const marketing = {
         eyebrow: "Why Compass?",
         headline: "Compass doesn't start by asking how to use AI. It starts by asking what will work.",
         supporting:
-          "Every option is evaluated against your problem, economics, constraints, implementation requirements, and evidence from 50,000+ real-world implementations.\n\nNo executive has time to research tens of thousands of implementations every time they make a transformation decision. Compass does the analysis for you.",
+          "Every option is evaluated against your problem, economics, constraints, implementation requirements, and evidence from 10,000+ real-world implementations.\n\nNo executive has time to research tens of thousands of implementations every time they make a transformation decision. Compass does the analysis for you.",
         cards: [
           {
             name: "DECIDE",
@@ -634,7 +633,6 @@ export const footer = {
       links: [
         { label: "Home", href: "/" },
         { label: "How It Works", href: "/how-it-works" },
-        { label: "Evidence", href: "/evidence" },
         { label: "Demo", href: "/demo" },
       ],
     },
