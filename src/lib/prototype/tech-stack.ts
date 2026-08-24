@@ -71,3 +71,47 @@ function stackKey(category: string): string {
 export function techStackFor(category: string): TechItem[] {
   return STACKS[stackKey(category)] ?? DEFAULT_STACK;
 }
+
+/**
+ * Four qualitative reasons this intervention is the best fit — plain
+ * business language, no evidence counts or tool mechanics.
+ */
+const REASONS: Record<string, string[]> = {
+  AI: [
+    "It automates the highest-volume part of the process, so the team stops spending time on repetitive work.",
+    "It handles judgment-lite decisions consistently, reducing errors that come from manual handling.",
+    "It keeps a human in the loop for the cases that genuinely need judgment, so accuracy stays high.",
+    "It fits the organization's current process without requiring a large change to how people work today.",
+  ],
+  Workflow_Automation: [
+    "It automates the repeated steps that slow the process down, returning time to the team.",
+    "It enforces one consistent path, so the same work is done the same way every time.",
+    "It works with the systems already in place, so it can start quickly without a big rebuild.",
+    "It keeps clear rules and an audit trail, which makes the process transparent and easy to manage.",
+  ],
+  Process_Redesign: [
+    "It removes the steps that cause delay and rework, so the process becomes simpler and faster.",
+    "It fixes the underlying cause of the problem rather than adding another tool on top.",
+    "It clarifies ownership and handoffs, so work stops being lost between teams.",
+    "It is low-risk to start because it changes how people work before it changes systems.",
+  ],
+  Hybrid: [
+    "It automates the predictable parts and keeps human judgment on the exceptions.",
+    "It balances speed and quality, so results improve without losing control.",
+    "It uses the existing process as the foundation, adding automation only where it clearly helps.",
+    "It is flexible enough to adjust as the team learns what works in practice.",
+  ],
+  Software: [
+    "It gives the team a single platform that replaces manual coordination and spreadsheets.",
+    "It centralizes the process so status, ownership, and next steps are visible to everyone.",
+    "It is configurable to the organization's workflow, so it fits rather than forcing a new process.",
+    "It provides reporting and controls that make the process easier to run and improve.",
+  ],
+};
+
+const DEFAULT_REASONS = REASONS.Workflow_Automation;
+
+export function reasonsFor(category: string): string[] {
+  const key = stackKey(category);
+  return REASONS[key] ?? DEFAULT_REASONS;
+}

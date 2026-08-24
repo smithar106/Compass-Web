@@ -16,7 +16,7 @@
 
 import type { PrototypeDecision, PrototypeRisk, EvidenceTag } from "@/types/prototype";
 import type { StructuredProblem } from "./problem-definitions";
-import { techStackFor } from "./tech-stack";
+import { techStackFor, reasonsFor } from "./tech-stack";
 
 export interface EngineComparable {
   organization?: string;
@@ -143,28 +143,9 @@ export function mapEngineToDecision(
     comparables.length;
   const thin = retrievedCount < problem.minCitable;
 
-  const whyThis: string[] = [];
-  const whySummary = rec?.why_ranked_first?.summary?.replace(/\s+/g, " ").trim() || "";
-  // Clean tool-mechanics phrasing so the brief reads as board copy.
-  const cleanWhy = whySummary
-    .replace(/ranked first because comparable implementations showed/i, "shows")
-    .replace(/ranked first because comparable implementations/i, "shows")
-    .replace(/versus the .* alternatives\.?$/i, "")
-    .replace(/with \d+ comparable implementations\.?/i, "")
-    .replace(/comparable implementations?/gi, "implementations")
-    .replace(/\s+/g, " ")
-    .replace(/\.{2,}/g, ".")
-    .trim();
-  if (cleanWhy) whyThis.push(cleanWhy);
-  for (const r of rec?.why_ranked_first?.supporting_reasons ?? []) {
-    const cleaned = r
-      .replace(/comparable implementations? reported/i, "implementations reported")
-      .replace(/in comparable implementations?/i, "in practice")
-      .replace(/^\d+ implementations? reported measurable outcomes in this area\.?$/i, "")
-      .trim();
-    if (cleaned && cleaned.length > 5) whyThis.push(cleaned);
-    if (whyThis.length >= 4) break;
-  }
+  // Reasons are qualitative business statements keyed by intervention
+  // category — never evidence counts, tiers, or tool mechanics.
+  const whyThis: string[] = reasonsFor(rec?.category || "Workflow_Automation");
 
   const alternatives = (rec?.alternatives_considered ?? []).slice(0, 2).map((a) => ({
     name: a.family || "Alternative",
@@ -209,27 +190,13 @@ export function mapEngineToDecision(
   const decisionSummary = thin
     ? `Compass found ${retrievedCount} comparable implementations for this problem — enough to be directionally helpful, but not enough for a fully defensible recommendation. More evidence would strengthen this decision.`
     : (() => {
-        const why = (rec?.why_ranked_first?.summary || "")
-          .replace(/\s+/g, " ")
-          .replace(/ranked first because comparable implementations showed/i, "it shows")
-          .replace(/ranked first because comparable implementations/i, "it shows")
-          .replace(/versus the .* alternatives\.?$/i, "")
-          .replace(/with \d+ comparable implementations\.?/i, "")
-          .trim();
         const recTitle =
           rec?.specific_intervention?.title ||
           rec?.title ||
           "The recommended intervention";
-        // Avoid repeating the recommendation title at the start of the why.
-        const whyBody = why && recTitle && why.toLowerCase().startsWith(recTitle.toLowerCase())
-          ? why.slice(recTitle.length).replace(/^[,.\s]+/, "").replace(/^it /i, "it ")
-          : why;
-        const whySentence = whyBody
-          ? whyBody.charAt(0).toLowerCase() === whyBody.charAt(0)
-            ? `${whyBody.charAt(0).toUpperCase()}${whyBody.slice(1)}`
-            : whyBody
-          : "";
-        return `${recTitle} is the strongest option for this problem. ${whySentence}`.trim();
+        const reasons = reasonsFor(rec?.category || "Workflow_Automation");
+        const firstReason = reasons[0]?.replace(/^It /i, "It ");
+        return `${recTitle} is the strongest option for this problem. ${firstReason ? firstReason.charAt(0).toUpperCase() + firstReason.slice(1) : ""}`.trim();
       })();
 
   return {
