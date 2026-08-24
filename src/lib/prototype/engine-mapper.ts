@@ -215,15 +215,17 @@ export function mapEngineToDecision(
     problem: problem.problemStatement.split(";")[0].trim(),
     category: rec?.category || "Operations",
     description: problem.problemStatement,
-    recommendation:
-      rec?.specific_intervention?.title ||
-      rec?.title ||
-      rec?.specific_action ||
-      "Recommendation requires more evidence.",
-    strategy:
-      rec?.specific_action ||
-      rec?.specific_intervention?.description ||
-      "Address the root cause with the strongest comparable evidence.",
+    recommendation: thin
+      ? "Recommendation needs more evidence"
+      : rec?.specific_intervention?.title ||
+        rec?.title ||
+        rec?.specific_action ||
+        "Recommendation requires more evidence.",
+    strategy: thin
+      ? "The evidence base is too thin for a defensible recommendation. Additional comparable implementations would clarify the best intervention."
+      : rec?.specific_action ||
+        rec?.specific_intervention?.description ||
+        "Address the root cause with the strongest comparable evidence.",
     decisionStatus: thin ? "needs_more_evidence" : status,
     evidenceStrength: (rec?.evidence_summary?.overall_tier === "gold" || rec?.evidence_summary?.overall_tier === "decision_grade")
       ? "strong"

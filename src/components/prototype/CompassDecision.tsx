@@ -164,66 +164,74 @@ export function CompassDecision({
       </section>
 
       {/* 2. Why this works */}
-      <section className="mt-10">
-        <SectionTitle number="2">Why this works</SectionTitle>
-        <ul className="mt-4 flex flex-col gap-3">
-          {decision.whyThis.map((reason) => (
-            <li key={reason} className="flex gap-3 border border-line bg-surface px-5 py-4">
-              <span aria-hidden="true" className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-deep" />
-              <p className="text-[13.5px] leading-relaxed text-ink">{reason}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {decision.whyThis.length > 0 && (
+        <section className="mt-10">
+          <SectionTitle number="2">Why this works</SectionTitle>
+          <ul className="mt-4 flex flex-col gap-3">
+            {decision.whyThis.map((reason) => (
+              <li key={reason} className="flex gap-3 border border-line bg-surface px-5 py-4">
+                <span aria-hidden="true" className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-deep" />
+                <p className="text-[13.5px] leading-relaxed text-ink">{reason}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* 3. What this delivers */}
-      <section className="mt-10">
-        <SectionTitle number="3">What this delivers</SectionTitle>
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {decision.impactMetrics.map((metric) => (
-            <div key={metric.label} className="border border-line bg-surface px-5 py-4">
-              <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
-                {metric.label}
-              </p>
-              <p className="mt-1 text-[18px] font-bold tracking-tight text-ink">{metric.value}</p>
-              <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{metric.detail}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {decision.impactMetrics.length > 0 && (
+        <section className="mt-10">
+          <SectionTitle number="3">What this delivers</SectionTitle>
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {decision.impactMetrics.map((metric) => (
+              <div key={metric.label} className="border border-line bg-surface px-5 py-4">
+                <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
+                  {metric.label}
+                </p>
+                <p className="mt-1 text-[18px] font-bold tracking-tight text-ink">{metric.value}</p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{metric.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 4. What has worked elsewhere */}
-      <section className="mt-10">
-        <SectionTitle number="4">What has worked elsewhere</SectionTitle>
-        <div className="mt-4 flex flex-col gap-3">
-          {decision.comparableExamples.map((example) => (
-            <div key={example.statement} className="border border-line bg-surface px-6 py-5">
-              <p className="text-[14px] leading-relaxed text-ink">{example.statement}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {decision.comparableExamples.length > 0 && (
+        <section className="mt-10">
+          <SectionTitle number="4">What has worked elsewhere</SectionTitle>
+          <div className="mt-4 flex flex-col gap-3">
+            {decision.comparableExamples.map((example) => (
+              <div key={example.statement} className="border border-line bg-surface px-6 py-5">
+                <p className="text-[14px] leading-relaxed text-ink">{example.statement}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 5. Why we chose this instead */}
-      <section className="mt-10">
-        <SectionTitle number="5">Why we chose this instead</SectionTitle>
-        <div className="mt-4 flex flex-col gap-3">
-          {decision.alternatives.map((alt) => (
-            <div key={alt.name} className="border border-line bg-surface px-5 py-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-[14px] font-semibold text-ink">{alt.name}</p>
-                <span className="rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-bold text-muted">
-                  Not selected
-                </span>
+      {decision.alternatives.length > 0 && (
+        <section className="mt-10">
+          <SectionTitle number="5">Why we chose this instead</SectionTitle>
+          <div className="mt-4 flex flex-col gap-3">
+            {decision.alternatives.map((alt) => (
+              <div key={alt.name} className="border border-line bg-surface px-5 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[14px] font-semibold text-ink">{alt.name}</p>
+                  <span className="rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-bold text-muted">
+                    Not selected
+                  </span>
+                </div>
+                <p className="mt-2 text-[13px] leading-relaxed text-ink">
+                  <span className="font-semibold">Why we chose the recommendation instead:</span>{" "}
+                  {alt.whyRankedLower}
+                </p>
               </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-ink">
-                <span className="font-semibold">Why we chose the recommendation instead:</span>{" "}
-                {alt.whyRankedLower}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 6. Implementation path */}
       <section className="mt-10">
