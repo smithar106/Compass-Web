@@ -12,6 +12,24 @@ const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
   needs_more_evidence: { label: "Needs more evidence", tone: "bg-warn-soft text-[#7a3b06]" },
 };
 
+const EVIDENCE_MODE_LABEL: Record<string, { label: string; tone: string; note: string }> = {
+  verified: {
+    label: "Verified evidence",
+    tone: "bg-ok-soft text-[#14532d]",
+    note: "Every supporting comparable implementation passed full verification with a linked primary source.",
+  },
+  exploratory: {
+    label: "Exploratory evidence",
+    tone: "bg-brand-blue-light text-[#1e40af]",
+    note: "Based on sourced but not fully verified implementations. Treat as a well-grounded hypothesis, not a confirmed finding.",
+  },
+  insufficient: {
+    label: "Insufficient evidence",
+    tone: "bg-warn-soft text-[#7a3b06]",
+    note: "The supporting implementations do not have linked primary sources. This brief cannot be presented as verified.",
+  },
+};
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <h2 className="text-[11px] font-bold uppercase tracking-eyebrow text-accent-deep">
@@ -60,6 +78,7 @@ export function CompassDecision({
 }) {
   const { decision, tuning } = resolved;
   const status = STATUS_LABEL[decision.decisionStatus] ?? STATUS_LABEL.defensible;
+  const mode = EVIDENCE_MODE_LABEL[decision.evidenceMode] ?? EVIDENCE_MODE_LABEL.exploratory;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
@@ -90,11 +109,15 @@ export function CompassDecision({
         <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-ink sm:text-[30px]">
           {decision.problem}
         </h1>
-        <div className="mt-5">
+        <div className="mt-5 flex flex-wrap items-center gap-2">
           <span className={cn("rounded-full px-3 py-1 text-[11.5px] font-bold", status.tone)}>
             {status.label}
           </span>
+          <span className={cn("rounded-full px-3 py-1 text-[11.5px] font-bold", mode.tone)}>
+            {mode.label}
+          </span>
         </div>
+        <p className="mt-3 text-[12px] leading-relaxed text-muted">{mode.note}</p>
       </div>
 
       {/* 1. Recommendation */}

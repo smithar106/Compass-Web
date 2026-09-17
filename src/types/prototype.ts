@@ -77,6 +77,15 @@ export interface PrototypeDecision {
   /** Recommended tooling for the intervention: role/purpose + concrete tool. */
   techStack: { role: string; tool: string }[];
   decisionStatus: DecisionStatus;
+  /**
+   * Fail-closed evidence mode for this decision:
+   *   verified     — every supporting comparable passed the full verification bar
+   *   exploratory  — sourced but not fully verified (usable, clearly labeled)
+   *   insufficient — no linked source; must not be presented as verified
+   */
+  evidenceMode: "verified" | "exploratory" | "insufficient";
+  /** finding (verified support) | hypothesis (exploratory support only) */
+  claimKind: "finding" | "hypothesis";
   evidenceStrength: EvidenceStrength;
   implementationEffort: string;
   timeline: string;

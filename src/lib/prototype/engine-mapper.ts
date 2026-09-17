@@ -48,6 +48,8 @@ export interface EngineRecommendation {
     success_criteria?: string;
   };
   comparable_implementations?: EngineComparable[];
+  evidence_mode?: "verified" | "exploratory" | "insufficient";
+  claim_kind?: "finding" | "hypothesis";
 }
 
 export interface EngineResponse {
@@ -56,6 +58,8 @@ export interface EngineResponse {
   information_gaps?: { title?: string; explanation?: string }[];
   next_validation_steps?: unknown[];
   impact_summary?: { headline?: string };
+  evidence_mode?: "verified" | "exploratory" | "insufficient";
+  evidence_mode_counts?: { verified?: number; exploratory?: number; insufficient?: number };
   methodology?: {
     evidence_count?: {
       comparable_implementations?: number;
@@ -217,6 +221,8 @@ export function mapEngineToDecision(
         "Address the root cause with the strongest comparable evidence.",
     techStack: techStackFor(rec?.category || "Workflow_Automation"),
     decisionStatus: thin ? "needs_more_evidence" : status,
+    evidenceMode: rec?.evidence_mode ?? response.evidence_mode ?? "exploratory",
+    claimKind: rec?.claim_kind ?? "hypothesis",
     evidenceStrength: (rec?.evidence_summary?.overall_tier === "gold" || rec?.evidence_summary?.overall_tier === "decision_grade")
       ? "strong"
       : rec?.evidence_summary?.overall_tier === "supporting"

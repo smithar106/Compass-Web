@@ -101,4 +101,23 @@ describe("engine-mapper", () => {
       expect(p!.minCitable).toBeGreaterThan(0);
     }
   });
+
+  it("carries the fail-closed evidence mode from the engine", () => {
+    const problem = structuredProblem("manual-invoice-processing");
+    const exploratory = { ...SAMPLE_RESPONSE, evidence_mode: "exploratory", recommendations: [{ ...SAMPLE_RESPONSE.recommendations[0], evidence_mode: "exploratory", claim_kind: "hypothesis" }] };
+    const d1 = mapEngineToDecision(problem!, exploratory as any);
+    expect(d1.evidenceMode).toBe("exploratory");
+    expect(d1.claimKind).toBe("hypothesis");
+
+    const insufficient = { ...SAMPLE_RESPONSE, evidence_mode: "insufficient", recommendations: [{ ...SAMPLE_RESPONSE.recommendations[0], evidence_mode: "insufficient" }] };
+    const d2 = mapEngineToDecision(problem!, insufficient as any);
+    expect(d2.evidenceMode).toBe("insufficient");
+  });
+
+  it("never reports verified unless the engine says verified", () => {
+    const problem = structuredProblem("manual-invoice-processing");
+    // Engine omits evidence_mode (legacy) → must default to exploratory, never verified.
+    const d = mapEngineToDecision(problem!, SAMPLE_RESPONSE as any);
+    expect(d.evidenceMode).not.toBe("verified");
+  });
 });
