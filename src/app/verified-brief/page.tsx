@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Needle, ArrowIcon } from "@/components/home/primitives";
-import { VERIFIED_INVOICE_EVIDENCE } from "@/data/prototype/verified-invoice";
+import {
+  VERIFIED_INVOICE_EVIDENCE,
+  VERIFIED_INVOICE_SUMMARY,
+} from "@/data/prototype/verified-invoice";
 
 export const metadata: Metadata = {
-  title: "Verified Decision Brief — Manual Invoice Processing",
+  title: "Decision Brief — Manual Invoice Processing (verified context)",
   description:
-    "A fully verified Compass decision brief: every claim is traced to a primary source, calculations are transparent, and the evidence is independently reconstructable.",
+    "A source-verified decision brief for manual invoice processing. Source verification and comparability are shown separately; the brief states where direct implementation evidence is missing.",
 };
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -15,8 +18,15 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+const COMPARABILITY_LABEL: Record<string, { label: string; tone: string }> = {
+  direct_implementation: { label: "Direct implementation evidence", tone: "bg-ok-soft text-[#14532d]" },
+  indirect_contextual: { label: "Indirect contextual evidence", tone: "bg-brand-blue-light text-[#1e40af]" },
+  not_relevant: { label: "Not relevant to this decision", tone: "bg-warn-soft text-[#7a3b06]" },
+};
+
 export default function VerifiedBriefPage() {
   const evidence = VERIFIED_INVOICE_EVIDENCE;
+  const s = VERIFIED_INVOICE_SUMMARY;
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">
@@ -27,7 +37,7 @@ export default function VerifiedBriefPage() {
             <span className="text-[15px] font-bold tracking-tight text-ink">Compass</span>
           </Link>
           <span className="text-[10.5px] font-bold uppercase tracking-eyebrow text-muted">
-            Verified Decision Brief
+            Decision Brief
           </span>
         </div>
       </header>
@@ -43,16 +53,25 @@ export default function VerifiedBriefPage() {
             Manual invoice processing
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-ok-soft px-3 py-1 text-[11.5px] font-bold text-[#14532d]">
-              Verified evidence
+            <span className="rounded-full bg-warn-soft px-3 py-1 text-[11.5px] font-bold text-[#7a3b06]">
+              Directionally supported
             </span>
-            <span className="rounded-full bg-ok-soft px-3 py-1 text-[11.5px] font-bold text-[#14532d]">
-              {evidence.length} claim-verified implementations
+            <span className="rounded-full bg-brand-blue-light px-3 py-1 text-[11.5px] font-bold text-[#1e40af]">
+              Verified context · no direct implementation evidence
             </span>
           </div>
-          <p className="mt-3 text-[12px] leading-relaxed text-muted">
-            Every claim below is traced to a primary source. The material evidence and the
-            calculations can be independently reconstructed without relying on Compass.
+        </div>
+
+        {/* Evidence-gap notice */}
+        <div className="mt-4 border border-[#FCD34D] bg-[#FFFBEB] px-6 py-5">
+          <p className="text-[13.5px] font-semibold text-[#7a3b06]">
+            No direct implementation evidence was found for this intervention.
+          </p>
+          <p className="mt-2 text-[13px] leading-relaxed text-[#7a3b06]">
+            The sources below are <span className="font-semibold">source-verified facts</span>, but
+            they document platform scale and adjacent cost programs — not an implementation of
+            automated invoice capture with exception-based review. This brief therefore does not
+            claim that its recommendation is supported by verified implementation outcomes.
           </p>
         </div>
 
@@ -65,80 +84,100 @@ export default function VerifiedBriefPage() {
             Automated invoice capture with exception-based review
           </p>
           <p className="mt-3 text-[14.5px] leading-relaxed text-paper/85">
-            Digitize invoice intake and matching, and route only exceptions to human review. This is
-            the intervention supported by the verified implementations below.
+            A directionally supported hypothesis, based on the scale and adoption of e-invoicing and
+            adjacent cost programs. It is not yet backed by direct, verified implementation
+            outcomes.
           </p>
         </div>
 
-        {/* 2. Verified evidence */}
+        {/* 2. Evidence — two dimensions */}
         <section className="mt-10">
-          <SectionTitle>2 · Verified comparable implementations</SectionTitle>
+          <SectionTitle>2 · Evidence (two independent dimensions)</SectionTitle>
           <p className="mt-2 text-[13px] leading-relaxed text-muted">
-            Each record was verified against a primary source: the document was retrieved and the
-            supporting passage located in the source text. Click a source to open it.
+            <span className="font-semibold text-ink">Source verification</span> asks whether the
+            document is authentic and contains the claim.{" "}
+            <span className="font-semibold text-ink">Comparability</span> asks whether the record
+            documents an implementation of <em>this</em> intervention. A record can be verified and
+            still not be a comparable.
           </p>
           <div className="mt-4 flex flex-col gap-3">
-            {evidence.map((e) => (
-              <div key={e.id} className="border border-line bg-surface px-5 py-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[15px] font-semibold tracking-tight text-ink">
-                      {e.organization}
-                    </p>
-                    <p className="mt-0.5 text-[13px] text-muted">{e.intervention}</p>
-                  </div>
-                  <a
-                    href={e.source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex shrink-0 items-center gap-1 rounded-full bg-ok-soft px-3 py-1 text-[10.5px] font-bold text-[#14532d] hover:underline"
-                  >
-                    {e.source.type} · {e.source.date} ↗
-                  </a>
-                </div>
-
-                <dl className="mt-4 flex flex-col gap-2.5">
-                  {e.metrics.map((m) => (
-                    <div key={m.label} className="border-l-2 border-accent-deep pl-3">
-                      <dt className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
-                        {m.label}
-                      </dt>
-                      <dd className="text-[14px] font-semibold text-ink">{m.value}</dd>
-                      <dd className="mt-1 text-[12px] italic leading-relaxed text-faint">
-                        “{m.passage}”
-                      </dd>
+            {evidence.map((e) => {
+              const c = COMPARABILITY_LABEL[e.comparability.classification];
+              return (
+                <div key={e.id} className="border border-line bg-surface px-5 py-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[15px] font-semibold tracking-tight text-ink">
+                        {e.organization}
+                      </p>
+                      <p className="mt-0.5 text-[13px] text-muted">{e.whatItEstablishes}</p>
                     </div>
-                  ))}
-                </dl>
+                    <a
+                      href={e.source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-full bg-paper px-3 py-1 text-[10.5px] font-bold text-muted hover:underline"
+                    >
+                      {e.source.type} · {e.source.date} ↗
+                    </a>
+                  </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line pt-3 text-[11px] text-faint">
-                  <span>Source: {e.source.title}</span>
-                  <span className="font-semibold text-[#14532d]">
-                    ✓ source authentic · ✓ document retrieved · ✓ passage matched
-                  </span>
+                  <dl className="mt-4 flex flex-col gap-2.5">
+                    {e.metrics.map((m) => (
+                      <div key={m.label} className="border-l-2 border-line pl-3">
+                        <dt className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
+                          {m.label}
+                        </dt>
+                        <dd className="text-[14px] font-semibold text-ink">{m.value}</dd>
+                        <dd className="mt-1 text-[12px] italic leading-relaxed text-faint">
+                          “{m.passage}”
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-3">
+                    <span className="rounded-full bg-ok-soft px-2.5 py-0.5 text-[10px] font-bold text-[#14532d]">
+                      ✓ Source verified
+                    </span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${c.tone}`}>
+                      {c.label}
+                    </span>
+                    {!e.comparability.establishesInterventionOutcome && (
+                      <span className="text-[10.5px] text-faint">
+                        does not establish intervention → outcome
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+
+          <p className="mt-4 text-[12px] leading-relaxed text-muted">
+            {s.directImplementation} direct implementation · {s.indirectContextual} indirect
+            contextual · {s.notRelevant} not relevant. Comparability is reported separately and does
+            not change source-verification status.
+          </p>
         </section>
 
-        {/* 3. Impact calculation */}
+        {/* 3. Impact */}
         <section className="mt-10">
-          <SectionTitle>3 · Impact calculation</SectionTitle>
+          <SectionTitle>3 · Impact (contextual facts, not comparable outcomes)</SectionTitle>
           <div className="mt-4 border border-line bg-surface px-6 py-6">
             <p className="text-[13px] leading-relaxed text-ink">
-              This brief reports <span className="font-semibold">observed scale and outcomes</span>{" "}
-              from the verified implementations above. It does not project a savings figure for your
-              organization — that requires your invoice volume and loaded labor cost.
+              These figures are reported scale and savings from the sources above. They are{" "}
+              <span className="font-semibold">not</span> attributed to automated invoice capture and
+              must not be read as expected results of the recommendation.
             </p>
             <div className="mt-4 overflow-x-auto">
-              <table className="w-full min-w-[520px] border-collapse text-left text-[12.5px]">
+              <table className="w-full min-w-[560px] border-collapse text-left text-[12.5px]">
                 <thead>
                   <tr className="border-b border-line text-[10.5px] uppercase tracking-wide text-muted">
                     <th className="py-2 pr-4 font-bold">Metric</th>
-                    <th className="py-2 pr-4 font-bold">Observed value</th>
-                    <th className="py-2 pr-4 font-bold">Source record</th>
-                    <th className="py-2 font-bold">Method</th>
+                    <th className="py-2 pr-4 font-bold">Value</th>
+                    <th className="py-2 pr-4 font-bold">Source</th>
+                    <th className="py-2 font-bold">Comparability</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -157,17 +196,15 @@ export default function VerifiedBriefPage() {
                             {e.organization}
                           </a>
                         </td>
-                        <td className="py-2.5 text-muted">Reported value, verified verbatim</td>
+                        <td className="py-2.5 text-muted">
+                          {COMPARABILITY_LABEL[e.comparability.classification].label}
+                        </td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
             </div>
-            <p className="mt-4 text-[12px] leading-relaxed text-faint">
-              No aggregation or modelling is applied. Each figure is the value stated in its source.
-              Where a source reports a range or a point value, the figure is shown as reported.
-            </p>
           </div>
         </section>
 
@@ -177,22 +214,22 @@ export default function VerifiedBriefPage() {
           <div className="mt-4 border border-line bg-surface px-6 py-6">
             <ul className="flex flex-col gap-3 text-[13px] leading-relaxed text-ink">
               <li>
-                <span className="font-semibold">Observed ≠ projected.</span> These are outcomes
-                other organizations reported. They validate the intervention path, not your result.
+                <span className="font-semibold">No direct implementation evidence.</span> None of
+                the sources documents an invoice-automation implementation with an attributable
+                outcome.
               </li>
               <li>
-                <span className="font-semibold">Scope of verification.</span> The verified set is
-                deliberately small ({evidence.length} implementations) and drawn from primary SEC
-                filings/exhibits. It is not a statistical sample of the market.
+                <span className="font-semibold">Verified source ≠ verified comparable.</span> The
+                records are verified facts; comparability is a separate dimension and is reported
+                as such.
               </li>
               <li>
-                <span className="font-semibold">Recency.</span> Sources span 2001–2022. Older
-                figures may not reflect current costs or tooling.
+                <span className="font-semibold">Observed ≠ projected.</span> No figure here is an
+                expected result for your organization.
               </li>
               <li>
                 <span className="font-semibold">Organization-specific impact requires your inputs.</span>{" "}
-                Invoice volume, average handling time, and loaded labor cost are needed to compute
-                organization-specific savings. None are assumed here.
+                Invoice volume, handling time, and loaded labor cost are needed and are not assumed.
               </li>
             </ul>
           </div>
@@ -207,31 +244,25 @@ export default function VerifiedBriefPage() {
             </p>
             <ol className="mt-3 flex flex-col gap-2.5 text-[13px] leading-relaxed text-ink">
               <li>
-                <span className="font-semibold">1.</span> Open each source link above (all on
-                sec.gov).
+                <span className="font-semibold">1.</span> Open each source link (all on sec.gov).
               </li>
               <li>
-                <span className="font-semibold">2.</span> Search the document for the quoted
-                passage shown with each metric.
+                <span className="font-semibold">2.</span> Search the document for the quoted passage.
               </li>
               <li>
-                <span className="font-semibold">3.</span> Confirm the figure stated in the source
-                matches the value reported here.
+                <span className="font-semibold">3.</span> Confirm the figure matches, and confirm
+                whether the source actually documents an invoice-automation implementation (it does
+                not, in these cases).
               </li>
             </ol>
-            <p className="mt-4 text-[12px] leading-relaxed text-faint">
-              No claim in this brief depends on Compass's interpretation. The sources are public and
-              the passages are quoted.
-            </p>
           </div>
         </section>
 
-        {/* Footer CTA */}
         <div className="mt-12 border-t border-line pt-8">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <p className="max-w-md text-[13px] leading-relaxed text-muted">
-              This is the first fully verified Compass decision brief. The verified set is small by
-              design and grows deliberately.
+              This brief separates source verification from comparability and states where direct
+              evidence is missing.
             </p>
             <div className="flex flex-col gap-2.5 sm:flex-row">
               <Link
