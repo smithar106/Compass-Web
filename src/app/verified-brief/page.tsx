@@ -1,16 +1,70 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Needle, ArrowIcon } from "@/components/home/primitives";
-import {
-  VERIFIED_INVOICE_EVIDENCE,
-  VERIFIED_INVOICE_SUMMARY,
-} from "@/data/prototype/verified-invoice";
+import { compassApiBase } from "@/lib/engine-proxy";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Decision Brief — Manual Invoice Processing (verified context)",
   description:
     "A source-verified decision brief for manual invoice processing. Source verification and comparability are shown separately; the brief states where direct implementation evidence is missing.",
 };
+
+interface VerifiedMetric {
+  label: string;
+  value: string;
+  direction: string;
+  passage: string;
+}
+interface VerifiedRecord {
+  id: string;
+  organization: string;
+  intervention: string;
+  what_it_establishes: string;
+  metrics: VerifiedMetric[];
+  source: { title: string; url: string; type: string; date: string };
+  verification_status: string;
+  comparability: string;
+  outcome_attribution: string;
+  comparability_reason: string;
+  selection_reason: string;
+  supports_direct_outcome: boolean;
+  attribution_limitation: string;
+}
+interface VerifiedPayload {
+  available: boolean;
+  workflow?: string;
+  category?: string;
+  problem?: string;
+  recommendation?: string;
+  reviewed_at?: string;
+  notes?: string;
+  records: VerifiedRecord[];
+  summary: {
+    total?: number;
+    direct_implementation?: number;
+    indirect_contextual?: number;
+    not_relevant?: number;
+    unassessed?: number;
+    supports_direct_outcome?: number;
+  };
+}
+
+async function fetchVerified(): Promise<VerifiedPayload | null> {
+  const base = compassApiBase();
+  if (!base) return null;
+  try {
+    const res = await fetch(`${base}/api/evidence/verified?workflow=invoice_processing`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as VerifiedPayload;
+  } catch {
+    return null;
+  }
+}
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -22,11 +76,41 @@ const COMPARABILITY_LABEL: Record<string, { label: string; tone: string }> = {
   direct_implementation: { label: "Direct implementation evidence", tone: "bg-ok-soft text-[#14532d]" },
   indirect_contextual: { label: "Indirect contextual evidence", tone: "bg-brand-blue-light text-[#1e40af]" },
   not_relevant: { label: "Not relevant to this decision", tone: "bg-warn-soft text-[#7a3b06]" },
+  unassessed: { label: "Comparability unassessed", tone: "bg-paper text-muted" },
 };
 
-export default function VerifiedBriefPage() {
-  const evidence = VERIFIED_INVOICE_EVIDENCE;
-  const s = VERIFIED_INVOICE_SUMMARY;
+export default async function VerifiedBriefPage() {
+  const data = await fetchVerified();
+
+  if (!data || !data.available) {
+    return (
+      <div className="flex min-h-screen flex-col bg-paper">
+        <header className="border-b border-line bg-paper">
+          <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-5 sm:px-8">
+            <Link href="/" className="flex items-center gap-2" aria-label="Compass home">
+              <Needle className="h-5 w-5 text-ink" />
+              <span className="text-[15px] font-bold tracking-tight text-ink">Compass</span>
+            </Link>
+            <span className="text-[10.5px] font-bold uppercase tracking-eyebrow text-muted">
+              Decision Brief
+            </span>
+          </div>
+        </header>
+        <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-24 text-center sm:px-8">
+          <h1 className="text-[22px] font-semibold tracking-tight text-ink">
+            Verified evidence is currently unavailable
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-[13.5px] leading-relaxed text-muted">
+            The verified evidence set is served by the Compass engine and could not be reached. No
+            cached or hardcoded copy is shown.
+          </p>
+        </main>
+      </div>
+    );
+  }
+
+  const records = data.records;
+  const s = data.summary;
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">
@@ -48,9 +132,11 @@ export default function VerifiedBriefPage() {
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent-deep">
             Compass Decision
           </p>
-          <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-muted">Finance</p>
+          <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-muted">
+            {data.category || "Finance"}
+          </p>
           <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-ink sm:text-[30px]">
-            Manual invoice processing
+            {data.problem || "Manual invoice processing"}
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-warn-soft px-3 py-1 text-[11.5px] font-bold text-[#7a3b06]">
@@ -70,8 +156,8 @@ export default function VerifiedBriefPage() {
           <p className="mt-2 text-[13px] leading-relaxed text-[#7a3b06]">
             The sources below are <span className="font-semibold">source-verified facts</span>, but
             they document platform scale and adjacent cost programs — not an implementation of
-            automated invoice capture with exception-based review. This brief therefore does not
-            claim that its recommendation is supported by verified implementation outcomes.
+            automated invoice capture with exception-based review. This brief does not claim that its
+            recommendation is supported by verified implementation outcomes.
           </p>
         </div>
 
@@ -81,12 +167,11 @@ export default function VerifiedBriefPage() {
             <span className="text-accent">1 · Recommendation</span>
           </SectionTitle>
           <p className="mt-2 text-[20px] font-semibold leading-snug tracking-tight text-paper sm:text-[22px]">
-            Automated invoice capture with exception-based review
+            {data.recommendation || "Automated invoice capture with exception-based review"}
           </p>
           <p className="mt-3 text-[14.5px] leading-relaxed text-paper/85">
             A directionally supported hypothesis, based on the scale and adoption of e-invoicing and
-            adjacent cost programs. It is not yet backed by direct, verified implementation
-            outcomes.
+            adjacent cost programs. It is not yet backed by direct, verified implementation outcomes.
           </p>
         </div>
 
@@ -101,8 +186,8 @@ export default function VerifiedBriefPage() {
             still not be a comparable.
           </p>
           <div className="mt-4 flex flex-col gap-3">
-            {evidence.map((e) => {
-              const c = COMPARABILITY_LABEL[e.comparability.classification];
+            {records.map((e) => {
+              const c = COMPARABILITY_LABEL[e.comparability] ?? COMPARABILITY_LABEL.unassessed;
               return (
                 <div key={e.id} className="border border-line bg-surface px-5 py-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -110,7 +195,7 @@ export default function VerifiedBriefPage() {
                       <p className="text-[15px] font-semibold tracking-tight text-ink">
                         {e.organization}
                       </p>
-                      <p className="mt-0.5 text-[13px] text-muted">{e.whatItEstablishes}</p>
+                      <p className="mt-0.5 text-[13px] text-muted">{e.what_it_establishes}</p>
                     </div>
                     <a
                       href={e.source.url}
@@ -143,10 +228,8 @@ export default function VerifiedBriefPage() {
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${c.tone}`}>
                       {c.label}
                     </span>
-                    {!e.comparability.establishesInterventionOutcome && (
-                      <span className="text-[10.5px] text-faint">
-                        does not establish intervention → outcome
-                      </span>
+                    {!e.supports_direct_outcome && e.attribution_limitation && (
+                      <span className="text-[10.5px] text-faint">{e.attribution_limitation}</span>
                     )}
                   </div>
                 </div>
@@ -155,9 +238,10 @@ export default function VerifiedBriefPage() {
           </div>
 
           <p className="mt-4 text-[12px] leading-relaxed text-muted">
-            {s.directImplementation} direct implementation · {s.indirectContextual} indirect
-            contextual · {s.notRelevant} not relevant. Comparability is reported separately and does
-            not change source-verification status.
+            {s.direct_implementation ?? 0} direct implementation · {s.indirect_contextual ?? 0}{" "}
+            indirect contextual · {s.not_relevant ?? 0} not relevant
+            {s.unassessed ? ` · ${s.unassessed} unassessed` : ""}. Comparability is reported
+            separately and does not change source-verification status.
           </p>
         </section>
 
@@ -181,7 +265,7 @@ export default function VerifiedBriefPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {evidence.flatMap((e) =>
+                  {records.flatMap((e) =>
                     e.metrics.map((m) => (
                       <tr key={`${e.id}-${m.label}`} className="border-b border-line last:border-0">
                         <td className="py-2.5 pr-4 text-ink">{m.label}</td>
@@ -197,7 +281,7 @@ export default function VerifiedBriefPage() {
                           </a>
                         </td>
                         <td className="py-2.5 text-muted">
-                          {COMPARABILITY_LABEL[e.comparability.classification].label}
+                          {(COMPARABILITY_LABEL[e.comparability] ?? COMPARABILITY_LABEL.unassessed).label}
                         </td>
                       </tr>
                     ))
@@ -214,14 +298,12 @@ export default function VerifiedBriefPage() {
           <div className="mt-4 border border-line bg-surface px-6 py-6">
             <ul className="flex flex-col gap-3 text-[13px] leading-relaxed text-ink">
               <li>
-                <span className="font-semibold">No direct implementation evidence.</span> None of
-                the sources documents an invoice-automation implementation with an attributable
-                outcome.
+                <span className="font-semibold">No direct implementation evidence.</span> None of the
+                sources documents an invoice-automation implementation with an attributable outcome.
               </li>
               <li>
                 <span className="font-semibold">Verified source ≠ verified comparable.</span> The
-                records are verified facts; comparability is a separate dimension and is reported
-                as such.
+                records are verified facts; comparability is a separate dimension.
               </li>
               <li>
                 <span className="font-semibold">Observed ≠ projected.</span> No figure here is an
@@ -251,8 +333,8 @@ export default function VerifiedBriefPage() {
               </li>
               <li>
                 <span className="font-semibold">3.</span> Confirm the figure matches, and confirm
-                whether the source actually documents an invoice-automation implementation (it does
-                not, in these cases).
+                whether the source documents an invoice-automation implementation (it does not, in
+                these cases).
               </li>
             </ol>
           </div>
@@ -262,7 +344,7 @@ export default function VerifiedBriefPage() {
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <p className="max-w-md text-[13px] leading-relaxed text-muted">
               This brief separates source verification from comparability and states where direct
-              evidence is missing.
+              evidence is missing. Served by the Compass engine.
             </p>
             <div className="flex flex-col gap-2.5 sm:flex-row">
               <Link
