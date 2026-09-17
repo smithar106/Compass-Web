@@ -15,7 +15,7 @@ simulation/
 .railway/
 pinchtab/
 compass-engine/
-data/
+/data/
 *.db
 *.sqlite
 *.db-wal
