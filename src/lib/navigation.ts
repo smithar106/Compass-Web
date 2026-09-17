@@ -59,6 +59,7 @@ export const VALID_ROUTES = [
   "/product",
   "/prototype",
   "/prototype/",
+  "/verified-brief",
   "/terms",
   "/workspace",
   "/workspace/decisions",
