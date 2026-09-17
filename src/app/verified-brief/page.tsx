@@ -51,11 +51,11 @@ interface VerifiedPayload {
   };
 }
 
-async function fetchVerified(): Promise<VerifiedPayload | null> {
+async function fetchVerified(workflow: string): Promise<VerifiedPayload | null> {
   const base = compassApiBase();
   if (!base) return null;
   try {
-    const res = await fetch(`${base}/api/evidence/verified?workflow=invoice_processing`, {
+    const res = await fetch(`${base}/api/evidence/verified?workflow=${encodeURIComponent(workflow)}`, {
       cache: "no-store",
       signal: AbortSignal.timeout(6000),
     });
@@ -79,8 +79,13 @@ const COMPARABILITY_LABEL: Record<string, { label: string; tone: string }> = {
   unassessed: { label: "Comparability unassessed", tone: "bg-paper text-muted" },
 };
 
-export default async function VerifiedBriefPage() {
-  const data = await fetchVerified();
+export default async function VerifiedBriefPage({
+  searchParams,
+}: {
+  searchParams?: { workflow?: string };
+}) {
+  const workflow = searchParams?.workflow || "document_process_automation";
+  const data = await fetchVerified(workflow);
 
   if (!data || !data.available) {
     return (
@@ -111,6 +116,7 @@ export default async function VerifiedBriefPage() {
 
   const records = data.records;
   const s = data.summary;
+  const hasDirectEvidence = (s.supports_direct_outcome ?? 0) > 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">
@@ -136,30 +142,57 @@ export default async function VerifiedBriefPage() {
             {data.category || "Finance"}
           </p>
           <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-ink sm:text-[30px]">
-            {data.problem || "Manual invoice processing"}
+            {data.problem || "Manual document and process handling"}
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-warn-soft px-3 py-1 text-[11.5px] font-bold text-[#7a3b06]">
-              Directionally supported
-            </span>
-            <span className="rounded-full bg-brand-blue-light px-3 py-1 text-[11.5px] font-bold text-[#1e40af]">
-              Verified context · no direct implementation evidence
-            </span>
+            {hasDirectEvidence ? (
+              <>
+                <span className="rounded-full bg-ok-soft px-3 py-1 text-[11.5px] font-bold text-[#14532d]">
+                  Implementation-backed
+                </span>
+                <span className="rounded-full bg-ok-soft px-3 py-1 text-[11.5px] font-bold text-[#14532d]">
+                  {s.supports_direct_outcome ?? 0} verified direct implementation
+                  {(s.supports_direct_outcome ?? 0) === 1 ? "" : "s"}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="rounded-full bg-warn-soft px-3 py-1 text-[11.5px] font-bold text-[#7a3b06]">
+                  Directionally supported
+                </span>
+                <span className="rounded-full bg-brand-blue-light px-3 py-1 text-[11.5px] font-bold text-[#1e40af]">
+                  Verified context · no direct implementation evidence
+                </span>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Evidence-gap notice */}
-        <div className="mt-4 border border-[#FCD34D] bg-[#FFFBEB] px-6 py-5">
-          <p className="text-[13.5px] font-semibold text-[#7a3b06]">
-            No direct implementation evidence was found for this intervention.
-          </p>
-          <p className="mt-2 text-[13px] leading-relaxed text-[#7a3b06]">
-            The sources below are <span className="font-semibold">source-verified facts</span>, but
-            they document platform scale and adjacent cost programs — not an implementation of
-            automated invoice capture with exception-based review. This brief does not claim that its
-            recommendation is supported by verified implementation outcomes.
-          </p>
-        </div>
+        {/* Evidence status notice */}
+        {hasDirectEvidence ? (
+          <div className="mt-4 border border-[#BBF7D0] bg-[#F0FDF4] px-6 py-5">
+            <p className="text-[13.5px] font-semibold text-[#14532d]">
+              Supported by verified direct implementation evidence.
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-[#14532d]">
+              {s.supports_direct_outcome ?? 0} of {s.total ?? 0} records document an implementation
+              of this intervention with an outcome the source explicitly attributes to it. Each
+              record shows its source, passage, verification, comparability, and attribution.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 border border-[#FCD34D] bg-[#FFFBEB] px-6 py-5">
+            <p className="text-[13.5px] font-semibold text-[#7a3b06]">
+              No direct implementation evidence was found for this intervention.
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-[#7a3b06]">
+              The sources below are <span className="font-semibold">source-verified facts</span>, but
+              they do not document an implementation of this intervention with an attributable
+              outcome. This brief does not claim that its recommendation is supported by verified
+              implementation outcomes.
+            </p>
+          </div>
+        )}
 
         {/* 1. Recommendation */}
         <div className="mt-4 border border-ink bg-ink px-6 py-6 sm:px-8">
@@ -170,8 +203,9 @@ export default async function VerifiedBriefPage() {
             {data.recommendation || "Automated invoice capture with exception-based review"}
           </p>
           <p className="mt-3 text-[14.5px] leading-relaxed text-paper/85">
-            A directionally supported hypothesis, based on the scale and adoption of e-invoicing and
-            adjacent cost programs. It is not yet backed by direct, verified implementation outcomes.
+            {hasDirectEvidence
+              ? "Backed by verified direct implementation evidence: the sources below document implementations of this intervention with outcomes the sources attribute to it."
+              : "A directionally supported hypothesis, based on the scale and adoption of adjacent programs. It is not yet backed by direct, verified implementation outcomes."}
           </p>
         </div>
 
@@ -247,12 +281,14 @@ export default async function VerifiedBriefPage() {
 
         {/* 3. Impact */}
         <section className="mt-10">
-          <SectionTitle>3 · Impact (contextual facts, not comparable outcomes)</SectionTitle>
+          <SectionTitle>
+            3 · Impact {hasDirectEvidence ? "(verified implementation outcomes)" : "(contextual facts, not comparable outcomes)"}
+          </SectionTitle>
           <div className="mt-4 border border-line bg-surface px-6 py-6">
             <p className="text-[13px] leading-relaxed text-ink">
-              These figures are reported scale and savings from the sources above. They are{" "}
-              <span className="font-semibold">not</span> attributed to automated invoice capture and
-              must not be read as expected results of the recommendation.
+              {hasDirectEvidence
+                ? "These outcomes are reported by the implementing organizations and attributed to the intervention by the source. Each row links to its source; records whose benefit is only expected (not reported) are marked uncertain and do not support a direct-outcome claim."
+                : "These figures are reported scale and savings from the sources above. They are not attributed to the recommended intervention and must not be read as expected results of the recommendation."}
             </p>
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[560px] border-collapse text-left text-[12.5px]">
@@ -298,8 +334,17 @@ export default async function VerifiedBriefPage() {
           <div className="mt-4 border border-line bg-surface px-6 py-6">
             <ul className="flex flex-col gap-3 text-[13px] leading-relaxed text-ink">
               <li>
-                <span className="font-semibold">No direct implementation evidence.</span> None of the
-                sources documents an invoice-automation implementation with an attributable outcome.
+                <span className="font-semibold">
+                  {hasDirectEvidence ? "Direct implementation evidence present." : "No direct implementation evidence."}
+                </span>{" "}
+                {hasDirectEvidence
+                  ? "The records document implementations of this intervention with outcomes the sources attribute to it."
+                  : "None of the sources documents an implementation of this intervention with an attributable outcome."}
+              </li>
+              <li>
+                <span className="font-semibold">Explicit attribution ≠ causal proof.</span> "Explicit"
+                means the source states the intervention produced the outcome; it is not rigorous
+                causal identification.
               </li>
               <li>
                 <span className="font-semibold">Verified source ≠ verified comparable.</span> The
@@ -311,7 +356,7 @@ export default async function VerifiedBriefPage() {
               </li>
               <li>
                 <span className="font-semibold">Organization-specific impact requires your inputs.</span>{" "}
-                Invoice volume, handling time, and loaded labor cost are needed and are not assumed.
+                Volume, handling time, and loaded labor cost are needed and are not assumed.
               </li>
             </ul>
           </div>
@@ -333,8 +378,8 @@ export default async function VerifiedBriefPage() {
               </li>
               <li>
                 <span className="font-semibold">3.</span> Confirm the figure matches, and confirm
-                whether the source documents an invoice-automation implementation (it does not, in
-                these cases).
+                whether the source documents an implementation of this intervention and attributes
+                the outcome to it.
               </li>
             </ol>
           </div>
