@@ -14,7 +14,7 @@
  *     implementations".
  */
 
-import type { PrototypeDecision, PrototypeRisk, EvidenceTag } from "@/types/prototype";
+import type { PrototypeDecision, PrototypeRisk, EvidenceTag, ImpactMetric, ClaimCitation } from "@/types/prototype";
 import type { StructuredProblem } from "./problem-definitions";
 import { techStackFor, reasonsFor } from "./tech-stack";
 
@@ -25,6 +25,15 @@ export interface EngineComparable {
   outcome_summary?: string;
   observed_outcome?: string;
   normalized_metrics?: { metric?: string; value?: string }[];
+  record_id?: string;
+  source_title?: string;
+  source_url?: string;
+  supporting_passage?: string;
+  verification_status?: string;
+  comparability?: string;
+  outcome_attribution?: string;
+  supports_direct_outcome?: boolean;
+  attribution_limitation?: string;
 }
 
 export interface EngineRecommendation {
@@ -99,25 +108,39 @@ function impactDirection(metricName: string): string {
   return "improvement in";
 }
 
-function metricFromComparables(cs: EngineComparable[]): { label: string; value: string; detail: string; tag: EvidenceTag }[] {
-  const metrics = new Map<string, string>();
+function metricFromComparables(cs: EngineComparable[]): ImpactMetric[] {
+  const metrics = new Map<string, { value: string; citation: ClaimCitation }>();
   for (const c of cs) {
     for (const m of c.normalized_metrics || []) {
       const name = (m.metric || "").trim();
       const val = (m.value || "").trim();
       if (name && val && !metrics.has(name)) {
-        metrics.set(name, val);
+        metrics.set(name, {
+          value: val,
+          citation: {
+            sourceTitle: c.source_title || c.organization || "",
+            sourceUrl: c.source_url || "",
+            passage: c.supporting_passage || "",
+            verificationStatus: c.verification_status || "legacy",
+            comparability: c.comparability || "unassessed",
+            outcomeAttribution: c.outcome_attribution || "unassessed",
+            recordId: c.record_id || "",
+            supportsDirectOutcome: Boolean(c.supports_direct_outcome),
+            limitation: c.attribution_limitation || "",
+          },
+        });
       }
     }
   }
-  const out: { label: string; value: string; detail: string; tag: EvidenceTag }[] = [];
+  const out: ImpactMetric[] = [];
   let i = 0;
-  for (const [name, val] of metrics) {
+  for (const [name, { value, citation }] of metrics) {
     out.push({
       label: name,
-      value: val,
+      value,
       detail: `${impactDirection(name)} ${name.toLowerCase()}`,
       tag: "REAL_EVIDENCE",
+      citation,
     });
     if (++i >= 4) break;
   }

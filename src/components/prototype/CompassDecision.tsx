@@ -2,9 +2,35 @@
 
 import Link from "next/link";
 import type { ResolvedDecision } from "@/lib/prototype/recommendation";
-import type { ImplementationPhase } from "@/types/prototype";
+import type { ImplementationPhase, ClaimCitation } from "@/types/prototype";
 import { ArrowIcon, Needle } from "@/components/home/primitives";
 import { cn } from "@/lib/utils";
+
+/**
+ * Claim-type label. Reflects what the evidence supports — never presents a
+ * non-direct or unsourced claim as a verified finding.
+ */
+function ClaimLabel({ citation }: { citation: ClaimCitation }) {
+  if (citation.supportsDirectOutcome) {
+    return (
+      <span className="rounded-full bg-ok-soft px-2 py-0.5 text-[9.5px] font-bold text-[#14532d]">
+        Verified finding
+      </span>
+    );
+  }
+  if (citation.comparability === "indirect_contextual" || citation.comparability === "not_relevant") {
+    return (
+      <span className="rounded-full bg-brand-blue-light px-2 py-0.5 text-[9.5px] font-bold text-[#1e40af]">
+        Context only
+      </span>
+    );
+  }
+  return (
+    <span className="rounded-full bg-warn-soft px-2 py-0.5 text-[9.5px] font-bold text-[#7a3b06]">
+      Exploratory — not verified
+    </span>
+  );
+}
 
 const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
   defensible: { label: "Defensible", tone: "bg-ok-soft text-[#14532d]" },
@@ -162,19 +188,55 @@ export function CompassDecision({
         <SectionTitle>3 · Impact</SectionTitle>
         {decision.impactMetrics.length > 0 ? (
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {decision.impactMetrics.map((metric) => (
-              <div key={metric.label} className="border border-line bg-surface px-5 py-5">
-                <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
-                  {metric.label}
-                </p>
-                <p className="mt-1 text-[19px] font-bold tracking-tight text-ink">
-                  {metric.value}
-                </p>
-                {metric.detail && (
-                  <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{metric.detail}</p>
-                )}
-              </div>
-            ))}
+            {decision.impactMetrics.map((metric) => {
+              const c = metric.citation;
+              return (
+                <div key={metric.label} className="flex flex-col border border-line bg-surface px-5 py-5">
+                  <p className="text-[10.5px] font-bold uppercase tracking-wide text-muted">
+                    {metric.label}
+                  </p>
+                  <p className="mt-1 text-[19px] font-bold tracking-tight text-ink">
+                    {metric.value}
+                  </p>
+                  {metric.detail && (
+                    <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{metric.detail}</p>
+                  )}
+
+                  {/* Citation / provenance */}
+                  {c && c.sourceUrl ? (
+                    <div className="mt-3 border-t border-line pt-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <a
+                          href={c.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent-deep hover:underline"
+                        >
+                          {c.sourceTitle || "Source"} ↗
+                        </a>
+                        <ClaimLabel citation={c} />
+                      </div>
+                      {c.passage && (
+                        <p className="mt-2 text-[11.5px] italic leading-relaxed text-faint">
+                          “{c.passage.length > 180 ? `${c.passage.slice(0, 180)}…` : c.passage}”
+                        </p>
+                      )}
+                      {!c.supportsDirectOutcome && c.limitation && (
+                        <p className="mt-1.5 text-[10.5px] leading-relaxed text-[#7a3b06]">
+                          {c.limitation}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-3 border-t border-line pt-3">
+                      <span className="rounded-full bg-paper px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-faint">
+                        Illustrative — no linked source
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ) : (
           <p className="mt-4 border border-line bg-surface px-5 py-5 text-[13.5px] leading-relaxed text-ink">

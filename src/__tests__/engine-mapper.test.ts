@@ -120,4 +120,69 @@ describe("engine-mapper", () => {
     const d = mapEngineToDecision(problem!, SAMPLE_RESPONSE as any);
     expect(d.evidenceMode).not.toBe("verified");
   });
+
+  it("attaches a source citation to each impact metric", () => {
+    const problem = structuredProblem("manual-invoice-processing");
+    const withCitation = {
+      ...SAMPLE_RESPONSE,
+      recommendations: [
+        {
+          ...SAMPLE_RESPONSE.recommendations[0],
+          comparable_implementations: [
+            {
+              organization: "Acme Corp",
+              intervention: "Invoice automation",
+              outcome_summary: "cost down",
+              record_id: "rec-1",
+              source_title: "Acme 10-K",
+              source_url: "https://www.sec.gov/x",
+              supporting_passage: "invoice processing cost reduced 40%",
+              verification_status: "claim_verified",
+              comparability: "direct_implementation",
+              outcome_attribution: "explicit",
+              supports_direct_outcome: true,
+              normalized_metrics: [{ metric: "Processing time", value: "83%" }],
+            },
+          ],
+        },
+      ],
+    };
+    const d = mapEngineToDecision(problem!, withCitation as any);
+    expect(d.impactMetrics.length).toBeGreaterThanOrEqual(1);
+    const cit = d.impactMetrics[0].citation;
+    expect(cit).toBeTruthy();
+    expect(cit!.sourceUrl).toBe("https://www.sec.gov/x");
+    expect(cit!.recordId).toBe("rec-1");
+    expect(cit!.supportsDirectOutcome).toBe(true);
+    expect(cit!.comparability).toBe("direct_implementation");
+  });
+
+  it("marks a non-direct citation as not supporting a direct outcome", () => {
+    const problem = structuredProblem("manual-invoice-processing");
+    const ctxOnly = {
+      ...SAMPLE_RESPONSE,
+      recommendations: [
+        {
+          ...SAMPLE_RESPONSE.recommendations[0],
+          comparable_implementations: [
+            {
+              organization: "Provider Co",
+              record_id: "rec-2",
+              source_url: "https://www.sec.gov/y",
+              verification_status: "claim_verified",
+              comparability: "indirect_contextual",
+              outcome_attribution: "none",
+              supports_direct_outcome: false,
+              attribution_limitation: "Indirect context only — does not document this intervention.",
+              normalized_metrics: [{ metric: "Scale", value: "10M" }],
+            },
+          ],
+        },
+      ],
+    };
+    const d = mapEngineToDecision(problem!, ctxOnly as any);
+    const cit = d.impactMetrics[0].citation!;
+    expect(cit.supportsDirectOutcome).toBe(false);
+    expect(cit.limitation).toContain("Indirect context");
+  });
 });

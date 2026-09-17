@@ -22,11 +22,31 @@ export type EvidenceStrength = "strong" | "moderate" | "limited";
 
 export type EvidenceTag = "REAL_EVIDENCE" | "ILLUSTRATIVE" | "PRODUCT_LOGIC";
 
+/** Source-level provenance for an evidence-derived claim. */
+export interface ClaimCitation {
+  sourceTitle: string;
+  sourceUrl: string;
+  passage: string;
+  /** Source dimension. */
+  verificationStatus: string;
+  /** Relevance dimension. */
+  comparability: string;
+  /** Attribution dimension. */
+  outcomeAttribution: string;
+  recordId: string;
+  /** Fail-closed: true only for direct implementation + explicit attribution. */
+  supportsDirectOutcome: boolean;
+  /** Human-readable limitation when the claim cannot be presented as verified. */
+  limitation: string;
+}
+
 export interface ImpactMetric {
   label: string;
   value: string;
   detail: string;
   tag: EvidenceTag;
+  /** Present when the metric is traceable to a source record. */
+  citation?: ClaimCitation;
 }
 
 export interface Alternative {
