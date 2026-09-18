@@ -22,6 +22,14 @@ interface VerifiedRecord {
   organization: string;
   intervention: string;
   what_it_establishes: string;
+  flow?: {
+    problem?: string;
+    baseline?: { statement: string; passage: string };
+    intervention?: { statement: string; passage: string };
+    outcome?: { statement: string; passage: string };
+    attribution?: string;
+    attribution_passage?: string;
+  };
   metrics: VerifiedMetric[];
   source: { title: string; url: string; type: string; date: string };
   verification_status: string;
@@ -240,6 +248,51 @@ export default async function VerifiedBriefPage({
                       {e.source.type} · {e.source.date} ↗
                     </a>
                   </div>
+
+                  {/* Pre -> Intervention -> Post flow */}
+                  {e.flow?.baseline && e.flow?.outcome && (
+                    <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      <div className="border border-line bg-paper px-3.5 py-3">
+                        <p className="text-[9.5px] font-bold uppercase tracking-wide text-faint">
+                          Before
+                        </p>
+                        <p className="mt-1 text-[12.5px] font-medium leading-snug text-ink">
+                          {e.flow.baseline.statement}
+                        </p>
+                      </div>
+                      <div className="border border-ink/20 bg-accent-soft px-3.5 py-3">
+                        <p className="text-[9.5px] font-bold uppercase tracking-wide text-accent-deep">
+                          Intervention
+                        </p>
+                        <p className="mt-1 text-[12.5px] font-medium leading-snug text-ink">
+                          {e.flow.intervention?.statement || e.intervention}
+                        </p>
+                      </div>
+                      <div className="border border-line bg-surface px-3.5 py-3">
+                        <p className="text-[9.5px] font-bold uppercase tracking-wide text-faint">
+                          After
+                        </p>
+                        <p className="mt-1 text-[12.5px] font-medium leading-snug text-ink">
+                          {e.flow.outcome.statement}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {e.flow?.attribution && (
+                    <p className="mt-2 text-[10.5px] text-faint">
+                      Attribution:{" "}
+                      <span
+                        className={
+                          e.flow.attribution === "explicit"
+                            ? "font-bold text-[#14532d]"
+                            : "font-bold text-[#7a3b06]"
+                        }
+                      >
+                        {e.flow.attribution}
+                      </span>
+                      {e.flow.attribution_passage ? ` — “${e.flow.attribution_passage}”` : ""}
+                    </p>
+                  )}
 
                   <dl className="mt-4 flex flex-col gap-2.5">
                     {e.metrics.map((m) => (
